@@ -1,0 +1,52 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # 只在站点内容/本 workflow 变更时触发，避免 Go-only 提交白白跑 CI。
+      - "site/**"
+      - ".github/workflows/deploy-site.yml"
+  # 允许 Actions 页面手动触发（首次上线或重部署时用）。
+  workflow_dispatch:
+
+# gh-pages 分支写入需要 contents:write 权限。
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          # 显式指向 site 的 lockfile，避免误缓存其他目录的。
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: site
+
+      - name: Build static export
+        # next build → site/out/（output:'export'）。basePath /hwcloud 已
+        # 在 next.config.ts 配好，产物可直接服在 gh-pages 根。
+        run: npm run build
+        working-directory: site
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site/out
+          publish_branch: gh-pages
+          # 单 commit 历史，避免 gh-pages 累积每次部署的垃圾历史。
+          force_orphan: true
+          commit_message: "site: deploy ${{ github.sha }} [skip ci]"
