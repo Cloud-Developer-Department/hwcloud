@@ -1,0 +1,541 @@
+{
+  "name": "CreateDesktopBatchOrder",
+  "summary": "包周期桌面批量变更下单",
+  "tags": "订单",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/periodic/change/batch-order": {
+      "post": {
+        "tags": [
+          "Order"
+        ],
+        "summary": "包周期桌面批量变更下单",
+        "description": "包周期桌面批量变更下单。",
+        "operationId": "CreateDesktopBatchOrder",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "CreateDesktopBatchOrderRequestBody",
+            "description": "包周期桌面批量下单请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateBatchChangeOrderRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "包周期桌面批量下单响应体。",
+            "examples": {
+              "application/json": {
+                "orders": [
+                  {
+                    "order_id": "CS25052414519W9OP",
+                    "order_status": 6
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateBatchChangeOrderResponseBody"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "409": {
+            "description": "操作冲突。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:orders:change\",  needApigwJwtAuthCheck = false, needRbacCheck = false, authContextInitializerName = \"changeOrdersAuthContextInitializer\")",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"createBatchChangeOrder\", traceNameCn = \"包周期桌面批量变更下单\")"
+        ],
+        "x-request-examples-1": {
+          "type": "ADD_VOLUME",
+          "add_volume_param": {
+            "desktop_pool_id": "b046ac8e-0994-4c09-a8a8-bd989d218120",
+            "volume_type": "SAS",
+            "volume_size": 10
+          }
+        },
+        "x-request-examples-text-1": {
+          "type": "ADD_VOLUME",
+          "add_volume_param": {
+            "desktop_pool_id": "b046ac8e-0994-4c09-a8a8-bd989d218120",
+            "volume_type": "SAS",
+            "volume_size": 10
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "public,internal_token",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "EncryptType": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 255,
+      "description": "加密类型。\n- KEEP:保持原有加密状态\n- UNENCRYPTED:不加密\n- ENCRYPTED:加密(需同步上传kms_id)",
+      "enum": [
+        "KEEP",
+        "UNENCRYPTED",
+        "ENCRYPTED"
+      ],
+      "default": "KEEP"
+    },
+    "CreateBatchChangeOrderResponseBody": {
+      "type": "object",
+      "properties": {
+        "orders": {
+          "type": "array",
+          "description": "批量生成订单结果。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/OrderV5"
+          }
+        }
+      }
+    },
+    "CreateChangeImageOrderRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/EstimateChangeImageRequestBody"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "delay_time": {
+              "type": "integer",
+              "format": "int32",
+              "description": "立即重建时给用户预留的保存数据的时间(单位:分钟)。",
+              "minimum": 0,
+              "maximum": 15
+            },
+            "message": {
+              "type": "string",
+              "description": "下发重建系统盘任务时,给用户发送的提示信息。",
+              "minLength": 0,
+              "maxLength": 400
+            },
+            "encrypt_type": {
+              "$ref": "#/definitions/EncryptType"
+            },
+            "kms_id": {
+              "type": "string",
+              "description": "密钥ID,encrypt_type为ENCRYPTED时必传。",
+              "minLength": 0,
+              "maxLength": 255
+            },
+            "desktop_ids": {
+              "type": "array",
+              "description": "桌面id",
+              "items": {
+                "type": "string",
+                "description": "桌面id。",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "maxItems": 1000,
+              "minItems": 0,
+              "x-maxLength": 1000,
+              "x-minLength": 0
+            }
+          }
+        }
+      ],
+      "description": "包周期重建系统盘询价请求体。"
+    },
+    "EstimateAddVolumeRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BatchInquiryCommonInfo"
+        },
+        {
+          "required": [
+            "volume_size",
+            "volume_type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "desktop_pool_disk_id": {
+              "type": "string",
+              "description": "需要添加的的桌面池磁盘ID,修复不一致磁盘必传。",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "volume_type": {
+              "type": "string",
+              "description": "新增磁盘类型。",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "volume_size": {
+              "type": "integer",
+              "description": "新增磁盘大小。",
+              "minimum": 10,
+              "maximum": 8200
+            },
+            "iops": {
+              "type": "integer",
+              "description": "iops,云硬盘每秒进行读写的操作次数。",
+              "minimum": 0,
+              "maximum": 16380000
+            },
+            "throughput": {
+              "type": "integer",
+              "description": "吞吐量,云硬盘每秒成功传送的数据量,即读取和写入的数据量。",
+              "minimum": 0,
+              "maximum": 4095000
+            },
+            "kms_id": {
+              "type": "string",
+              "description": "如果磁盘加密,传递的密钥Id。",
+              "minLength": 0,
+              "maxLength": 255
+            }
+          }
+        }
+      ],
+      "description": "包周期桌面池添加磁盘、切换镜像询价请求体。"
+    },
+    "CreateDeleteSubResourcesOrderRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BatchInquiryCommonInfo"
+        },
+        {
+          "required": [
+            "sub_resource_type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sub_resource_type": {
+              "type": "string",
+              "description": "待删除附属资源类型:DESKTOP_SHARER(桌面协同资源)。",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        }
+      ],
+      "description": "包周期删除附属资源询价请求体。"
+    },
+    "EstimateResizeRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BatchInquiryCommonInfo"
+        },
+        {
+          "required": [
+            "product_id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "product_id": {
+              "type": "string",
+              "description": "目标规格产品ID。",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        }
+      ]
+    },
+    "CreateBatchChangeOrderRequestBody": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "下单类型。\n - ADD_VOLUME:增加磁盘\n - EXTEND_VOLUME:扩容磁盘\n - RESIZE:变更规格\n - CHANGE_IMAGE:切换镜像\n - ADD_SUB_RESOURCES:购买桌面协同资源\n - DELETE_SUB_RESOURCES:退订桌面协同资源",
+          "enum": [
+            "ADD_VOLUME",
+            "EXTEND_VOLUME",
+            "RESIZE",
+            "CHANGE_IMAGE",
+            "ADD_SUB_RESOURCES",
+            "DELETE_SUB_RESOURCES"
+          ]
+        },
+        "agency_urn": {
+          "type": "string",
+          "description": "授权给Billing服务的委托URN。使用RAM共享密钥创建包周期云桌面或添加包周期磁盘、重建系统时,需要传入该字段。",
+          "minLength": 0,
+          "maxLength": 1500
+        },
+        "add_volume_param": {
+          "$ref": "#/definitions/EstimateAddVolumeRequestBody"
+        },
+        "extend_volume_param": {
+          "$ref": "#/definitions/EstimateExtendVolumeRequestBody"
+        },
+        "resize_param": {
+          "$ref": "#/definitions/CreateResizeOrderRequestBody"
+        },
+        "change_image_param": {
+          "$ref": "#/definitions/CreateChangeImageOrderRequestBody"
+        },
+        "add_sub_resources_param": {
+          "$ref": "#/definitions/EstimateAddSubResourcesRequestBody"
+        },
+        "delete_sub_resources_param": {
+          "$ref": "#/definitions/CreateDeleteSubResourcesOrderRequestBody"
+        }
+      }
+    },
+    "EstimateExtendVolumeRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BatchInquiryCommonInfo"
+        },
+        {
+          "required": [
+            "desktop_pool_disk_id",
+            "new_size"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "desktop_pool_disk_id": {
+              "type": "string",
+              "description": "需要扩容的桌面池磁盘ID。",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "new_size": {
+              "type": "integer",
+              "description": "扩容后的磁盘大小,整池操作时必须大于当前桌面池模板值。",
+              "minimum": 10,
+              "maximum": 8200
+            }
+          }
+        }
+      ],
+      "description": "包周期扩容磁盘询价请求体。"
+    },
+    "CreateResizeOrderRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/EstimateResizeRequestBody"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "description": "是否支持开机状态下执行变更规格操作。固定传值STOP_DESKTOP,如果桌面处于开机状态,会先关机再变更规格。",
+              "minLength": 0,
+              "maxLength": 255
+            }
+          }
+        }
+      ],
+      "description": "包周期变更规格询价请求体。"
+    },
+    "EstimateAddSubResourcesRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BatchInquiryCommonInfo"
+        },
+        {
+          "required": [
+            "sub_resource_sku"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sub_resource_sku": {
+              "type": "string",
+              "description": "新增附属资源SKU码。",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        }
+      ],
+      "description": "包周期新增附属资源询价请求体。"
+    },
+    "EstimateChangeImageRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BatchInquiryCommonInfo"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "image_spec_code": {
+              "type": "string",
+              "description": "云市场镜像的specCode,即将停用。image_spec_code与image_id同时存在时取image_id的值,两者不可同时为空。",
+              "minLength": 0,
+              "maxLength": 255
+            },
+            "image_id": {
+              "type": "string",
+              "description": "云市场镜像ID,建议使用image_id。",
+              "minLength": 0,
+              "maxLength": 255
+            },
+            "image_type": {
+              "type": "string",
+              "description": "镜像类型。仅重建系统盘/更换镜像使用\n\n- private:私有镜像。\n- gold:公共镜像。",
+              "minLength": 1,
+              "maxLength": 55
+            }
+          }
+        }
+      ],
+      "description": "包周期桌面池由不收费镜像切换至收费镜像的询价请求体。"
+    },
+    "BatchInquiryCommonInfo": {
+      "properties": {
+        "desktop_pool_id": {
+          "type": "string",
+          "description": "桌面池ID。当desktop_pool_id与desktop_ids同时存在时,取desktop_ids的值,两者不可同时为空。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "desktop_ids": {
+          "type": "array",
+          "description": "包周期桌面ID列表。 不可同时存在普通桌面和池桌面ID。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 255
+          },
+          "x-type": "List<@Size(min=0, max=255) String>"
+        },
+        "promotion_plan_id": {
+          "type": "string",
+          "description": "促销计划ID。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "handle_type": {
+          "type": "string",
+          "description": "处理类型\n- ONLY_FOR_EXPAND:仅对新扩容桌面生效\n- FOR_EXPAND_AND_IDLE:对新扩容桌面与空闲桌面生效\n- FOR_EXPAND_AND_ALL:对新扩容桌面与已有全部桌面生效",
+          "minLength": 1,
+          "maxLength": 55,
+          "enum": [
+            "ONLY_FOR_EXPAND",
+            "FOR_EXPAND_AND_IDLE",
+            "FOR_EXPAND_AND_ALL"
+          ]
+        }
+      },
+      "description": "批量询价/下单公共参数。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    },
+    "OrderV5": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "订单id。",
+          "readOnly": true
+        },
+        "job_id": {
+          "type": "string",
+          "description": "jobId。",
+          "readOnly": true
+        },
+        "order_status": {
+          "type": "integer",
+          "description": "订单状态:0:初始化; 1:待审核; 2:待退款; 3:处理中; 4:已取消; 5:已完成; 6:待支付; 7:补偿中; 8:待审批; 9:待确认; 10:待发货; 11:待收货; 12:待上门取货; 13:换新中; 14:待商家收货。",
+          "readOnly": true
+        },
+        "result": {
+          "type": "string",
+          "description": "结果,SUCCESS:成功; FAIL:失败。",
+          "readOnly": true
+        },
+        "result_code": {
+          "type": "string",
+          "description": "result=FAIL时,必填,表示该订单失败原因。",
+          "readOnly": true
+        },
+        "result_msg": {
+          "type": "string",
+          "description": "失败信息,和result_code结对出现。",
+          "readOnly": true
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,334 @@
+{
+  "name": "ListAttackStatistic",
+  "summary": "查询攻击统计",
+  "tags": "日志分析",
+  "productshort": "CFW",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/cfw/logs/attack-statistic": {
+      "get": {
+        "tags": [
+          "Log Analysis"
+        ],
+        "summary": "查询攻击统计",
+        "description": "根据防火墙攻击日志,查询攻击统计信息",
+        "operationId": "ListAttackStatistic",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释**:\n项目ID,用于明确项目归属,配置后可通过该ID查询项目下资产,可以从调API处获取,也可以从控制台获取。[项目ID获取方式](cfw_02_0015.xml)\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 0
+          },
+          {
+            "name": "fw_instance_id",
+            "in": "query",
+            "description": "**参数解释**:\n防火墙ID,用户创建防火墙实例后产生的唯一ID,配置后可区分不同防火墙,可通过[防火墙ID获取方式](cfw_02_0028.xml)获取\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "description": "**参数解释**:\n时间范围 \n**约束限制**:\n不涉及\n**取值范围**:\n0为近一时 1近一天 2近七天  \n**默认取值**:\n不涉及",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "name": "log_type",
+            "in": "query",
+            "description": "**参数解释**:\n日志类型\n**约束限制**:\n不涉及\n**取值范围**:\ninternet为南北向日志、nat为nat场景日志,vpc为东西向日志,vgw为vgw场景日志\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "internet",
+              "nat",
+              "vpc",
+              "vgw"
+            ]
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "description": "**参数解释**:\n会话方向\n**约束限制**:\n不涉及\n**取值范围**:\nin2out为出云方向 out2in为入云方向\n**默认取值**:\n不涉及",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "in2out",
+              "out2in"
+            ]
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "**参数解释**:\n开始时间\n**约束限制**:\n不涉及\n**取值范围**:\n毫秒级时间戳\n**默认取值**:\n不涉及",
+            "required": false,
+            "type": "integer",
+            "maximum": 9007199254740992,
+            "minimum": 0,
+            "format": "int64"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "**参数解释**:\n结束时间\n**约束限制**:\n不涉及\n**取值范围**:\n毫秒级时间戳\n**默认取值**:\n不涉及",
+            "required": false,
+            "type": "integer",
+            "maximum": 9007199254740992,
+            "minimum": 0,
+            "format": "int64"
+          },
+          {
+            "name": "vgw_id",
+            "in": "query",
+            "description": "**参数解释**:\nVGW ID\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+            },
+            "maxItems": 10,
+            "minItems": 0
+          },
+          {
+            "name": "item",
+            "in": "query",
+            "description": "**参数解释**:\n聚合类型\n**约束限制**:\n不涉及\n**取值范围**:\ndst TOP攻击目的统计\nsrc TOP攻击来源统计\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "dst",
+              "src"
+            ]
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "**参数解释**:\n聚合条数\n**约束限制**:\n不涉及\n**取值范围**:\n0到100条\n**默认取值**:\n50",
+            "required": false,
+            "type": "integer",
+            "default": 50,
+            "maximum": 100,
+            "minimum": 1,
+            "format": "int32"
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "data": [
+                  {
+                    "apps": [
+                      {
+                        "count": 23,
+                        "item": "UDP-ANY"
+                      }
+                    ],
+                    "attack_count": 23,
+                    "attack_type": "Vulnerability Exploit Attack",
+                    "deny_count": 0,
+                    "dst_ports": [
+                      {
+                        "count": 23,
+                        "item": "9034"
+                      }
+                    ],
+                    "ip": "110.41.54.9",
+                    "latest_time": 1750675436000,
+                    "region_id": "US",
+                    "src_type": "out2in"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListAttackStatisticResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "CFW.00200007",
+                "error_msg": "时间范围错误"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://{Endpoint}/v1/a16df7cf1d094befa6bbc72cbf51e93a/cfw/logs/attack-statistic?fw_instance_id=a7df0f6c-da03-4511-ad0b-b17b589ff0ec&log_type=internet&item=src&range=0",
+        "x-request-examples-description-1": "查询项目ID为a16df7cf1d094befa6bbc72cbf51e93a防火墙ID为a7df0f6c-da03-4511-ad0b-b17b589ff0ec时间范围为1小时的TOP攻击来源统计",
+        "x-method-annotations": [
+          "@IamAuthMeta(rbac = {RoleConst.TE_ADMIN, RoleConst.OP_SERVICE, RoleConst.READ_ONLY, RoleConst.TE_ADMIN_RESTRICTED, RoleConst.TE_ADMIN_SUSPENDED}, needRbacCheck = false, needCbcCheck = false, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthAction(iam3Action = IamV3Action.GET_ATTACK_LOG_REPORT, iam5Action = CommonConstant.IAM5_GET_ATTACK_LOG_STATISTICS)",
+          "@IamAuthMetaV5(needCbcCheck = false, needAbacResourceCheck = true, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthParam(instanceId = \"fw_instance_id\")"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "TopInfo": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n次数\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "item": {
+          "type": "string",
+          "description": "**参数解释**:\n项\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "item_id": {
+          "type": "string",
+          "description": "**参数解释**:\n项ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        }
+      },
+      "title": "TopInfo"
+    },
+    "ListAttackStatisticResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "description": "**参数解释**:\n攻击日志统计\n**取值范围**:\n不涉及",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/AttackStatisticRespBody"
+          }
+        }
+      },
+      "title": "ListAttackStatisticResp"
+    },
+    "AttackStatisticRespBody": {
+      "type": "object",
+      "properties": {
+        "apps": {
+          "type": "array",
+          "description": "**参数解释**:\n应用列表\n**取值范围**:\n不涉及",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/TopInfo"
+          },
+          "maxItems": 100
+        },
+        "associated_name": {
+          "type": "string",
+          "description": "**参数解释**:\n绑定资源名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "associated_type": {
+          "type": "string",
+          "description": "**参数解释**:\n绑定资源类型\n**取值范围**:\nPORT:IPV4云服务器\nIPV6_PORT:IPV6云服务器",
+          "readOnly": true
+        },
+        "attack_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n攻击次数\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "attack_type": {
+          "type": "string",
+          "description": "**参数解释**:\n攻击类型\n**取值范围**:\nAccess Control:访问控制\nVulnerability scanning:漏洞扫描\nEmail attack:邮件攻击\nVulnerability Attack:漏洞攻击\nWeb attack:Web攻击\npassword attack:密码攻击\nHijacking attack:劫持攻击\nProtocol exception:协议异常\nTrojan horse:特洛伊木马",
+          "readOnly": true
+        },
+        "deny_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n拦截次数\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_ports": {
+          "type": "array",
+          "description": "**参数解释**:\n目的端口列表\n**取值范围**:\n不涉及",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/TopInfo"
+          },
+          "maxItems": 100
+        },
+        "ip": {
+          "type": "string",
+          "description": "**参数解释**:\nIP地址\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "latest_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n最近攻击时间\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "region_id": {
+          "type": "string",
+          "description": "**参数解释**:\n地区ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "region_name": {
+          "type": "string",
+          "description": "**参数解释**:\n地区名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_type": {
+          "type": "string",
+          "description": "**参数解释**:\n攻击来源类型\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "vgw_id": {
+          "type": "string",
+          "description": "**参数解释**:\nvgw Id\n**取值范围**:\n不涉及",
+          "readOnly": true
+        }
+      },
+      "title": "AttackStatisticRespBody"
+    },
+    "ErrorRsp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:\n错误描述\n**取值范围**:\n不涉及",
+          "readOnly": true
+        }
+      },
+      "description": "**参数解释**:\n失败时返回的错误信息\n**取值范围**:\n不涉及"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cfw.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

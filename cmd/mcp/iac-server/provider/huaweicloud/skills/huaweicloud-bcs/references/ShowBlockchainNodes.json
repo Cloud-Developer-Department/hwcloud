@@ -1,0 +1,222 @@
+{
+  "name": "ShowBlockchainNodes",
+  "summary": "查询节点信息",
+  "tags": "BCS管理",
+  "productshort": "BCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/blockchains/{blockchain_id}/nodes": {
+      "get": {
+        "x-secnario": "hws",
+        "x-api-type": "open",
+        "tags": [
+          "BCS管理"
+        ],
+        "summary": "查询节点信息",
+        "description": "查询指定服务实例节点信息",
+        "operationId": "ShowBlockchainNodes",
+        "x-order": 16,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的项目ID,一般为32位字符串",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "blockchain_id",
+            "in": "path",
+            "description": "blockchainID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "node_orgs": {
+                  "organization": {
+                    "org_msp_id": "328000cb35d8971e0b0388f6182f95eaa4100784MSP",
+                    "org_domain": "peer-328000cb35d8971e0b0388f6182f95eaa4100784.default.svc.cluster.local",
+                    "peers": {
+                      "peer-328000cb35d8971e0b0388f6182f95eaa4100784-0": {
+                        "channels": [
+                          "channel"
+                        ],
+                        "ip_port": "100.93.3.32:30605"
+                      },
+                      "peer-328000cb35d8971e0b0388f6182f95eaa4100784-1": {
+                        "channels": [
+                          "channel"
+                        ],
+                        "ip_port": "100.93.3.32:30606"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/NodesRes"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4006005",
+                "error_msg": "keyType error, keyType: blok not supported"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4010401",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4030403",
+                "error_msg": "No permissions to request this method"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4040404",
+                "error_msg": "Not Found:the url is not found"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.5000500",
+                "error_msg": "Internal Server Error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "Node": {
+      "type": "object",
+      "properties": {
+        "ip_port": {
+          "type": "string",
+          "description": "节点EIP信息"
+        },
+        "channels": {
+          "type": "array",
+          "description": "节点所在通道数组",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误"
+    },
+    "Org": {
+      "type": "object",
+      "properties": {
+        "org_msp_id": {
+          "type": "string",
+          "description": "组织MSP标识"
+        },
+        "org_domain": {
+          "type": "string",
+          "description": "组织域名"
+        },
+        "peers": {
+          "type": "object",
+          "description": "key:节点名称,value:节点详细信息",
+          "additionalProperties": {
+            "$ref": "#/definitions/Node"
+          }
+        }
+      }
+    },
+    "NodesRes": {
+      "type": "object",
+      "properties": {
+        "node_orgs": {
+          "type": "object",
+          "description": "key:组织名,value:组织详细信息",
+          "additionalProperties": {
+            "$ref": "#/definitions/Org"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

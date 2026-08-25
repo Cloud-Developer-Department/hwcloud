@@ -1,0 +1,211 @@
+{
+  "name": "AttachDynamicStorage",
+  "summary": "动态挂载Notebook存储",
+  "tags": "开发环境管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/notebooks/{instance_id}/storage": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-description-1": "动态挂载并行文件系统PFS。将并行文件系统PFS “pfs-name”中的“/dir/to/mount/”目录挂载到实例中指定的文件目录“/data/mnt/pfs/”。",
+        "x-request-examples-text-1": {
+          "category": "OBSFS",
+          "mount_path": "/data/mnt/pfs/",
+          "uri": "obs://pfs-name/dir/to/mount/"
+        },
+        "x-request-examples-1": {
+          "category": "OBSFS",
+          "mount_path": "/data/mnt/pfs/",
+          "uri": "obs://pfs-name/dir/to/mount/"
+        },
+        "x-request-examples-url-1": "POST /v1/{project_id}/notebooks/{instance_id}/storage",
+        "x-request-examples-url-2": "POST /v1/{project_id}/notebooks/{instance_id}/storage",
+        "x-request-examples-description-2": "动态挂载高性能弹性文件服务SFS Turbo。将高性能弹性文件服务SFS Turbo实例“efa18c35-72f1-48a3-b2f7-7615da361f1a”中的“/dir/to/mount/”目录挂载到实例中指定的文件目录“/data/mnt/efs/”。",
+        "x-request-examples-text-2": {
+          "category": "EFS",
+          "mount_path": "/data/mnt/efs/",
+          "uri": "efa18c35-72f1-48a3-b2f7-7615da361f1a.sfsturbo.internal:/dir/to/mount/",
+          "efs_id": "efa18c35-72f1-48a3-b2f7-7615da361f1a"
+        },
+        "x-request-examples-2": {
+          "category": "EFS",
+          "mount_path": "/data/mnt/efs/",
+          "uri": "efa18c35-72f1-48a3-b2f7-7615da361f1a.sfsturbo.internal:/dir/to/mount/",
+          "efs_id": "efa18c35-72f1-48a3-b2f7-7615da361f1a"
+        },
+        "tags": [
+          "动态挂载"
+        ],
+        "summary": "动态挂载Notebook存储",
+        "description": "动态挂载Notebook存储接口支持将存储动态挂载到运行中的Notebook实例的指定文件目录。调用该接口后,系统将在Notebook实例中**异步**挂载指定的存储实例,挂载完成后用户可在容器中以文件系统方式读写存储实例中的文件。若用户无权限访问指定实例或Notebook实例未运行,接口将返回相应的错误信息。\n\n支持的存储类型:\n- **对象存储 OBS**:适合直接使用OBS桶作为持久化存储进行AI开发和探索场景,但小文件频繁读写性能较差,**模型训练,大文件解压等场景慎用,此类场景可能会导致Notebook文件操作卡顿**。\n- **并行文件系统 PFS**:高性能对象存储文件系统,存储成本低,吞吐量大,能够快速处理高性能计算(HPC)工作负载,**但小文件频繁读写较弱。小文件频繁读写场景可能会导致Notebook文件操作卡顿**\n- **高性能弹性文件服务SFS Turbo**:仅支持专属资源池实例挂载,**挂载前需要在资源池网络管理界面中进行网络关联**,支持多个环境使用,可以在多个开发环境、开发环境和训练之间共享。适合探索、实验等非正式生产场景,但不适合重IO读写模型。",
+        "operationId": "AttachDynamicStorage",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dynamicMountReqest",
+            "description": "**参数解释**:动态挂载请求体。\n**约束限制**:不涉及。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DataVolumesReq"
+            }
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "**参数解释**:Notebook实例ID。ID格式为通用唯一识别码(Universally Unique Identifier,简称UUID),可通过调用[查询Notebook实例列表接口](https://support.huaweicloud.com/api-modelarts/ListNotebooks.html#section0)获取。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释**:用户项目ID,获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK。",
+            "schema": {
+              "$ref": "#/definitions/DataVolumesRes"
+            },
+            "examples": {
+              "application/json": {
+                "id": "91dd2d3f-2d92-475f-a375-04636af26cc9",
+                "category": "OBSFS",
+                "mount_path": "/data/mnt/pfs/",
+                "uri": "obs://pfs-name/dir/to/mount/",
+                "status": "MOUNTING"
+              }
+            }
+          },
+          "201": {
+            "description": "Created。"
+          },
+          "401": {
+            "description": "Unauthorized。"
+          },
+          "403": {
+            "description": "Forbidden。"
+          },
+          "404": {
+            "description": "Not Found。"
+          }
+        },
+        "x-api-type": "open-api",
+        "x-constraint": "暂无约束。",
+        "x-open-region-cloud": "hc,hk,fcs,fcs-super",
+        "x-publish-doc": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "DataVolumesReq": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "**参数解释**:动态挂载存储类型。\n**约束限制**:不涉及。\n**取值范围**:枚举类型,取值如下:\n- OBS:对象存储服务\n- OBSFS:并行文件系统PFS\n- EFS:高性能弹性文件服务SFS Turbo\n\n**默认取值**:无。",
+          "example": "OBSFS",
+          "enum": [
+            "OBS",
+            "OBSFS",
+            "EFS"
+          ],
+          "x-open-region-cloud": "hc"
+        },
+        "mount_path": {
+          "type": "string",
+          "example": "/data/mnt/path/",
+          "description": "**参数解释**:在Notebook实例中挂载的路径。\n**约束限制**:必须是/data目录的子目录。\n**取值范围**:限制长度为256个字符,必须在Notebook的/data/的子目录下。\n**默认取值**:无。",
+          "x-minLength": 0,
+          "x-maxLength": 256,
+          "x-open-region-cloud": "hc"
+        },
+        "uri": {
+          "type": "string",
+          "description": "**参数解释**:存储路径,示例:obs://modelarts/notebook/ 或 da669f6e-5591-4c10-b2a7-18d053a75677.sfsturbo.internal:/notebook。\n**约束限制**:并行文件系统PFS 或 高性能弹性文件服务SFS Turbo中合法的挂载路径。\n**取值范围**:限制长度为256个字符。\n**默认取值**:不涉及。",
+          "x-minLength": 0,
+          "x-maxLength": 256,
+          "example": "obs://modelarts/notebook/",
+          "x-open-region-cloud": "hc"
+        },
+        "efs_id": {
+          "type": "string",
+          "description": "**参数解释**:高性能弹性文件服务SFS Turbo实例id。\n**约束限制**:若category字段为EFS,则此字段必填。\n**取值范围**:合法UUID类型。\n**默认取值**:无",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "x-open-region-cloud": "hc"
+        }
+      },
+      "title": "DataVolumesReq",
+      "description": "动态挂载存储请求体。",
+      "required": [
+        "category",
+        "mount_path",
+        "uri"
+      ]
+    },
+    "DataVolumesRes": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "**参数解释**:存储类型。可选值为OBS/OBSFS/EFS。\n**取值范围**:不涉及。",
+          "example": "EFS",
+          "enum": [
+            "OBS",
+            "OBSFS",
+            "EFS"
+          ],
+          "x-open-region-cloud": "hk,hc"
+        },
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:动态挂载实例ID。\n**取值范围**:不涉及。"
+        },
+        "mount_path": {
+          "type": "string",
+          "example": "/data/mnt/path/",
+          "description": "**参数解释**:在Notebook实例中挂载的路径。\n**取值范围**:不涉及。",
+          "x-minLength": 0,
+          "x-maxLength": 256
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:动态挂载状态。\n**取值范围**:枚举类型,取值如下:\n- MOUNTING:挂载中\n- MOUNT_FAILED:挂载失败\n- MOUNTED:已挂载\n- UNMOUNTING:卸载中\n- UNMOUNT_FAILED:卸载失败\n- UNMOUNTED:卸载完成"
+        },
+        "uri": {
+          "type": "string",
+          "example": "obs://modelarts/notebook/",
+          "description": "**参数解释**:存储路径。\n**取值范围**:不涉及。",
+          "x-minLength": 0,
+          "x-maxLength": 256
+        },
+        "failure_reason": {
+          "type": "string",
+          "description": "**参数解释**:挂载失败原因,动态挂载状态为MOUNT_FAILED时返回。\n**取值范围**:不涉及。"
+        },
+        "efs_id": {
+          "type": "string",
+          "description": "**参数解释**:EFS存储实例ID。\n**取值范围**:不涉及。"
+        },
+        "mount_type": {
+          "type": "string",
+          "description": "**参数解释**:存储挂载类型。\n**取值范围**:枚举类型,取值如下:\n\n- STATIC:不支持在实例运行期间挂载以及卸载的存储\n- DYNAMIC:支持在实例运行期间挂载以及卸载的存储"
+        }
+      },
+      "title": "DataVolumesRes",
+      "description": "动态挂载响应体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

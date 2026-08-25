@@ -1,0 +1,269 @@
+{
+  "name": "RecognizeSeal",
+  "summary": "印章识别",
+  "tags": "印章识别",
+  "productshort": "OCR",
+  "region_id": "la-north-2",
+  "paths": {
+    "/v2/{project_id}/ocr/seal": {
+      "post": {
+        "tags": [
+          "印章识别"
+        ],
+        "summary": "印章识别",
+        "description": "检测和识别合同文件或常用票据中的印章,并可擦除和提取图片中的印章,通过JSON格式返回印章检测、识别、擦除和提取的结果。",
+        "operationId": "RecognizeSeal",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n用于获取操作API的权限。[获取Token接口](https://support.huaweicloud.com/api-ocr/ocr_03_0005.html)响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIINRwYJKoZIhvcNAQcCoIINODCCDTQCAQExDTALBglghkgBZQMEAgEwgguVBgkqhkiG...",
+            "x-order": 1
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](https://support.huaweicloud.com/api-ocr/ocr_03_0130.html)中获取。",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "Enterprise-Project-Id",
+            "in": "header",
+            "description": "企业项目ID。OCR支持通过企业项目管理(EPS)对不同用户组和用户的资源使用,进行分账。\n获取方法:进入“[企业项目管理](https://console.huaweicloud.com/eps/?region=cn-north-4#/projects/list)”页面,单击企业项目名称,在企业项目详情页获取Enterprise-Project-Id(企业项目ID)。\n企业项目创建步骤请参见用户指南。\n> 说明:\n创建企业项目后,在传参时,有以下三类场景。\n- 携带正确的ID,正常使用OCR服务,账单的企业项目会被分类到企业ID对应的企业项目中。\n- 携带格式正确但不存在的ID,正常使用OCR服务,账单的企业项目会显示对应不存在的企业项目ID。\n- 不携带ID或格式错误ID(包含特殊字符等),正常使用OCR服务,账单的企业项目会被分类到\"default\"中。",
+            "required": false,
+            "type": "string",
+            "x-order": 3
+          },
+          {
+            "in": "body",
+            "name": "RecognizeSealRequestBody",
+            "description": "This is a seal Body Object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SealRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应示例",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            },
+            "examples": {
+              "application/json": {
+                "result": {
+                  "seal_list": [
+                    {
+                      "words_block_list": [
+                        {
+                          "words": "1100000256848",
+                          "words_confidence": 0.9269
+                        },
+                        {
+                          "words": "中国建材集团有限公司",
+                          "words_confidence": 0.9999
+                        }
+                      ],
+                      "confidence": 0.9834,
+                      "location": [
+                        [
+                          262,
+                          321
+                        ],
+                        [
+                          447,
+                          321
+                        ],
+                        [
+                          447,
+                          507
+                        ],
+                        [
+                          262,
+                          507
+                        ]
+                      ],
+                      "type": "circle",
+                      "seal_image": "/9j/4AAQSkZJRgABAQAAAQABAAD..."
+                    }
+                  ],
+                  "erased_seal_image": "/9j/4AAQSkZJRgABAQAAAQABAA36K..."
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SealResponseBody"
+            }
+          },
+          "400": {
+            "description": "失败响应示例",
+            "examples": {
+              "application/json": {
+                "result": {
+                  "error_code": "AIS.0103",
+                  "error_msg": "The image size does not meet the requirements."
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SealErrorResponseBody"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "印章识别",
+        "x-order": 1,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-region-cloud": "hc",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/ocr/seal",
+        "x-request-examples-1": {
+          "data": "/9j/4AAQSkZJRgABAgEASABIAAD/4RFZRXhpZgAATU0AKgAAAA..."
+        },
+        "x-request-examples-description-1": "传入印章图片的base64编码进行文字识别",
+        "x-request-examples-url-2": "POST https://{endpoint}/v2/{project_id}/ocr/seal",
+        "x-request-examples-2": {
+          "url": "https://BucketName.obs.myhuaweicloud.com/ObjectName"
+        },
+        "x-request-examples-description-2": "传入印章证图片的url进行文字识别"
+      }
+    }
+  },
+  "definitions": {
+    "SealResponseBody": {
+      "required": [
+        "result"
+      ],
+      "properties": {
+        "result": {
+          "description": "调用成功时表示调用结果。\n\n调用失败时无此字段。",
+          "$ref": "#/definitions/SealResult"
+        }
+      },
+      "description": ""
+    },
+    "SealWordsBlockList": {
+      "properties": {
+        "words": {
+          "type": "string",
+          "description": "印章文本块。"
+        },
+        "words_confidence": {
+          "type": "number",
+          "format": "float",
+          "description": "印章文本块的置信度。"
+        }
+      }
+    },
+    "SealErrorResponseBody": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "调用失败时的错误码,具体请参见[错误码](https://support.huaweicloud.com/api-ocr/ocr_03_0028.html)。当出现错误码“ModelArts.4204”时,请参考[为什么调用API时提示“ModelArts.4204”?](https://support.huaweicloud.com/ocr_faq/ocr_01_0031.html)章节。\n调用成功时无此字段"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败时的错误信息。\n调用成功时无此字段。"
+        }
+      },
+      "description": ""
+    },
+    "SealResult": {
+      "properties": {
+        "seal_list": {
+          "type": "array",
+          "description": "印章信息列表。",
+          "items": {
+            "$ref": "#/definitions/SealList"
+          }
+        },
+        "erased_seal_image": {
+          "type": "string",
+          "description": "在输入图片基础上进行印章擦除后的base64编码图片。"
+        }
+      },
+      "description": ""
+    },
+    "SealRequestBody": {
+      "properties": {
+        "data": {
+          "type": "string",
+          "description": "该参数与url二选一。\n\n图片的Base64编码,要求单个图片、PDF文件其对应的Base64编码不超过10MB。文件在Base64编码后会大于文件原本大小,请注意做好边界判断,建议文件大小不超过7MB。\n图片最短边不小于15px,最长边不超过8192px。支持JPEG、JPG、PNG、BMP、GIF、TIFF、WEBP、PCX、ICO、PSD、PDF格式。\n图片Base64编码示例如/9j/4AAQSkZJRgABAg...,带有多余前缀会产生The image format is not supported报错。"
+        },
+        "url": {
+          "type": "string",
+          "description": "与data二选一。\n\n单个图片、PDF文件其对应的Base64编码不超过10MB。文件在Base64编码后会大于文件原本大小,请注意做好边界判断,建议文件大小不超过7MB。\n图片最短边不小于15px,最长边不超过8192px。支持JPEG、JPG、PNG、BMP、GIF、TIFF、WEBP、PCX、ICO、PSD、PDF格式。\n图片的URL路径,目前支持:\n- 公网http/https url\n- OBS提供的url,使用OBS数据需要进行授权。包括对服务授权、临时授权、匿名公开授权,详情参见[配置OBS访问权限](https://support.huaweicloud.com/api-ocr/ocr_03_0132.html)。\n> 说明:\n- 接口响应时间依赖于图片的下载时间,如果图片下载时间过长,会返回接口调用失败。\n- 请保证被检测图片所在的存储服务稳定可靠,推荐使用OBS服务存储图片数据。\n- url中不能存在中文字符,若存在,中文需要进行utf8编码。"
+        },
+        "return_seal_image": {
+          "type": "boolean",
+          "description": "是否返回提取的印章base64编码图片,可选值如下所示:\n- true:返回提取的印章图片base64编码\n- false:不返回提取的印章图片base64编码\n\n如果无该参数,系统默认不返回印章擦除后的图片。如果输入参数不是Boolean类型,则会报非法参数错误。"
+        },
+        "return_erased_seal_image": {
+          "type": "boolean",
+          "description": "是否返回印章擦除后的base64编码图片,可选值包括:\n- true:返回印章擦除后的图片base64编码\n- false:不返回印章擦除后的图片base64编码\n\n如果无该参数,系统默认不返回印章擦除后的图片。如果输入参数不是Boolean类型,则会报非法参数错误。"
+        },
+        "pdf_page_number": {
+          "type": "integer",
+          "format": "int32",
+          "description": "指定PDF页码识别。传入该参数时,则识别指定页码的内容。如果不传该参数,则默认识别第1页。"
+        }
+      },
+      "description": ""
+    },
+    "SealList": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "印章类型,当前支持circle(圆形章)、ellipse(椭圆章)、rectangle(方形章)、triangle(三角章)、rhombus(菱形章)五种。"
+        },
+        "seal_image": {
+          "type": "string",
+          "description": "提取的单个印章base64编码图片。"
+        },
+        "confidence": {
+          "type": "number",
+          "format": "float",
+          "description": "印章位置的置信度。"
+        },
+        "location": {
+          "type": "array",
+          "description": "印章位置,列表形式,包含印章区域四个顶点的二维坐标(x,y),坐标原点为图片左上角,x轴沿水平方向,y轴沿竖直方向。",
+          "items": {
+            "type": "array",
+            "description": "印章位置信息。",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "words_block_list": {
+          "type": "array",
+          "description": "印章文本块列表。",
+          "items": {
+            "$ref": "#/definitions/SealWordsBlockList"
+          }
+        }
+      },
+      "description": ""
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ocr.la-north-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

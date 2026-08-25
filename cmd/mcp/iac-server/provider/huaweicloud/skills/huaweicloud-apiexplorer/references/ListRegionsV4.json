@@ -1,0 +1,245 @@
+{
+  "name": "ListRegionsV4",
+  "summary": "获取region列表",
+  "tags": "API",
+  "productshort": "APIExplorer",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v4/regions": {
+      "get": {
+        "tags": [
+          "RegionServerV4"
+        ],
+        "summary": "获取region列表",
+        "description": "- 获取用户在该API有调试权限的region列表\n- 如果有身份认证信息,会返回租户在各region下的项目列表\n",
+        "operationId": "ListRegionsV4",
+        "parameters": [
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言类型 中文:zh-cn 英文:en-us",
+            "required": false,
+            "type": "string",
+            "default": "zh-cn",
+            "maxLength": 16,
+            "minLength": 5,
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ],
+            "x-example": "zh-cn",
+            "x-notgenerate": true
+          },
+          {
+            "name": "product_short",
+            "in": "query",
+            "description": "产品短名",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "api_name",
+            "in": "query",
+            "description": "api的英文名",
+            "required": false,
+            "type": "string",
+            "maxLength": 63,
+            "minLength": 1
+          },
+          {
+            "name": "info_version",
+            "in": "query",
+            "description": "yaml的版本信息,用来标记当前api对应的版本",
+            "required": false,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "region列表",
+            "examples": {
+              "application/json": {
+                "regions": [
+                  {
+                    "name": "br-iaas-odin1",
+                    "name_cn": "苏州-奥丁",
+                    "region_id": "br-iaas-odin1",
+                    "has_permission": false,
+                    "projects": {
+                      "project_id": "06057683af00d5762f2fc002c6fb95c9",
+                      "name": "br-iaas-odin1",
+                      "sub_projects": [
+                        {
+                          "project_id": "069a4de03780d2452fd2c00273504cf0",
+                          "name": "br-iaas-odin1_sdk"
+                        },
+                        {
+                          "project_id": "069a4d980600d5a22fc1c002ed308277",
+                          "name": "br-iaas-odin1_tempest_1"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "count": 5
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListRegions"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "APIEXPLORER.1000",
+                "error_msg": "The system is busy. Please try again later"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "DEV.00000003",
+                "error_msg": "Token expired."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "x-is-registered": "Y",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": "GET https://{endpoint}/v4/regions?product_short=ECS&api_name=NovaShowVersion"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 50
+        }
+      }
+    },
+    "Projects": {
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "description": "项目id",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "name": {
+          "type": "string",
+          "description": "项目名称",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "sub_projects": {
+          "type": "array",
+          "description": "子项目列表",
+          "items": {
+            "$ref": "#/definitions/SubProject"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        }
+      }
+    },
+    "RegionV2": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "cn-north-7",
+          "description": "region名字",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "name_cn": {
+          "type": "string",
+          "example": "华北-乌兰察布二零三",
+          "description": "region中文名",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "region_id": {
+          "type": "string",
+          "example": "cn-north-7",
+          "description": "区域id",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "has_permission": {
+          "type": "boolean",
+          "description": "用户是否有权限调用当前region下的API",
+          "default": false
+        },
+        "projects": {
+          "$ref": "#/definitions/Projects"
+        }
+      }
+    },
+    "ListRegions": {
+      "properties": {
+        "regions": {
+          "type": "array",
+          "description": "是List<RegionV2>类型的对象",
+          "items": {
+            "$ref": "#/definitions/RegionV2"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "count": {
+          "type": "integer",
+          "description": "总数",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      }
+    },
+    "SubProject": {
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "description": "子项目id",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "name": {
+          "type": "string",
+          "description": "子项目名称",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "apiexplorer.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,257 @@
+{
+  "name": "ApplyExecutionPlan",
+  "summary": "执行执行计划",
+  "tags": "资源编排-执行计划",
+  "productshort": "AOS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/execution-plans/{execution_plan_name}": {
+      "post": {
+        "tags": [
+          "Execution Plan"
+        ],
+        "summary": "执行执行计划",
+        "description": "执行执行计划(ApplyExecutionPlan)\n\n此API用于执行一个执行计划\n\n* 当执行请求接受后,执行计划状态将变为`APPLY_IN_PROGRESS`,后台会进行异步处理。\n* 当执行结束后,执行计划状态将变为`APPLIED`。\n* 用户可以调用GetStackMetadata查询资源栈的状态(status)来跟踪资源栈部署情况以及确认本次执行结果是否成功。\n* 执行执行计划时,用户将模板中定义的资源删除(包括Import定义的资源),会触发实际资源的删除。\n\n如果不希望通过执行计划进行部署操作,也可以选择调用DeployStack进行直接部署\n\n关于执行计划的过期失效:\n  1. 如果指定资源栈下有多个执行计划,则在执行某个执行计划后(无论结果是否成功),剩余所有的执行计划将过期失效;\n  2. 如果调用ApplyExecutionPlan时,指定的执行计划已经过期失效,则返回403\n\n如果资源栈状态处于非终态(即以`IN_PROGRESS`结尾,详细见下方)状态时,则不允许执行执行计划,并返回403。非终态状态包括但不限于以下状态:\n  * 正在部署(DEPLOYMENT_IN_PROGRESS)\n  * 正在删除(DELETION_IN_PROGRESS)\n  * 正在回滚(ROLLBACK_IN_PROGRESS)",
+        "operationId": "ApplyExecutionPlan",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "execution_plan_name",
+            "in": "path",
+            "description": "执行计划的名称。此名字在domain_id+区域+project_id+stack_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "in": "body",
+            "name": "ApplyExecutionPlanRequestBody",
+            "description": "ApplyExecutionPlan API的请求Body体",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/ApplyExecutionPlanRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "请求接受,异步处理",
+            "examples": {
+              "x-response-examples-1": {
+                "deployment_id": "07e21c3e-d33c-4513-9d0f-e9e673817772"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApplyExecutionPlanResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 用户无权限调用此API\n2. 资源栈状态非法\n3. 执行计划已过期失效",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "1. 资源栈不存在\n2. 执行计划不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "执行冲突,另一个请求正在操作此执行计划",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans/my_first_execution_plan",
+        "x-request-examples-description-1": "执行指定资源栈下的执行计划",
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans/my_first_execution_plan",
+        "x-request-examples-description-2": "执行指定资源栈下的执行计划,并提供资源栈id以校验是否与当前资源栈匹配",
+        "x-request-examples-2": {
+          "stack_id": "f689e9fd-97e7-4185-bd8a-7d5f708d45d7"
+        },
+        "x-request-examples-url-3": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans/my_first_execution_plan",
+        "x-request-examples-description-3": "执行指定资源栈下的执行计划,并提供执行计划id以校验是否与当前执行计划匹配",
+        "x-request-examples-3": {
+          "execution_plan_id": "fb5e781e-a27d-46e2-9954-242753857a9f"
+        },
+        "x-request-examples-url-4": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans/my_first_execution_plan",
+        "x-request-examples-description-4": "执行指定资源栈下的执行计划,并提供资源栈id和执行计划id以校验是否与当前资源栈匹配以及是否与当前执行计划匹配",
+        "x-request-examples-4": {
+          "stack_id": "f689e9fd-97e7-4185-bd8a-7d5f708d45d7",
+          "execution_plan_id": "fb5e781e-a27d-46e2-9954-242753857a9f"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DeploymentIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "deployment_id": {
+          "type": "string",
+          "description": "标识部署的唯一ID,此ID由资源编排服务在触发部署、回滚等操作时生成,为UUID。\n\n接受请求,进行异步处理。可以调用GetStackMetadata来获取异步请求的部署状态\n\n**注意:**\n* 部署资源栈后,资源编排服务持久化请求并立即返回,客户端不等待请求最终处理完成,用户无法实时感知请求处理结果\n* 资源编排服务最终会将异步部署请求排队,在服务端空闲的情况下逐个处理。用户最大等待时长为6小时"
+        }
+      },
+      "example": {
+        "deployment_id": "456db03f-e68d-40d4-b863-a3899749a786"
+      }
+    },
+    "StackIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_id": {
+          "type": "string",
+          "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400"
+        }
+      },
+      "example": {
+        "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "ApplyExecutionPlanRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ExecutionPlanIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackIdPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "ApplyExecutionPlanResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/DeploymentIdPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "ExecutionPlanIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "execution_plan_id": {
+          "type": "string",
+          "description": "执行计划(execution_plan)的唯一ID。\n\n此Id由资源编排服务在生成执行计划的时候生成,为UUID。\n\n由于执行计划名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的执行计划,删除,再重新创建一个同名执行计划。\n\n对于团队并行开发,用户可能希望确保,当前我操作的执行计划就是我认为的那个,而不是其他队友删除后创建的同名执行计划。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的执行计划所对应的ID都不相同,更新不会影响ID。如果给予的execution_plan_id和当前执行计划的ID不一致,则返回400\n\n**注意:**\n* 创建执行计划后,资源编排服务持久化请求并立即返回,客户端不等待请求最终处理完成,用户无法实时感知请求处理结果\n* 资源编排服务最终会将异步部署请求排队,在服务端空闲的情况下逐个处理。用户最大等待时长为1小时",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "execution_plan_id": "4abf1770-2760-4339-9c18-427fa115db6a"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

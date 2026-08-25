@@ -1,0 +1,224 @@
+{
+  "name": "ValidateSignature",
+  "summary": "验证签名",
+  "tags": "签名验签",
+  "productshort": "KMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/kms/verify": {
+      "post": {
+        "tags": [
+          "签名验签"
+        ],
+        "summary": "验证签名",
+        "description": "- 功能介绍:使用非对称密钥的私钥对消息或消息摘要进行签名验证。",
+        "x-constraint": "- 仅支持key_usage为SIGN_VERIFY的非对称密钥进行验签操作。\n- 使用SM2密钥签名时,仅支持对消息摘要签名。根据GBT32918国家标准,计算SM2签名值时,消息摘要不是对原始消息直接计算SM3摘要,而是对Z(A)和M的拼接值计算的摘要,其中M是待签名的原始消息,Z(A)是GBT32918中定义的用户A的杂凑值。",
+        "operationId": "ValidateSignature",
+        "produces": [
+          "application/json"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "ValidateSignatureRequestBody",
+            "in": "body",
+            "description": "VerifyRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VerifyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/VerifyResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f",
+                "signature_valid": "true"
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "认证失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "资源不存在,资源未找到",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "请求未完成。服务器从上游服务器收到一个无效的响应",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "网关超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f",
+          "signing_algorithm": "RSASSA_PKCS1_V1_5_SHA_256",
+          "signature": "jFUqQESGBc0j6k9BozzrP9YL4qk8/W9DZRvK6XXX...",
+          "message": "MmFiZWE0ZjI3ZGIxYTkzY2RmYmEzM2YwMTA1YmJjYw=="
+        }
+      }
+    }
+  },
+  "definitions": {
+    "VerifyResponseBody": {
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "description": "密钥ID。"
+        },
+        "signature_valid": {
+          "type": "string",
+          "description": "签名验证合法性,“true”表示验证签名合法,“false”表示验证签名非法。"
+        }
+      }
+    },
+    "VerifyRequestBody": {
+      "required": [
+        "key_id",
+        "message",
+        "signature",
+        "signing_algorithm"
+      ],
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "description": "密钥ID,36字节,满足正则匹配“^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$”。\n例如:0d0466b0-e727-4d9c-b35d-f84bb474a37f。"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "待签名的消息摘要或者消息,消息长度要求小于4096字节,使用Base64编码。"
+        },
+        "signature": {
+          "type": "string",
+          "minLength": 96,
+          "maxLength": 684,
+          "description": "待验证的签名值,使用Base64编码。"
+        },
+        "signing_algorithm": {
+          "type": "string",
+          "enum": [
+            "RSASSA_PSS_SHA_256",
+            "RSASSA_PSS_SHA_384",
+            "RSASSA_PSS_SHA_512",
+            "RSASSA_PKCS1_V1_5_SHA_256",
+            "RSASSA_PKCS1_V1_5_SHA_384",
+            "RSASSA_PKCS1_V1_5_SHA_512",
+            "ECDSA_SHA_256",
+            "ECDSA_SHA_384",
+            "ECDSA_SHA_512",
+            "SM2DSA_SM3"
+          ],
+          "description": "签名算法,枚举如下:\n - RSASSA_PSS_SHA_256\n - RSASSA_PSS_SHA_384\n - RSASSA_PSS_SHA_512\n - RSASSA_PKCS1_V1_5_SHA_256\n - RSASSA_PKCS1_V1_5_SHA_384\n - RSASSA_PKCS1_V1_5_SHA_512\n - ECDSA_SHA_256\n - ECDSA_SHA_384\n - ECDSA_SHA_512\n - SM2DSA_SM3"
+        },
+        "message_type": {
+          "type": "string",
+          "enum": [
+            "DIGEST",
+            "RAW"
+          ],
+          "maxLength": 4096,
+          "description": "消息类型,默认为“DIGEST”,枚举如下:\n - DIGEST 表示消息摘要\n - RAW 表示消息原文"
+        },
+        "sequence": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "请求消息序列号,36字节序列号。\n例如:919c82d4-8046-4722-9094-35c3c6524cff。"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "error": {
+          "description": "错误信息返回体。",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          }
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

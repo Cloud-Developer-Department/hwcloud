@@ -1,0 +1,223 @@
+{
+  "name": "ShowWorkflowInfo",
+  "summary": "查询工作流信息",
+  "tags": "Workflow",
+  "productshort": "DWR",
+  "region_id": "cn-north-9",
+  "paths": {
+    "/v3/{project_id}/workflows/{graph_name}": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "operationId": "ShowWorkflowInfo",
+        "summary": "查询工作流信息",
+        "description": "本接口用于根据工作流名称查询工作流详细信息。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "description": "项目ID。",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          {
+            "name": "graph_name",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "工作流名。名称必须以字母或数字开头,只能由字母、数字、下划线和中划线组成,长度小于等于64个字符。",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "maxLength": 16777216,
+            "minLength": 0
+          }
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "responses": {
+          "200": {
+            "description": "",
+            "examples": {
+              "application/json": {
+                "name": "test-graph",
+                "created_at": "2020-04-23T12:20:07.602Z",
+                "definition": {
+                  "agency": "agency",
+                  "event_defs": {
+                    "event1": {
+                      "event_source": "OBS",
+                      "trigger_bucket": "trigger-bucket-cnnorth5",
+                      "trigger_type": [
+                        "ObjectCreated:*"
+                      ],
+                      "trigger_prefix": "",
+                      "trigger_suffix": ".mp5"
+                    }
+                  },
+                  "states": {
+                    "end": {
+                      "type": "END"
+                    },
+                    "state1": {
+                      "start": true,
+                      "type": "DELAY",
+                      "payload_filter_in": "$",
+                      "payload_filter_out": "$",
+                      "time_delay": 300,
+                      "next_state": "end"
+                    }
+                  },
+                  "inputs": {
+                    "<paramter name>": {
+                      "value": "TCP",
+                      "template_parameter_name": "<template input param name>",
+                      "default": "TCP",
+                      "type": "string",
+                      "label": "label_name",
+                      "constraints": {
+                        "valid_values": [
+                          "TCP",
+                          "UDP"
+                        ]
+                      },
+                      "invisible": true,
+                      "description": "description param1"
+                    }
+                  },
+                  "mode": "NORMAL",
+                  "express_config": {
+                    "log_level": "NONE",
+                    "support_anonymous": true
+                  }
+                },
+                "graph_urn": "urn:fgs:<region_id>:<project_id>:graph:<graph_name>",
+                "description": "a graph demo",
+                "func_vpc": {
+                  "vpc_id": "string",
+                  "subnet_id": "string"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowWorkflowInfoRespBody"
+            },
+            "headers": {
+              "Content-Length": {
+                "description": "响应消息体的字节长度。",
+                "type": "string"
+              },
+              "Connection": {
+                "description": "指明与服务器的连接是长连接还是短连接。有效值:keep-alive | close。",
+                "type": "string"
+              },
+              "Date": {
+                "description": "OBS系统响应的时间。",
+                "type": "string"
+              },
+              "x-request-id": {
+                "description": "由DWR创建来唯一确定本次请求的值,可以通过该值来定位问题。",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/BasicError"
+            }
+          },
+          "404": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/BasicError"
+            }
+          },
+          "500": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/BasicError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ShowWorkflowInfoRespBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "工作流的名称。",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "created_at": {
+          "type": "string",
+          "description": "工作流的创建时间。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "definition": {
+          "type": "object",
+          "description": "工作流的定义。"
+        },
+        "graph_urn": {
+          "type": "string",
+          "description": "工作流的URN。"
+        },
+        "description": {
+          "type": "string",
+          "description": "工作流的描述。",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      },
+      "example": "HTTP/1.1 200 OK  Date: Thu, 27 Aug 2020 12:38:10 GMT  Content-Length: 100 Content-Type: application/json X-Request-ID: 6a63a18b8bab40ffb71ebd9cb80d0085  {     \"name\": \"test-graph\", \"created_at\": \"2020-04-23T12:20:07.602Z\",     \"definition\": { \"agency\": \"agency\",         \"event_defs\": {             \"event1\": {                 \"event_source\": \"OBS\",                 \"trigger_bucket\": \"trigger-bucket-cnnorth5\",                 \"trigger_type\": [\"ObjectCreated:*\"],                 \"trigger_prefix\": \"\", \"trigger_suffix\": \".mp5\"             }         },         \"states\": {             \"end\": {                 \"type\": \"END\" },             \"state1\": {                 \"start\": true, \"type\": \"DELAY\",                 \"payload_filter_in\": \"$\", \"payload_filter_out\": \"$\",                 \"time_delay\": 300,                 \"next_state\": \"end\"             }         }, \"inputs\": {             \"<paramter name>\": {                 \"value\": \"TCP\",                 \"template_parameter_name\": \"<template input param name>\",                 \"default\": \"TCP\",                 \"type\": \"string\",                 \"label\": \"label_name\", \"constraints\": \"{\\\"valid_values\\\":[\\\"TCP\\\",\\\"UDP\\\"]}\", \"invisible\": true,                 \"description\": \"description param1\"             }         }     },     \"graph_urn\": \"urn:fgs:<region_id>:<project_id>:graph:<graph_name>\",     \"description\": \"a graph demo\" }"
+    },
+    "BasicError": {
+      "type": "object",
+      "description": "错误信息",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误详细描述",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_code": {
+          "type": "integer",
+          "description": "简单错误码",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求唯一标识ID",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dwr-lms.cn-north-9.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

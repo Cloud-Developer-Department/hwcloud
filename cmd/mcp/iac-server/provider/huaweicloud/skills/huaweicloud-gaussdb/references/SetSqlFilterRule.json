@@ -1,0 +1,270 @@
+{
+  "name": "SetSqlFilterRule",
+  "summary": "设置SQL限流规则",
+  "tags": "流量管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/sql-filter/rules": {
+      "put": {
+        "tags": [
+          "流量管理"
+        ],
+        "operationId": "SetSqlFilterRule",
+        "summary": "设置SQL限流规则",
+        "description": "设置SQL限流规则。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID。",
+            "type": "string",
+            "x-example": "af315b8e6aaa41799bd9a31f2de15abcin07",
+            "required": true
+          },
+          {
+            "name": "OperateSqlFilterRuleReq",
+            "in": "body",
+            "description": "请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OperateSqlFilterRuleReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/OperateSqlFilterRuleRsp"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "aef6a470-fb63-4d5b-b644-12ead7e019b3"
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "设置SQL限流规则,限流类型为SELECT、UPDATE、DELETE。",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/af315b8e6aaa41799bd9a31f2de15abcin07/sql-filter/rules",
+        "x-request-examples-1": {
+          "sql_filter_rules": [
+            {
+              "node_id": "c01a5645eb2c4fb6a9373542f5366e50no07",
+              "rules": [
+                {
+                  "sql_type": "SELECT",
+                  "patterns": [
+                    {
+                      "pattern": "select~from~t1",
+                      "max_concurrency": "0,",
+                      "expire_at": null
+                    },
+                    {
+                      "pattern": "select~from~t3~where~id",
+                      "max_concurrency": 10,
+                      "expire_at": null
+                    }
+                  ]
+                },
+                {
+                  "sql_type": "UPDATE",
+                  "patterns": [
+                    {
+                      "pattern": "update~t3~where~id",
+                      "max_concurrency": 10,
+                      "expire_at": null
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "node_id": "b234a5645eb2c4ji3b9372342f5362397no07",
+              "rules": [
+                {
+                  "sql_type": "SELECT",
+                  "patterns": [
+                    {
+                      "pattern": "select~from~t3~where~id",
+                      "max_concurrency": 10,
+                      "expire_at": 1752461737985
+                    }
+                  ]
+                },
+                {
+                  "sql_type": "DELETE",
+                  "patterns": [
+                    {
+                      "pattern": "delete~t3~where~id",
+                      "max_concurency": 10,
+                      "expire_at": 1752461737985
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "NodeSqlFilterRuleInfo": {
+      "description": "节点级别的SQL限流规则。",
+      "required": [
+        "node_id",
+        "rules"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "节点ID",
+          "example": "c01a5645eb2c4fb6a9373542f5366e50no07"
+        },
+        "rules": {
+          "type": "array",
+          "description": "SQL限流规则。集合的sql_type值不能重复。",
+          "items": {
+            "$ref": "#/definitions/NodeSqlFilterRule"
+          }
+        }
+      }
+    },
+    "NodeSqlFilterRulePattern": {
+      "description": "SQL限流规则和最大并发数",
+      "required": [
+        "pattern",
+        "max_concurrency",
+        "expire_at"
+      ],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "SQL限流规则,由一个或多个关键字(最多为128个关键字)组成,关键字之间通过\"~\"分隔符分开,如select~from~t1。规则中不能包含‘\\’、中英文逗号、‘~~’,不能以‘~’结尾。"
+        },
+        "max_concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大并发数。取值范围:非负整数。"
+        },
+        "expire_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n\nSQL限流失效时间,标准秒级时间戳,永久生效SQL限流规则该字段为null。\n\n**约束限制**:\n\n不涉及。\n\n**取值范围**:\n\n0 - 9223372036854775807。\n\n**默认取值**:\n\n不涉及。"
+        }
+      }
+    },
+    "NodeSqlFilterRule": {
+      "description": "SQL限流规则。",
+      "required": [
+        "sql_type",
+        "patterns"
+      ],
+      "properties": {
+        "sql_type": {
+          "type": "string",
+          "description": "Sql限流类型。\n\n取值范围:\n- SELECT\n- UPDATE\n- DELETE",
+          "example": "SELECT"
+        },
+        "patterns": {
+          "type": "array",
+          "description": "SQL限流具体规则。",
+          "items": {
+            "$ref": "#/definitions/NodeSqlFilterRulePattern"
+          }
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    },
+    "OperateSqlFilterRuleReq": {
+      "required": [
+        "sql_filter_rules"
+      ],
+      "description": "- 开启/关闭sql限流参数体。",
+      "properties": {
+        "sql_filter_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeSqlFilterRuleInfo"
+          }
+        }
+      }
+    },
+    "OperateSqlFilterRuleRsp": {
+      "required": [
+        "job_id"
+      ],
+      "description": "设置SQL限流规则任务ID",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "设置SQL限流规则任务ID。",
+          "example": "aef6a470-fb63-4d5b-b644-12ead7e019b3"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "put",
+  "uri": null
+}

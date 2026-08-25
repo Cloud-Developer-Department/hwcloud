@@ -1,0 +1,424 @@
+{
+  "name": "CreateVideoJob",
+  "summary": "创建作业",
+  "tags": "视频内容审核",
+  "productshort": "VCM",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/services/video-moderation/tasks": {
+      "post": {
+        "tags": [
+          "视频内容审核"
+        ],
+        "summary": "创建作业",
+        "operationId": "CreateVideoJob",
+        "description": "该接口用于创建视频内容审核的作业。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "用户的project_id\n\n登录华为云 -> 用户中心 -> 我的凭证 -> api凭证\n即可查看对应区域的项目ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 1
+          },
+          {
+            "in": "body",
+            "name": "CreateVideoJobRequestBody",
+            "description": "创建作业请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateVideoJobReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应示例",
+            "examples": {
+              "application/json": [
+                {
+                  "id": "5b91ba1e10404c35a2a0d328e5dcaeaa"
+                }
+              ]
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateVideoJobResponseBody"
+            }
+          },
+          "400": {
+            "description": "失败响应示例",
+            "examples": {
+              "application/json": {
+                "error_code": "IVA.0003",
+                "error_msg": "Request body is not a valid json object."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "使用obs对象",
+        "x-request-examples-url-1": "POST /v2/{project_id}/services/video-moderation/tasks",
+        "x-request-examples-1": {
+          "name": "task-test",
+          "description": "description",
+          "input": {
+            "type": "obs",
+            "data": [
+              {
+                "bucket": "obs-iva",
+                "index": 0,
+                "path": "input/demo.mp4"
+              }
+            ]
+          },
+          "output": {
+            "obs": {
+              "bucket": "obs-iva",
+              "path": "output/"
+            }
+          },
+          "service_config": {
+            "common": {
+              "frame_interval": 5,
+              "categories": "porn,terrorism,politics",
+              "text_categories": "porn,politics",
+              "upload": "false",
+              "use_ocr": "true",
+              "use_sis": "true"
+            }
+          },
+          "service_version": "1.2"
+        },
+        "x-apigateway-request-type": "public"
+      }
+    }
+  },
+  "definitions": {
+    "Output": {
+      "type": "object",
+      "description": "结果数据的输出列表",
+      "properties": {
+        "obs": {
+          "$ref": "#/definitions/OutputObs"
+        },
+        "hosting": {
+          "description": "托管输出位置",
+          "type": "object",
+          "properties": {
+            "obs": {
+              "$ref": "#/definitions/OutputHostingObs"
+            },
+            "result_json_overdue_at": {
+              "type": "string",
+              "description": "托管文件result.json的过期日期,文件默认保存48小时。\nresult.json文件生成且未过期时,会有这个字段。"
+            },
+            "check_obs_after_end_state": {
+              "type": "boolean",
+              "description": "True表示校验obs。"
+            }
+          }
+        },
+        "dis": {
+          "type": "object",
+          "description": "DIS通道配置。",
+          "properties": {
+            "stream_name": {
+              "type": "string",
+              "description": "DIS通道名。"
+            },
+            "data_category": {
+              "type": "string",
+              "description": "作业输出数据类别的列表,默认值为[]。有这个列表时,表示希望这个输出结果中存放dataCategory列表内的数据。\n取值范围为[FaceImage,OriginImage]。\n- FaceImage:表示发送人脸图。 - OriginImage:表示发送原始图。"
+            }
+          }
+        },
+        "webhook": {
+          "type": "object",
+          "description": "Webhook地址配置。",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "URL地址"
+            },
+            "headers": {
+              "type": "string",
+              "description": "header参数设置(键值均为用户设置)。"
+            },
+            "data_category": {
+              "type": "string",
+              "description": "作业输出数据类别的列表,默认值为[]。有这个列表时,表示希望这个输出结果中存放dataCategory列表内的数据。\n取值范围为[FaceImage,OriginImage]。\n- FaceImage:表示发送人脸图。 - OriginImage:表示发送原始图。"
+            }
+          }
+        },
+        "localpath": {
+          "type": "object",
+          "description": "LOCALPATH输出类型。",
+          "properties": {
+            "mount_source_path": {
+              "type": "string",
+              "description": "挂载源路径,存放作业运行结果的路径,必须为linux路径,且最大长度为255,例如“/home”。"
+            },
+            "data_category": {
+              "type": "string",
+              "description": "作业输出数据类别的列表,默认值为[]。有这个列表时,表示希望这个输出结果中存放dataCategory列表内的数据。\n取值范围为[FaceImage,OriginImage]。\n- FaceImage:表示发送人脸图。 - OriginImage:表示发送原始图。"
+            }
+          }
+        }
+      }
+    },
+    "ServiceConfig": {
+      "description": "服务算法配置",
+      "type": "object",
+      "properties": {
+        "common": {
+          "type": "object",
+          "description": "服务算法配置",
+          "properties": {
+            "frame_interval": {
+              "type": "integer",
+              "description": "截帧时间间隔,单位为秒/帧。\n",
+              "example": "5"
+            },
+            "categories": {
+              "type": "string",
+              "description": "视频检测场景。\n\npolitics:政治人物的检测。\nterrorism:暴恐元素的检测。\nporn:涉黄内容元素的检测。\n可通过配置上述场景,来完成对应场景元素的检测。\n\n说明:\n如需配置多个检测场景,则将多个场景名称使用英文半角逗号拼接。例如,\"categories\": \"politics,terrorism,porn\"\n",
+              "example": "porn,politics"
+            },
+            "text_categories": {
+              "type": "string",
+              "description": "语音或文字审核服务的检测场景,目前主要支持以下几种:\n\npolitics:政治人物的检测。\nporn:涉黄内容元素的检测。\nad:广告的检测。\nabuse:辱骂内容元素的检测。\ncontraband:违禁品的检测\nflood:灌水内容元素的检测。\n当使用语音或文字检测服务时,这里应当设置出对应的场景。\n\n说明:\n如需配置多个检测场景,则将多个场景名称使用英文半角逗号拼接。例如,\"text_categories\": \"politics,porn\"。\n",
+              "example": "abuse,porn"
+            },
+            "use_sis": {
+              "description": "是否使用语音审核服务。\n\ntrue:使用\nfalse:不使用\n当不设置该参数或参数为空时,默认为不使用。\n",
+              "type": "string",
+              "example": "false"
+            },
+            "use_ocr": {
+              "type": "string",
+              "description": "是否使用文字审核服务。\n\ntrue:使用\nfalse:不使用\n当不设置该参数或参数为空时,默认为不使用。\n",
+              "example": "false"
+            },
+            "upload": {
+              "description": "是否使用问题场景图片上传服务。\n\ntrue:使用\nfalse:不使用\n当不设置该参数或参数为空时,默认为不使用。\n\n当使用该服务时,必须设置obs输出目录,否则图片无法上传。问题图片会自动上传至输出路径/task_id目录下。\n",
+              "type": "string",
+              "example": "false"
+            }
+          }
+        }
+      }
+    },
+    "InputVcn": {
+      "type": "object",
+      "description": "当type是vcn是,vcn输入参数",
+      "properties": {
+        "ip": {
+          "type": "string",
+          "description": "vcn服务器的IP地址。"
+        },
+        "port": {
+          "type": "string",
+          "description": "vcn服务器的端口号。"
+        },
+        "username": {
+          "type": "string",
+          "description": "vcn服务器的账号名。"
+        },
+        "password": {
+          "type": "string",
+          "description": "vcn服务器与上述账号对应的密码。"
+        }
+      }
+    },
+    "CreateVideoJobReq": {
+      "description": "创建作业请求体",
+      "required": [
+        "name",
+        "input",
+        "output",
+        "service_version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "作业名称,只能由中文、字母(a~zA~Z)、数字(0~9)、中划线(-)、下划线(_)组成,长度范围为[1,100]。"
+        },
+        "description": {
+          "type": "string",
+          "description": "作业描述信息,最大长度为500字符长度。"
+        },
+        "input": {
+          "required": [
+            "type",
+            "data"
+          ],
+          "type": "object",
+          "description": "视频数据的输入列表,目前只支持以下输入类型,且只支持一路输入,不支持多个OBS文件或URL:\n- obs:从华为云OBS中读取视频数据。\n- url:从指定的URL地址中读取视频数据。\n- edgecamera:表示从指定的边缘摄像头读取数据。\n- vis:从视频接入服务中读取视频数据。\n- edgerestful:表示从客户自定义的流媒体服务器读取数据。\n- vcn :表示从华为云VCN中读取视频数据。\n",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "视频数据的输入类型:\n\nobs:表示从华为云OBS中读取视频数据。\nurl:表示从指定的URL地址中读取视频数据。\nedgecamera:表示从指定的边缘摄像头读取数据。\nvis:从视频接入服务中读取视频数据。\nedgerestful:表示从客户自定义的流媒体服务器读取数据。\nvcn :表示从华为云VCN中读取视频数据。\n",
+              "enum": [
+                "obs",
+                "url",
+                "edgecamera",
+                "vis",
+                "edgerestful",
+                "vcn"
+              ]
+            },
+            "data": {
+              "type": "array",
+              "description": "数据输入内容",
+              "items": {
+                "$ref": "#/definitions/InputData"
+              }
+            },
+            "vcn": {
+              "$ref": "#/definitions/InputVcn"
+            }
+          }
+        },
+        "output": {
+          "$ref": "#/definitions/Output"
+        },
+        "service_config": {
+          "$ref": "#/definitions/ServiceConfig"
+        },
+        "service_version": {
+          "description": "功能版本为“1.2”。",
+          "type": "string",
+          "example": "1.2"
+        }
+      }
+    },
+    "OutputHostingObs": {
+      "type": "object",
+      "description": "结果文件result.json的OBS信息。",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "obs桶名称",
+          "example": "video-test"
+        },
+        "path": {
+          "type": "string",
+          "description": "输出obs路径",
+          "example": "output/"
+        }
+      }
+    },
+    "CreateVideoJobResponseBody": {
+      "type": "array",
+      "description": "创建作业返回数据",
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "作业ID"
+          }
+        }
+      }
+    },
+    "InputData": {
+      "type": "object",
+      "description": "视频数据输入列表",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "type为obs时输入参数\n\nOBS桶名称。\n"
+        },
+        "path": {
+          "type": "string",
+          "description": "type为obs时输入参数\n\nOBS桶内的路径,例如“output/c1.mp4”。\n"
+        },
+        "url": {
+          "type": "string",
+          "description": "type为url或edgerestful时输入参数\n\ntype为url时表示视频数据的URL,目前支持OBS URL,且需要设置该URL对匿名用户可读权限。\ntype为edgerestful时表示容器获取EDGERESTFUL流的rest请求。格式:http(s):ip:port/xxx。\n"
+        },
+        "id": {
+          "type": "string",
+          "description": "type为edgecamera时输入参数\n\n边缘摄像头id。\n"
+        },
+        "stream_name": {
+          "type": "string",
+          "description": "type为vis时输入参数\n\n视频接入服务中的视频流名称。\n"
+        },
+        "node_id": {
+          "type": "string",
+          "description": "type为edgerestful或vcn时输入参数\n\n用于运行的边缘节点id, 下发边缘多任务作业时该字段不填写。\n"
+        },
+        "certificate_check": {
+          "type": "boolean",
+          "description": "type为edgerestful时输入参数\n\ntrue:算法侧需要对https请求进行证书校验。\nfalse:算法侧无需证书校验。\n默认值:false。\n平台侧仅对齐进行输入校验,不涉及业务逻辑。\n"
+        },
+        "rtsp_path_in_response": {
+          "type": "string",
+          "description": "type为edgerestful时输入参数\n\n返回body体中edgerestful流地址的路径,不能以/开头。例如:data/url。\n"
+        },
+        "device_id": {
+          "type": "string",
+          "description": "type为vcn时输入参数\n\n设备id号,符合正则表达式:^([0-9]{20}[#]{1}[a-zA-Z0-9]{32})|([0-9]{20}[#]{1}[0-9]{1,10}[#]{1}[a-zA-Z0-9]{32})$。\n"
+        }
+      }
+    },
+    "OutputObs": {
+      "description": "obs输出位置",
+      "type": "object",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "example": "video-test",
+          "description": "存储结果文件的OBS桶名。"
+        },
+        "path": {
+          "type": "string",
+          "example": "output/",
+          "description": "结果文件的OBS桶内路径,例如“output/”。"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iva.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,430 @@
+{
+  "name": "ListUserJob",
+  "summary": "获取用户所属空间的作业列表",
+  "tags": "作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/jobs": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-interface-name": "IJobController",
+        "tags": [
+          "作业管理"
+        ],
+        "summary": "获取用户所属空间的作业列表",
+        "description": "获取用户所属空间的作业列表。",
+        "operationId": "ListUserJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。 Token认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](ai4s_03_0011.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](ai4s_03_0023.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "is_creator",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "default": true,
+            "description": "是否仅展示本人创建资源。"
+          },
+          {
+            "name": "job_name",
+            "in": "query",
+            "description": "作业名称,取值范围:长度为[1,63],以小写字母开头,允许出现中划线(-)、小写字母和数字,且必须以小写字母或数字结尾。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "eihealth_project_names",
+            "in": "query",
+            "required": false,
+            "description": "空间名称列表,多个值之间使用逗号分隔。",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "minItems": 0,
+            "maxItems": 10
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "description": "作业类型列表,支持workflow|app。",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-enum-type": "ToolType"
+            },
+            "minItems": 0,
+            "maxItems": 2
+          },
+          {
+            "name": "status_list",
+            "in": "query",
+            "required": false,
+            "description": "作业运行状态列表,支持Succeeded|Running|Pending|Failed|Cancelling|Cancelled|Unknown。",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-enum-type": "QueryJobStatus"
+            },
+            "minItems": 0,
+            "maxItems": 10
+          },
+          {
+            "name": "labels",
+            "in": "query",
+            "required": false,
+            "description": "标签列表。",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[\\一-\\龥\\sA-Za-z0-9-_]*$",
+              "maxLength": 32,
+              "minLength": 1,
+              "x-pattern-message": "labels is illegal"
+            },
+            "minItems": 0,
+            "maxItems": 5
+          },
+          {
+            "name": "start_create_time",
+            "in": "query",
+            "description": "开始创建时间。",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1000000000000,
+            "maximum": 9999999999999
+          },
+          {
+            "name": "end_create_time",
+            "in": "query",
+            "description": "结束创建时间。",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1000000000000,
+            "maximum": 9999999999999
+          },
+          {
+            "name": "start_finish_time",
+            "in": "query",
+            "description": "开始完成时间。",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1000000000000,
+            "maximum": 9999999999999
+          },
+          {
+            "name": "end_finish_time",
+            "in": "query",
+            "description": "结束完成时间。",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1000000000000,
+            "maximum": 9999999999999
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "description": "排序规则,默认根据创建时间降序,支持create_time|finish_time。",
+            "required": false,
+            "type": "string",
+            "x-enum-type": "QueryJobSortKey"
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "排序规则,目前默认时间降序。",
+            "required": false,
+            "type": "string",
+            "default": "DESC",
+            "x-enum-type": "SortDir"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "限制量,单次查询总量,必须由数字组成,默认为100,取值范围[1,1000]。",
+            "required": false,
+            "type": "integer",
+            "default": 100,
+            "maximum": 1000,
+            "minimum": 1
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,查询起始偏移,必须由数字组成,默认为0,取值范围[0,100000000]。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 100000000,
+            "minimum": 0
+          }
+        ],
+        "x-request-examples-description-1": "查询用户所属空间的作业列表。",
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/jobs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListJobRsp"
+            },
+            "examples": {
+              "application/json": {
+                "jobs": [
+                  {
+                    "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                    "name": "demo-job",
+                    "eihealth_project_id": "project-id",
+                    "eihealth_project_name": "demo-project",
+                    "description": "description",
+                    "priority": 0,
+                    "timeout": 1440,
+                    "output_dir": "/job",
+                    "status": "SUCCEEDED",
+                    "create_time": "2021-01-30T02:34:36Z",
+                    "finish_time": "2021-01-30T02:53:26Z",
+                    "user_name": "gwj-test-01",
+                    "tool_info": {
+                      "tool_id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                      "tool_name": "demo-workflow",
+                      "tool_version": "1.0.0",
+                      "tool_type": "workflow"
+                    },
+                    "still_running_tasks": [
+                      "task1",
+                      "task2"
+                    ]
+                  }
+                ],
+                "count": 1
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "ListJobRsp": {
+      "type": "object",
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "description": "作业列表。",
+          "items": {
+            "$ref": "#/definitions/JobListDto"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "作业总数。"
+        },
+        "running_count": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "运行中作业总数。"
+        },
+        "waiting_count": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "等待中作业总数。"
+        }
+      },
+      "description": "查询作业列表响应体。"
+    },
+    "ToolInfoDto": {
+      "type": "object",
+      "properties": {
+        "tool_id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业依赖的组件id"
+        },
+        "tool_name": {
+          "type": "string",
+          "example": "demo-workflow",
+          "description": "作业依赖的组件名称"
+        },
+        "tool_version": {
+          "type": "string",
+          "example": "1.0.0",
+          "description": "作业依赖的组件版本"
+        },
+        "tool_type": {
+          "type": "string",
+          "example": "workflow",
+          "description": "作业依赖的组件类型,取值范围app|workflow"
+        }
+      }
+    },
+    "JobListDto": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "description": "作业的名称,取值范围:[1,63],允许大小写字母、数字、以及特殊字符中划线(-)"
+        },
+        "eihealth_project_id": {
+          "type": "string",
+          "example": "demo_id",
+          "description": "**参数解释**:\n作业所属空间ID。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        },
+        "eihealth_project_name": {
+          "type": "string",
+          "example": "demo_name",
+          "description": "**参数解释**:\n作业所属空间名称。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        },
+        "description": {
+          "type": "string",
+          "example": "description",
+          "description": "作业的描述,取值范围:输入字符最大长度为255"
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "作业标签",
+          "items": {
+            "type": "string"
+          }
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "作业优先级,[0,9],0表示最低,默认0"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1440,
+          "description": "作业执行超时时长,取值范围: [1, 144000],单位:分钟,默认数值1440",
+          "minimum": 1,
+          "maximum": 144000,
+          "exclusiveMinimum": false,
+          "exclusiveMaximum": false
+        },
+        "output_dir": {
+          "type": "string",
+          "example": "/job",
+          "description": "job结果存储目录,不指定则在workflow的工作目录下生产job同名子目录,指定则已指定路径为准"
+        },
+        "status": {
+          "type": "string",
+          "example": "SUCCEEDED",
+          "description": "作业状态"
+        },
+        "create_time": {
+          "type": "string",
+          "example": "2021-01-30T02:34:36Z",
+          "description": "作业创建时间"
+        },
+        "start_time": {
+          "type": "string",
+          "example": "2021-01-30T02:53:26Z",
+          "description": "**参数解释**:\n作业开始时间。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        },
+        "finish_time": {
+          "type": "string",
+          "example": "2021-01-30T02:53:26Z",
+          "description": "作业结束时间"
+        },
+        "failed_message": {
+          "type": "string",
+          "example": "null",
+          "description": "失败提示,当作业执行失败时会返回"
+        },
+        "failed_reason": {
+          "type": "string",
+          "example": "null",
+          "description": "失败原因,当作业执行失败时会返回"
+        },
+        "user_name": {
+          "type": "string",
+          "example": "gwj-test-01",
+          "description": "创建任务的用户名称"
+        },
+        "tool_info": {
+          "description": "作业依赖的组件信息",
+          "$ref": "#/definitions/ToolInfoDto"
+        },
+        "io_acc_id": {
+          "type": "string",
+          "example": "7dd72fd6-0c69-11ec-9fef-fa163ef9b34d",
+          "description": "作业使用的IO加速实例id,不填表示不使用;"
+        },
+        "io_acc_expected_usage": {
+          "type": "integer",
+          "format": "int32",
+          "example": 100,
+          "description": "作业使用的SFS-Turbo实例预期占用存储量,单位G,用于投递作业时评估当前加速实例余量是否充足"
+        },
+        "still_running_tasks": {
+          "type": "array",
+          "example": [
+            "task1",
+            "task2"
+          ],
+          "description": "仍在运行中的子任务",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "JobListDto"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

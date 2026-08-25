@@ -1,0 +1,245 @@
+{
+  "name": "ShowDefinitionList",
+  "summary": "查询告警定义列表",
+  "tags": "告警管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/fault/v1/alarm-definitions/list": {
+      "post": {
+        "summary": "查询告警定义列表",
+        "description": "查询告警的定义信息列表。\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| >=99%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量(tiny2)|5tps|\n|吞吐量(small)|5tps|\n|吞吐量(medium)|5tps|\n|吞吐量(large)|5tps|\n|TP50请求时延|150ms|\n|TP99.9请求时延|1000ms|",
+        "x-precautions": "此接口必须在HTTPS通道上访问。",
+        "tags": [
+          "告警管理"
+        ],
+        "operationId": "ShowDefinitionList",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queryParam",
+            "in": "body",
+            "description": "告警定义信息查询参数。",
+            "schema": {
+              "$ref": "#/definitions/DefinitionQueryParam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "告警定义列表。",
+            "examples": {
+              "application/json": {
+                "totalCount": 5346,
+                "offset": 0,
+                "limit": 2,
+                "definitions": [
+                  {
+                    "alarmId": "1100230",
+                    "originSystemType": "XXX",
+                    "alarmGroupId": "100000",
+                    "category": 1,
+                    "eventType": 2,
+                    "alarmName": "VER_MISMATCH",
+                    "description": "VER_MISMATCH",
+                    "severity": 1
+                  },
+                  {
+                    "alarmId": "3068078",
+                    "originSystemType": "XXX",
+                    "alarmGroupId": "100000",
+                    "category": 1,
+                    "eventType": 2,
+                    "alarmName": "FAN_FAULT",
+                    "description": "FAN_FAULT",
+                    "severity": 3
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数非法。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/fault/v1/alarm-definitions/list",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "originSystemTypes": [
+            "XXX"
+          ],
+          "alarmGroupIds": [
+            "100000"
+          ],
+          "offset": 0,
+          "limit": 2,
+          "severities": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "keys": null,
+          "category": 1,
+          "eventTypes": [
+            1,
+            2,
+            3
+          ],
+          "searchKey": ""
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SortedFieldData": {
+      "description": "组合排序对象。",
+      "properties": {
+        "sortedField": {
+          "description": "排序字段,如alarmId、alarmName、alarmGroupName、category。",
+          "type": "string"
+        },
+        "order": {
+          "description": "排序顺序,0为升序,1为降序。",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "DefinitionQueryParam": {
+      "description": "告警定义信息查询参数。除offset和limit外的各查询条件之间为“与”关系。",
+      "properties": {
+        "originSystemTypes": {
+          "description": "来源系统类型数组。(当alarmGroupIds未设置时使用originSystemTypes作为alarmGroupIds条件)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "alarmGroupIds": {
+          "description": "告警分组标识数组。各领域使用的分组标识,应遵循SingleEMS集成规范。(注意:该字段为必填,出于兼容性考虑,如果上报者没有填写,告警服务使用originSystemType补填。)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "description": "告警or事件:\n* 0-所有\n* 1-告警\n* 2-事件(注意:字段允许为空,当级别条件为空时查询满足其他条件的所有类型的告警定义)",
+          "type": "integer",
+          "format": "int32"
+        },
+        "severities": {
+          "description": "告警级别条件数组:\n* 1-紧急\n* 2-重要\n* 3-次要\n* 4-提示(注意:字段允许为空,当级别条件为空时查询满足其他条件的所有级别的告警定义)",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "eventTypes": {
+          "description": "事件类型条件数组。(注意:字段允许为空,当级别条件为空时查询满足其他条件的所有事件类型的告警定义)",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "keys": {
+          "description": "告警定义信息关键字数组。(注意:字段允许为空,当级别条件为空时查询满足其他条件的所有的告警定义)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DefinitionKey"
+          }
+        },
+        "searchKey": {
+          "description": "告警名称模糊搜索关键字。 (注意:字段允许为空,当级别条件为空时查询满足其他条件的所有的告警定义)",
+          "type": "string"
+        },
+        "clearCategory": {
+          "description": "告警清除方式ADMC/ADAC。",
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "description": "查询起始记录位置,从0开始。(注意:offset默认为0)",
+          "type": "integer",
+          "format": "int32"
+        },
+        "limit": {
+          "description": "查询数据页大小。(注意:limit默认为0)",
+          "type": "integer",
+          "format": "int32"
+        },
+        "useRedefinedName": {
+          "description": "是否使用重定义名称。(注意:useRedefinedName默认为false)",
+          "type": "boolean"
+        },
+        "sortedFieldList": {
+          "description": "排序字段列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SortedFieldData"
+          }
+        }
+      }
+    },
+    "DefinitionKey": {
+      "description": "告警定义key。",
+      "required": [
+        "alarmId"
+      ],
+      "properties": {
+        "originSystemType": {
+          "description": "来源系统类型。(alarmGroupIds未设置时使用originSystemTypes作为alarmGroupIds条件)",
+          "type": "string",
+          "x-blackList": {
+            "blackChars": ";?#%/\\\\<>"
+          },
+          "x-sqlInjection": null,
+          "maxLength": 64,
+          "x-groups": [
+            "DeleteAction.class"
+          ]
+        },
+        "alarmGroupId": {
+          "description": "告警分组标识。各领域使用的分组标识,应遵循SingleEMS集成规范。(注意:该字段为必填,出于兼容性考虑,如果上报者没有填写,告警服务使用originSystemType补填。)",
+          "type": "string",
+          "x-blackList": {
+            "blackChars": ";?#%/\\\\<>"
+          },
+          "x-sqlInjection": null,
+          "maxLength": 64,
+          "x-groups": [
+            "DeleteAction.class"
+          ]
+        },
+        "alarmId": {
+          "description": "告警标识。(该字段业务上为必填。)",
+          "type": "string",
+          "x-blackList": {
+            "blackChars": ";?#%/\\\\<>"
+          },
+          "x-sqlInjection": null,
+          "minLength": 1,
+          "maxLength": 128,
+          "x-groups": [
+            "DeleteAction.class"
+          ]
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

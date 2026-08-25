@@ -1,0 +1,342 @@
+{
+  "name": "ListFsTasks",
+  "summary": "获取文件系统异步任务列表",
+  "tags": "文件系统管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/fs/{feature}/tasks": {
+      "get": {
+        "tags": [
+          "文件系统管理"
+        ],
+        "summary": "获取文件系统异步任务列表",
+        "description": "获取文件系统异步任务列表。仅支持查询目录资源使用情况的任务,API请求路径的feature取值为dir-usage,以下简称为DU任务。",
+        "x-constraint": "在2023年8月1号之后创建的文件系统支持该API操作。后端有5min的缓存时间,查询的数据可能有延迟。API请求路径的feature仅支持以下取值:\n- dir-usage\n\n该接口仅适用于以下类型:\n- 20MB/s/TiB\n- 40MB/s/TiB\n- 125MB/s/TiB\n- 250MB/s/TiB\n- 500MB/s/TiB\n- 1000MB/s/TiB\n- HPC缓存型文件系统\n\n标准型、标准型-增强版、性能型、性能型-增强版类型的SFS Turbo文件系统,请使用“查询目录资源使用情况”接口。",
+        "operationId": "ListFsTasks",
+        "x-version": "v1",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "x-open-region-cloud": "hws,hws_hk,sbc,hcs",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "账号的token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "description": "MIME类型, application/json",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "share_id",
+            "description": "文件系统id",
+            "required": true,
+            "type": "string",
+            "x-example": "b959dfbb-xxxx-XXXX-xxxx-8930ec3a87b7"
+          },
+          {
+            "in": "path",
+            "name": "feature",
+            "description": "任务类型。例,DU任务取值为dir-usage",
+            "required": true,
+            "type": "string",
+            "x-example": "dir-usage"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "marker填写为上一页返回的最后一条记录的task_id,作为下一次分页的起始值。比如,marker为d651ea2b-2b20-4c6d-8bbf-2adcec18dac9,limit为100,表示从d651ea2b-2b20-4c6d-8bbf-2adcec18dac9后返回最多100条满足查询条件的记录。",
+            "required": false,
+            "type": "string",
+            "x-example": "d651ea2b-2b20-4c6d-8bbf-2adcec18dac9"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "limit, 取值为正整数. 默认为20,最大值为100",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "tasks": [
+                  {
+                    "task_id": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+                    "status": "SUCCESS",
+                    "dir_usage": {
+                      "path": "/path",
+                      "used_capacity": 0,
+                      "file_count": {
+                        "dir": 0,
+                        "regular": 0,
+                        "pipe": 0,
+                        "char": 0,
+                        "block": 0,
+                        "socket": 0,
+                        "symlink": 0
+                      },
+                      "message": ""
+                    },
+                    "begin_time": "2023-03-01 11:46:01",
+                    "end_time": "2023-03-01 11:46:01"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListFsTasksResp"
+            }
+          },
+          "400": {
+            "description": "错误响应",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0123",
+                "errMsg": "feature invalid"
+              }
+            }
+          },
+          "404": {
+            "description": "错误响应",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0124",
+                "errMsg": "task_id not found"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "Internal server error"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "ID为\"77ba6f4b-6365-4895-8dda-bc7142af4dde的文件系统,获取DU任务列表,从任务ID为\"11abef677ac40f46644d1d5cfc2424a4\"起,获取50个任务\n",
+        "x-request-examples-url-1": "GET HTTPS://{endpoint}/v1/{project_id}/sfs-turbo/shares/77ba6f4b-6365-4895-8dda-bc7142af4dde/fs/dir-usage/tasks?marker=11abef677ac40f46644d1d5cfc2424a4&limit=50",
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "ListFsTasksResp": {
+      "type": "object",
+      "description": "异步任务列表",
+      "required": [
+        "tasks"
+      ],
+      "properties": {
+        "tasks": {
+          "description": "任务列表",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/OneFsTaskResp"
+          }
+        }
+      }
+    },
+    "OneFsTaskResp": {
+      "description": "查询任务详情",
+      "required": [
+        "task_id",
+        "status",
+        "begin_time",
+        "end_time"
+      ],
+      "properties": {
+        "task_id": {
+          "description": "任务ID",
+          "type": "string"
+        },
+        "status": {
+          "description": "任务状态, SUCCESS表示成功,DOING表示正在执行,FAIL表示失败",
+          "type": "string",
+          "enum": [
+            "SUCCESS",
+            "DOING",
+            "FAIL"
+          ]
+        },
+        "dir_usage": {
+          "description": "目录资源使用情况(包含子目录)",
+          "type": "object",
+          "$ref": "#/definitions/FsDuInfo"
+        },
+        "begin_time": {
+          "description": "任务开始时间,UTC时间,例如:2006-01-02 15:04:05'",
+          "pattern": "2006-01-02 15:04:05",
+          "type": "string"
+        },
+        "end_time": {
+          "description": "任务结束时间,UTC时间,例如:2006-01-02 15:04:06'",
+          "pattern": "2006-01-02 15:04:06",
+          "type": "string"
+        }
+      }
+    },
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "FsFileCount": {
+      "description": "所有文件数目",
+      "properties": {
+        "dir": {
+          "description": "目录数目",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "regular": {
+          "description": "普通文件数目",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "pipe": {
+          "description": "管道文件数目",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "char": {
+          "description": "字符设备数目",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "block": {
+          "description": "块设备数目",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "socket": {
+          "description": "套接字数目",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "symlink": {
+          "description": "符号链接数目",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        }
+      }
+    },
+    "FsDuInfo": {
+      "description": "目录资源使用情况(包含子目录)",
+      "properties": {
+        "path": {
+          "description": "文件系统内合法的目录全路径",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "used_capacity": {
+          "description": "占用容量,单位:byte",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "file_count": {
+          "type": "object",
+          "description": "该目录下所有文件数目",
+          "$ref": "#/definitions/FsFileCount"
+        },
+        "message": {
+          "description": "错误信息",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

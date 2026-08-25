@@ -1,0 +1,233 @@
+{
+  "name": "DeleteKv",
+  "summary": "删除单个kv",
+  "tags": "KV接口",
+  "productshort": "KVS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/delete-kv": {
+      "post": {
+        "tags": [
+          "KV接口"
+        ],
+        "summary": "删除单个kv",
+        "operationId": "DeleteKv",
+        "description": "指定表,指定主键,删除该文档;允许指定条件执行。",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/bson"
+        ],
+        "produces": [
+          "application/bson"
+        ],
+        "parameters": [
+          {
+            "name": "store_name",
+            "in": "query",
+            "description": "仓名,全域唯一,不同租户的仓名不能相同。 \n- 格式:${prefix}-${region-code}-${account-id},其中prefix为自定义前缀,region-code为kvs集群所在的区域代码,account-id为用户的账户id\n- 取值字符限制:[a-z0-9-]+\n- 长度:[16,52]\n> \"-\"不能出现在名字头部或尾部",
+            "type": "string",
+            "x-location-cname": true
+          },
+          {
+            "in": "body",
+            "name": "DeleteKvRequestBody",
+            "description": "删除指定的kv的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeleteKvRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "表示删除单个kv请求成功"
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "删除单个kv,删除kv的分区键为user,排序键为test-file-1",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/delete-kv",
+        "x-request-examples-tags-1": "hws",
+        "x-request-examples-1": {
+          "table_name": "test_table_1",
+          "primary_key": {
+            "owner": "user_1",
+            "filename": "test_file_1"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "composed_expression": {
+      "required": [
+        "expressions"
+      ],
+      "type": "object",
+      "properties": {
+        "logic": {
+          "type": "string",
+          "description": "逻辑关系,取值如\"$and\", \"$or\", \"$nor\"。"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/expression"
+          },
+          "description": "多个相同优先级且相同逻辑的单字段或多字段条件。"
+        }
+      }
+    },
+    "ErrorResp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "KVS.00000001",
+          "description": "请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "系统遇到内部错误,请重试。",
+          "description": "请求返回的错误信息。"
+        }
+      }
+    },
+    "DeleteKvRequestBody": {
+      "required": [
+        "table_name",
+        "primary_key"
+      ],
+      "type": "object",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "表名,仓内唯一。\n- 长度:[3, 63]\n- 取值字符限制:[a-z0-9_-]+"
+        },
+        "primary_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "用户自定义的主键名及值。\n> 内容字段为主键字段名和值,组合索引多个元素。"
+        },
+        "condition_expression": {
+          "$ref": "#/definitions/condition_expression",
+          "description": "条件表达式,参见conditional小节。\n> 禁止携带主键字段, 参见conditional小节的定义。"
+        }
+      }
+    },
+    "single_field_expression": {
+      "required": [
+        "field",
+        "func"
+      ],
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "条件字段。"
+        },
+        "func": {
+          "type": "string",
+          "description": "条件函数,取值如\"$gt\", $lt\",\"$gte\", $lte\" \"$eq\", \"$ne\", \"$prefix\", \"$exists\"。"
+        },
+        "value": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "value和value_array二选一。\n- value条件值,适用于除\"$in\", \"$nin\"外的func。\n- 字段名无意义,可以传空,也可以传字段名。\n- $exists值为true/false。\n> $prefix操作只适用于string和binary类型。"
+        },
+        "value_array": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "bson-document"
+          },
+          "description": "\"value\"和\"value_array\"二选一。\n- \"value_array\" 条件值列表, 值用于\"$in\", \"$nin\"。"
+        }
+      }
+    },
+    "expression": {
+      "type": "object",
+      "properties": {
+        "single_field_expression": {
+          "$ref": "#/definitions/single_field_expression",
+          "description": "单字段条件。"
+        },
+        "multi_field_expression": {
+          "$ref": "#/definitions/multi_field_expression",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "composed_expression": {
+          "$ref": "#/definitions/composed_expression",
+          "description": "组合条件, 逐层同级的子表达式嵌套。"
+        }
+      }
+    },
+    "multi_field_expression": {
+      "required": [
+        "expressions"
+      ],
+      "type": "object",
+      "properties": {
+        "logic": {
+          "type": "string",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/single_field_expression"
+          },
+          "description": "多个相同逻辑操作的单字段条件。"
+        }
+      }
+    },
+    "single_kv_expression": {
+      "required": [
+        "func"
+      ],
+      "type": "object",
+      "properties": {
+        "func": {
+          "type": "string",
+          "description": "取值:\"is_doc\", \"is_blob\", \"is_exist\", \"not_exist\"。"
+        }
+      }
+    },
+    "condition_expression": {
+      "type": "object",
+      "properties": {
+        "single_field_expression": {
+          "$ref": "#/definitions/single_field_expression",
+          "description": "单字段条件。"
+        },
+        "multi_field_expression": {
+          "$ref": "#/definitions/multi_field_expression",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "composed_expression": {
+          "$ref": "#/definitions/composed_expression",
+          "description": "组合条件, 逐层同级的子表达式嵌套。"
+        },
+        "single_kv_expression": {
+          "$ref": "#/definitions/single_kv_expression",
+          "description": "文档表达式。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kvs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

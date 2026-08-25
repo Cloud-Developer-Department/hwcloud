@@ -1,0 +1,252 @@
+{
+  "name": "UpdateAutoScalingPolicy",
+  "summary": "设置自动变配",
+  "tags": "实例管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/auto-scaling/policy": {
+      "put": {
+        "tags": [
+          "实例管理"
+        ],
+        "summary": "设置自动变配",
+        "description": "设置自动变配。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-constraint": "该接口目前公测阶段,如需使用,请提交工单联系客服人员申请权限。",
+        "operationId": "UpdateAutoScalingPolicy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务[获取用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取。\n\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。\n",
+            "type": "string",
+            "required": true,
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。默认en-us。\n取值范围:\n- en-us\n- zh-cn",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "内容类型。\n\n取值:application/json。\n",
+            "type": "string",
+            "required": true,
+            "x-example": "application/json"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一Region下的project ID。                          \n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID,严格匹配UUID规则。",
+            "required": true,
+            "type": "string",
+            "x-example": "61a4ea66210545909d74a05c27a7179ein07"
+          },
+          {
+            "name": "UpdateAutoScalingPolicyRequestBody",
+            "in": "body",
+            "description": "请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAutoScalingPolicyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/UpdateAutoScalingPolicyResp"
+            },
+            "examples": {
+              "application/json": {
+                "instance_id": "61a4ea66210545909d74a05c27a7179ein07",
+                "instance_name": "gauss-test-1",
+                "switch_status": {
+                  "scaling_switch": "ON",
+                  "flavor_switch": "ON",
+                  "read_only_switch": "ON"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "设置自动变配。",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v3/97b026aa9cc4417888c14c84a1ad9860/instances/61a4ea66210545909d74a05c27a7179ein07/auto-scaling/policy",
+        "x-request-examples-1": {
+          "enlarge_threshold": 50,
+          "max_flavor": "gaussdb.mysql.large.x86.4",
+          "max_read_only_count": 2,
+          "monitor_cycle": 300,
+          "read_only_weight": 10,
+          "reduce_enabled": false,
+          "scaling_strategy": {
+            "flavor_switch": "ON",
+            "read_only_switch": "ON"
+          },
+          "silence_cycle": 300,
+          "status": "ON"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AutoScalingSwitchStatus": {
+      "description": "开关状态。",
+      "properties": {
+        "scaling_switch": {
+          "type": "string",
+          "description": "自动变配开关状态。\n\n取值:\n\n- ON:开启。\n- OFF:关闭。"
+        },
+        "flavor_switch": {
+          "type": "string",
+          "description": "扩缩规格开关状态。\n\n取值:\n\n- ON:开启。\n- OFF:关闭。"
+        },
+        "read_only_switch": {
+          "type": "string",
+          "description": "增删只读节点开关状态。\n\n取值:\n\n- ON:开启。\n- OFF:关闭。"
+        }
+      }
+    },
+    "ScalingStrategyReqInfo": {
+      "required": [
+        "flavor_switch",
+        "read_only_switch"
+      ],
+      "description": "自动变配策略。",
+      "properties": {
+        "flavor_switch": {
+          "type": "string",
+          "description": "扩缩规格开关。\n- ON:开启。\n- OFF:关闭。"
+        },
+        "read_only_switch": {
+          "type": "string",
+          "description": "增删只读节点开关。自动增删只读节点功能需要先[开启数据库代理](https://support.huaweicloud.com/api-gaussdbformysql/CreateGaussMySqlProxy.html),且只能有一个代理。\n- ON:开启。\n- OFF:关闭。"
+        }
+      }
+    },
+    "UpdateAutoScalingPolicyRequestBody": {
+      "description": "设置自动变配策略请求体",
+      "required": [
+        "status",
+        "scaling_strategy"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "自动变配开关状态。\n\n取值:\n\n- ON:开启。\n- OFF:关闭。",
+          "example": "ON"
+        },
+        "monitor_cycle": {
+          "type": "integer",
+          "description": "监测周期(单位:秒)。\n在整个观测窗口期内,若CPU平均使用率大于等于设定值,则在观测窗口结束后,进行扩容。\n\n取值范围:300、600、900、1800。\n\nstatus为ON时必填。",
+          "example": 5
+        },
+        "silence_cycle": {
+          "type": "integer",
+          "description": "静默周期(单位:秒)。\n两次自动扩容或自动回缩的最小间隔时间。\n\n取值范围:300、600、1800、3600、7200、10800、86400、604800。\n\nstatus为ON时必填。",
+          "example": 3
+        },
+        "enlarge_threshold": {
+          "type": "integer",
+          "description": "CPU平均使用率(百分比数值)。\n\n取值范围:50-100。\n\nstatus为ON时必填。"
+        },
+        "max_flavor": {
+          "type": "string",
+          "description": "扩容规格上限。开启扩缩规格时必填。"
+        },
+        "reduce_enabled": {
+          "type": "boolean",
+          "description": "是否开启自动回缩。开启自动变配时必填。\n- true:是。\n- false:否。"
+        },
+        "reduce_threshold": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 30,
+          "description": "**参数解释**:\n\n自动回缩的CPU平均使用率阈值(百分比数值)。\n\n**约束限制**:\n\n不涉及。\n\n**取值范围**:\n\n10-30。\n\n**默认取值**:\n\n不涉及。"
+        },
+        "max_read_only_count": {
+          "type": "integer",
+          "description": "只读节点数量上限。开启增删只读节点时必填。"
+        },
+        "read_only_weight": {
+          "type": "integer",
+          "description": "只读节点读写分离权重。开启增删只读节点时必填。"
+        },
+        "scaling_strategy": {
+          "$ref": "#/definitions/ScalingStrategyReqInfo"
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    },
+    "UpdateAutoScalingPolicyResp": {
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID。"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "实例名称。"
+        },
+        "switch_status": {
+          "$ref": "#/definitions/AutoScalingSwitchStatus"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "put",
+  "uri": null
+}

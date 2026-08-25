@@ -1,0 +1,217 @@
+{
+  "name": "ListAutoIncrementUsage",
+  "summary": "查询自增配额",
+  "tags": "云DBA",
+  "productshort": "DAS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/list-auto-increment-usage": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "云DBA"
+        ],
+        "summary": "查询自增配额",
+        "description": "查询自增配额",
+        "operationId": "ListAutoIncrementUsage",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目id"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例id"
+          },
+          {
+            "name": "ListAutoIncrementUsageRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "请求参数",
+            "schema": {
+              "$ref": "#/definitions/ListAutoIncrementUsageRequestBody"
+            }
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "使用语言",
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "token",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/AutoIncrementUsageResp"
+            }
+          },
+          "400": {
+            "description": "badRequest",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "InternelServerError",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    },
+    "AutoIncrementUsageResp": {
+      "type": "object",
+      "required": [
+        "status",
+        "total",
+        "auto_increment_usage_list"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "example": "Completed",
+          "description": "任务执行状态。\n取值:\n\t值为“Running”,表示任务正在执行。\n\t值为“Completed”,表示任务执行成功。\n\t值为“Failed”,表示任务执行失败。"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "数量"
+        },
+        "auto_increment_usage_list": {
+          "type": "array",
+          "items": {
+            "required": [
+              "database",
+              "table",
+              "column",
+              "current_value",
+              "max_value",
+              "ratio"
+            ],
+            "properties": {
+              "database": {
+                "type": "string",
+                "example": "d1",
+                "description": "数据库名"
+              },
+              "table": {
+                "type": "string",
+                "example": "users1",
+                "description": "表名"
+              },
+              "column": {
+                "type": "string",
+                "example": "id",
+                "description": "列名"
+              },
+              "current_value": {
+                "type": "string",
+                "example": "2",
+                "description": "自增ID当前值"
+              },
+              "max_value": {
+                "type": "string",
+                "example": "2147483647",
+                "description": "该数据类型的自增 ID 支持的最大值。"
+              },
+              "ratio": {
+                "type": "string",
+                "example": "0.000",
+                "description": "自增ID使用比例"
+              }
+            }
+          },
+          "description": "自增 ID 使用数据列表。"
+        }
+      }
+    },
+    "ListAutoIncrementUsageRequestBody": {
+      "type": "object",
+      "required": [
+        "ratio",
+        "real_time"
+      ],
+      "properties": {
+        "ratio": {
+          "type": "string",
+          "example": "0",
+          "description": "自增 ID 使用比例过滤值,只返回超过该比例的自增 ID 使用数据。取值为 0~1 的小数,默认为0"
+        },
+        "real_time": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否获取实时数据:\ntrue:实时查询实例上数据并计算。最小查询时间粒度为 10 分钟,即有 10 分钟内的数据时,即使传递 true 也不进行实时查询。\nfalse:当有近两小时的数据时,返回该数据,否则查询实例上最新数据。"
+        },
+        "offsite": {
+          "type": "string",
+          "example": "0",
+          "description": "偏移值"
+        },
+        "limit": {
+          "type": "string",
+          "example": "50",
+          "description": "每次获取的数量"
+        },
+        "database": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "d1"
+          ],
+          "description": "数据库名。传入此参数时,查询指定数据库中表自增 ID 使用情况,不传入时查询实例上所有数据库的表自增 ID 使用情况。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "das.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

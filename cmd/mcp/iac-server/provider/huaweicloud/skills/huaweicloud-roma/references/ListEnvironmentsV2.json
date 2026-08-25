@@ -1,0 +1,271 @@
+{
+  "name": "ListEnvironmentsV2",
+  "summary": "查询环境列表",
+  "tags": "环境管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/envs": {
+      "get": {
+        "summary": "查询环境列表",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-order": 4,
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "查询符合条件的环境列表。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "环境管理"
+        ],
+        "operationId": "ListEnvironmentsV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_offset"
+          },
+          {
+            "$ref": "#/parameters/apic_limit"
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "x-example": "env_name",
+            "description": "环境名称",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/EnvInfoPage"
+            },
+            "examples": {
+              "application/json": {
+                "total": 2,
+                "size": 2,
+                "envs": [
+                  {
+                    "create_time": "2019-02-12T19:42:19.914989Z",
+                    "name": "RELEASE",
+                    "remark": "xxx",
+                    "id": "DEFAULT_ENVIRONMENT_RELEASE_ID"
+                  },
+                  {
+                    "create_time": "2020-07-31T06:41:43Z",
+                    "name": "DEV",
+                    "remark": "Development environment",
+                    "id": "7a1ad0c350844ee69479b47df9a881cb"
+                  }
+                ]
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:name. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3030",
+                "error_msg": "The instance does not exist;id:f0fa1789-3b76-433b-a787-9892951c620ec"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BasePage": {
+      "properties": {
+        "size": {
+          "description": "本次返回的列表长度",
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "description": "满足条件的记录数",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "分页基本信息",
+      "required": [
+        "size",
+        "total"
+      ]
+    },
+    "EnvInfoPage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasePage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "envs": {
+              "description": "本次返回的环境列表",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/EnvInfo"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "EnvInfo": {
+      "properties": {
+        "create_time": {
+          "description": "创建时间",
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "description": "环境名称",
+          "type": "string"
+        },
+        "remark": {
+          "description": "描述信息",
+          "type": "string"
+        },
+        "id": {
+          "description": "环境编号",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_offset": {
+      "name": "offset",
+      "in": "query",
+      "type": "integer",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量小于0时,自动转换为0",
+      "format": "int64",
+      "default": 0,
+      "x-example": 1
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "apic_limit": {
+      "name": "limit",
+      "in": "query",
+      "type": "integer",
+      "description": "每页显示的条目数量",
+      "format": "int32",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 20,
+      "x-example": 10
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

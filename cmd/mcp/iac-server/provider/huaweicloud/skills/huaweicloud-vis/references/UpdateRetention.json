@@ -1,0 +1,215 @@
+{
+  "name": "UpdateRetention",
+  "summary": "更新转储信息",
+  "tags": "视频流管理",
+  "productshort": "VIS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/streams/{stream_name}/retention": {
+      "put": {
+        "tags": [
+          "视频流管理"
+        ],
+        "summary": "更新转储信息",
+        "description": "此接口用于更新视频转储信息。创建的视频流默认没有转储信息,即视频数据不会保存。更新转储信息后可以将视频流保存到指定的存储媒介,如OBS。后续用户可以从OBS上获取到转储的视频。\n\n- 如果转储到OBS,在调用该API之前,需要您先授予VIS操作OBS的权限,授权操作只需要操作一次即可,后续转储无需再操作。授权方法如下:\n\n   1. 登录视频接入服务控制台。\n\n   2. 在\"视频流管理\"页面,找到您需要转储的已激活视频流,单击操作列的\"开始转储\"。\n\n   3. 如果您之前没有OBS授权,则系统会提示您进行OBS授权,单击\"同意授权\"即可。\n\n- 如果转储到OBS,最终生成的视频文件路径为\n\"/OBS路径/视频流名称/year/month/day/hour/startmin.sec_endmin.sec.flv,例如obs:path/to/video/streamName/2018/8/18/18/0000_0200.flv。\"",
+        "operationId": "UpdateRetention",
+        "consumes": [],
+        "produces": [],
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "description": "视频流名称",
+            "required": true,
+            "type": "string",
+            "x-example": "strea***"
+          },
+          {
+            "name": "UpdateRetentionRequest",
+            "in": "body",
+            "description": "创建视频流请求体\"",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/UpdateRetentionRequestList"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常",
+            "examples": {
+              "application/json": {
+                "result": "success"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/UpdateResponse"
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "examples": {
+              "application/json": {
+                "error_msg": "The entered stream ID does not exist.",
+                "error_code": "VIS.0202"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "更新转储信息",
+        "x-request-examples-url-1": "PUT /v1/3266392d188c47d09948b1**********/streams/streamTest/retention",
+        "x-request-examples-1": {
+          "store_type": "obs",
+          "bucket": "obs-momo",
+          "path": "path/**/video/***",
+          "slice_in_minute": 1,
+          "timezone": "GMT+8:00",
+          "state": "ACTIVE"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UpdateRetentionRequestList": {
+      "required": [
+        "timezone"
+      ],
+      "properties": {
+        "store_type": {
+          "type": "string",
+          "enum": [
+            "OBS"
+          ],
+          "example": "obs",
+          "description": "视频转储位置,可为“obs”,即存储到云服务OBS上。第一次创建转储信息时必选,不区分大小写。"
+        },
+        "bucket": {
+          "type": "string",
+          "example": "obs-momo",
+          "description": "OBS桶名,当“store_type”为“obs”时必选。"
+        },
+        "path": {
+          "type": "string",
+          "example": "path/to/video/",
+          "description": "OBS目录,当“store_type”为“obs”时,该参数必选。该目录下的文件夹最多为N+2个,N为转储时长。"
+        },
+        "slice_in_minute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60,
+          "example": "1",
+          "description": "分片长度,以分钟为单位。取值范围为1~60,默认为5。"
+        },
+        "timezone": {
+          "type": "string",
+          "pattern": "GMT(\\+|-)([0]?)([0-9]|1[0-2]):00",
+          "example": "GMT+8:00",
+          "description": "当地时区。格式为GMT+HH:00,如GMT+8:00表示东八区。转储时路径命名以该时区时间为准。"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "ACTIVE",
+            "STOPPED"
+          ],
+          "example": "ACTIVE",
+          "description": "转储状态。\n- ACTIVE:表示进行转储。\n- STOPPED:表示停止转储。\n\n默认为STOPPED。"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "MP4",
+            "FLV"
+          ],
+          "example": "FLV",
+          "default": "FLV",
+          "description": "视频流转储格式。\n- H264支持MP4和FLV\n- H265只支持MP4\n\n默认为FLV。"
+        }
+      }
+    },
+    "UpdateResponse": {
+      "properties": {
+        "result": {
+          "type": "string",
+          "example": "success",
+          "description": "处理成功时返回"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-vis/vis_03_0005.html)",
+      "minLength": 32,
+      "maxLength": 32,
+      "required": true,
+      "type": "string"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "普通租户的token。",
+      "required": true,
+      "minLength": 1,
+      "maxLength": 10240,
+      "type": "string"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    }
+  },
+  "host": "vis.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

@@ -1,0 +1,468 @@
+{
+  "name": "CreateExecuteJob",
+  "summary": "新增并执行作业",
+  "tags": "作业管理接口",
+  "productshort": "MRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/clusters/{cluster_id}/job-executions": {
+      "post": {
+        "tags": [
+          "作业管理接口"
+        ],
+        "summary": "新增并执行作业",
+        "description": "在MRS集群中新增并提交一个作业。\n\n需要先在集群详情页的“概览”页签,单击“IAM用户同步”右侧的“同步”进行IAM用户同步,然后再通过该接口提交作业。\n\n如需使用OBS加密功能,请先参考“MRS用户指南 > 管理现有集群 > 作业管理 > 使用OBS加密数据运行作业”页面进行相关配置后,再调用API接口运行作业。\n\n所有示例中涉及的OBS路径、样例文件及终端节点和AKSK,请提前准备并在提交请求时根据实际情况替换。",
+        "operationId": "CreateExecuteJob",
+        "x-is-registered": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号。获取方法,请参见[获取项目ID](https://support.huaweicloud.com/api-mrs/mrs_02_0011.html)。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "cluster_id",
+            "in": "path",
+            "description": "集群ID。获取方法,请参见[获取集群ID](https://support.huaweicloud.com/api-mrs/mrs_02_9001.html)。",
+            "required": true,
+            "type": "string",
+            "x-example": "431b135exxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "CreateExecuteJobRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "执行作业参数",
+            "schema": {
+              "$ref": "#/definitions/JobExecution"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "新增并执行作业",
+            "examples": {
+              "application/json": {
+                "job_submit_result": {
+                  "job_id": "44b37a20-ffe8-42b1-b42b-78a5978d7e40",
+                  "state": "COMPLETE"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JobExecutionResult"
+            }
+          },
+          "500": {
+            "description": "新增并执行作业失败",
+            "examples": {
+              "application/json": {
+                "job_submit_result": {
+                  "error_msg": "不能提交Hive相关作业",
+                  "error_code": "0168"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "新增作业并执行",
+        "x-constraint": "无",
+        "x-version": "v2",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "MapReduce作业请求示例",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-1": {
+          "job_name": "MapReduceTest",
+          "job_type": "MapReduce",
+          "arguments": [
+            "obs://obs-test/program/hadoop-mapreduce-examples-x.x.x.jar",
+            "wordcount",
+            "obs://obs-test/input/",
+            "obs://obs-test/job/mapreduce/output"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-1": {
+          "job_name": "MapReduceTest",
+          "job_type": "MapReduce",
+          "arguments": [
+            "obs://obs-test/program/hadoop-mapreduce-examples-x.x.x.jar",
+            "wordcount",
+            "obs://obs-test/input/",
+            "obs://obs-test/job/mapreduce/output"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-description-2": "SparkSubmit作业请求示例",
+        "x-request-examples-url-2": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-2": {
+          "job_name": "SparkJobTest",
+          "job_type": "SparkSubmit",
+          "arguments": [
+            "--master",
+            "yarn",
+            "--deploy-mode",
+            "cluster",
+            "--py-files",
+            "obs://obs-test/a.py",
+            "--conf",
+            "spark.yarn.appMasterEnv.PYTHONPATH=/tmp:$PYTHONPATH",
+            "--conf",
+            "spark.yarn.appMasterEnv.aaa=aaaa",
+            "--conf",
+            "spark.executorEnv.aaa=executoraaa",
+            "--properties-file",
+            "obs://obs-test/test-spark.conf",
+            "obs://obs-test/pi.py",
+            "100000"
+          ],
+          "properties": {
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-2": "{\n  \"job_name\": \"SparkSubmitTest\",\n  \"job_type\": \"SparkSubmit\",\n  \"arguments\": [\n    \"--master\",\n    \"yarn\",\n    \"--deploy-mode\",\n    \"cluster\",\n    \"--py-files\",\n    \"obs://obs-test/a.py\",\n    \"--conf\",\n    \"spark.yarn.appMasterEnv.PYTHONPATH=/tmp:$PYTHONPATH\",\n    \"--conf\",\n    \"spark.yarn.appMasterEnv.aaa=aaaa\",\n    \"--conf\",\n    \"spark.executorEnv.aaa=executoraaa\",\n    \"--properties-file\",\n    \"obs://obs-test/test-spark.conf\",\n    \"obs://obs-test/pi.py\",\n    \"100000\"\n  ],\n  \"properties\": {\n    \"fs.obs.access.key\": \"xxx\",\n    \"fs.obs.secret.key\": \"yyy\"\n  }\n}",
+        "x-request-examples-description-3": "HiveScript作业请求示例",
+        "x-request-examples-url-3": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-3": {
+          "job_name": "HiveScriptTest",
+          "job_type": "HiveScript",
+          "arguments": [
+            "obs://obs-test/sql/test_script.sql"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-3": "{\n  \"job_name\": \"HiveScriptTest\",\n  \"job_type\": \"HiveScript\",\n  \"arguments\": [\n    \"obs://obs-test/sql/test_script.sql\"\n  ],\n  \"properties\": {\n    \"fs.obs.endpoint\": \"obs endpoint\",\n    \"fs.obs.access.key\": \"xxx\",\n    \"fs.obs.secret.key\": \"yyy\"\n  }\n}",
+        "x-request-examples-description-4": "HiveSql作业请求示例",
+        "x-request-examples-url-4": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-4": {
+          "job_name": "HiveSqlTest",
+          "job_type": "HiveSql",
+          "arguments": [
+            "DROP TABLE IF EXISTS src_wordcount;",
+            "create external table src_wordcount(line string) row format delimited fields terminated by \\\"\\\\n\\\" stored as textfile location \\\"obs://donotdel-gxc/input/\\\";\\ninsert into src_wordcount values(\\\"v1\\\")"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-4": "{\n    \"job_name\":\"HiveSqlTest\",\n    \"job_type\":\"HiveSql\",\n    \"arguments\":[\n        \"DROP TABLE IF EXISTS src_wordcount;\\ncreate external table src_wordcount(line string) row format delimited fields terminated by \\\"\\\\n\\\" stored as textfile location \\\"obs://donotdel-gxc/input/\\\";\\ninsert into src_wordcount values(\\\"v1\\\")\"\n    ],\n    \"properties\":{\n        \"fs.obs.endpoint\":\"obs endpoint\",\n        \"fs.obs.access.key\":\"xxx\",\n        \"fs.obs.secret.key\":\"yyy\"\n    }\n}",
+        "x-request-examples-description-5": "DistCp作业请求示例",
+        "x-request-examples-url-5": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-5": {
+          "job_name": "DistCpTest",
+          "job_type": "DistCp",
+          "arguments": [
+            "obs://obs-test/DistcpJob/",
+            "/user/test/sparksql/"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-5": {
+          "job_name": "DistCpTest",
+          "job_type": "DistCp",
+          "arguments": [
+            "obs://obs-test/DistcpJob/",
+            "/user/test/sparksql/"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-description-6": "SparkScript作业请求示例",
+        "x-request-examples-url-6": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-6": {
+          "job_type": "SparkSql",
+          "job_name": "SparkScriptTest",
+          "arguments": [
+            "op-key1",
+            "op-value1",
+            "op-key2",
+            "op-value2",
+            "obs://obs-test/sql/test_script.sql"
+          ],
+          "properties": {
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-6": {
+          "job_type": "SparkSql",
+          "job_name": "SparkScriptTest",
+          "arguments": [
+            "op-key1",
+            "op-value1",
+            "op-key2",
+            "op-value2",
+            "obs://obs-test/sql/test_script.sql"
+          ],
+          "properties": {
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-description-7": "SparkSql作业请求示例",
+        "x-request-examples-url-7": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-7": {
+          "job_type": "SparkSql",
+          "job_name": "SparkSqlTest",
+          "arguments": [
+            "op-key1",
+            "op-value1",
+            "op-key2",
+            "op-value2",
+            "create table student_info3 (id string,name string,gender string,age int,addr string);"
+          ],
+          "properties": {
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-7": {
+          "job_type": "SparkSql",
+          "job_name": "SparkSqlTest",
+          "arguments": [
+            "op-key1",
+            "op-value1",
+            "op-key2",
+            "op-value2",
+            "create table student_info3 (id string,name string,gender string,age int,addr string);"
+          ],
+          "properties": {
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-description-8": "Flink作业请求示例",
+        "x-request-examples-url-8": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-8": {
+          "job_name": "flinkTest",
+          "job_type": "Flink",
+          "arguments": [
+            "run",
+            "-d",
+            "-ynm",
+            "testExcutorejobhdfsbatch",
+            "-m",
+            "yarn-cluster",
+            "hdfs://test/examples/batch/WordCount.jar"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-8": {
+          "job_name": "flinkTest",
+          "job_type": "Flink",
+          "arguments": [
+            "run",
+            "-d",
+            "-ynm",
+            "testExcutorejobhdfsbatch",
+            "-m",
+            "yarn-cluster",
+            "hdfs://test/examples/batch/WordCount.jar"
+          ],
+          "properties": {
+            "fs.obs.endpoint": "obs endpoint",
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-description-9": "SparkPython作业请求示例(该类型作业将转换为SparkSubmit类型提交,MRS控制台界面的作业类型展示为SparkSubmit,通过接口查询作业列表信息时作业类型请选择SparkSubmit。)",
+        "x-request-examples-url-9": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/job-executions",
+        "x-request-examples-9": {
+          "job_type": "SparkPython",
+          "job_name": "SparkPythonTest",
+          "arguments": [
+            "--master",
+            "yarn",
+            "--deploy-mode",
+            "cluster",
+            "--py-files",
+            "obs://obs-test/a.py",
+            "--conf",
+            "spark.yarn.appMasterEnv.PYTHONPATH=/tmp:$PYTHONPATH",
+            "--conf",
+            "spark.yarn.appMasterEnv.aaa=aaaa",
+            "--conf",
+            "spark.executorEnv.aaa=executoraaa",
+            "--properties-file",
+            "obs://obs-test/test-spark.conf",
+            "obs://obs-test/pi.py",
+            100000
+          ],
+          "properties": {
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-request-examples-text-9": {
+          "job_type": "SparkPython",
+          "job_name": "SparkPythonTest",
+          "arguments": [
+            "--master",
+            "yarn",
+            "--deploy-mode",
+            "cluster",
+            "--py-files",
+            "obs://obs-test/a.py",
+            "--conf",
+            "spark.yarn.appMasterEnv.PYTHONPATH=/tmp:$PYTHONPATH",
+            "--conf",
+            "spark.yarn.appMasterEnv.aaa=aaaa",
+            "--conf",
+            "spark.executorEnv.aaa=executoraaa",
+            "--properties-file",
+            "obs://obs-test/test-spark.conf",
+            "obs://obs-test/pi.py",
+            100000
+          ],
+          "properties": {
+            "fs.obs.access.key": "xxx",
+            "fs.obs.secret.key": "yyy"
+          }
+        },
+        "x-hk": "Y",
+        "x-is-calling": "Y",
+        "x-ctc": "N",
+        "x-apigateway-auth-type": "IAM",
+        "x-call-frequency": "high",
+        "x-apigateway-match-mode": "NORMAL",
+        "x-otc": "N",
+        "x-hybridcloud": true,
+        "x-apigateway-request-type": "public",
+        "x-tlf": "N",
+        "x-obc": "N",
+        "x-hc": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N"
+      }
+    }
+  },
+  "definitions": {
+    "JobSubmitResult": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "作业ID。"
+        },
+        "state": {
+          "type": "string",
+          "description": "作业提交状态。\n枚举值:\n- COMPLETE:作业提交完成。\n- FAILED:作业提交失败。",
+          "enum": [
+            "COMPLETE",
+            "FAILED"
+          ]
+        }
+      }
+    },
+    "JobExecution": {
+      "type": "object",
+      "required": [
+        "job_name",
+        "job_type"
+      ],
+      "properties": {
+        "job_type": {
+          "type": "string",
+          "description": "作业类型:\n- MapReduce\n- SparkSubmit\n- SparkPython:该类型作业将转换为SparkSubmit类型提交,MRS控制台界面的作业类型展示为SparkSubmit,通过接口查询作业列表信息时作业类型请选择SparkSubmit。\n- HiveScript\n- HiveSql\n- DistCp,导入、导出数据。\n- SparkScript\n- SparkSql\n- Flink",
+          "example": "DistCp"
+        },
+        "job_name": {
+          "type": "string",
+          "description": "作业名称,只能由字母、数字、中划线和下划线组成,并且长度为1~64个字符。\n说明:\n不同作业的名称允许相同,但不建议设置相同。",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "distCp_test"
+        },
+        "arguments": {
+          "type": "array",
+          "description": "程序执行的关键参数,该参数由用户程序内的函数指定,MRS只负责参数的传入。\n最多为150000字符,不能包含;|&>'<$!\\\"\\特殊字符,可为空。\n说明:\n- 若输入带有敏感信息(如登录密码)的参数可能在作业详情展示和日志打印中存在暴露的风险,请谨慎操作。\n- 提交HiveScript或HiveSql类型的作业时如需以“obs://”开头格式访问存储在OBS上的文件,请在Hive服务配置页面搜索参数“core.site.customized.configs”,新增OBS的endpoint配置项,参数为“fs.obs.endpoint”,值请输入OBS对应的endpoint,具体请参考[终端节点](https://support.huaweicloud.com/api-mrs/mrs_02_0003.html)。",
+          "items": {
+            "type": "string",
+            "example": "obs://input.txt"
+          }
+        },
+        "properties": {
+          "type": "object",
+          "description": "程序系统参数。\n最多为2048字符,不能包含><|'`&!\\特殊字符,可为空。",
+          "additionalProperties": {
+            "type": "string",
+            "example": "value"
+          }
+        }
+      }
+    },
+    "JobExecutionResult": {
+      "type": "object",
+      "properties": {
+        "job_submit_result": {
+          "type": "object",
+          "description": "作业执行结果。",
+          "$ref": "#/definitions/JobSubmitResult"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mrs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

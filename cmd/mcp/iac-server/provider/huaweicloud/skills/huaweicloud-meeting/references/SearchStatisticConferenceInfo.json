@@ -1,0 +1,311 @@
+{
+  "name": "SearchStatisticConferenceInfo",
+  "summary": "查询企业级会议总体统计数据",
+  "tags": "会议统计",
+  "productshort": "Meeting",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/metrics/dashboard/statistic/conference/info": {
+      "get": {
+        "tags": [
+          "OpenStatisticMetrics"
+        ],
+        "operationId": "SearchStatisticConferenceInfo",
+        "summary": "查询企业级会议总体统计数据",
+        "description": "该接口用于查询企业内:\n* 单日内按小时统计的会议数据。\n* 指定日期范围内按日/按月统计的会议数据。\n> 仅旗舰版企业/标准版企业的企业管理员有权限查询。",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-auth": false,
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-open-region-cloud": "hc",
+        "x-order": 1,
+        "deprecated": false,
+        "consumes": [
+          "application/json; charset=utf-8"
+        ],
+        "produces": [
+          "application/json; charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Access-Token"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "查询偏移量。\n* 取值:大于等于0,默认值为0\n* 大于等于最大条目数量,则返回最后一页数据,页数根据总条目数和limit计算得出",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询的条目数量。\n* 取值:1-500,默认值为20",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 20,
+            "x-example": 20
+          },
+          {
+            "name": "timeUnit",
+            "in": "query",
+            "description": "查询时间维度,取值:\n* D: 按日查询\n* M: 按月查询",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "D",
+              "M"
+            ],
+            "x-example": "D"
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "查询时间范围的开始时间,格式根据timeUnit的取值而定。\n* timeUnit = D,格式:yyyy-MM-dd,此情况下startTime与endTime间隔最多31日\n* timeUnit = M,格式:yyyy-MM,此情况下startTime与endTime间隔最多12个月",
+            "required": true,
+            "type": "string",
+            "pattern": "\\d{4}-\\d{2}(-\\d{2}){0,1}",
+            "x-example": "2020-08-01"
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "description": "查询时间范围的结束时间,格式根据timeUnit的取值而定。\n* timeUnit = D,格式:yyyy-MM-dd,此情况下startTime与endTime间隔最多31日\n* timeUnit = M,格式:yyyy-MM,此情况下startTime与endTime间隔最多12个月",
+            "required": true,
+            "type": "string",
+            "pattern": "\\d{4}-\\d{2}(-\\d{2}){0,1}",
+            "x-example": "2020-08-31"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "查询分类,取值:\n* conference_info: 会议总体数据\n* conference_hourly_info: 单日内会议总体数据\n* category = conference_hourly_info的情况,timeUnit只能取值'D',且startTime与endTime必须为同一天",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "conference_info",
+              "conference_hourly_info"
+            ],
+            "x-example": "conference_info"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "examples": {
+              "application/json": {
+                "count": 2,
+                "limit": 10,
+                "offset": 0,
+                "data": [
+                  {
+                    "time": "2021-03-02",
+                    "confCount": "122",
+                    "confDuration": "1124",
+                    "attendeeCount": "261",
+                    "confConcurrentUsedCount": "11"
+                  },
+                  {
+                    "time": "2021-03-03",
+                    "confCount": "122",
+                    "confDuration": "1124",
+                    "attendeeCount": "261",
+                    "confConcurrentUsedCount": "11"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SearchStatisticConferenceInfoResult"
+            }
+          },
+          "400": {
+            "description": "Bad Request 客户端传参异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "MBI.104000001",
+                "error_msg": "The mandatory parameter is missing."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "401": {
+            "description": "Unauthorized 未鉴权或鉴权失败。",
+            "examples": {
+              "application/json": {
+                "error_code": "MBI.0000000004",
+                "error_msg": "Illegal request."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "403": {
+            "description": "Forbidden 权限受限。",
+            "examples": {
+              "application/json": {
+                "error_code": "MBI.104030001",
+                "error_msg": "Insufficient permissions, non-flagship enterprise."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "MBI.105000001",
+                "error_msg": "The server is busy."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          }
+        },
+        "x-imports": [
+          "com.huawei.springframework.security.auth.annotation.TokenAuthorization;",
+          "com.huawei.springframework.security.auth.constants.*;"
+        ],
+        "x-methodAnnotations": [
+          "@TokenAuthorization(userType = {UserTypeEnum.CORP_MEMBER}, adminType = {AdminTypeEnum.DEFAULT_ADMIN, AdminTypeEnum.COMMON_ADMIN})"
+        ],
+        "x-name": "查询企业级会议总体统计数据",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/metrics/dashboard/statistic/conference/info?timeUnit=D&startTime=2021-03-02&endTime=2021-03-03&category=conference_info&offset=0&limit=20"
+      }
+    }
+  },
+  "definitions": {
+    "StatisticConferenceDataItem": {
+      "x-annotations": [
+        "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)"
+      ],
+      "description": "会议总体数据的单个时间点数据。",
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "description": "日期/月份,category = conference_info时有效。\n小时,category = conference_hourly_info时有效。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "confCount": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "会议数(含VMR)。\ncategory = conference_info时有效。"
+        },
+        "confDuration": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "会议时长(秒)(含VMR)。\ncategory = conference_info时有效。"
+        },
+        "attendeeCount": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "与会人次(含VMR)。\ncategory = conference_info时有效。"
+        },
+        "confConcurrentUsedCount": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "并发会议使用数。\ncategory = conference_info时有效。"
+        },
+        "conf24hCount": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "小时单位会议数(含VMR)。\ncategory = conference_hourly_info时有效。"
+        },
+        "conf24hAttendeeCount": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "小时单位与会人次(含VMR)。\ncategory = conference_hourly_info时有效。"
+        }
+      }
+    },
+    "RestFailedResult": {
+      "description": "处理失败返回结果。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "结果码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "结果描述。"
+        }
+      }
+    },
+    "SearchStatisticConferenceInfoResult": {
+      "x-annotations": [
+        "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
+      ],
+      "description": "会议总体统计数据查询结果。",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "总记录数。",
+          "minimum": 0,
+          "example": 1
+        },
+        "limit": {
+          "type": "integer",
+          "description": "查询条目数量。",
+          "minimum": 10,
+          "maximum": 500,
+          "example": 20
+        },
+        "offset": {
+          "type": "integer",
+          "description": "查询偏移量。",
+          "minimum": 0,
+          "example": 0
+        },
+        "data": {
+          "description": "会议总体数据按时间点统计的查询结果数组。",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/StatisticConferenceDataItem"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Access-Token": {
+      "name": "X-Access-Token",
+      "in": "header",
+      "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+      "required": true,
+      "format": "password",
+      "type": "string",
+      "x-example": "stb42Kw30IPpsIRm3DhsE0ym7B2tdAHcwfyY"
+    }
+  },
+  "host": "api.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

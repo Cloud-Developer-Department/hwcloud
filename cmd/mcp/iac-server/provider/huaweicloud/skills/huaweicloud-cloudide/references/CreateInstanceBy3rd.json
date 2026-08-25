@@ -1,0 +1,301 @@
+{
+  "name": "CreateInstanceBy3rd",
+  "summary": "外部第三方集成商创建IDE实例",
+  "tags": "IDE实例管理",
+  "productshort": "CloudIDE",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/instances": {
+      "post": {
+        "tags": [
+          "IDE实例管理"
+        ],
+        "summary": "外部第三方集成商创建IDE实例",
+        "description": "创建IDE实例",
+        "operationId": "CreateInstanceBy3rd",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100000,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "instance_label",
+            "in": "query",
+            "description": "实例标签(不同的第三方需要和CodeArtsIDEOnline服务共同设定标签)。不传默认为classroom",
+            "required": false,
+            "minLength": 0,
+            "maxLength": 255,
+            "type": "string",
+            "x-example": "classroom"
+          },
+          {
+            "in": "body",
+            "name": "CreateInstanceBy3rdRequestBody",
+            "description": "请求参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InstanceEdgeParam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/InstancesResponseInstancesVO"
+            },
+            "examples": {
+              "application/json": {
+                "result": {
+                  "link": "https://*****/cloudide/loading?instanceId=mpdrao",
+                  "arch": "x86",
+                  "id": "mpdrao",
+                  "private": false
+                },
+                "status": "success"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          },
+          "406": {
+            "description": "Not Acceptable",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-description-1": "外部第三方集成商创建IDE实例",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/instances",
+        "x-request-examples-1": {
+          "instance_name": "testjava",
+          "stack_id": "java",
+          "description": "",
+          "cpu_memory": "2U4G",
+          "pvc_quantity": "5GB",
+          "refresh_time": "30",
+          "is_temporary": false,
+          "instance_user_id": "test",
+          "instance_user_domain_id": "test"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "InstancesResponseInstancesVO": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "返回值",
+          "type": "object",
+          "properties": {
+            "link": {
+              "type": "string",
+              "description": "链接",
+              "minLength": 0,
+              "maxLength": 255
+            },
+            "arch": {
+              "type": "string",
+              "description": "cpu架构 x86|arm",
+              "enum": [
+                "x86",
+                "arm"
+              ],
+              "pattern": "^arm$|^x86$"
+            },
+            "id": {
+              "type": "string",
+              "description": "实例id",
+              "pattern": "^[a-zA-Z0-9][-_.a-zA-Z0-9]{1,126}[a-zA-Z0-9]$"
+            },
+            "private": {
+              "type": "boolean",
+              "description": "是否私有平台"
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "状态",
+          "minLength": 0,
+          "maxLength": 100,
+          "example": "success"
+        }
+      },
+      "title": "InstancesResponseInstancesVO"
+    },
+    "InstanceEdgeParam": {
+      "type": "object",
+      "required": [
+        "instance_name",
+        "stack_id",
+        "cpu_memory",
+        "pvc_quantity"
+      ],
+      "properties": {
+        "arch": {
+          "type": "string",
+          "description": "cpu架构 x86|arm",
+          "example": "x86",
+          "enum": [
+            "x86",
+            "arm"
+          ],
+          "pattern": "^arm$|^x86$"
+        },
+        "cpu_memory": {
+          "type": "string",
+          "description": "cpu规格.arm架构支持4U8G,x86架构支持1U1G,2U4G,2U8G\n与技术栈配置的规格对应,可通过技术栈管理ListStacks接口获取。如果标签不为空,以标签配置的技术栈规格为准。\nquantum技术栈,x86架构cpu规格为2U8G;其他技术栈,x86架构cpu规格为1U1G,2U4G",
+          "example": "2U4G",
+          "enum": [
+            "1U1G",
+            "2U4G",
+            "2U8G",
+            "4U8G"
+          ],
+          "pattern": "^1U1G$|^2U4G$|^2U8G$|^4U8G$"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述。长度不操过100个字符",
+          "minLength": 0,
+          "maxLength": 100,
+          "example": "test"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "实例名。\n可以输入中文、数字、字母、下划线、点、破折号。长度介于3-100之间",
+          "minLength": 3,
+          "maxLength": 100,
+          "example": "test"
+        },
+        "instance_user_domain_id": {
+          "type": "string",
+          "description": "租户id(对应华为云帐号的domainId)",
+          "pattern": "^[a-zA-Z0-9][-_. a-zA-Z0-9]{1,253}$",
+          "example": "6251b1ee539f4c02ad4b83daeda81633"
+        },
+        "instance_user_id": {
+          "type": "string",
+          "description": "用户id",
+          "pattern": "^[a-zA-Z0-9][-_. a-zA-Z0-9]{1,253}$",
+          "example": "0dc311a468024ad5bf18591c8361272a"
+        },
+        "is_temporary": {
+          "type": "boolean",
+          "description": "是否页面显示(以标签配置为准)",
+          "example": false
+        },
+        "plugins": {
+          "type": "array",
+          "description": "插件列表",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/Plugin"
+          }
+        },
+        "pvc_quantity": {
+          "type": "string",
+          "description": "PVC规格 5GB|10GB|20GB",
+          "enum": [
+            "5GB",
+            "10GB",
+            "20GB"
+          ],
+          "pattern": "^5GB$|^10GB$|^20GB$",
+          "example": "5GB"
+        },
+        "refresh_time": {
+          "type": "string",
+          "description": "自动休眠时长。\narm架构,自动休眠时长只能设置成30,60。x86架构可取值为30,60,240,1440和-1。除-1外,其它值的单位为“分钟”。实例无操作超过自动休眠时长后,将会被暂停(已保存的数据不会被删除)。-1表示实例不会自动停止。",
+          "pattern": "^30$|^60$|^240$|^1440$|^-1$",
+          "example": "30"
+        },
+        "stack_id": {
+          "type": "string",
+          "description": "技术栈ID,通过技术栈管理ListStacks接口获取。",
+          "pattern": "^[a-zA-Z0-9][-_.a-zA-Z0-9]{0,126}[a-zA-Z0-9]$",
+          "example": "all"
+        }
+      },
+      "title": "InstanceEdgeParam"
+    },
+    "CloudBUErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 0,
+          "maxLength": 100
+        }
+      },
+      "title": "CloudBUErrorResponse"
+    },
+    "Plugin": {
+      "type": "object",
+      "properties": {
+        "attribute": {
+          "type": "string",
+          "description": "插件属性",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "name": {
+          "type": "string",
+          "description": "插件名",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "title": "Plugin"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cloudide.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

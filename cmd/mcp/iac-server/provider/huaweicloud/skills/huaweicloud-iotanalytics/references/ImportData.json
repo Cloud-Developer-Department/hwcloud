@@ -1,0 +1,245 @@
+{
+  "name": "ImportData",
+  "summary": "执行导入数据离线作业",
+  "tags": "离线分析作业运行结果",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/batch/jobs/import/runs": {
+      "post": {
+        "tags": [
+          "dataset"
+        ],
+        "summary": "执行导入数据离线作业",
+        "description": "将数据从文件导入OBS表。",
+        "operationId": "ImportData",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "pattern": "^\\S+$",
+            "x-maxLength": 65535
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。获取方式请参考获取项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[a-z0-9]{32}$",
+            "x-maxLength": 32,
+            "x-minLength": 32
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "作业信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImportDataRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ImportDataResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010",
+              "IoTA.04010302",
+              "IoTA.04010303",
+              "IoTA.04010509",
+              "IoTA.04010607"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000001",
+              "IoTA.99000002",
+              "IoTA.99000004",
+              "IoTA.99000005",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009",
+              "IoTA.04010701"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.04010609",
+              "IoTA.04010505"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999",
+              "IoTA.04010309"
+            ]
+          }
+        },
+        "security": [
+          {
+            "iota_auth": [
+              "write:iota",
+              "read:iota"
+            ]
+          }
+        ],
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ImportDataRequestBody": {
+      "type": "object",
+      "required": [
+        "computing_resource_id",
+        "data_path",
+        "data_type",
+        "table_id"
+      ],
+      "properties": {
+        "data_path": {
+          "type": "string",
+          "description": "导入的数据路径(当前仅支持导入OBS上的数据,且OBS路径须以s3a开头)。必须先把该OBS桶添加到离线数据源。",
+          "maxLength": 256,
+          "pattern": "^s3a://.+$"
+        },
+        "data_type": {
+          "type": "string",
+          "description": "导入的数据类型(当前支持csv、parquet、orc、json、avro数据类型)。",
+          "maxLength": 16,
+          "pattern": "^csv|CSV|parquet|PARQUET|orc|ORC|json|JSON|avro|AVRO$"
+        },
+        "table_id": {
+          "type": "string",
+          "description": "表ID。",
+          "maxLength": 32
+        },
+        "with_column_header": {
+          "type": "string",
+          "description": "导入数据中的第一行数据是否包括列名,即表头。默认为“false”,表示不包括列名。导入CSV类型数据时可指定。",
+          "maxLength": 8
+        },
+        "delimiter": {
+          "type": "string",
+          "description": "用户自定义数据分隔符,默认为逗号。导入CSV类型数据时可指定。",
+          "maxLength": 8
+        },
+        "quote_char": {
+          "type": "string",
+          "description": "用户自定义引用字符,默认为双引号。导入CSV类型数据时可指定。",
+          "maxLength": 8
+        },
+        "escape_char": {
+          "type": "string",
+          "description": "用户自定义转义字符,默认为反斜杠。导入CSV类型数据时可指定。",
+          "maxLength": 8
+        },
+        "date_format": {
+          "type": "string",
+          "description": "指定特定的日期格式,默认为“yyyy-MM-dd”。日期格式字符定义详见表3。导入CSV及JSON类型数据时可指定。",
+          "maxLength": 32
+        },
+        "bad_records_path": {
+          "type": "string",
+          "description": "作业执行过程中的bad records存储目录。设置该配置项后,bad records不会导入到目标表。",
+          "maxLength": 256
+        },
+        "timestamp_format": {
+          "type": "string",
+          "description": "指定特定的时间格式,默认为“yyyy-MM-dd HH:mm:ss”。时间格式字符定义详见表3。导入CSV及JSON类型数据时可指定。",
+          "maxLength": 32
+        },
+        "computing_resource_id": {
+          "type": "string",
+          "description": "计算资源ID。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "ImportDataResponseBody": {
+      "type": "object",
+      "properties": {
+        "table_id": {
+          "type": "string",
+          "description": "表ID。",
+          "maxLength": 64
+        },
+        "job_id": {
+          "type": "string",
+          "description": "作业ID。"
+        },
+        "run_id": {
+          "type": "string",
+          "description": "作业运行ID。"
+        }
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

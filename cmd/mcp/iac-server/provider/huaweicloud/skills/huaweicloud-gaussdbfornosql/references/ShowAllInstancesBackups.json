@@ -1,0 +1,256 @@
+{
+  "name": "ShowAllInstancesBackups",
+  "summary": "查询备份列表",
+  "tags": "备份与恢复",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/backups": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/backups?offset=1&limit=10&datastore_type=cassandra&instance_id=c0c9f155c7b7423a9d30f0175998b63bin06",
+        "tags": [
+          "备份与恢复"
+        ],
+        "summary": "查询备份列表",
+        "description": "根据指定条件查询备份列表。",
+        "operationId": "ShowAllInstancesBackups",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "用户在某一region下的projectId。"
+          },
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": true,
+            "description": "分页页码。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "description": "每页条数。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 100
+          },
+          {
+            "name": "datastore_type",
+            "in": "query",
+            "required": false,
+            "description": "引擎类型 不传该参数则查询所有的引擎。",
+            "type": "string",
+            "enum": [
+              "cassandra",
+              "mongodb",
+              "redis",
+              "influxdb"
+            ],
+            "allowEmptyValue": true
+          },
+          {
+            "name": "instance_id",
+            "in": "query",
+            "required": false,
+            "description": "实例ID 不传该参数则查询所有备份列表。",
+            "type": "string"
+          },
+          {
+            "name": "backup_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "备份ID。"
+          },
+          {
+            "name": "backup_type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "备份类型。",
+            "enum": [
+              "Auto 自动全量备份",
+              "Manual 手动全量备份。"
+            ]
+          },
+          {
+            "name": "begin_time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "查询备份开始的时间,格式为“yyyy-mm-dd hh:mm:ss”。该时间为UTC时间。"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "查询备份开始的结束时间,格式为“yyyy-mm-dd hh:mm:ss”。该时间为UTC时间。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/QueryInstanceBackupResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "backups": [
+                  {
+                    "id": "042359855a184ce68cfe27deb5d5fdd8br12",
+                    "name": "backup-f698",
+                    "description": "创建备份test",
+                    "begin_time": "2022-01-01 00:00:00",
+                    "end_time": "2022-01-01 01:00:00",
+                    "status": "COMPLETED",
+                    "size": 1160.60254,
+                    "type": "Manual",
+                    "instance_id": "afab085da48748138eaaec11ed09fd30in12",
+                    "instance_name": "redis-ff23",
+                    "datastore": {
+                      "type": "redis",
+                      "version": "5.0.4.0"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QueryInstanceBackupResponseBody": {
+      "type": "object",
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "总记录数。"
+        },
+        "backups": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "备份ID。"
+              },
+              "name": {
+                "type": "string",
+                "description": "备份名称。"
+              },
+              "description": {
+                "type": "string",
+                "description": "备份描述信息。"
+              },
+              "begin_time": {
+                "type": "string",
+                "format": "date-time",
+                "description": "备份开始时间,格式为“yyyy-mm-dd hh:mm:ss”。该时间为UTC时间。"
+              },
+              "end_time": {
+                "type": "string",
+                "format": "date-time",
+                "description": "备份结束时间,格式为“yyyy-mm-dd hh:mm:ss”。该时间为UTC时间。"
+              },
+              "status": {
+                "type": "string",
+                "description": "备份状态。",
+                "enum": [
+                  "BUILDING:备份中",
+                  "COMPLETED:备份完成",
+                  "FAILED:备份失败"
+                ]
+              },
+              "size": {
+                "type": "number",
+                "format": "double",
+                "description": "备份大小,单位:KB。"
+              },
+              "type": {
+                "type": "string",
+                "description": "备份类型。",
+                "enum": [
+                  "Auto 自动全量备份",
+                  "Manual 手动全量备份。"
+                ]
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "实例ID。"
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "实例名称。"
+              },
+              "datastore": {
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "数据库类型。"
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "数据库版本。"
+                  }
+                },
+                "required": [
+                  "type",
+                  "version"
+                ],
+                "description": "数据库信息。"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "begin_time",
+              "end_time",
+              "status",
+              "size",
+              "type",
+              "instance_id",
+              "instance_name",
+              "datastore"
+            ]
+          },
+          "description": "备份列表信息。"
+        }
+      },
+      "required": [
+        "total_count"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

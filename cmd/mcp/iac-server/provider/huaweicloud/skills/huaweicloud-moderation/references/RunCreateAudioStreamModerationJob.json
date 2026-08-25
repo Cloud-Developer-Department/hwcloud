@@ -1,0 +1,203 @@
+{
+  "name": "RunCreateAudioStreamModerationJob",
+  "summary": "创建音频流内容审核作业",
+  "tags": "音频流内容审核",
+  "productshort": "Moderation",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v3/{project_id}/moderation/audio-stream/jobs": {
+      "post": {
+        "x-request-examples-description-1": "创建音频流内容审核作业请求体",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/{project_id}/moderation/audio-stream/jobs",
+        "x-request-examples-text-1": {
+          "data": {
+            "url": "https://xxxxx"
+          },
+          "event_type": "default",
+          "categories": [
+            "porn",
+            "ad"
+          ],
+          "callback": "http://xxxx"
+        },
+        "x-request-examples-1": {
+          "data": {
+            "url": "https://xxxxx"
+          },
+          "event_type": "default",
+          "categories": [
+            "porn",
+            "ad"
+          ],
+          "callback": "http://xxxx"
+        },
+        "tags": [
+          "音频流内容审核"
+        ],
+        "operationId": "RunCreateAudioStreamModerationJob",
+        "summary": "创建音频流内容审核作业",
+        "description": "创建音频流内容审核作业,创建成功会将作业ID返回给用户",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "用户的project_id 登陆华为云 -> 用户中心 -> 我的凭证 -> api凭证 即可查看对应区域的项目ID。"
+          },
+          {
+            "in": "body",
+            "name": "RunCreateAudioStreamModerationJobRequestBody",
+            "description": "创建音频流内容审核作业请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AudioStreamCreateRequest"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。 通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回成功响应体",
+            "schema": {
+              "$ref": "#/definitions/AudioStreamCreateResponse"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "01661356800_7c0fe871f80543358917e4faebca4a48",
+                "request_id": "07490f57ac5e034c077ab25b5f9e1da5"
+              }
+            }
+          },
+          "400": {
+            "description": "返回失败响应体",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "AIS.0401",
+                "error_msg": "The input parameter event_type is incorrect."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AudioCreateResponse": {
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "example": "58e7d9c7-3456-4ba1-80df-6f25506bc4df",
+          "description": "本次请求的唯一标识,用于问题排查,建议保存。",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "job_id": {
+          "type": "string",
+          "description": "作业唯一标识。"
+        }
+      }
+    },
+    "AudioStreamCreateRequest": {
+      "type": "object",
+      "required": [
+        "data",
+        "event_type",
+        "categories",
+        "callback"
+      ],
+      "properties": {
+        "data": {
+          "description": "音频流数据输入",
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "音频流url地址,支持rtmp、rtmps、hls、http、https等主流协议。"
+            },
+            "language": {
+              "type": "string",
+              "description": "指定音频流中语种类型 zh: 中文,默认值为zh"
+            },
+            "return_all_results": {
+              "type": "boolean",
+              "description": "返回音频片段结果的策略。可选值如下:\nfalse:返回风险等级为非pass的音频片段结果\ntrue:返回所有风险等级的音频片段结果\n说明:\n1. 默认值为false;\n2. 每隔10秒返回一次最近10秒音频流的审核结果。"
+            }
+          }
+        },
+        "event_type": {
+          "type": "string",
+          "description": "事件类型,可选值如下:\ndefault:默认事件\naudiobook:有声书\neducation:教育音频\ngame:游戏语音房\nlive:秀场直播\necommerce:电商直播\nvoiceroom:交友语音房\nprivate:私密语音聊天"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "需要检测的风险类型,列表不能为空。\nporn:涉黄检测\npolitics: 涉政检测\nabuse: 辱骂检测\nad: 广告检测\nmoan: 娇喘检测"
+        },
+        "callback": {
+          "type": "string",
+          "description": "回调http接口,服务将根据该字段回调通知用户审核结果,流未结束时,回调审核违规内容,流结束时,审核片段违规或不违规都将回调客户端。\n回调内容如下:\n```\n{\n    \"job_id\":\"xxxxxx\",\n    \"status\":\"running\", //running - 审核中,succeeded - 审核完成,failed - 审核失败\n    \"request_id\":\"2419446b1fe14203f64e4018d12db3dd\",\n    \"create_time\":\"2022-07-30T08:57:11.011Z\",\n    \"update_time\":\"2022-07-30T08:57:14.014Z\",\n    \"result\":{\n        \"suggestion\":\"block\",\n        \"details\":[\n            {\n                \"suggestion\":\"block\",\n                \"label\":\"politics\",\n                \"audio_text\":\"xxxx\",\n                \"start_time\":\"2022-07-30T08:57:11.011Z\",\t// 当前音频片段开始的绝对时间\n                \"end_time\":\"2022-07-30T08:57:21.011Z\",     // 当前音频片段结束的绝对时间\n                \"segments\":[\n                    {\n                        \"segment\":\"xxx\"\n                    },\n                    {\n                        \"segment\":\"xxx\"\n                    },\n                    {\n                        \"segment\":\"xxx\"\n                    }\n                ]\n            }\n        ],\n        \"request_params\":{\n            \"event_type\":\"default\",\n            \"data\":{\n                \"url\":\"rtmp://xxxx\"\n            },\n            \"callback\":\"http://xxx\",\n            \"categories\":[\n                \"porn\",\n                \"ad\"\n            ]\n        }\n    }\n}"
+        },
+        "seed": {
+          "type": "string",
+          "description": "用于回调通知时校验请求由华为云内容安全服务发起,由您自定义。随机字符串,由英文字母、数字、下划线组成,不超过64个字符。\n说明:当seed非空时,headers中将包含X-Auth-Signature字段,字段的值使用HmacSHA256算法生成,待加密字符串由create_time、job_id、request_id、seed按照顺序拼接而成,密钥为seed。"
+        }
+      }
+    },
+    "AudioStreamCreateResponse": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AudioCreateResponse"
+        }
+      ]
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "调用失败时的错误码,具体请参见错误码。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "调用失败时的错误信息。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "moderation.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

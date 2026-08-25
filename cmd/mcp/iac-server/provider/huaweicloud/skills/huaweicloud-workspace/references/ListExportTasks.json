@@ -1,0 +1,286 @@
+{
+  "name": "ListExportTasks",
+  "summary": "查询导出任务列表",
+  "tags": "导出中心",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/export-tasks": {
+      "get": {
+        "tags": [
+          "export"
+        ],
+        "summary": "查询导出任务列表",
+        "description": "查询导出任务列表。",
+        "operationId": "ListExportTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-annotations": [
+              "@Size(max = 255, min = 1)"
+            ]
+          },
+          {
+            "name": "file_name",
+            "in": "query",
+            "description": "文件名。",
+            "required": false,
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 0
+          },
+          {
+            "name": "task_id",
+            "in": "query",
+            "description": "任务id。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "导出任务的状态,取值为 CREATING, SUCCESS, FAIL, EXPIRED; CREATING为进行中,SUCCESS为成功,FAIL为失败,EXPIRED为过期。",
+            "required": false,
+            "type": "string",
+            "pattern": "^(CREATING|SUCCESS|FAIL|EXPIRED)$",
+            "enum": [
+              "CREATING",
+              "SUCCESS",
+              "FAIL",
+              "EXPIRED"
+            ]
+          },
+          {
+            "name": "is_download",
+            "in": "query",
+            "description": "是否已下载,取值范围:true和false,默认值false。",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "sort_field",
+            "in": "query",
+            "description": "排序字段名称,需要结合sort_type字段一起使用。\n- create_time 创建时间。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "enum": [
+              "create_time"
+            ]
+          },
+          {
+            "name": "sort_type",
+            "in": "query",
+            "description": "排序类型,默认升序,需要结合sort_field字段一起使用。\n- ASC 升序。\n- DESC 降序。",
+            "required": false,
+            "type": "string",
+            "pattern": "^(ASC|DESC)$",
+            "enum": [
+              "ASC",
+              "DESC"
+            ]
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "分页偏移量,默认值:0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 2147483646,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页大小,取值范围1-100,默认值:20。",
+            "required": false,
+            "type": "integer",
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功。",
+            "examples": {
+              "application/json": {
+                "export_tasks": [
+                  {
+                    "task_id": "string",
+                    "file_name": "string",
+                    "status": "CREATING",
+                    "fail_reason": "string",
+                    "error_code": "string",
+                    "create_time": "2022-03-28'T'00:00:00.000Z",
+                    "end_time": "2022-03-28'T'00:00:00.000Z",
+                    "is_download": true
+                  }
+                ],
+                "count": 1
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListExportTasksRsp"
+            }
+          },
+          "400": {
+            "description": "客户端请求有误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "public,internal_token",
+        "x-apiexplorer-hide": "N",
+        "x-imports": [
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta"
+        ],
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:tenants:listExportTasks\", authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, rbac = {\"te_admin\", \"wks_adm\"})",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"listExportTasks\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ExportTaskItem": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "导出任务id。",
+          "readOnly": true
+        },
+        "file_name": {
+          "type": "string",
+          "description": "导出文件名。",
+          "readOnly": true
+        },
+        "status": {
+          "type": "string",
+          "example": "CREATING",
+          "description": "导出任务的状态,取值为 CREATING, SUCCESS, FAIL, EXPIRED; CREATING为进行中,SUCCESS为成功,FAIL为失败,EXPIRED为过期。",
+          "readOnly": true,
+          "pattern": "^(CREATING|SUCCESS|FAIL|EXPIRED)$",
+          "enum": [
+            "CREATING",
+            "SUCCESS",
+            "FAIL",
+            "EXPIRED"
+          ]
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "任务失败的原因。",
+          "readOnly": true
+        },
+        "error_code": {
+          "type": "string",
+          "description": "任务失败错误码。",
+          "readOnly": true
+        },
+        "create_time": {
+          "type": "string",
+          "example": "2022-03-28'T'00:00:00.000Z",
+          "description": "导出任务的开始时间, utc时间:yyyy-MM-dd'T'HH:mm:ss.SSSZ。",
+          "readOnly": true
+        },
+        "end_time": {
+          "type": "string",
+          "example": "2022-03-28'T'00:00:00.000Z",
+          "description": "导出任务的结束时间, utc时间:yyyy-MM-dd'T'HH:mm:ss.SSSZ。",
+          "readOnly": true
+        },
+        "is_download": {
+          "type": "boolean",
+          "description": "是否已下载。",
+          "readOnly": true
+        }
+      },
+      "description": "导出任务item。"
+    },
+    "ListExportTasksRsp": {
+      "properties": {
+        "export_tasks": {
+          "type": "array",
+          "description": "导出任务列表。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/ExportTaskItem"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "导出任务总数。",
+          "readOnly": true
+        }
+      },
+      "description": "查询导出任务响应体。"
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

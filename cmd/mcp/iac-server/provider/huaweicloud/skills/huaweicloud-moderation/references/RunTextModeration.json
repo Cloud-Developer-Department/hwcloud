@@ -1,0 +1,337 @@
+{
+  "name": "RunTextModeration",
+  "summary": "文本内容审核",
+  "tags": "文本内容审核",
+  "productshort": "Moderation",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v3/{project_id}/moderation/text": {
+      "post": {
+        "tags": [
+          "文本内容审核"
+        ],
+        "operationId": "RunTextModeration",
+        "summary": "文本内容审核",
+        "description": "分析并识别用户上传的文本内容是否有敏感内容(如色情、政治等),并将识别结果返回给用户",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "用户的project_id 登陆华为云 -> 用户中心 -> 我的凭证 -> api凭证 即可查看对应区域的项目ID。"
+          },
+          {
+            "in": "body",
+            "name": "RunTextModerationRequestBody",
+            "description": "文本内容审核请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TextDetectionReq"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。 通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "type": "string"
+          },
+          {
+            "name": "Enterprise-Project-Id",
+            "in": "header",
+            "description": "企业项目ID。Moderation支持通过企业项目管理(EPS)对不同用户组和用户的资源使用,进行分账。\n获取方法:进入“[企业项目管理](https://console.huaweicloud.com/eps/?region=cn-north-4#/projects/list)”页面,单击企业项目名称,在企业项目详情页获取Enterprise-Project-Id(企业项目ID)。\n企业项目创建步骤请参见用户指南。\n> 说明:\n创建企业项目后,在传参时,有以下三类场景。\n- 携带正确的ID,正常使用Moderation服务,账单的企业项目会被分类到企业ID对应的企业项目中。\n- 携带格式正确但不存在的ID,正常使用Moderation服务,账单的企业项目会显示对应不存在的企业项目ID。\n- 不携带ID或格式错误ID(包含特殊字符等),正常使用Moderation服务,账单的企业项目会被分类到\"default\"中。",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应体",
+            "schema": {
+              "$ref": "#/definitions/TextDetectionResponse"
+            },
+            "examples": {
+              "application/json": {
+                "request_id": "58e7d9c7-3456-4ba1-80df-6f25506bc4df",
+                "result": {
+                  "suggestion": "block",
+                  "label": "customized",
+                  "details": [
+                    {
+                      "suggestion": "block",
+                      "label": "customized",
+                      "confidence": 1,
+                      "segments": [
+                        {
+                          "segment": "xxx",
+                          "glossary_name": "zzz"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "失败响应体",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "AIS.0011",
+                "error_msg": "Lack the request parameter, or the request parameter is empty."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/{project_id}/moderation/text",
+        "x-request-examples-text-1": {
+          "event_type": "comment",
+          "glossary_names": [
+            "custom_xxx"
+          ],
+          "white_glossary_names": [
+            "custom_xxx"
+          ],
+          "data": {
+            "text": "asdfasdfasdf"
+          }
+        },
+        "x-request-examples-1": {
+          "event_type": "comment",
+          "glossary_names": [
+            "custom_xxx"
+          ],
+          "white_glossary_names": [
+            "custom_xxx"
+          ],
+          "data": {
+            "text": "asdfasdfasdf"
+          }
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v3/{project_id}/moderation/text",
+        "x-request-examples-description-2": "使用biz_type调用",
+        "x-request-examples-text-2": {
+          "biz_type": "my_custom_type",
+          "data": {
+            "text": "asdfasdfasdf"
+          }
+        },
+        "x-request-examples-2": {
+          "biz_type": "my_custom_type",
+          "data": {
+            "text": "asdfasdfasdf"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TextDetectionResponse": {
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 64,
+          "example": "58e7d9c7-3456-4ba1-80df-6f25506bc4df",
+          "description": "本次请求的唯一标识,用于问题排查,建议保存"
+        },
+        "result": {
+          "description": "调用成功时表示调用结果。\n\n调用失败时无此字段。",
+          "$ref": "#/definitions/TextDetectionResult"
+        }
+      }
+    },
+    "SegmentResult": {
+      "properties": {
+        "segment": {
+          "type": "string",
+          "description": "命中的风险片段。",
+          "example": "xxx"
+        },
+        "glossary_name": {
+          "type": "string",
+          "description": "命中的自定义词库名称。\n\n命中自定义词库时,才会返回当前字段。",
+          "example": "zzz"
+        },
+        "position": {
+          "type": "array",
+          "description": "命中的风险片段在文本中的位置,起始位置从0开始",
+          "example": [
+            3,
+            4,
+            5
+          ],
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "TextDetectionDataReq": {
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "待检测文本,编码格式为“utf-8”,限定2000个字符以内,文本长度超过10000个字符时,只检测前10000个字符。",
+          "minLength": 1,
+          "maxLength": 10000,
+          "example": "asdfasdfasdf"
+        },
+        "language": {
+          "type": "string",
+          "description": "支持检测的文本语言",
+          "example": "zh",
+          "enum": [
+            "zh"
+          ]
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "TextDetectionResultDetail": {
+      "properties": {
+        "suggestion": {
+          "type": "string",
+          "description": "审核结果是否通过。\n\nblock:包含敏感信息,不通过\n\npass:不包含敏感信息,通过\n\nreview:需要人工复检",
+          "example": "block"
+        },
+        "label": {
+          "type": "string",
+          "description": "检测结果的标签。\n\n支持label列表如下:\n\npolitics: 涉政\n\nterrorism: 暴恐\n\nporn: 色情\n\nban: 违禁\n\nabuse: 辱骂\n\nad: 广告\n\nad_law: 广告法\n\ncustomized:自定义(命中自定义词库中的关键词)",
+          "example": "customized"
+        },
+        "confidence": {
+          "type": "number",
+          "format": "float",
+          "description": "置信度,取值范围 0-1,值越大,可信度越高。",
+          "example": 1
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SegmentResult"
+          },
+          "description": "命中的风险片段信息,如果命中了语义算法模型,则会返回一个空的列表。"
+        }
+      }
+    },
+    "TextDetectionReq": {
+      "description": "文本内容审核请求体",
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "description": "事件类型。\n\n可选值如下:\n\nnickname: 昵称\n\ntitle: 标题\n\narticle: 帖子\n\ncomment: 评论\n\nbarrage: 弹幕\n\nsearch: 搜索栏\n\nprofile: 个人简介",
+          "example": "comment"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "文本审核场景,可选值如下:\nterrorism: 暴恐\nporn: 色情\nban: 违禁\nabuse: 辱骂\nad: 广告\n当categories缺省或为空时,默认审核terrorism、porn、ban、abuse、ad。",
+          "example": [
+            "porn",
+            "ad"
+          ]
+        },
+        "glossary_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "检测时使用的自定义黑名单词库列表。自定义黑词库的创建和使用请参见[配置定义黑名单词库](https://support.huaweicloud.com/api-moderation/moderation_03_0027.html#moderation_03_0027__section12400140132318)。",
+          "example": [
+            "custom_xxx"
+          ],
+          "x-open-region-cloud": "hc"
+        },
+        "data": {
+          "$ref": "#/definitions/TextDetectionDataReq"
+        },
+        "white_glossary_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "检测时使用的自定义白名单词库列表。自定义白词库的创建和使用请参见[配置定义白名单词库](https://support.huaweicloud.com/api-moderation/moderation_03_0027.html#moderation_03_0027__section178844141394)。",
+          "example": [
+            "custom_xxx"
+          ],
+          "x-open-region-cloud": "hc"
+        },
+        "biz_type": {
+          "type": "string",
+          "description": "自定义审核策略名称,可在控制台配置;如果请求参数中传了biz_type则优先使用biz_type,如果用户没传biz_type则event_type必须传。",
+          "example": "my_custom_type",
+          "x-open-region-cloud": "hc"
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "调用失败时的错误码,具体请参见错误码。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "调用失败时的错误信息。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "TextDetectionResult": {
+      "properties": {
+        "suggestion": {
+          "type": "string",
+          "description": "审核结果是否通过。\n\nblock:包含敏感信息,不通过\n\npass:不包含敏感信息,通过\n\nreview:需要人工复检",
+          "example": "block"
+        },
+        "label": {
+          "type": "string",
+          "description": "检测结果的标签。\n\n支持label列表如下:\n\npolitics: 涉政\n\nterrorism: 暴恐\n\nporn: 色情\n\nban: 违禁\n\nabuse: 辱骂\n\nad: 广告\n\nad_law: 广告法\n\nmeaningless: 无意义\n\ncustomized:自定义(命中自定义词库中的关键词)",
+          "example": "customized"
+        },
+        "details": {
+          "items": {
+            "$ref": "#/definitions/TextDetectionResultDetail"
+          },
+          "type": "array",
+          "description": "检测详情"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "moderation.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,251 @@
+{
+  "name": "CreatePrivateProviderVersion",
+  "summary": "创建私有provider版本",
+  "tags": "资源编排-自定义provider",
+  "productshort": "AOS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/private-providers/{provider_name}/versions": {
+      "post": {
+        "tags": [
+          "CustomizedProvider"
+        ],
+        "summary": "创建私有provider版本",
+        "description": "创建私有provider版本(CreatePrivateProviderVersion)\n\n  * provider的版本号需遵循语义化版本号(Semantic Version),为用户自定义。\n  * 如果provider_name和provider_id同时存在,则资源编排服务会检查是否两个匹配,如果不匹配则会返回400。\n  * 资源编排服务只会对function_graph_urn进行浅校验,如是否符合正则,是否仅指定为当前region等。并不会深度校验,即用户是否存在权限调用,是否真实存在等。",
+        "operationId": "CreatePrivateProviderVersion",
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一Id,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "provider_name",
+            "in": "path",
+            "description": "私有provider(private-provider)的名称。此名字在domain_id+region下应唯一,可以使用小写英文、数字、中划线。仅支持以小写英文、数字开头结尾。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[0-9a-z]([0-9a-z-]*[0-9a-z])*$"
+          },
+          {
+            "in": "body",
+            "name": "CreatePrivateProviderVersionRequestBody",
+            "description": "CreatePrivateProviderVersion API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePrivateProviderVersionRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "创建成功,无数据返回"
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 用户无权限调用此API\n2. 私有provider版本数量达到上限",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "私有provider不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "创建冲突,同名的版本号(provider_version)已经存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "Y",
+        "x-rfs-external": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/private-providers/my-hello-world-provider-name/versions",
+        "x-request-examples-description-1": "创建一个新的私有provider版本",
+        "x-request-examples-1": {
+          "provider_version": "0.0.2",
+          "function_graph_urn": "urn:fss:cn-north-7:a61dfe3154de42829367056598d5040f:function:default:test:latest",
+          "version_description": "my second private provider version"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/private-providers/my-hello-world-provider-name/versions",
+        "x-request-examples-description-2": "创建一个新的私有provider版本,并带有provider ID",
+        "x-request-examples-2": {
+          "provider_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+          "provider_version": "0.0.1",
+          "function_graph_urn": "urn:fss:cn-north-7:a61dfe3154de42829367056598d5040f:function:default:test:latest",
+          "version_description": "my first private provider version"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PrivateProviderVersionDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "version_description": {
+          "type": "string",
+          "description": "私有provider版本(provider version)的描述。可用于客户识别并管理私有provider的版本。注意:provider版本为不可更新(immutable),所以该字段不可更新,如果需要更新,请删除后重建",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "version_description": "my first hello world private provider version"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "FunctionGraphUrnRequiredPrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "function_graph_urn"
+      ],
+      "properties": {
+        "function_graph_urn": {
+          "type": "string",
+          "description": "FunctionGraph方法的统一资源标识,用于标识唯一的FunctionGraph方法。当前只支持和RFS同region的function_graph_urn,如果给予了关于其他region的,会报错400。\n\n关于该参数的详细解释,请参考官方文档:https://support.huaweicloud.com/api-functiongraph/functiongraph_06_0102.html",
+          "minLength": 32,
+          "maxLength": 256,
+          "pattern": "^urn:fss:.+:[A-Za-z0-9]{3,64}:function:default:[A-Za-z][A-Za-z0-9_-]{0,58}[A-Za-z0-9]:([A-Za-z0-9][A-Za-z0-9_.-]{0,40}|![A-Za-z][A-Za-z0-9_-]{0,61})[A-Za-z0-9]$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "function_graph_urn": "urn:fss:cn-north-7:b61dfe3154de42829787126568d5040f:function:default:myFG:latest"
+      }
+    },
+    "CreatePrivateProviderVersionRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateProviderIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderVersionRequiredPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderVersionDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/FunctionGraphUrnRequiredPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PrivateProviderVersionRequiredPrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "provider_version"
+      ],
+      "properties": {
+        "provider_version": {
+          "type": "string",
+          "description": "provider的版本号。版本号必须遵循语义化版本号(Semantic Version),为用户自定义",
+          "minLength": 5,
+          "maxLength": 128,
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "provider_version": "3.7.10"
+      }
+    },
+    "PrivateProviderIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "私有provider(private-provider)的唯一Id。\n\n此Id由资源编排服务在生成provider的时候生成,为UUID。\n\n由于私有provider名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的私有provider,删除,再重新创建一个同名私有provider。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有provider就是我以为的那个,而不是其他队友删除后创建的同名私有provider。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有provider所对应的Id都不相同,更新不会影响Id。如果给予的provider_id和当前provider的Id不一致,则返回400",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "provider_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

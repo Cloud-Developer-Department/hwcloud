@@ -1,0 +1,308 @@
+{
+  "name": "GetScriptJobInfo",
+  "summary": "展示脚本工单基本信息",
+  "tags": "ScriptExecutionManagement",
+  "productshort": "COC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/job/script/orders/{execute_uuid}": {
+      "get": {
+        "tags": [
+          "ScriptExecutionManagement"
+        ],
+        "summary": "展示脚本工单基本信息",
+        "description": "查询执行:基本信息\n执行类型、执行名称、创建人、创建时间、结束时间、执行状态、标签(脚本id,脚本名,执行脚本参数,执行用户,超时时长、成功率阈值)\n\n不同的任务类型消费标签中的不同key",
+        "operationId": "GetScriptJobInfo",
+        "parameters": [
+          {
+            "name": "execute_uuid",
+            "in": "path",
+            "description": "脚本工单的执行Id,取自executeJobScript和ListJobScriptOrders返回体中",
+            "required": true,
+            "type": "string",
+            "maxLength": 26,
+            "minLength": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "国际化标记,zh-cn表示中文,en-us或不传表示英文",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-project-id",
+            "in": "header",
+            "description": "项目ID,一个项目对应一个region",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-user-profile",
+            "in": "header",
+            "description": "IAM5.0用户信息",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "执行基本信息",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "execute_uuid": "SCT2023102211473xxxxxxxxxx",
+                  "gmt_created": 1697946452186,
+                  "gmt_finished": 1697946763469,
+                  "execute_costs": 311282,
+                  "creator": "xxxxxxxxxxxcontainer1",
+                  "status": "CANCELED",
+                  "properties": {
+                    "script_uuid": "SC2023101717xxxxxxxxxxxxx",
+                    "script_name": "xjptxxxxxxxx",
+                    "current_execute_batch_index": 1,
+                    "execute_param": {
+                      "resourceful": true,
+                      "timeout": 300,
+                      "execute_user": "root",
+                      "success_rate": 100,
+                      "script_params": []
+                    },
+                    "script_source": "CUSTOM_SCRIPT"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowScriptOrderBasicInfoRes"
+            }
+          }
+        },
+        "x-apiexplorer-hide": false,
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ScriptExecuteParam": {
+      "type": "object",
+      "required": [
+        "execute_user",
+        "success_rate",
+        "timeout"
+      ],
+      "properties": {
+        "resourceful": {
+          "type": "boolean",
+          "example": true,
+          "description": "该参数已废弃,传入该参数不会生效。"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 30,
+          "description": "超时时间,单位:秒,取值范围待定,5 < timeout < 1800",
+          "minimum": 5,
+          "maximum": 1800,
+          "exclusiveMinimum": true,
+          "exclusiveMaximum": true
+        },
+        "success_rate": {
+          "type": "number",
+          "format": "double",
+          "example": 100.0,
+          "description": "成功率,支持小数点后一位",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "execute_user": {
+          "type": "string",
+          "example": "root",
+          "description": "脚本执行用户,如:root",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "script_params": {
+          "type": "array",
+          "description": "脚本入参列表",
+          "items": {
+            "$ref": "#/definitions/ScriptExecuteInputParam"
+          }
+        }
+      },
+      "description": "脚本执行相关参数"
+    },
+    "ScriptExecuteInputParam": {
+      "type": "object",
+      "required": [
+        "param_name",
+        "param_value"
+      ],
+      "properties": {
+        "param_name": {
+          "type": "string",
+          "example": "value",
+          "description": "脚本入参的名称,同一个脚本,参数名不能重复",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "[A-Za-z0-9_]+$"
+        },
+        "param_value": {
+          "type": "string",
+          "example": "test",
+          "description": "脚本入参的值,默认必填。有引用参数(param_refer不为空)时,允许为空\n1.参数长度为1-4096位\n2.可以包含大写字母、小写字母、数字及特殊字符(_-/.* ?:\",=+@#\\[{]})\n3.禁止出现连续'.'",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "param_order": {
+          "type": "integer",
+          "format": "int32",
+          "description": "该参数已废弃,传入该参数不会生效。"
+        },
+        "param_refer": {
+          "description": "参数引用",
+          "$ref": "#/definitions/ScriptExecuteParamReference"
+        }
+      }
+    },
+    "JobScriptOrderInfoProp": {
+      "type": "object",
+      "properties": {
+        "script_uuid": {
+          "type": "string",
+          "description": "脚本uuid"
+        },
+        "script_name": {
+          "type": "string",
+          "description": "脚本名称"
+        },
+        "script_version_uuid": {
+          "type": "integer",
+          "format": "int64",
+          "description": "脚本版本uuid",
+          "x-internal": "false"
+        },
+        "script_version_name": {
+          "type": "string",
+          "description": "脚本版本名",
+          "x-internal": "false"
+        },
+        "current_execute_batch_index": {
+          "type": "integer",
+          "format": "int32",
+          "description": "当前执行批次index"
+        },
+        "execute_param": {
+          "description": "执行脚本参数,执行用户,超时时长、成功率阈值等",
+          "$ref": "#/definitions/ScriptExecuteParam"
+        }
+      },
+      "description": "基本信息"
+    },
+    "ScriptExecuteParamReference": {
+      "type": "object",
+      "required": [
+        "param_id",
+        "refer_type"
+      ],
+      "properties": {
+        "refer_type": {
+          "type": "string",
+          "description": "参数引用类型:PARAM_STORE"
+        },
+        "param_id": {
+          "type": "string",
+          "example": "LOW",
+          "description": "引用参数的唯一主键id",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        },
+        "param_version": {
+          "type": "string",
+          "example": "v1.0.0",
+          "description": "引用参数的版本号",
+          "minLength": 1,
+          "maxLength": 10
+        }
+      },
+      "description": "脚本执行入参引用定义"
+    },
+    "ShowScriptOrderBasicInfoRes": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "description": "返回结果",
+          "$ref": "#/definitions/JobScriptOrderInfoModel"
+        }
+      },
+      "description": "工单基本信息"
+    },
+    "JobScriptOrderInfoModel": {
+      "type": "object",
+      "properties": {
+        "execute_uuid": {
+          "type": "string",
+          "description": "执行uuid"
+        },
+        "gmt_created": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行创建时间"
+        },
+        "gmt_finished": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行完成时间"
+        },
+        "execute_costs": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行耗时,单位:秒"
+        },
+        "creator": {
+          "type": "string",
+          "description": "创建人"
+        },
+        "status": {
+          "type": "string",
+          "description": "执行状态",
+          "enum": [
+            "READY",
+            "PROCESSING",
+            "ABNORMAL",
+            "PAUSED",
+            "CANCELED",
+            "FINISHED"
+          ]
+        },
+        "properties": {
+          "description": "属性:脚本id,脚本名,执行脚本参数,执行用户,超时时长、成功率阈值、当前执行批次index等",
+          "$ref": "#/definitions/JobScriptOrderInfoProp"
+        }
+      },
+      "description": "基本信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc-intl.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

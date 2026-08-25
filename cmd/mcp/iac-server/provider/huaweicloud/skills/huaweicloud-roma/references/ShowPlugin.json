@@ -1,0 +1,254 @@
+{
+  "name": "ShowPlugin",
+  "summary": "查询插件详情",
+  "tags": "插件管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/plugins/{plugin_id}": {
+      "get": {
+        "tags": [
+          "插件管理"
+        ],
+        "x-apigateway-request-type": "public",
+        "x-romaconnect-mode": "on-premise",
+        "x-api-version": "v2",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-order": 5,
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "operationId": "ShowPlugin",
+        "summary": "查询插件详情",
+        "description": "查询插件详情。",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "name": "plugin_id",
+            "type": "string",
+            "required": true,
+            "in": "path",
+            "description": "插件编号",
+            "x-example": "5b729aa252764739b3s237ef0d66dc63"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PluginInfo"
+            },
+            "examples": {
+              "application/json": {
+                "plugin_id": "5b729aa252764739b3s237ef0d66dc63",
+                "plugin_name": "跨域插件",
+                "plugin_type": "cors",
+                "plugin_scope": "global",
+                "plugin_content": "{\"allow_origin\": \"*\",\"allow_methods\": \"GET,POST,PUT\",\"allow_headers\": \"Content-Type,Accept,Accept-Ranges,Cache-Control\",\"expose_headers\": \"X-Request-Id,X-Apig-Latency\",\"max_age\": 172800,\"allow_credentials\": true}",
+                "remark": "CORS跨域资源访问",
+                "create_time": "2022-11-02T12:31:23.353Z",
+                "update_time": "2022-11-02T12:31:23.353Z"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:instance_id. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3068",
+                "error_msg": "Plugin b294018ee0554156a875b3513e02e5b9 does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "PluginInfo": {
+      "required": [
+        "plugin_id",
+        "plugin_name",
+        "plugin_type",
+        "plugin_scope",
+        "plugin_content"
+      ],
+      "properties": {
+        "plugin_id": {
+          "type": "string",
+          "description": "插件编码。",
+          "example": "5b729aa252764739b3s237ef0d66dc63"
+        },
+        "plugin_name": {
+          "type": "string",
+          "pattern": "^([a-zA-Z]|[\\一-\\龥])([a-zA-Z0-9_]|[\\一-\\龥]){2,254}$",
+          "description": "插件名称。支持汉字,英文,数字,下划线,且只能以英文和汉字开头,3-255字符。\n> 中文字符必须为UTF-8或者unicode编码。",
+          "example": "跨域插件"
+        },
+        "plugin_type": {
+          "type": "string",
+          "enum": [
+            "cors",
+            "set_resp_headers",
+            "kafka_log",
+            "breaker",
+            "rate_limit",
+            "third_auth"
+          ],
+          "description": "插件类型\n- cors:跨域资源共享\n- set_resp_headers:HTTP响应头管理\n- kafka_log:Kafka日志推送\n- breaker:断路器\n- rate_limit: 流量控制\n- third_auth: 第三方认证",
+          "example": "cors"
+        },
+        "plugin_scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "app"
+          ],
+          "description": "插件可见范围\n- global:全局可见\n- app:集成应用可见",
+          "example": "global"
+        },
+        "plugin_content": {
+          "type": "string",
+          "maxLength": 65535,
+          "description": "插件定义内容,支持json。参考提供的具体模型定义\n\nCorsPluginContent:跨域资源共享 定义内容\nSetRespHeadersContent:HTTP响应头管理 定义内容\nKafkaLogContent:Kafka日志推送 定义内容\nBreakerContent:断路器 定义内容\nRateLimitContent 流量控制 定义内容\nThirdAuthContent: 第三方认证 定义内容",
+          "example": "'{\n  \"allow_origin\":\"*\",\n  \"allow_methods\":\"GET,POST,PUT,DELETE,HEAD,PATCH\",\n  \"allow_headers\":\"Content-Type,Accept,Accept-Ranges,Cache-Control\",\n  \"expose_headers\":\"X-Request-Id,X-Apig-Latency\",\n  \"max_age\":600,\n  \"allow_credentials\":false\n}'"
+        },
+        "remark": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "插件描述,255字符。\n> 中文字符必须为UTF-8或者unicode编码。",
+          "example": "CORS跨域资源访问"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间。",
+          "example": "2022-11-02T12:31:23.353Z"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "更新时间。",
+          "example": "2022-11-02T12:31:23.353Z"
+        },
+        "roma_app_id": {
+          "type": "string",
+          "description": "归属集成应用编码,plugin_scope为app时生效",
+          "example": "82a9a3c3-781f-440a-ae4b-fb0cc88e22c8"
+        },
+        "roma_app_name": {
+          "type": "string",
+          "description": "API归属的集成应用名称",
+          "example": "roma-app-demo"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

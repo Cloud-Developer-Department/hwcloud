@@ -1,0 +1,230 @@
+{
+  "name": "ExportCertificate",
+  "summary": "导出证书",
+  "tags": "私有证书管理",
+  "productshort": "CCM",
+  "region_id": "eu-west-101",
+  "paths": {
+    "/v1/private-certificates/{certificate_id}/export": {
+      "post": {
+        "tags": [
+          "私有证书管理"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "导出证书",
+        "description": "导出证书。\n  - 国际算法\n    - 选择是否压缩时,分以下两种情况:\n      - is_compressed为true时,返回文件压缩包,命名为:证书名称_type字段小写字母.zip,如”test_apache.zip“。\n        - 系统生成密钥签发证书\n          - type = \"**APACHE**\"时,压缩包中包含三个文件:**server.key**(密钥文件,内容为PEM格式,若导出证书时设置密码,则为加密后的私钥)、**chain.crt**(证书链,内容为PEM格式)、**server.crt**(证书,内容为PEM格式);\n          - type = \"**IIS**\"时,压缩包中包含两个文件:**keystorePass.txt**(keystore口令,若导出证书时设置密码,则无此密码文件)、**server.pfx**(PFX证书,证书与证书链包含在同一个文件);\n          - type = \"**NGINX**\"时,压缩包中包含两个文件:**server.key**(密钥文件,内容为PEM格式,若导出证书时设置密码,则为加密后的私钥)、**server.crt**(内容为PEM格式,证书与证书链包含在同一个文件);\n          - type = \"**TOMCAT**\"时,压缩包中包含两个文件:**keystorePass.txt**(keystore口令,若导出证书时设置密码,则无此密码文件)、**server.jks**(JKX证书,证书与证书链包含在同一个文件);\n          - type = \"**OTHER**\"时,压缩包中包含三个文件:**server.key**(密钥文件,内容为PEM格式,若导出证书时设置密码,则为加密后的私钥)、**chain.pem**(证书链)、**server.pem**(证书)。\n        - 导入CSR签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**TOMCAT**\"时,压缩包中包含两个文件:**chain.crt**(证书链,内容为PEM格式)、**server.crt**(证书,内容为PEM格式);\n          - type = \"**NGINX**\"时,压缩包中包含一个文件:**server.crt**(证书,内容为PEM格式);\n          - type = \"**OTHER**\"时,压缩包中包含两个文件:**chain.pem**(证书链,内容为PEM格式)、**cert.pem**(证书,内容为PEM格式)。\n      - is_compressed为false时,返回json格式,返回的具体参数如下:\n        - 系统生成密钥签发证书\n          - type = \"**APACHE**\"或\"**NGINX**\"或\"**OTHER**\"时,返回参数如下:\n            - **certificate**(证书内容,PEM格式);\n            - **certificate_chain**(证书链,PEM格式);\n            - **private_key**(证书私钥,PEM格式,若导出证书时设置密码,则为加密后的私钥);\n          - type = \"**IIS**\"或\"**TOMCAT**\"时,暂时未定义。\n        - 导入CSR签发证书\n          - type = \"**APACHE**\"或\"**NGINX**\"或\"**IIS**\"或\"**TOMCAT**\"或\"**OTHER**\"时,返回参数如下:\n            - **certificate**(证书内容,PEM格式);\n            - **certificate_chain**(证书链,PEM格式);\n  - 国密算法(中国站)\n    - 选择是否压缩和是否国密标准时,分以下四种情况:\n      - is_compressed为true、is_sm_standard为true时,返回文件压缩包,命名为:证书名称_type字段小写字母.zip,如”test_apache.zip“。\n        - 系统生成密钥签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,压缩包中包含六个文件:**chain.pem**(证书链,内容为PEM格式)、**signCert.key**(签名证书密钥文件,内容为PEM格式,若导出证书时设置密码,则为加密后的私钥)、**signCert.pem**(签名证书,内容为PEM格式)、**encSm2EnvelopedKey.key**(加密证书的国密GMT0009标准规范数字信封文件,内容为BASE64编码)、**signedAndEnvelopedData.key**(加密证书的国密GMT0010标准规范数字信封文件,内容为BASE64编码)、**encCert.pem**(加密证书,内容为PEM格式)。\n        - 导入CSR签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,压缩包中包含五个文件:**chain.pem**(证书链,内容为PEM格式)、**signCert.pem**(签名证书,内容为PEM格式)、**encSm2EnvelopedKey.key**(加密证书的国密GMT0009标准规范数字信封文件,内容为BASE64编码)、**signedAndEnvelopedData.key**(加密证书的国密GMT0010标准规范数字信封文件,内容为BASE64编码)、**encCert.pem**(加密证书,内容为PEM格式)。\n      - is_compressed为true、is_sm_standard为false时,返回文件压缩包,命名为:证书名称_type字段小写字母.zip,如”test_apache.zip“。\n        - 系统生成密钥签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,压缩包中包含五个文件:**chain.pem**(证书链,内容为PEM格式)、**signCert.key**(签名证书密钥文件,内容为PEM格式,若导出证书时设置密码,则为加密后的私钥)、**signCert.pem**(签名证书,内容为PEM格式)、**encCert.key**(加密证书密钥文件,内容为PEM格式,若导出证书时设置密码,则为加密后的私钥)、**encCert.pem**(加密证书,内容为PEM格式)。\n        - 导入CSR签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,压缩包中包含四个文件:**chain.pem**(证书链,内容为PEM格式)、**signCert.pem**(签名证书,内容为PEM格式)、**encCert.key**(加密证书密钥文件,内容为PEM格式)、**encCert.pem**(加密证书,内容为PEM格式)。\n      - is_compressed为false、is_sm_standard为true时,返回json格式,返回的具体参数如下:\n        - 系统生成密钥签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,返回参数如下:\n            - **certificate_chain**(证书链,PEM格式);\n            - **certificate**(签名证书内容,PEM格式);\n            - **private_key**(签名证书私钥,PEM格式,若导出证书时设置密码,则为加密后的私钥);\n            - **enc_certificate**(加密证书内容,PEM格式);\n            - **enc_sm2_enveloped_key**(加密证书的国密GMT0009标准规范数字信封文件,BASE64编码);\n            - **signed_and_enveloped_data**(加密证书的国密GMT0010标准规范数字信封文件,BASE64编码)。\n        - 导入CSR签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,返回参数如下:\n            - **certificate_chain**(证书链,PEM格式);\n            - **certificate**(签名证书内容,PEM格式);\n            - **enc_certificate**(加密证书内容,PEM格式);\n            - **enc_sm2_enveloped_key**(加密证书的国密GMT0009标准规范数字信封文件,BASE64编码);\n            - **signed_and_enveloped_data**(加密证书的国密GMT0010标准规范数字信封文件,BASE64编码)。\n      - is_compressed为false、is_sm_standard为false时,返回json格式,返回的具体参数如下:\n        - 系统生成密钥签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,返回参数如下:\n            - **certificate_chain**(证书链,PEM格式);\n            - **certificate**(签名证书内容,PEM格式);\n            - **private_key**(签名证书私钥,PEM格式,若导出证书时设置密码,则为加密后的私钥);\n            - **enc_certificate**(加密证书内容,PEM格式);\n            - **enc_private_key**(加密证书私钥,PEM格式,若导出证书时设置密码,则为加密后的私钥)。\n        - 导入CSR签发证书\n          - type = \"**APACHE**\"或\"**IIS**\"或\"**NGINX**\"或\"**TOMCAT**\"时,暂时未定义;\n          - type = \"**OTHER**\"时,返回参数如下:\n            - **certificate_chain**(证书链,PEM格式);\n            - **certificate**(签名证书内容,PEM格式);\n            - **enc_certificate**(加密证书内容,PEM格式);\n            - **enc_private_key**(加密证书私钥,PEM格式)。\n> 只有当证书状态为“已签发”时,可进行导出操作。",
+        "operationId": "ExportCertificate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "certificate_id",
+            "in": "path",
+            "description": "所要导出的私有证书ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36,
+            "x-example": "50608bba-87c2-45f8-9fc7-5723766ced75"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户token,参见:[IAM token获取方法](https://support.huaweicloud.com/api-iam/iam_30_0001.html)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIePgYJKoZIhvcNAQcCoIIeLzCCHisCAQExDTALBglghkgBZQMEAgEwghxOBgkqhkiG9w0BBwGgghw..."
+          },
+          {
+            "in": "body",
+            "name": "ExportCertificateRequestBody",
+            "description": "ExportCertificateRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ExportCertificateRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "导出证书,请求头中的**X-Auth-Token**字段需要填写token,且该token需要具有本API的访问权限。",
+        "x-request-examples-url-1": "POST https://ccm.cn-north-4.myhuaweicloud.com/v1/private-certificates/6434f74f-2d13-4e6a-89eb-93ee313f1a43/export",
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/ExportCertificateResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "certificate": "-----BEGIN CERTIFICATE-----\r\n******\r\n-----END CERTIFICATE-----",
+                "certificate_chain": "-----BEGIN CERTIFICATE-----\r\n******\r\n-----END CERTIFICATE-----\r\n-----BEGIN CERTIFICATE-----\r\n******\r\n-----END CERTIFICATE-----",
+                "private_key": "-----BEGIN RSA PRIVATE KEY-----\r\n******\r\n-----END RSA PRIVATE KEY-----\r\n"
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要鉴权。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "403": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或资源未找到。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "500": {
+            "description": "服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-1": {
+          "type": "OTHER",
+          "is_compressed": "false",
+          "password": "test"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息。"
+        }
+      },
+      "title": "Error"
+    },
+    "ExportCertificateResponseBody": {
+      "properties": {
+        "private_key": {
+          "type": "string",
+          "description": "私钥内容。"
+        },
+        "certificate": {
+          "type": "string",
+          "description": "证书内容。"
+        },
+        "certificate_chain": {
+          "type": "string",
+          "description": "证书链内容。"
+        },
+        "enc_certificate": {
+          "type": "string",
+          "description": "加密证书内容。"
+        },
+        "enc_private_key": {
+          "type": "string",
+          "description": "加密私钥内容。"
+        },
+        "enc_sm2_enveloped_key": {
+          "type": "string",
+          "description": "加密私钥的国密GMT0009标准规范SM2数字信封。"
+        },
+        "signed_and_enveloped_data": {
+          "type": "string",
+          "description": "加密私钥的国密GMT0010标准规范签名数字信封。"
+        }
+      },
+      "title": "ExportCertificateResponseBody"
+    },
+    "ExportCertificateRequestBody": {
+      "required": [
+        "type",
+        "is_compressed"
+      ],
+      "type": "object",
+      "properties": {
+        "is_compressed": {
+          "type": "string",
+          "description": "是否压缩。\n  - **true**\n  - **false**"
+        },
+        "type": {
+          "type": "string",
+          "description": "根据服务器类型选择下载证书的形式,支持以下五种类型:\n  - **APACHE** : apache服务器推荐使用此参数;\n  - **NGINX** : nginx服务器推荐使用此参数;\n  - **IIS** : windows服务器推荐使用此参数;\n  - **TOMCAT** : tomcat服务器推荐使用此参数;\n  - **OTHER** : 下载PEM格式证书,推荐使用此参数。"
+        },
+        "is_sm_standard": {
+          "type": "string",
+          "description": "是否国密GMT0009标准规范和国密GMT0010标准规范。当证书算法为SM2时传入才有效,若不传入,则默认为false。\n  - **true**\n  - **false**",
+          "x-open-region-cloud": "hc"
+        },
+        "password": {
+          "type": "string",
+          "description": "设置用于加密私钥的密码。支持使用英文大小写字母、数字、特殊字符(例如,.+-_#)等。最大长度为32字节,若不传入,则默认不使用加密导出。"
+        }
+      },
+      "title": "ExportCertificateRequestBody"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ccm.eu-west-101.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,239 @@
+{
+  "name": "CreateInstance",
+  "summary": "创建实例",
+  "tags": "裸机实例管理",
+  "productshort": "CloudDC",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/instances": {
+      "post": {
+        "tags": [
+          "裸机实例管理"
+        ],
+        "summary": "创建实例",
+        "description": "创建实例,支持指定IP等更多个性化参数创建实例。\n\n调度策略支持:\n1、指定服务器\n2、基于空闲随机调度策略\n\n支持VPC网络及AI参数面网络配置。\n\n此接口为异步接口,实例的创建和启动不是立即完成的,通过接口 **ShowInstanceStatus** 查询实例状态为 **running** 代表实例创建成功。\n接口约束:服务器**manage_state**为 **ready**",
+        "operationId": "CreateInstance",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "name": "CreateInstanceRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "创建实例请求",
+            "schema": {
+              "$ref": "#/definitions/CreateInstanceOpitons"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "RunInstances应答",
+            "schema": {
+              "$ref": "#/definitions/CreateInstanceResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "CreateInstanceOpitons": {
+      "description": "创建实例请求参数",
+      "type": "object",
+      "required": [
+        "image_id",
+        "vpc_id",
+        "network_interfaces",
+        "password",
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "设置实例主机名称。取值范围:只能由中文字符、英文字母(a~z,A~Z)、数字(0~9)、下划线(_)、中划线(-)、点(.)组成,且长度为[1-63]个字符。",
+          "pattern": "^[\\一-\\龥a-zA-Z0-9-_]*$",
+          "maxLength": 63,
+          "minLength": 1,
+          "example": "test-name"
+        },
+        "image_id": {
+          "type": "string",
+          "description": "镜像ID",
+          "example": "0b982ae2-a5cc-4a3f-94d8-735d0b724f27",
+          "maxLength": 255
+        },
+        "vpc_id": {
+          "$ref": "#/definitions/VpcId"
+        },
+        "network_interfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NetworkInterface"
+          },
+          "description": "指定裸机实例的网卡信息。\n\n约束:\n一个裸机实例最多挂载2个网卡,参数中第一个网卡会作为裸机实例的主网卡。若用户指定了多组网卡参数,需保证各组参数都属于同一VPC。"
+        },
+        "password": {
+          "$ref": "#/definitions/Password"
+        },
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "description": {
+          "type": "string",
+          "description": "裸机实例的描述信息,默认为空字符串。",
+          "minLength": 255
+        },
+        "placement": {
+          "description": "实例placement,指定服务器策略,不指定默认从空闲服务器随机选择。",
+          "properties": {
+            "server_id": {
+              "type": "string",
+              "description": "指定服务器",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        }
+      }
+    },
+    "NetworkInterface": {
+      "type": "object",
+      "description": "弹性网卡",
+      "required": [
+        "subnet_id"
+      ],
+      "properties": {
+        "subnet_id": {
+          "type": "string",
+          "description": "subnet id",
+          "example": "696e4af7-e788-4dda-9866-61dcd30e0b88",
+          "maxLength": 255
+        },
+        "ipv4_address": {
+          "type": "string",
+          "description": "弹性网卡私有IPv4地址",
+          "example": "26.151.241.138",
+          "pattern": "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+          "minLength": 7,
+          "maxLength": 15
+        }
+      }
+    },
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "Password": {
+      "type": "string",
+      "description": "设置实例的管理员账户初始登录密码,其中,Linux管理员账户为root,Windows管理员账户为Administrator。",
+      "minLength": 8,
+      "maxLength": 26,
+      "pattern": "^$|^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,26}$",
+      "example": "Qwe@123asda"
+    },
+    "CreateInstanceResponseBody": {
+      "description": "CreateInstance应答",
+      "properties": {
+        "instance_id": {
+          "description": "实例id",
+          "type": "string",
+          "example": "896e4af7-e788-4dda-9866-61dcd30e0b8d"
+        }
+      }
+    },
+    "VpcId": {
+      "type": "string",
+      "description": "创建网卡所属的 VPC ID,可通过 VPC API 查询:https://support.huaweicloud.com/api-vpc/vpc_api01_0003.html。",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "4cba9711-2f53-4300-a52e-2442773acaac"
+    },
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "maximum": 10,
+      "description": "创建裸机实例的元数据。\n\n可以通过元数据自定义键值对。\n\n 说明:\n如果元数据中包含了敏感数据,您应当采取适当的措施来保护敏感数据,比如限制访问范围、加密等。\n最多可注入10对键值(Key/Value)。\n主键(Key)只能由大写字母(A-Z)、小写字母(a-z)、数字(0-9)、中划线(-)、下划线(_)、冒号(:)、空格( )和小数点(.)组成,长度为[1-255]个字符。\n    值(value)最大长度为255个字符。",
+      "example": [
+        {
+          "k1": "v1"
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

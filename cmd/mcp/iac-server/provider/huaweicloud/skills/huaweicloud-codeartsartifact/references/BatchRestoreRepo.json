@@ -1,0 +1,177 @@
+{
+  "name": "BatchRestoreRepo",
+  "summary": "批量还原回收站",
+  "tags": "回收站",
+  "productshort": "CodeArtsArtifact",
+  "region_id": "af-north-1",
+  "paths": {
+    "/cloudartifact/v5/trashes": {
+      "put": {
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-api-type": "open-api",
+        "tags": [
+          "回收站"
+        ],
+        "summary": "批量还原回收站",
+        "operationId": "BatchRestoreRepo",
+        "description": "批量还原回收站",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "BatchRestoreRepoRequestBody",
+            "description": "参数",
+            "required": true,
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/IDETrashArtifactModel"
+              },
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BatchDeleteTrashesResponseBody"
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED",
+            "schema": {
+              "$ref": "#/definitions/StandarErrorResponseV5"
+            }
+          }
+        },
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "StandarBaseResponseV5": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:\n请求成功或失败状态。\n**取值范围**:\n- success:请求成功。\n- error:请求失败。",
+          "example": "success",
+          "enum": [
+            "success",
+            "error"
+          ]
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "**参数解释**:\n请求ID,当前请求唯一标识。\n**取值范围**:\n数字及中划线(-)组成的字符串。"
+        }
+      }
+    },
+    "TrashcanResultData": {
+      "type": "object",
+      "properties": {
+        "successNum": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n成功数目。\n**取值范围**:\n不涉及。\n"
+        },
+        "failedNum": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n失败数目。\n**取值范围**:\n不涉及。\n"
+        },
+        "failedMessages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:\n失败原因。\n**取值范围**:\n不涉及。\n"
+        }
+      }
+    },
+    "StandarErrorResponseV5": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "结果状态"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "请求id"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误代码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    },
+    "IDETrashArtifactModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:\n仓库id,格式为{region}_{domainId}_{format}_{sequence}。可以从私有依赖库首页->仓库概览->仓库地址 url 中获取,最后两个\"/\"中间的字符串即为仓库id。\n**约束限制**:\n根据仓库id格式中region, domainId需要为有效值,format有效值为:npm|go|pypi|rpm|composer|maven|debian|conan|nuget|docker2|cocoapods|ohpm, sequence取值根据套餐不同有不同上限值。\n**取值范围**:\n不涉及。\n**默认取值**:\n无。",
+          "example": "xx-xxxxx-x_5a775fdcb14f4431b6c0015618140bc3_rpm_2"
+        },
+        "format": {
+          "type": "string",
+          "description": "**参数解释**:\n制品类型。\n**约束限制**:\n不涉及。\n**取值范围**:\nmaven2|docker|npm|go|pypi|rpm|composer|debian|conan|nuget|docker2|cocoapods|ohpm|generic。\n**默认取值**:\n无。",
+          "example": "rpm"
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:\n当前仓库状态。\n**约束限制**:\n不涉及。\n**取值范围**:\nactive:正常。\ntrash:废弃。\ndelete:删除。\n**默认取值**:\n无。",
+          "example": "active"
+        },
+        "uri": {
+          "type": "string",
+          "description": "**参数解释**:\n待还原的仓库路径。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n无。",
+          "example": "xx-xxxxx-x_5a775fdcb14f4431b6c0015618140bc3_rpm_2/1/2"
+        }
+      },
+      "required": [
+        "id",
+        "format",
+        "status",
+        "uri"
+      ],
+      "description": "回收站信息"
+    },
+    "BatchDeleteTrashesResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StandarBaseResponseV5"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "result": {
+              "description": "**参数解释**:\n批量操作结果。\n**取值范围**:\n不涉及。\n",
+              "$ref": "#/definitions/TrashcanResultData"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "artifact.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

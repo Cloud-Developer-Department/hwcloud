@@ -1,0 +1,427 @@
+{
+  "name": "ListStatisticsApi",
+  "summary": "查询API指标统计值",
+  "tags": "监控信息查询",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/statistics/api": {
+      "get": {
+        "summary": "查询API指标统计值",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-constraint": "调用超时或返回“request statistics error”报错时,请切换其他mode或缩短统计时长。",
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud",
+        "description": "查询某个实例下的API统计信息。",
+        "operationId": "ListStatisticsApi",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "监控信息查询"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "type": "string",
+            "description": "查询模式,默认为INSTANCE\n* ALL:实例下所有调用应用,要求主帐号权限\n* APP:指定集成应用\n* API:指定API\n* INSTANCE:实例,默认值\n\n注意:mode = APP或ALL时,接口响应中不返回cycle,api_id,group_id,provider,register_time,status字段\n\nmode = INSTANCE时,若不填写api_id或roma_app_id,则要求主帐号权限才能调用成功",
+            "default": "INSTANCE",
+            "enum": [
+              "INSTANCE",
+              "ALL",
+              "APP",
+              "API"
+            ],
+            "allowEmptyValue": true
+          },
+          {
+            "name": "roma_app_id",
+            "in": "query",
+            "type": "string",
+            "description": "集成应用编号,查询模式为APP时必填",
+            "x-example": "98df09fb-d459-4cbf-83a7-2b55ca6f3d5d"
+          },
+          {
+            "name": "api_id",
+            "in": "query",
+            "type": "string",
+            "description": "API编号,查询模式为API时必填"
+          },
+          {
+            "name": "cycle",
+            "in": "query",
+            "type": "string",
+            "description": "查询统计周期\n* minute:分钟\n* hour:小时\n* day:天\n\n例如,cycle=hour,duration=2h是指查询范围两小时以内,一小时一次数据采样,采样到的数据值为一小时内的累计值。",
+            "default": "minute",
+            "enum": [
+              "minute",
+              "hour",
+              "day"
+            ],
+            "allowEmptyValue": true
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "type": "string",
+            "description": "开始时间,格式:2020-06-18 10:00:01"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "type": "string",
+            "description": "结束时间,格式:2020-06-18 23:00:00"
+          },
+          {
+            "name": "duration",
+            "in": "query",
+            "type": "string",
+            "description": "统计时长格式:整数+单位(m、h),m:分钟,h:小时,可支持小时与分钟的组合。例如:1h或2h45m\n* 同时给定start_time和end_time优先查询[start_time, end_time]\n* start_time不存在,end_time和duration存在且合法,则查询区间为[end_time - duration, end_time]\n* start_time和end_time不存在,duration存在且合法,令end_time=now,则查询区间为[end_time - duration, end_time]\n* start_time,end_time和duration都不存在,报错missing time range parameters。\n* duration最长查询范围:小时最长支持72小时,分钟最长支持90分钟。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/StatisticsApiResp"
+            },
+            "examples": {
+              "application/json": {
+                "code": "APIG.0000",
+                "start_time": 1599400383,
+                "end_time": 1599616383,
+                "list": [
+                  {
+                    "max_latency": 0,
+                    "avg_latency": 0,
+                    "max_inner_latency": 0,
+                    "avg_inner_latency": 0,
+                    "max_backend_latency": 0,
+                    "avg_backend_latency": 0,
+                    "req_count": 5,
+                    "req_count2xx": 0,
+                    "req_count4xx": 0,
+                    "req_count5xx": 5,
+                    "req_count_error": 5,
+                    "output_throughput": 1695,
+                    "input_throughput": 2990,
+                    "current_minute": 1599552000,
+                    "req_time": "2020-09-08 16:00:00",
+                    "cycle": "HOUR",
+                    "api_id": "85deba41aae24839b14cdc03780e8bb6",
+                    "group_id": "22ea1e9d294e4349940b6452a7fd2207",
+                    "provider": "2cb5460f617c4822835e38f0966d8b93",
+                    "register_time": "2020-09-08 17:22:22"
+                  }
+                ]
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:api_id. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3002",
+                "error_msg": "API 39bce6d25a3f470e8cf7b2c97174f7d9 does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StatisticsAPI": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/LatencyStats"
+        },
+        {
+          "$ref": "#/definitions/RequestCountStats"
+        },
+        {
+          "$ref": "#/definitions/InnerLatencyStats"
+        },
+        {
+          "$ref": "#/definitions/BackendLatencyStats"
+        },
+        {
+          "$ref": "#/definitions/NetworkTrafficStats"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "current_minute": {
+              "description": "API访问的UTC时间戳",
+              "type": "integer",
+              "format": "int64"
+            },
+            "cycle": {
+              "description": "查询统计周期",
+              "type": "string",
+              "enum": [
+                "MINUTE",
+                "HOUR",
+                "DAY"
+              ]
+            },
+            "api_id": {
+              "description": "API编号",
+              "type": "string"
+            },
+            "group_id": {
+              "description": "API分组编号",
+              "type": "string"
+            },
+            "provider": {
+              "description": "API拥有者",
+              "type": "string"
+            },
+            "req_time": {
+              "description": "API请求时间",
+              "type": "string",
+              "format": "date-time"
+            },
+            "register_time": {
+              "description": "记录时间",
+              "type": "string",
+              "format": "date-time"
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "状态值:\n- 1:调度中,未上报CES\n- 2:已经成功上报CES\n\n预留字段,暂不支持",
+              "enum": [
+                1,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "LatencyStats": {
+      "properties": {
+        "max_latency": {
+          "description": "最大延时",
+          "type": "integer",
+          "format": "int32"
+        },
+        "avg_latency": {
+          "description": "平均延时",
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "BackendLatencyStats": {
+      "properties": {
+        "max_backend_latency": {
+          "description": "最大后端延时",
+          "type": "integer",
+          "format": "int32"
+        },
+        "avg_backend_latency": {
+          "description": "平均后端延时",
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "StatisticsApiResp": {
+      "properties": {
+        "code": {
+          "description": "响应码",
+          "type": "string"
+        },
+        "start_time": {
+          "description": "开始时间的UTC的时间戳",
+          "type": "integer",
+          "format": "int64"
+        },
+        "end_time": {
+          "description": "截止时间的UTC的时间戳",
+          "type": "integer",
+          "format": "int64"
+        },
+        "list": {
+          "description": "统计指标的数据结构结构体",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StatisticsAPI"
+          }
+        }
+      }
+    },
+    "RequestCountStats": {
+      "properties": {
+        "req_count": {
+          "description": "请求总次数",
+          "type": "integer",
+          "format": "int32"
+        },
+        "req_count2xx": {
+          "description": "2xx响应码总次数",
+          "type": "integer",
+          "format": "int32"
+        },
+        "req_count4xx": {
+          "description": "4xx响应码总次数",
+          "type": "integer",
+          "format": "int32"
+        },
+        "req_count5xx": {
+          "description": "5xx响应码总次数",
+          "type": "integer",
+          "format": "int32"
+        },
+        "req_count_error": {
+          "description": "错误次数",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "NetworkTrafficStats": {
+      "properties": {
+        "output_throughput": {
+          "description": "下行吞吐量(byte)",
+          "type": "integer",
+          "format": "int64"
+        },
+        "input_throughput": {
+          "description": "上行吞吐量(byte)",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "InnerLatencyStats": {
+      "properties": {
+        "max_inner_latency": {
+          "description": "最大网关内部延时",
+          "type": "integer",
+          "format": "int32"
+        },
+        "avg_inner_latency": {
+          "description": "平均网关内部延时",
+          "type": "number",
+          "format": "float"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,371 @@
+{
+  "name": "DeployStack",
+  "summary": "部署资源栈",
+  "tags": "资源编排-资源栈",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/deployments": {
+      "post": {
+        "tags": [
+          "Stack"
+        ],
+        "summary": "部署资源栈",
+        "description": "部署资源栈(DeployStack)\n\n此API用于部署一个已有的资源栈\n\n* 用户可以使用此API更新模板、参数等并触发一个新的部署\n\n* 此API会直接触发部署,如果用户希望先确认部署会发生的时间,请使用执行计划,即使用CreateExecutionPlan以创建执行计划、使用GetExecutionPlan以获取执行计划\n\n* 此API为全量API,即用户每次部署都需要给予所想要使用的template、vars的全量\n\n* 部署资源栈时,用户将模板中定义的资源删除(包括Import定义的资源),会触发实际资源的删除。建议通过CreateExecutionPlan查看模板修改后资源栈的部署行为,以避免误操作非预期资源\n\n* 当触发的部署失败时,如果资源栈开启了自动回滚,会触发自动回滚的流程,否则就会停留在部署失败时的状态",
+        "operationId": "DeployStack",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "in": "body",
+            "name": "DeployStackRequestBody",
+            "description": "DeployStack API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeployStackRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "请求接受,异步处理",
+            "examples": {
+              "x-response-examples-1": {
+                "deployment_id": "3fef5d3e-27b6-44e8-9769-1d7262bd9430"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DeployStackResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 资源栈状态非法,不允许部署\n2. 用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源栈不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "部署冲突,另一个请求正在操作此资源栈",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/deployments",
+        "x-request-examples-description-1": "通过OBS Signed URL传递模板和参数信息",
+        "x-request-examples-1": {
+          "template_uri": "https://my_hello_world_bucket.{region}.myhuaweicloud.com/my-hello-world-template.tf",
+          "vars_uri": "https://my_hello_world_bucket.{region}.myhuaweicloud.com/my-hello-world-vars.tfvars",
+          "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "VarsStructure": {
+      "type": "object",
+      "required": [
+        "var_key",
+        "var_value"
+      ],
+      "properties": {
+        "var_key": {
+          "type": "string",
+          "description": "参数的名字",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z]+[a-zA-Z0-9-_]*$"
+        },
+        "var_value": {
+          "type": "string",
+          "description": "参数的值。\n\n注意,参数需要以字符串形式存在,如果是数字,也需要以字符串形式存在,如'10'。\n\n如果需要支持不同类型,或者复杂结构,请使用vars_uri或vars_body",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "encryption": {
+          "$ref": "#/definitions/EncryptionStructure"
+        }
+      },
+      "description": "HCL支持参数,即,同一个模板可以给予不同的参数而达到不同的效果。\n\nvar_structure可以允许客户提交最简单的字符串类型的参数\n\n资源编排服务支持vars_structure,vars_body和vars_uri,如果以上三种方式中声明了同一个变量,将报错400\n\nvars_structure中的值只支持简单的字符串类型,如果需要使用其他类型,需要用户自己在HCL引用时转换,\n或者用户可以使用vars_uri、vars_body,vars_uri和vars_body中支持HCL支持的各种类型以及复杂结构\n\n如果vars_structure过大,可以使用vars_uri\n\n注意:vars中不应该传递任何敏感信息,资源编排服务会直接明文使用、log、展示和存储对应的vars"
+    },
+    "VarsURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_uri": {
+          "type": "string",
+          "description": "HCL参数文件的OBS地址。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n请确保OBS地址所在局点与使用RFS服务局点一致。\n\n* vars_uri需要指向一个OBS的pre-signed URL地址,其他地址暂不支持\n\n* 资源编排服务支持vars_body和vars_uri,如果以上两种方式中声明了同一个变量,将报错400\n\n* vars_uri中的内容使用HCL的tfvars格式,用户可以将“.tfvars”中的内容保存到文件并上传到OBS中,并将OBS pre-signed URL传递给vars_uri\n\n* 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储vars_uri对应的参数文件内容",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.tfvars){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "vars_uri": "https://your-bucket.cn-north-7.myhuaweicloud.com/my-hello-world-vars.tfvars"
+      }
+    },
+    "EncryptionStructure": {
+      "type": "object",
+      "required": [
+        "kms"
+      ],
+      "properties": {
+        "kms": {
+          "$ref": "#/definitions/KmsStructure"
+        }
+      },
+      "description": "如果用户传递的var_value是已经加密过的,可以通过声明此项以要求资源编排服务在使用前进行解密,目前暂时只支持KMS加解密"
+    },
+    "DeployStackResponseBody": {
+      "type": "object",
+      "properties": {
+        "deployment_id": {
+          "type": "string",
+          "description": "部署ID\n接受请求,进行异步处理。可以调用GetStackMetadata来获取异步请求的部署状态\n\n**注意:**\n* 部署资源栈后,资源编排服务持久化请求并立即返回,客户端不等待请求最终处理完成,用户无法实时感知请求处理结果\n* 资源编排服务最终会将异步部署请求排队,在服务端空闲的情况下逐个处理。用户最大等待时长为6小时"
+        }
+      },
+      "description": "deploy-stack Response"
+    },
+    "TemplateBodyPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "template_body": {
+          "type": "string",
+          "description": "HCL模板,描述了资源的目标状态。资源编排服务将比较此模板与当前远程资源的状态之间的区别。\n\ntemplate_body和template_uri 必须有且只有一个存在\n\n**注意:**\n  * 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储对应的template_body",
+          "minLength": 0,
+          "maxLength": 51200
+        }
+      },
+      "example": {
+        "template_body": ""
+      }
+    },
+    "TemplateURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "template_uri": {
+          "type": "string",
+          "description": "HCL模板的OBS地址,该模板描述了资源的目标状态。资源编排服务将比较此模板与当前远程资源的状态之间的区别\n\n请确保OBS地址所在局点与使用RFS服务局点一致。\n\n对应的文件应该是纯tf文件或zip压缩包\n\n纯tf文件需要以“.tf”或者“.tf.json”结尾,并遵守HCL语法,且文件的编码格式须为UTF-8\n\n压缩包目前只支持zip格式,文件需要以\".zip\"结尾。解压后的文件不得包含\".tfvars\"文件。解压前最大支持1MB,解压后最大支持1MB。zip压缩包文件数量不能超过100个\n\ntemplate_body和template_uri 必须有且只有一个存在\n\n**注意:**\n  * 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储template_uri对应的模板文件内容。\n  * template_uri对应的模板文件如果为zip类型,则内部的文件或文件夹名称长度不得超过255个字节,最深路径长度不得超过2048字节,zip包大小不得超过1MB",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.tf|\\.tf.json|\\.zip){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "template_uri": "https://your-bucket.cn-north-7.myhuaweicloud.com/my-hello-world-template.tf"
+      }
+    },
+    "StackIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_id": {
+          "type": "string",
+          "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400"
+        }
+      },
+      "example": {
+        "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "KmsStructure": {
+      "type": "object",
+      "required": [
+        "cipher_text",
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "解密时,资源编排服务应该使用的KMS密钥的ID,通常是加密时所使用的密钥ID",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$"
+        },
+        "cipher_text": {
+          "type": "string",
+          "description": "数据加密密钥所对应的密文",
+          "minLength": 2,
+          "maxLength": 2048
+        }
+      },
+      "description": "如果用户给予的var_value是经过KMS加密的,可以通过传递相关加密信息,资源编排服务在使用的时候会帮助用户进行KMS解密\n\n更多关于KMS加密以及KMS加密的样例代码请见:[KMS加密使用场景介绍](https://support.huaweicloud.com/productdesc-dew/dew_01_0006.html)\n\n\n**注意:**\n  * 请确保用户给予资源编排服务的委托中包含对指定密钥ID的操作权限\n  * KMS每个月有免费试用的额度,如果超过,则KMS需要收费,此费用不是资源编排服务收取,具体标准见:[https://www.huaweicloud.com/pricing.html?tab=detail#/dew](https://www.huaweicloud.com/pricing.html?tab=detail#/dew)\n  * KMS加密只代表资源编排服务在存储和传输的时候传递的是密文,但是在stack-events中依然是明文,如果希望在log中以密文形式对待,请在模板中声明sensitive,更多关于sensitive的介绍见:[https://developer.hashicorp.com/terraform/tutorials/configuration-language/sensitive-variables](https://developer.hashicorp.com/terraform/tutorials/configuration-language/sensitive-variables)"
+    },
+    "VarsBodyPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_body": {
+          "type": "string",
+          "description": "HCL参数文件的内容。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n* vars_body使用HCL的tfvars格式,用户可以将“.tfvars”中的内容提交到vars_body中\n\n* 资源编排服务支持vars_body和vars_uri,如果以上两种方式中声明了同一个变量,将报错400\n\n* 如果vars_body过大,可以使用vars_uri\n\n* 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储对应的vars_body。",
+          "minLength": 0,
+          "maxLength": 51200
+        }
+      },
+      "example": {
+        "vars_body": ""
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "VarsStructurePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_structure": {
+          "type": "array",
+          "description": "HCL参数结构。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n* var_structure可以允许客户提交最简单的字符串类型的参数\n\n* 资源编排服务支持vars_structure,vars_body和vars_uri,如果以上三种方式中声明了同一个变量,将报错400\n\n* vars_structure中的值只支持简单的字符串类型,如果需要使用其他类型,需要用户自己在HCL引用时转换,\n或者用户可以使用vars_uri、vars_body,vars_uri和vars_body中支持HCL支持的各种类型以及复杂结构\n\n* vars_structure最多允许100项,如果vars_structure过大,可以使用vars_uri\n\n* 注意:vars_structure中默认不应该含有任何敏感信息,资源编排服务会直接明文使用、log、展示和存储对应的vars。如为敏感信息,建议设置encryption字段开启加密",
+          "items": {
+            "$ref": "#/definitions/VarsStructure"
+          },
+          "maxItems": 100,
+          "minItems": 0,
+          "x-omitempty": true
+        }
+      },
+      "example": {
+        "vars_structure": [
+          {
+            "var_key": "region",
+            "var_value": "cn-north-7",
+            "encryption": {
+              "kms": {
+                "id": "344d38b3-267e-435c-a1e1-f50356162173",
+                "cipher_text": "jslkjreiqpeorikshshlld"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "DeployStackRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/TemplateBodyPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/TemplateURIPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsStructurePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsBodyPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsURIPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackIdPrimitiveTypeHolder"
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

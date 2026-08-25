@@ -1,0 +1,251 @@
+{
+  "name": "ListQualityTemplates",
+  "summary": "获取规则模板列表",
+  "tags": "规则模板接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/quality/rule-templates": {
+      "get": {
+        "tags": [
+          "规则模板接口"
+        ],
+        "x-support-sdk": "Y",
+        "summary": "获取规则模板列表",
+        "description": "分页获取规则模板列表",
+        "operationId": "ListQualityTemplates",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "project id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "description": "category id",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int64"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "system_template",
+            "in": "query",
+            "description": "是否只查询系统模板",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页时每页的条数,最大值为100",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "分页偏移量",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int32"
+          },
+          {
+            "name": "workspace",
+            "in": "header",
+            "description": "DataArts Studio工作空间ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "examples": {
+              "response": {
+                "count": 2,
+                "resources": [
+                  {
+                    "id": 1012384820829081600,
+                    "name": "test",
+                    "dimension": "Uniqueness",
+                    "sql_info": "select count(*) from ${Schema_Table1}",
+                    "abnormal_table_template": "",
+                    "category_id": 0,
+                    "type": "Table",
+                    "system_template": false,
+                    "create_time": 1661412950486,
+                    "creator": "ei",
+                    "result_description": "row : ${1}"
+                  },
+                  {
+                    "id": 1,
+                    "name": "表行数",
+                    "dimension": "Accuracy",
+                    "sql_info": "select count(1) from ${Schema_Table1}",
+                    "abnormal_table_template": "",
+                    "category_id": 0,
+                    "type": "Table",
+                    "system_template": true,
+                    "create_time": 1571328000000,
+                    "creator": "System",
+                    "result_description": "总行数 : ${1}"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RuleTemplateListVO"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/DqcErrorResponseVO"
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR",
+            "schema": {
+              "$ref": "#/definitions/DqcErrorResponseVO"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RuleTemplateListVO": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "example": 100,
+          "description": "总条数"
+        },
+        "resources": {
+          "type": "array",
+          "description": "分页数据",
+          "items": {
+            "$ref": "#/definitions/RuleTemplateDetailVO"
+          }
+        }
+      }
+    },
+    "RuleTemplateDetailVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "example": 925419155023364097,
+          "description": "id"
+        },
+        "name": {
+          "type": "string",
+          "example": "ruleTemplate1",
+          "description": "name"
+        },
+        "category_id": {
+          "type": "integer",
+          "format": "int64",
+          "example": 0,
+          "description": "目录ID"
+        },
+        "dimension": {
+          "type": "string",
+          "example": "Completeness",
+          "description": "Completeness:完整性,Uniqueness:唯一性,Timeliness:及时性,Validity:有效性,Accuracy:准确性,Consistency:一致性"
+        },
+        "type": {
+          "type": "string",
+          "example": "Table",
+          "description": "规则类型,Field:字段级规则,Table:表级规则,Database:库级规则,Cross-field:跨字段级规则,Customize:自定义规则"
+        },
+        "system_template": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否为系统模板"
+        },
+        "sql_info": {
+          "type": "string",
+          "example": "select ${Column1},ifnull(a,0),ifnull(b-a,0),ifnull(b,0),ifnull(a/b, 1) from  (select (select count(1) from ${Schema_Table1} where ${Column1} in (select ${Column2} from ${Schema_Table2})) a,(select count(1) from ${Schema_Table1}) b)",
+          "description": "定义关系"
+        },
+        "abnormal_table_template": {
+          "type": "string",
+          "description": "异常表模板",
+          "example": "select ${Output_Columns} from ${Schema_Table1}"
+        },
+        "result_description": {
+          "type": "string",
+          "example": "参考字段名 : ${1}, 一致行数 : ${2}, 不一致行数 : ${3}, 总行数 : ${4}",
+          "description": "结果说明"
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1640678720014,
+          "description": "创建时间,13位时间戳(精确到毫秒)"
+        },
+        "creator": {
+          "type": "string",
+          "example": "System",
+          "description": "创建者,System代表系统自带"
+        }
+      }
+    },
+    "DqcErrorResponseVO": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码,如DQC.0000,请求处理成功"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

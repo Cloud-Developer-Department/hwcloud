@@ -1,0 +1,139 @@
+{
+  "name": "CreateTask",
+  "summary": "创建任务",
+  "tags": "OROAS Service",
+  "productshort": "OROAS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/oroas/{service_group}/{service_type}/tasks": {
+      "post": {
+        "tags": [
+          "OROAS Service"
+        ],
+        "summary": "创建任务",
+        "description": "创建任务",
+        "operationId": "CreateTask",
+        "consumes": [
+          "application/json;charset=utf-8"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Apig-AppCode"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_group",
+            "in": "path",
+            "description": "服务类别,针对不同服务类场景,为用户提前填充对应值,用户侧不需单独赋值;当前仅支持 二维切割 2dcut ,便于后续扩展",
+            "minLength": 0,
+            "maxLength": 128,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_type",
+            "in": "path",
+            "description": "子服务类型,针对不同服务,为用户提前填充对应值,用户侧不需单独赋值;服装切割固定为 irregular-textile,雕刻机切割固定为 engraving-machine-cutting, 板材切割固定为 regular-plate",
+            "minLength": 0,
+            "maxLength": 128,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "TaskDto",
+            "description": "创建任务请求信息",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TaskDto"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "创建成功响应信息",
+            "schema": {
+              "$ref": "#/definitions/CreatTaskSuccessResult"
+            }
+          },
+          "400": {
+            "description": "客户端错误响应信息",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "TaskDto": {
+      "description": "任务请求信息",
+      "type": "object",
+      "required": [
+        "input_json"
+      ],
+      "properties": {
+        "input_json": {
+          "description": "任务输入信息,json格式;每个子服务该对象结构不同,框架层不解析具体key,运行态直接透传给子服务REST API处理(参数合法性校验 只能子服务镜像内进行;当前算法镜像提供单独校验接口和处理接口,后续待统一交互机制)",
+          "type": "object"
+        },
+        "input_url": {
+          "description": "任务输入信息为文件格式,传入值为租户OBS对应的文件绝对路径;在请求信息大于12MB情形使用该参数,需用户在Console进行OBS委托授权方可使用(和input_json二选一),暂不开放该功能",
+          "minLength": 0,
+          "maxLength": 512,
+          "type": "string"
+        },
+        "output_url": {
+          "description": "任务输出信息为文件格式,传入值为租户OBS对应的待存储路径前缀(和input_url成对使用),文件名服务端固定用task_id命名;在响应信息大于12MB情形使用该参数,需用户在Console进行OBS委托授权方可使用,暂不开放该功能",
+          "minLength": 0,
+          "maxLength": 512,
+          "type": "string"
+        }
+      }
+    },
+    "CreatTaskSuccessResult": {
+      "type": "object",
+      "description": "创建任务返回信息",
+      "required": [
+        "task_id"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "example": "86cbefe9-2adc-4186-b11b-dd4e4aabc36d",
+          "description": "任务编号",
+          "minLength": 36,
+          "maxLength": 36
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Apig-AppCode": {
+      "name": "X-Apig-AppCode",
+      "in": "header",
+      "required": true,
+      "description": "用户凭证",
+      "type": "string"
+    }
+  },
+  "host": "oroas.cn-north-7.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

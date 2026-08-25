@@ -1,0 +1,644 @@
+{
+  "name": "CreateCluster",
+  "summary": "创建集群V2",
+  "tags": "集群管理接口",
+  "productshort": "CSS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2.0/{project_id}/clusters": {
+      "post": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-publishpath": "",
+        "tags": [
+          "集群管理接口"
+        ],
+        "summary": "创建集群V2",
+        "description": "该接口用于创建拥有多种不同节点类型(ess,ess-cold,ess-client,ess-master)组合的集群。",
+        "operationId": "CreateCluster",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID。获取方法请参见[获取项目ID和名称](css_03_0071.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "6204a5bd270343b5885144cf9c8c158d"
+          },
+          {
+            "in": "body",
+            "name": "CreateClusterReq",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateClusterReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/CreateClusterResponseBody"
+            },
+            "x-response-examples-description-1": "创建按需期集群响应示例。",
+            "x-response-examples-1": {
+              "application/json": {
+                "cluster": {
+                  "id": "ef683016-871e-48bc-bf93-74a29d60d214",
+                  "name": "ES-Test"
+                }
+              }
+            },
+            "x-response-examples-description-2": "创建包周期集群响应示例。",
+            "x-response-examples-2": {
+              "application/json": {
+                "orderId": "CS2208241141LY94J"
+              }
+            },
+            "description": "请求已成功"
+          },
+          "400": {
+            "description": "非法请求。\n\n建议直接修改该请求,不要重试该请求。"
+          },
+          "409": {
+            "description": "服务器在完成请求时发生冲突。\n\n返回该状态码,表明客户端尝试创建的资源已经存在,或者由于冲突请求的更新操作不能被完成。"
+          },
+          "412": {
+            "description": "未满足前提条件,服务器未满足请求者在请求中设置的其中一个前提条件。"
+          }
+        },
+        "x-request-examples-description-1": "创建包周期集群请求示例。若需要创建按需集群,删掉请求体中的payInfo字段即可。",
+        "x-request-examples-url-1": "POST /v2.0/6204a5bd270343b5885144cf9c8c158d/clusters",
+        "x-request-examples-text-1": {
+          "cluster": {
+            "name": "css-cluster",
+            "backupStrategy": {
+              "period": "16:00 GMT+08:00",
+              "prefix": "snapshot",
+              "keepday": 7,
+              "bucket": "OBS-obsName",
+              "basePath": "css_repository/obs-path",
+              "agency": "css_obs_agency"
+            },
+            "roles": [
+              {
+                "flavorRef": "ess.spec-4u8g",
+                "volume": {
+                  "volume_type": "COMMON",
+                  "size": 100
+                },
+                "type": "ess",
+                "instanceNum": 1
+              }
+            ],
+            "nics": {
+              "vpcId": "{VPC ID}",
+              "netId": "{NET ID}",
+              "securityGroupId": "{Security group ID}"
+            },
+            "enterprise_project_id": 0,
+            "tags": [
+              {
+                "key": "k1",
+                "value": "v1"
+              },
+              {
+                "key": "k2",
+                "value": "v2"
+              }
+            ],
+            "availability_zone": "{Az code}",
+            "datastore": {
+              "version": "{cluster-version}",
+              "type": "elasticsearch"
+            },
+            "authorityEnable": true,
+            "httpsEnable": true,
+            "adminPwd": "{password}",
+            "publicIPReq": {
+              "eip": {
+                "bandWidth": {
+                  "size": 5
+                }
+              },
+              "elbWhiteListReq": {
+                "enableWhiteList": true,
+                "whiteList": "127.0.0.1"
+              },
+              "publicBindType": "auto_assign",
+              "eipId": null
+            },
+            "loadBalance": {
+              "endpointWithDnsName": false,
+              "vpcPermissions": [
+                "{Account ID}"
+              ]
+            },
+            "publicKibanaReq": {
+              "eipSize": 5,
+              "elbWhiteList": {
+                "whiteList": "127.0.0.1",
+                "enableWhiteList": true
+              }
+            },
+            "payInfo": {
+              "payModel": 2,
+              "period": 1,
+              "isAutoRenew": 1,
+              "isAutoPay": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateClusterInstanceNicsBody": {
+      "required": [
+        "vpcId",
+        "netId",
+        "securityGroupId"
+      ],
+      "properties": {
+        "vpcId": {
+          "type": "string",
+          "description": "指定虚拟私有云ID,用于集群网络配置。",
+          "example": "fccd753c-91c3-40e2-852f-5ddf76d1a1b2"
+        },
+        "netId": {
+          "type": "string",
+          "description": "子网ID(网络ID)。",
+          "example": "af1c65ae-c494-4e24-acd8-81d6b355c9f1"
+        },
+        "securityGroupId": {
+          "type": "string",
+          "description": "安全组ID。",
+          "example": "7e3fed21-1a44-4101-ab29-34e57124f614"
+        },
+        "ips": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "节点IP信息,在指定IP创建集群时配置。"
+        }
+      },
+      "description": "子网信息。"
+    },
+    "CreateClusterPublicKibanaElbWhiteList": {
+      "required": [
+        "whiteList",
+        "enableWhiteList"
+      ],
+      "properties": {
+        "whiteList": {
+          "type": "string",
+          "description": "白名单。需要添加白名单的网段或ip,以逗号隔开,不可重复。",
+          "example": "10.0.0.47"
+        },
+        "enableWhiteList": {
+          "type": "boolean",
+          "description": "是否开启kibana访问控制。",
+          "example": true
+        }
+      },
+      "description": "kibana白名单信息。"
+    },
+    "CreateClusterDatastoreBody": {
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "CSS集群引擎版本号。详细请参考CSS[支持的集群版本](css_03_0056.xml)。",
+          "example": "7.6.2"
+        },
+        "type": {
+          "type": "string",
+          "description": "引擎类型,支持elasticsearch。",
+          "example": "elasticsearch"
+        }
+      },
+      "description": "引擎类型,目前只支持elasticsearch。",
+      "required": [
+        "version",
+        "type"
+      ]
+    },
+    "diskEncryptionInfo": {
+      "type": "object",
+      "properties": {
+        "systemEncrypted": {
+          "type": "string",
+          "description": "是否开启磁盘加密。通过磁盘加密对集群节点的数据盘进行KMS加密,保障数据存储的安全性。"
+        },
+        "systemCmkid": {
+          "type": "string",
+          "description": "磁盘密钥ID。"
+        }
+      }
+    },
+    "CreateClusterPublicEipSize": {
+      "required": [
+        "size"
+      ],
+      "properties": {
+        "size": {
+          "type": "integer",
+          "example": 1,
+          "description": "带宽大小。"
+        }
+      },
+      "description": "设置公网带宽大小。"
+    },
+    "CreateClusterTagsBody": {
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "集群标签的key值。可输入的字符串长度为1~36个字符。只能包含数字、字母、中划线\"-\"和下划线\"_\"。"
+        },
+        "value": {
+          "type": "string",
+          "description": "集群标签的value值。可输入的字符串长度为0~43个字符。只能包含数字、字母、中划线\"-\"和下划线\"_\"。"
+        }
+      },
+      "description": "集群标签。\n\n关于标签特性的详细信息,请参见[《标签管理服务介绍》](https://support.huaweicloud.com/productdesc-tms/zh-cn_topic_0071335169.html)。"
+    },
+    "CreateClusterBackupStrategyBody": {
+      "required": [
+        "period",
+        "prefix",
+        "keepday",
+        "basePath",
+        "bucket"
+      ],
+      "properties": {
+        "period": {
+          "type": "string",
+          "description": "每天自动创建快照的时间点。只支持整点,后面需加上时区,格式为“HH:mm z”,“HH:mm”表示整点时间,“z”表示时区。比如“00:00 GMT+08:00”、“01:00 GMT+08:00”等。",
+          "example": "16:00 GMT+08:00"
+        },
+        "prefix": {
+          "type": "string",
+          "description": "自动创建的快照的前缀,需要用户自己手动输入。只能包含1~32位小写字母、数字、中划线或者下划线,并且以小写字母开头。",
+          "example": "snapshot"
+        },
+        "keepday": {
+          "type": "integer",
+          "description": "自动创建快照的保留天数。取值范围:1-90。",
+          "example": 7,
+          "format": "int32"
+        },
+        "frequency": {
+          "type": "string",
+          "description": "快照速率参数。",
+          "example": "DAY"
+        },
+        "bucket": {
+          "type": "string",
+          "description": "备份使用的OBS桶名称。"
+        },
+        "basePath": {
+          "type": "string",
+          "description": "快照在OBS桶中的存放路径。"
+        },
+        "agency": {
+          "type": "string",
+          "description": "委托名称,委托给CSS,允许CSS调用您的其他云服务。\n\n\n>如果bucket、basePath和agency三个参数同时为空,则系统会自动创建OBS桶和IAM代理(若创建失败,则需要手工配置正确的参数)。"
+        },
+        "maxSnapshotBytesPerSeconds": {
+          "type": "string",
+          "description": "配置每个节点的最大备份速率(每秒),即当备份的速率超过该值时会被限流,避免速率太大导致资源占用过高,影响系统稳定性。实际备份速率不一定能达到该值,会受OBS、磁盘等影响。",
+          "example": 40
+        },
+        "maxRestoreBytesPerSeconds": {
+          "type": "string",
+          "description": "配置每个节点的最大恢复速率(每秒),即当恢复的速率超过该值时会被限流,避免速率太大导致资源占用过高,影响系统稳定性。实际恢复速率不一定能达到该值,会受OBS、磁盘等影响。",
+          "example": 40
+        }
+      },
+      "description": "开启自动创建快照策略,默认关闭。\n当backupStrategy参数配置不为空时,才会开启自动创建快照策略。"
+    },
+    "CreateClusterResp": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "集群ID。",
+          "example": "ef683016-871e-48bc-bf93-74a29d60d214"
+        },
+        "name": {
+          "type": "string",
+          "description": "集群名称。",
+          "example": "ES-Test"
+        }
+      },
+      "description": "集群对象。若创建的是按需集群,则只返回cluster参数。"
+    },
+    "CreateClusterReq": {
+      "properties": {
+        "cluster": {
+          "$ref": "#/definitions/CreateClusterBody"
+        }
+      },
+      "required": [
+        "cluster"
+      ]
+    },
+    "CreateClusterInstanceVolumeBody": {
+      "required": [
+        "volume_type",
+        "size"
+      ],
+      "properties": {
+        "volume_type": {
+          "type": "string",
+          "description": "卷类型。\n\n- COMMON:普通I/O。\n- HIGH:高I/O。\n- ULTRAHIGH:超高I/O。",
+          "example": "COMMON"
+        },
+        "size": {
+          "type": "integer",
+          "description": "卷大小,必须为大于0且为4和10的公倍数,磁盘规格大小可以通过[获取实例规格列表](ListFlavors.xml)中diskrange属性获得。 单位:GB。\n\n>ess-master节点和ess-client节点默认大小为40G,且不可更改。",
+          "example": 100,
+          "format": "int32"
+        }
+      },
+      "description": "volume信息。当flavorRef选择的是本地盘规格时不需要填写,本地盘规格可以通过[获取实例规格列表](ListFlavors.xml)中diskrange属性获得。目前支持的本地盘规格有:\n\n- ess.spec-i3small\n\n- ess.spec-i3medium\n\n- ess.spec-i3.8xlarge.8\n\n- ess.spec-ds.xlarge.8\n\n- ess.spec-ds.2xlarge.8\n\n- ess.spec-ds.4xlarge.8"
+    },
+    "CreateClusterPublicKibanaReq": {
+      "required": [
+        "eipSize"
+      ],
+      "properties": {
+        "eipSize": {
+          "type": "integer",
+          "description": "带宽大小。",
+          "example": 1
+        },
+        "elbWhiteList": {
+          "$ref": "#/definitions/CreateClusterPublicKibanaElbWhiteList"
+        }
+      },
+      "description": "Kibana公网访问信息。只有在authorityEnable设置为true时该参数配置生效。"
+    },
+    "PayInfoBody": {
+      "required": [
+        "payModel",
+        "period"
+      ],
+      "properties": {
+        "payModel": {
+          "type": "integer",
+          "example": 2,
+          "description": "订购周期类型。\n- 2: 包月。\n- 3: 包年。"
+        },
+        "period": {
+          "type": "integer",
+          "example": 1,
+          "description": "订购周期数。\n- 若payModel为2,则有效值为1-9。\n- 若payModel为3,则有效值为1-3。"
+        },
+        "isAutoRenew": {
+          "type": "integer",
+          "example": 1,
+          "description": "是否自动续订,为空时表示不自动续订。\n- 1: 自动续订。\n- 0:不自动续订(默认)。"
+        },
+        "isAutoPay": {
+          "type": "integer",
+          "example": 1,
+          "description": "是否自动支付。下单订购后,是否自动从客户的华为云账户中支付,而不需要客户手动去进行支付。该参数适用于包周期集群。\n- 1:是(会自动选择折扣和优惠券进行优惠,然后自动从客户华为云账户中支付),自动支付失败后会生成订单成功(该订单应付金额是优惠后金额)、但订单状态为“待支付”,等待客户手动支付(手动支付时,客户还可以修改系统自动选择的折扣和优惠券)。\n- 0: 否(需要客户手动去支付,客户可以选择折扣和优惠券)。默认值为“0”。"
+        }
+      }
+    },
+    "CreateClusterElbWhiteList": {
+      "required": [
+        "enableWhiteList",
+        "whileList"
+      ],
+      "properties": {
+        "enableWhiteList": {
+          "type": "boolean",
+          "description": "是否开启公网访问控制。",
+          "example": true
+        },
+        "whiteList": {
+          "type": "string",
+          "description": "公网访问控制白名单。需要添加白名单的网段或ip,以逗号隔开,不可重复。",
+          "example": "10.0.0.47"
+        }
+      },
+      "description": "弹性IP白名单。"
+    },
+    "CreateClusterRolesBody": {
+      "required": [
+        "flavorRef",
+        "type",
+        "instanceNum",
+        "volume"
+      ],
+      "properties": {
+        "flavorRef": {
+          "type": "string",
+          "description": "实例规格名称。可以使用[获取实例规格列表](ListFlavors.xml)的name属性确认当前拥有的规格信息。",
+          "example": "ess.spec-4u16g"
+        },
+        "volume": {
+          "$ref": "#/definitions/CreateClusterInstanceVolumeBody"
+        },
+        "type": {
+          "type": "string",
+          "description": "实例类型(选择实例类型时应至少选择一个ess类型)。例如,\n\n- ess-master对应Master节点。\n- ess-client对应clinet节点。\n- ess-cold对应冷数据节点。\n- ess对应数据节点。",
+          "example": "ess"
+        },
+        "instanceNum": {
+          "type": "integer",
+          "description": "实例个数。\n- ess节点,选择范围:1~32个节点数量。\n  - 若同时选择ess和ess-master时,可以选择1~200个节点数量。\n\n  - 若同时选择ess和ess-client时,可以选择1~32个节点数量。\n\n  - 若同时选择ess和ess-cold时,可以选择1~32个节点数量。\n- ess-master节点,选择范围:3~10内的奇数个节点数量。\n- ess-client节点,选择范围:1~32个节点数量。\n- ess-cold节点,选择范围:1~32个节点数量。",
+          "example": 3
+        }
+      },
+      "description": "集群信息。"
+    },
+    "CreateClusterLoadBalance": {
+      "required": [
+        "endpointWithDnsName"
+      ],
+      "properties": {
+        "endpointWithDnsName": {
+          "type": "boolean",
+          "description": "是否开启内网域名。\n- true: 开启内网域名。\n- false: 关闭内网域名。",
+          "example": true
+        },
+        "vpcPermissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "dffef70c1db243cbb373e45791165281"
+          ],
+          "description": "访问控制。"
+        },
+        "professionVpcep": {
+          "type": "boolean",
+          "description": "创建专业型终端节点。"
+        },
+        "dualstackEnable": {
+          "type": "boolean",
+          "description": "是否开启IPv4/IPv6双栈网络。"
+        }
+      },
+      "description": "终端节点服务信息。"
+    },
+    "CreateClusterPublicEip": {
+      "required": [
+        "bandWidth"
+      ],
+      "properties": {
+        "bandWidth": {
+          "$ref": "#/definitions/CreateClusterPublicEipSize"
+        }
+      },
+      "description": "公网带宽信息。"
+    },
+    "CreateClusterPublicIpReq": {
+      "required": [
+        "eip",
+        "publicBindType"
+      ],
+      "properties": {
+        "eip": {
+          "$ref": "#/definitions/CreateClusterPublicEip"
+        },
+        "elbWhiteListReq": {
+          "$ref": "#/definitions/CreateClusterElbWhiteList"
+        },
+        "publicBindType": {
+          "type": "string",
+          "description": "是否自动绑定弹性公网IP。当前仅支持auto_assign为自动分配参数。",
+          "example": "auto_assign"
+        },
+        "eipId": {
+          "type": "string",
+          "description": "弹性公网IP的ID。"
+        }
+      },
+      "description": "公网访问信息。只有在httpsEnable设置为true时该参数配置生效。"
+    },
+    "CreateClusterResponseBody": {
+      "properties": {
+        "cluster": {
+          "$ref": "#/definitions/CreateClusterResp"
+        },
+        "orderId": {
+          "type": "string",
+          "description": "订单号。若创建的是包周期集群,则只返回ordeld参数。",
+          "example": "CS22081714511ZXQ2"
+        }
+      }
+    },
+    "CreateClusterBody": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "集群名称。4~32个字符,只能包含数字、字母、中划线和下划线,且必须以字母开头。",
+          "example": "ES-Test",
+          "pattern": "[a-zA-Z][a-zA-Z0-9-_]+"
+        },
+        "desc": {
+          "type": "string",
+          "description": "集群描述。"
+        },
+        "backupStrategy": {
+          "$ref": "#/definitions/CreateClusterBackupStrategyBody"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CreateClusterRolesBody"
+          }
+        },
+        "nics": {
+          "$ref": "#/definitions/CreateClusterInstanceNicsBody"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。创建集群时,给集群绑定企业项目ID。最大长度36个字符,带\"-\"连字符的UUID格式,或者是字符串\"0\"。\"0\"表示默认企业项目。",
+          "example": "3e1c74a0-86a0-40e9-bdc9-c6b9e46cf81b"
+        },
+        "tags": {
+          "type": "array",
+          "description": "集群标签。",
+          "items": {
+            "$ref": "#/definitions/CreateClusterTagsBody"
+          },
+          "example": [
+            {
+              "key": "k1",
+              "value": "v1"
+            },
+            {
+              "key": "k2",
+              "value": "v2"
+            }
+          ]
+        },
+        "availability_zone": {
+          "type": "string",
+          "description": "可用区。",
+          "example": "cn-north-4b"
+        },
+        "datastore": {
+          "$ref": "#/definitions/CreateClusterDatastoreBody"
+        },
+        "authorityEnable": {
+          "type": "boolean",
+          "description": "是否开启认证,取值范围为true或false。默认关闭认证功能。\n\n- true:表示集群开启认证。\n- false:表示集群不开启认证。\n\n>此参数只有6.5.4及之后版本支持。"
+        },
+        "httpsEnable": {
+          "type": "boolean",
+          "description": "设置是否进行通信加密。取值范围为true或false。默认关闭通信加密功能。当httpsEnable设置为true时,authorityEnable字段需要设置为true。\n- true:表示集群进行通信加密。\n- false:表示集群不进行通信加密。\n\n>此参数只有6.5.4及之后版本支持。"
+        },
+        "adminPwd": {
+          "type": "string",
+          "description": "安全模式下集群管理员admin的密码,只有在创建集群时authorityEnable设置为true时需要设置此参数。\n\n- 参数范围:8~32个字符。\n\n- 参数要求:密码至少包含大写字母,小写字母,数字、特殊字符四类中的三类,其中可输入的特殊字符为:~!@#$%&*()-_=|[{}];:,<.>/?"
+        },
+        "publicIPReq": {
+          "$ref": "#/definitions/CreateClusterPublicIpReq"
+        },
+        "loadBalance": {
+          "$ref": "#/definitions/CreateClusterLoadBalance"
+        },
+        "publicKibanaReq": {
+          "$ref": "#/definitions/CreateClusterPublicKibanaReq"
+        },
+        "payInfo": {
+          "$ref": "#/definitions/PayInfoBody",
+          "description": "包周期集群相关参数订购包周期集群时使用。"
+        },
+        "ipv6_enable": {
+          "type": "boolean",
+          "description": "集群是否开启自动分配IPv6地址。"
+        },
+        "diskEncryption": {
+          "description": "磁盘加密信息。",
+          "$ref": "#/definitions/diskEncryptionInfo"
+        }
+      },
+      "description": "集群对象。",
+      "required": [
+        "name",
+        "roles",
+        "nics",
+        "availability_zone",
+        "datastore"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "css.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

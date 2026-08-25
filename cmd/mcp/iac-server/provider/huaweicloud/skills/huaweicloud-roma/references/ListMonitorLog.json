@@ -1,0 +1,511 @@
+{
+  "name": "ListMonitorLog",
+  "summary": "任务监控日志查询",
+  "tags": "任务监控管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/fdi/instances/{instance_id}/tasks/{task_id}/monitor-logs": {
+      "get": {
+        "tags": [
+          "任务监控管理"
+        ],
+        "operationId": "ListMonitorLog",
+        "summary": "任务监控日志查询",
+        "description": "查询单个任务的所有日志信息",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/instance_id"
+          },
+          {
+            "$ref": "#/parameters/task_id"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询, offset大于等于1",
+            "type": "integer",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 999999
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "name": "begin_time",
+            "in": "query",
+            "description": "日志查询的起始时间,格式timestamp(ms),使用UTC时区",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9999999999999
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "日志查询的结束时间,格式timestamp(ms),使用UTC时区",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9999999999999
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/TaskMonitorLogList"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp500"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TaskMonitorLog": {
+      "description": "任务监控日志",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "单次任务执行的跟踪ID",
+          "minLength": 10,
+          "maxLength": 40,
+          "example": "id123456789"
+        },
+        "start_time": {
+          "description": "本次执行启动时间,格式timestamp(ms),使用UTC时区",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "maximum": 9999999999999,
+          "example": 1603243428000
+        },
+        "dispatch_time": {
+          "description": "计划执行时间,格式timestamp(ms),使用UTC时区",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "maximum": 9999999999999,
+          "example": 1603243428000
+        },
+        "end_time": {
+          "description": "写入结束时间,格式timestamp(ms),使用UTC时区",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "maximum": 9999999999999,
+          "example": 1603243428000
+        },
+        "execute_status": {
+          "type": "string",
+          "description": "任务本次执行状态,允许如下值:UNSTARTED-未启动, WAITING-等待调度中, RUNNING-执行中, SUCCESS-执行成功, CANCELLED-任务取消, ERROR-执行异常",
+          "enum": [
+            "UNSTARTED",
+            "WAITING",
+            "RUNNING",
+            "SUCCESS",
+            "CANCELLED",
+            "ERROR"
+          ],
+          "minLength": 10,
+          "maxLength": 3,
+          "example": "RUNNING"
+        },
+        "position": {
+          "type": "string",
+          "description": "标识本次任务执行到哪一个阶段,允许如下值:ADAPTER-任务处于初始化阶段, READER-任务正在执行Reader读操作, WRITER-任务正在执行Writer写操作",
+          "enum": [
+            "ADAPTER",
+            "READER",
+            "WRITER"
+          ],
+          "minLength": 10,
+          "maxLength": 3,
+          "example": "READER"
+        },
+        "position_status": {
+          "type": "string",
+          "description": "任务本次执行当前阶段的状态,允许如下值:NORMAL-正在运行, NODE_END-本节点正常结束, RUNTIME_CANCEL-任务被取消, TASK_END-本任务正常结束, RUNTIME_ERR-运行时异常, INTERNAL_ERR-内部程序异常",
+          "enum": [
+            "NORMAL",
+            "NODE_END",
+            "RUNTIME_CANCEL",
+            "TASK_END",
+            "RUNTIME_ERR",
+            "INTERNAL_ERR"
+          ],
+          "minLength": 20,
+          "maxLength": 3,
+          "example": "NORMAL"
+        },
+        "status": {
+          "type": "integer",
+          "description": "本次任务执行详细状态,使用状态码的形式</br> 状态码划分规则:reader端 100 ~ 499,writer端 500 ~ 899,其他900 ~ </br> 当前状态码如下:</br> 16-被强制取消</br> 99-任务开始</br> 100-Reader 任务开始</br> 101-Reader 任务结束</br> 102-正在读取数据</br> 103-读端数据源端异常</br> 104-读取数据结束</br> 105-读取数据为0</br> 106-读任务强制取消</br> 107-在reader plugin中,任务发生了中断</br> 108-读任务恢复运行</br> 500-Writer 任务开始</br> 501-Writer 任务结束</br> 502-正在数据写入</br> 503-目标端异常</br> 504-数据写入结束</br> 505-写任务强制取消</br> 506-在writer plugin中,任务发生了中断</br> 507-写任务恢复运行</br> 900-接收到调度请求</br> 901-任务运行结束</br> 902-任务已运行结束,正在进行数据完整性校验</br> 903-输出数据完整性校验结果</br> 904-经过数据完整性校验,发现有数据缺失,正在进行数据补偿</br> 905-输出数据补偿结果</br> 906-读取任务正在在排队中(平台资源)</br> 907-读取任务被拒绝执行,因为上一次调度还没有结束</br> 908-写入任务正在在排队中(平台资源)</br> 909-写入任务被拒绝执行,因为上一次调度还没有结束</br> 911-读取任务没有被正常开启,请检查网络是否通畅,参数是否正确</br> 912-写入任务没有被正常开启,请检查网络是否通畅,参数是否正确</br> 913-任务调度请求失败</br> 914-任务被拒绝执行,因为上一次调度还没有结束</br> 915-任务不正常运行</br> 916-任务日志上报异常</br>",
+          "minimum": 1,
+          "maximum": 1000,
+          "example": 504
+        },
+        "dirty_data_count": {
+          "description": "异常数据条数",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 0
+        },
+        "data_count": {
+          "description": "成功数据条数",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 100
+        },
+        "data_size": {
+          "description": "成功数据大小,浮点数类型",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 1000
+        },
+        "data_size_unit": {
+          "type": "string",
+          "description": "成功数据大小的计量单位",
+          "enum": [
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+          ],
+          "minLength": 2,
+          "maxLength": 1,
+          "example": "B"
+        },
+        "spend_time": {
+          "description": "执行时长,单位:ms",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 5000
+        },
+        "read_spend_time": {
+          "description": "读取执行时长,单位:ms,只有在定时任务时存在该属性",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 5000
+        },
+        "write_spend_time": {
+          "description": "写入执行时长,单位:ms",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 5000
+        },
+        "remarks": {
+          "type": "string",
+          "description": "本次执行结果简要信息",
+          "minLength": 0,
+          "maxLength": 1000,
+          "example": "Task execute success"
+        },
+        "detail_logs": {
+          "type": "array",
+          "description": "本次执行详细轨迹信息",
+          "minItems": 1,
+          "maxItems": 9999,
+          "items": {
+            "$ref": "#/definitions/TaskMonitorDetailLog"
+          }
+        }
+      }
+    },
+    "TaskMonitorLogList": {
+      "description": "任务监控日志列表",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "总数",
+          "minimum": 1,
+          "maximum": 99999
+        },
+        "size": {
+          "type": "integer",
+          "description": "当前页日志数量",
+          "minimum": 1,
+          "maximum": 99999
+        },
+        "entities": {
+          "type": "array",
+          "description": "任务监控日志当前页元素",
+          "minItems": 1,
+          "maxItems": 9999,
+          "items": {
+            "$ref": "#/definitions/TaskMonitorLog"
+          }
+        }
+      }
+    },
+    "ErrorRsp400": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.3002"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "Invalid parameters."
+        }
+      }
+    },
+    "ErrorRsp500": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.9999"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "Network error."
+        }
+      }
+    },
+    "ErrorRsp404": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.3081"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "The task does not exist."
+        }
+      }
+    },
+    "TaskMonitorDetailLog": {
+      "description": "任务执行详细跟踪日志",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务每次执行步骤产生的唯一ID",
+          "minLength": 10,
+          "maxLength": 40,
+          "example": "id123456789"
+        },
+        "status": {
+          "type": "integer",
+          "description": "当前步骤执行详细状态,使用状态码的形式</br> 状态码划分规则:reader端 100 ~ 499,writer端 500 ~ 899,其他900 ~ </br> 当前状态码如下:</br> 16-被强制取消</br> 99-任务开始</br> 100-Reader 任务开始</br> 101-Reader 任务结束</br> 102-正在读取数据</br> 103-读端数据源端异常</br> 104-读取数据结束</br> 105-读取数据为0</br> 106-读任务强制取消</br> 107-在reader plugin中,任务发生了中断</br> 108-读任务恢复运行</br> 500-Writer 任务开始</br> 501-Writer 任务结束</br> 502-正在数据写入</br> 503-目标端异常</br> 504-数据写入结束</br> 505-写任务强制取消</br> 506-在writer plugin中,任务发生了中断</br> 507-写任务恢复运行</br> 900-接收到调度请求</br> 901-任务运行结束</br> 902-任务已运行结束,正在进行数据完整性校验</br> 903-输出数据完整性校验结果</br> 904-经过数据完整性校验,发现有数据缺失,正在进行数据补偿</br> 905-输出数据补偿结果</br> 906-读取任务正在在排队中(平台资源)</br> 907-读取任务被拒绝执行,因为上一次调度还没有结束</br> 908-写入任务正在在排队中(平台资源)</br> 909-写入任务被拒绝执行,因为上一次调度还没有结束</br> 911-读取任务没有被正常开启,请检查网络是否通畅,参数是否正确</br> 912-写入任务没有被正常开启,请检查网络是否通畅,参数是否正确</br> 913-任务调度请求失败</br> 914-任务被拒绝执行,因为上一次调度还没有结束</br> 915-任务不正常运行</br> 916-任务日志上报异常</br>",
+          "minimum": 1,
+          "maximum": 1000,
+          "example": 500
+        },
+        "position": {
+          "type": "string",
+          "description": "标识当前步骤属于哪一个阶段,允许如下值:ADAPTER-任务处于初始化阶段, READER-任务正在执行Reader读操作, WRITER-任务正在执行Writer写操作",
+          "enum": [
+            "ADAPTER",
+            "READER",
+            "WRITER"
+          ],
+          "minLength": 10,
+          "maxLength": 3,
+          "example": "READER"
+        },
+        "position_status": {
+          "type": "string",
+          "description": "任务当前步骤的状态,允许如下值:NORMAL-正在运行, NODE_END-本节点正常结束, RUNTIME_CANCEL-任务被取消, TASK_END-本任务正常结束, RUNTIME_ERR-运行时异常, INTERNAL_ERR-内部程序异常",
+          "enum": [
+            "NORMAL",
+            "NODE_END",
+            "RUNTIME_CANCEL",
+            "TASK_END",
+            "RUNTIME_ERR",
+            "INTERNAL_ERR"
+          ],
+          "minLength": 20,
+          "maxLength": 3,
+          "example": "NORMAL"
+        },
+        "stage": {
+          "type": "string",
+          "description": "标识当前步骤属于哪一个FDI插件,如adapter, apireader, rdbwriter等",
+          "minLength": 20,
+          "maxLength": 3,
+          "example": "adapter"
+        },
+        "dirty_data_count": {
+          "description": "异常数据条数",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 0
+        },
+        "data_count": {
+          "description": "成功数据条数",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 100
+        },
+        "data_size": {
+          "description": "成功数据大小,浮点数类型",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 1000
+        },
+        "data_size_unit": {
+          "type": "string",
+          "description": "成功数据大小的计量单位",
+          "enum": [
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+          ],
+          "minLength": 2,
+          "maxLength": 1,
+          "example": "B"
+        },
+        "spend_time": {
+          "description": "执行时长,单位:ms",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999999999999,
+          "example": 5000
+        },
+        "remarks": {
+          "type": "string",
+          "description": "执行详细信息",
+          "minLength": 256,
+          "maxLength": 1,
+          "example": "task start successfully."
+        },
+        "step_begin_time": {
+          "description": "本次步骤启动时间,格式timestamp(ms),使用UTC时区",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "maximum": 9999999999999,
+          "example": 1603243428000
+        },
+        "step_end_time": {
+          "description": "本次步骤结束时间,格式timestamp(ms),使用UTC时区",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "maximum": 9999999999999,
+          "example": 1603243428000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方式请参见《ROMA Connect API参考》的“附录 > 获取项目ID”章节。",
+      "type": "string",
+      "required": true,
+      "maxLength": 32,
+      "minLength": 0
+    },
+    "instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "description": "实例ID",
+      "type": "string",
+      "required": true,
+      "maxLength": 36,
+      "minLength": 0
+    },
+    "task_id": {
+      "name": "task_id",
+      "in": "path",
+      "description": "任务ID",
+      "type": "string",
+      "required": true,
+      "maxLength": 64,
+      "minLength": 1
+    },
+    "limit": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页显示条目数量,最大数量999,超过999后只返回999",
+      "type": "integer",
+      "default": 10,
+      "minimum": 0,
+      "maximum": 999
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

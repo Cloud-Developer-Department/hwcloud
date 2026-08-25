@@ -1,0 +1,193 @@
+{
+  "name": "ListBridges",
+  "summary": "查询网桥列表",
+  "tags": "网桥管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/bridges": {
+      "get": {
+        "tags": [
+          "BridgeManagement"
+        ],
+        "summary": "查询网桥列表",
+        "description": "应用服务器可调用此接口在物联网平台查询网桥列表。",
+        "operationId": "ListBridges",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0079.html#section1) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "**参数说明**:分页查询时每页显示的记录数。\n**取值范围**:1-50的整数,默认值为10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 50,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "**参数说明**:上一次分页查询结果中最后一条记录的ID,在上一次分页查询时由物联网平台返回获得。分页查询时物联网平台是按marker也就是记录ID降序查询的,越新的数据记录ID也会越大。若填写marker,则本次只查询记录ID小于marker的数据记录。若不填写,则从记录ID最大也就是最新的一条数据开始查询。如果需要依次查询所有数据,则每次查询时必须填写上一次查询响应中的marker值。\n**取值范围**:长度为24的十六进制字符串,默认值为ffffffffffffffffffffffff。",
+            "required": false,
+            "type": "string",
+            "default": "ffffffffffffffffffffffff",
+            "pattern": "^[a-fA-F0-9]{24}$"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "**参数说明**:表示从marker后偏移offset条记录开始查询。默认为0,取值范围为0-500的整数。当offset为0时,表示从marker后第一条记录开始输出。限制offset最大值是出于API性能考虑,您可以搭配marker使用该参数实现翻页,例如每页50条记录,1-11页内都可以直接使用offset跳转到指定页,但到11页后,由于offset限制为500,您需要使用第11页返回的marker作为下次查询的marker,以实现翻页到12-22页。\n**取值范围**:0-500的整数,默认为0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 500,
+            "minimum": 0,
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "bridges": [
+                  {
+                    "bridge_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+                    "bridge_name": "dianabridge",
+                    "status": "ONLINE"
+                  }
+                ],
+                "page": {
+                  "count": 10,
+                  "marker": "5c90fa7d3c4e4405e8525079"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListBridgeResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.019600",
+              "IOTDA.019603"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.019601"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IOTDA.000001"
+            ]
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<ListBridgeResponse>",
+        "x-request-examples-url-1": "GET https://{endpoint}/v5/iot/{project_id}/bridges"
+      }
+    }
+  },
+  "definitions": {
+    "Page": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "example": 100,
+          "description": "满足查询条件的记录总数。"
+        },
+        "marker": {
+          "type": "string",
+          "example": "5c8f3d2d3df1f10d803adbda",
+          "description": "本次分页查询结果中最后一条记录的ID,可在下一次分页查询时使用。"
+        }
+      },
+      "title": "查询批量响应的分页结构体",
+      "description": "查询批量分页结构体,定义了分页页码、每页记录数、记录总数、该页记录的最大Id。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern"
+    },
+    "ListBridgeResponse": {
+      "type": "object",
+      "properties": {
+        "bridges": {
+          "type": "array",
+          "description": "网桥列表。",
+          "items": {
+            "$ref": "#/definitions/BridgeResponse"
+          }
+        },
+        "page": {
+          "description": "查询结果的分页信息。",
+          "$ref": "#/definitions/Page"
+        }
+      },
+      "title": "查询网桥列表返回结构体"
+    },
+    "BridgeResponse": {
+      "type": "object",
+      "properties": {
+        "bridge_id": {
+          "type": "string",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "description": "网桥ID"
+        },
+        "bridge_name": {
+          "type": "string",
+          "example": "dianabridge",
+          "description": "网桥名称。"
+        },
+        "status": {
+          "type": "string",
+          "example": "ONLINE",
+          "description": "网桥状态。\n- ONLINE:网桥在线。\n- OFFLINE:网桥离线。",
+          "pattern": "(ONLINE|OFFLINE)"
+        }
+      },
+      "title": "查询网桥返回结构体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

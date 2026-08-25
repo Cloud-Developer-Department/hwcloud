@@ -1,0 +1,270 @@
+{
+  "name": "AddDevice",
+  "summary": "添加设备",
+  "tags": "设备管理",
+  "productshort": "IoTEdge",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/{project_id}/edge-nodes/{edge_node_id}/devices": {
+      "post": {
+        "tags": [
+          "DeviceManager"
+        ],
+        "x-imports": "org.springframework.http.ResponseEntity;org.apache.servicecomb.provider.rest.common.RestSchema",
+        "operationId": "AddDevice",
+        "summary": "添加设备",
+        "description": "添加设备",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-externalAPI": true,
+        "x-classAnnotation": "@RestSchema(schemaId = \"DeviceManagerController\")",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/edge_node_id"
+          },
+          {
+            "name": "AddDeviceRequestBody",
+            "in": "body",
+            "description": "添加设备请求结构体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddDeviceRequestBody"
+            }
+          }
+        ],
+        "x-returnType": "ResponseEntity<AddDeviceRespDto>",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "x-SuccessCode": true,
+            "examples": {
+              "application/json": {
+                "device_id": "string",
+                "password": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/AddDeviceRespDto"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/edge-nodes/{edge_node_id}/devices",
+        "x-request-examples-1": {
+          "node_id": "ABC123456789",
+          "device_name": "dianadevice",
+          "product_id": "b640f4c203b7910fc3cbd446ed437cbd",
+          "auth_info": {
+            "auth_type": "SECRET",
+            "secret": "3b935a250c50dc2c6d481d048cefdc3c",
+            "fingerprint": "dc0f1016f495157344ac5f1296335cff725ef22f",
+            "secure_access": true,
+            "timeout": 300
+          },
+          "description": "watermeter device",
+          "gateway_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "space_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "extension_info": {
+            "aaa": "xxx",
+            "bbb": 0
+          },
+          "config": {
+            "ip": "127.0.0.1"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddDeviceRespDto": {
+      "title": "添加设备响应体",
+      "type": "object",
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "description": "设备ID",
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "password": {
+          "type": "string",
+          "description": "设备密钥,认证类型使用密钥认证接入(SECRET)可填写该字段。注意:NB设备密钥由于协议特殊性,只支持十六进制密钥接入;修改设备、查询设备及查询设备列表接口不返回该参数。",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "EdgeDeviceAuthInfo": {
+      "description": "设备接入类型(已废弃)",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;",
+      "title": "设备接入类型(已废弃)",
+      "type": "object",
+      "properties": {
+        "auth_type": {
+          "description": "鉴权类型。支持密钥认证接入(SECRET)和证书认证接入(CERTIFICATES)两种方式。使用密钥认证接入方式(SECRET)填写secret字段,使用证书认证接入方式(CERTIFICATES)填写fingerprint字段,不填写auth_type默认为密钥认证接入方式(SECRET)",
+          "x-annotations": null,
+          "pattern": "(SECRET|CERTIFICATES)",
+          "type": "string",
+          "example": "SECRET"
+        },
+        "secret": {
+          "description": "设备密钥,认证类型使用密钥认证接入(SECRET)可填写该字段。注意:NB设备密钥由于协议特殊性,只支持十六进制密钥接入;修改设备、查询设备及查询设备列表接口不返回该参数。",
+          "x-annotations": null,
+          "minLength": 8,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "type": "string",
+          "example": "3b935a250c50dc2c6d481d048cefdc3c"
+        },
+        "fingerprint": {
+          "description": "证书指纹,认证类型使用证书认证接入(CERTIFICATES)可填写该字段,注册设备时不填写该字段则取第一次设备接入时的证书指纹。注意:指纹只能为40位十六进制字符串或者64位十六进制字符串;修改设备、查询设备及查询设备列表接口不返回该参数。",
+          "x-annotations": null,
+          "pattern": "^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$",
+          "type": "string",
+          "example": "dc0f1016f495157344ac5f1296335cff725ef22f"
+        },
+        "secure_access": {
+          "description": "指设备是否通过安全协议方式接入,默认值为true。\n- true:通过安全协议方式接入。\n- false:通过非安全协议方式接入。",
+          "type": "boolean",
+          "example": true,
+          "default": true
+        },
+        "timeout": {
+          "description": "设备验证码的有效时间,单位:秒,默认值:0\n若设备在有效时间内未接入物联网平台并激活,则平台会删除该设备的注册信息。若设置为“0”,则表示设备验证码不会失效(建议填写为“0”)。注意:只有注册设备接口或者修改设备接口修改timeout时返回该参数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "type": "integer",
+          "format": "int32",
+          "example": 300,
+          "default": 0
+        }
+      }
+    },
+    "AddDeviceRequestBody": {
+      "description": "添加设备结构体。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;",
+      "title": "添加设备结构体",
+      "type": "object",
+      "required": [
+        "node_id",
+        "product_id"
+      ],
+      "properties": {
+        "node_id": {
+          "description": "设备标识码,通常使用IMEI、MAC地址或Serial No作为node_id。(注意:NB设备由于模组烧录信息后无法配置,所以NB设备会校验node_id全局唯一。)",
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "example": "ABC123456789",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "device_name": {
+          "type": "string",
+          "description": "设备名称。",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_?'#()\\.,&%@!-]*$",
+          "example": "dianadevice"
+        },
+        "product_id": {
+          "description": "设备关联的产品ID,用于唯一标识一个产品模型,在管理门户导入产品模型后由平台分配获得。",
+          "pattern": "^[a-f0-9-]*$",
+          "minLength": 1,
+          "maxLength": 36,
+          "type": "string",
+          "example": "b640f4c203b7910fc3cbd446ed437cbd"
+        },
+        "auth_info": {
+          "description": "设备的接入认证信息。",
+          "$ref": "#/definitions/EdgeDeviceAuthInfo"
+        },
+        "description": {
+          "description": "设备的描述信息。",
+          "type": "string",
+          "maxLength": 2048,
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_? '#()\\.,&%@!-]*$",
+          "example": "watermeter device"
+        },
+        "gateway_id": {
+          "description": "父设备ID,用于标识设备所属的父设备。携带该参数时,表示在该父设备下创建一个子设备,这个子设备不与平台直连,此时必须保证这个父设备在平台已存在,创建成功后子设备的gateway_id等于该参数值;不携带该参数时,表示创建一个和平台直连的设备,创建成功后设备的device_id和gateway_id一致。",
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f"
+        },
+        "space_id": {
+          "description": "资源空间Id。此参数为非必选参数,用于兼容平台老用户存在多应用的场景。存在多应用的用户需要使用该接口时,必须携带该参数指定注册的设备归属到哪个应用下,否则接口会提示错误。如果用户存在多应用,同时又不想携带该参数,可以联系华为技术支持对用户数据做应用合并。",
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka"
+        },
+        "extension_info": {
+          "description": "设备扩展信息。用户可以自定义任何想要的扩展信息,如果在创建设备时为子设备指定该字段,将会通过MQTT接口“平台通知网关子设备新增“将该信息通知给网关。字段值大小上限为1K。 追加:如果通过EdgeHub, EdgeAccess进行设备接入,不需要携带extension_info;如果通过用户自定义的应用进行边缘设备接入,则携带模块id参数作为extension_info, 例如:{\\\"module_id\":\\\"user_xxx\"}",
+          "type": "object",
+          "example": {
+            "aaa": "xxx",
+            "bbb": 0
+          }
+        },
+        "config": {
+          "description": "设备初始配置。用户使用该字段可以为设备指定初始配置,指定后将会根据service_id和desired设置的属性值与产品中对应属性的默认值比对,如果不同,则将以设置的属性值为准写入到设备配置中。例如连接MQTT设备,配置接入平台密码,携带该参数{\\\"password\":\\\"xxxxxxxx\"}",
+          "type": "object",
+          "example": {
+            "password": "xxxxxx"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。获取方法请参见 [获取项目ID](x-wc://file=zh-cn_topic_0225049489.xml)。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{1,32}$",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "minLength": 0,
+      "maxLength": 20000
+    },
+    "edge_node_id": {
+      "name": "edge_node_id",
+      "in": "path",
+      "description": "边缘节点ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-zA-Z0-9_-]*$",
+      "x-example": "446007715895193600"
+    }
+  },
+  "host": "iotedge-api.cn-north-4.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

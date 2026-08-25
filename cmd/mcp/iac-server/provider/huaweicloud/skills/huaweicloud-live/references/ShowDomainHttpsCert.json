@@ -1,0 +1,300 @@
+{
+  "name": "ShowDomainHttpsCert",
+  "summary": "查询指定域名的https证书配置",
+  "tags": "HTTPS证书管理",
+  "productshort": "Live",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/{project_id}/guard/https-cert": {
+      "get": {
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/guard/https-cert?domain=play.example.huawei.com",
+        "tags": [
+          "HTTPS证书管理"
+        ],
+        "summary": "查询指定域名的https证书配置",
+        "description": "查询指定域名的https证书配置",
+        "operationId": "ShowDomainHttpsCert",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": true,
+            "description": "直播播放域名",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功。\n注意:不返回certificate_key内容,其值为空",
+            "schema": {
+              "$ref": "#/definitions/DomainHttpsCertInfo"
+            },
+            "examples": {
+              "application/json": {
+                "certificate_format": "PEM",
+                "certificate": "",
+                "certificate_key": "",
+                "force_redirect": false
+              }
+            }
+          },
+          "400": {
+            "description": "参数校验不通过。如:传入domain为空、证书校验不通过。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            }
+          },
+          "401": {
+            "description": "未授权访问接口",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011003",
+                "error_msg": "Unauthorized access to the interface, please contact the main account administrator to open the interface permissions"
+              }
+            }
+          },
+          "404": {
+            "description": "访问资源不存在,如:域名不存在。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.103011019",
+                "error_msg": "The resource to access is not exists"
+              }
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011005",
+                "error_msg": "Server internal error, please try again later or contact customer service staff to help solve"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DomainHttpsCertInfo": {
+      "type": "object",
+      "properties": {
+        "certificate_format": {
+          "type": "string",
+          "example": "PEM",
+          "description": "证书格式,默认为PEM,当前只支持PEM格式",
+          "default": "PEM",
+          "enum": [
+            "PEM"
+          ]
+        },
+        "certificate": {
+          "type": "string",
+          "example": "",
+          "description": "证书内容"
+        },
+        "certificate_key": {
+          "type": "string",
+          "example": "",
+          "description": "私钥内容"
+        },
+        "force_redirect": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否开启重定向,默认false"
+        },
+        "gm_certificate": {
+          "type": "object",
+          "$ref": "#/definitions/GmCertificateInfo",
+          "description": "国密证书配置内容, 国际、国密需要至少配置一个证书"
+        },
+        "tls_certificate": {
+          "type": "object",
+          "$ref": "#/definitions/TlsCertificateInfo",
+          "description": "国密证书配置内容。需要配置一个国际证书,或者一个国密证书,或者同时配置一个国密证书和一个国际证书。若配置了当前字段,则忽略外层国际证书的同级配置字段“certificate”和“certificate_key”。"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "GmCertificateInfo": {
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "证书来源, 可选,  scm: 云证书管理服务,user:默认,用户自有",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "cert_name": {
+          "type": "string",
+          "description": "SCM证书名, 可选",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "cert_id": {
+          "type": "string",
+          "description": "SCM证书ID, 证书来源为scm时必选",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "sign_certificate": {
+          "type": "string",
+          "description": "国密签名证书内容",
+          "minLength": 0,
+          "maxLength": 12288
+        },
+        "sign_certificate_key": {
+          "type": "string",
+          "description": "国密签名私钥内容",
+          "minLength": 0,
+          "maxLength": 8096
+        },
+        "enc_certificate": {
+          "type": "string",
+          "description": "国密加密证书内容",
+          "minLength": 0,
+          "maxLength": 12288
+        },
+        "enc_certificate_key": {
+          "type": "string",
+          "description": "国密加密私钥内容",
+          "minLength": 0,
+          "maxLength": 8096
+        }
+      }
+    },
+    "TlsCertificateInfo": {
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "证书来源, 可选,  scm: 云证书管理服务,user:默认,用户自有",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "cert_name": {
+          "type": "string",
+          "description": "SCM证书名, 证书来源为scm时可选",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "cert_id": {
+          "type": "string",
+          "description": "SCM证书ID, 证书来源为scm时必选",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "certificate": {
+          "type": "string",
+          "description": "证书内容,证书来源为user时必选",
+          "minLength": 0,
+          "maxLength": 12288
+        },
+        "certificate_key": {
+          "type": "string",
+          "description": "私钥内容,证书来源为user时必选",
+          "minLength": 0,
+          "maxLength": 8096
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "用户Token,使用Token鉴权方式时必填。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

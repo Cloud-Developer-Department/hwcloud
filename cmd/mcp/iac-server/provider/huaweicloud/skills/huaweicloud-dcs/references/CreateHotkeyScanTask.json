@@ -1,0 +1,206 @@
+{
+  "name": "CreateHotkeyScanTask",
+  "summary": "创建热key分析任务",
+  "tags": "缓存分析",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/hotkey-task": {
+      "post": {
+        "tags": [
+          "缓存分析"
+        ],
+        "summary": "创建热key分析任务",
+        "description": "创建热key分析任务,Redis 3.0 不支持热key分析。\n\n热key分析需要将缓存实例配置参数maxmemory-policy设置为allkeys-lfu或volatile-lfu。",
+        "operationId": "CreateHotkeyScanTask",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "5560df16-cebf-4473-95c4-d1b573c16e79"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建热key分析任务成功。",
+            "schema": {
+              "$ref": "#/definitions/HotkeyHistoryDetailResponse"
+            },
+            "examples": {
+              "application/json": {
+                "id": "aa735b6f-3d70-44e3-9771-66c6fae7459a",
+                "instance_id": "5560df16-cebf-4473-95c4-d1b573c16e79",
+                "status": "waiting",
+                "scan_type": "manual",
+                "created_at": "2020-06-15T02:21:18.669Z",
+                "num": 0,
+                "started_at": null,
+                "finished_at": null,
+                "keys": null
+              }
+            }
+          },
+          "400": {
+            "description": "非法请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "DCS.4922",
+                "error_msg": "Does not support hotkey analyze."
+              }
+            }
+          },
+          "401": {
+            "description": "认证信息非法。"
+          },
+          "403": {
+            "description": "请求被拒绝访问。"
+          },
+          "404": {
+            "description": "所请求的资源不存在。"
+          },
+          "500": {
+            "description": "内部服务错误。"
+          }
+        },
+        "x-constraint": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-produc-type": "dcs",
+        "x-name": "创建大key分析任务",
+        "x-scope": "",
+        "x-request-examples-url-1": "POST https://dcs.cn-south-1.myhuaweicloud.com/v2/a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71/instances/5560df16-cebf-4473-95c4-d1b573c16e79/hotkey-task"
+      }
+    }
+  },
+  "definitions": {
+    "HotkeysBody": {
+      "description": "热key记录结构体",
+      "properties": {
+        "name": {
+          "description": "key名称",
+          "type": "string",
+          "example": "dcs-hotkey-test"
+        },
+        "type": {
+          "description": "key类型",
+          "type": "string",
+          "enum": [
+            "string",
+            "list",
+            "set",
+            "zset",
+            "hash"
+          ],
+          "example": "string"
+        },
+        "shard": {
+          "description": "热key所在的分片,仅在实例类型为集群时支持,格式为ip:port",
+          "type": "string",
+          "example": "192.168.1.134:6379"
+        },
+        "db": {
+          "description": "热key所在的db",
+          "type": "integer",
+          "format": "int32",
+          "example": 0
+        },
+        "size": {
+          "description": "key的value大小。",
+          "type": "integer",
+          "format": "int64",
+          "example": 3000
+        },
+        "unit": {
+          "description": "key大小的单位。type为string时,单位是:byte;type为list/set/zset/hash时,单位是:count",
+          "type": "string",
+          "example": "byte"
+        },
+        "freq": {
+          "description": "表示某个key在一段时间的访问频度,会随着访问的频率而变化。\n\n该值并不是简单的访问频率值,而是一个基于概率的对数计数器结果,最大为255(可表示100万次访问),超过255后如果继续频繁访问该值并不会继续增大,同时默认如果每过一分钟没有访问,该值会衰减1。",
+          "type": "integer",
+          "example": 4
+        }
+      }
+    },
+    "HotkeyHistoryDetailResponse": {
+      "description": "查询热key分析记录详情返回体",
+      "properties": {
+        "id": {
+          "description": "热key分析记录ID",
+          "type": "string",
+          "example": "0ccb25d5-27cf-4188-b5ea-987730a85371"
+        },
+        "instance_id": {
+          "type": "string",
+          "example": "4cd5dbb8-aacd-4603-b817-3e97d48c7a20",
+          "description": "实例ID"
+        },
+        "status": {
+          "description": "分析任务状态",
+          "enum": [
+            "waiting",
+            "running",
+            "success",
+            "failed"
+          ],
+          "type": "string",
+          "example": "success"
+        },
+        "scan_type": {
+          "description": "分析方式",
+          "enum": [
+            "manual",
+            "auto"
+          ],
+          "type": "string",
+          "example": "manual"
+        },
+        "created_at": {
+          "description": "分析任务创建时间,格式为:\"2020-06-15T02:21:18.669Z\"",
+          "type": "string",
+          "example": "2020-06-15T02:21:18.669Z"
+        },
+        "started_at": {
+          "description": "分析任务开始时间,格式为:\"2020-06-15T02:21:18.669Z\"",
+          "type": "string",
+          "example": "2020-06-15T02:21:23.534Z"
+        },
+        "finished_at": {
+          "description": "分析任务结束时间,格式为:\"2020-06-15T02:21:18.669Z\"",
+          "type": "string",
+          "example": "2020-06-15T02:21:25.588Z"
+        },
+        "num": {
+          "description": "热key的数量",
+          "type": "integer",
+          "example": 10
+        },
+        "keys": {
+          "description": "热key记录",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HotkeysBody"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

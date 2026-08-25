@@ -1,0 +1,213 @@
+{
+  "name": "UpdateChannel",
+  "summary": "更新自定义事件通道",
+  "tags": "事件通道管理",
+  "productshort": "EG",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v1/{project_id}/channels/{channel_id}": {
+      "put": {
+        "x-api-framework": "RestfulAPI",
+        "x-is-open-doc": "Y",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "事件通道管理"
+        ],
+        "operationId": "UpdateChannel",
+        "summary": "更新自定义事件通道",
+        "description": "更新自定义事件通道定义。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/IamToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/ChannelId"
+          },
+          {
+            "name": "UpdateChannelRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "update channel request",
+            "schema": {
+              "$ref": "#/definitions/ChannelUpdateReq"
+            }
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "required": false,
+            "description": "企业项目id",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information",
+            "schema": {
+              "$ref": "#/definitions/ChannelInfo"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ChannelInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "通道ID",
+          "example": "bd14144e-8f3c-43d6-bdfd-bf09b52c2b96"
+        },
+        "name": {
+          "type": "string",
+          "description": "通道名称",
+          "example": "channel"
+        },
+        "description": {
+          "type": "string",
+          "description": "通道描述",
+          "example": "first channel"
+        },
+        "provider_type": {
+          "type": "string",
+          "description": "通道提供方类型,OFFICIAL:官方事件通道;CUSTOM:自定义事件通道;PARTNER:伙伴事件通道",
+          "enum": [
+            "OFFICIAL",
+            "CUSTOM",
+            "PARTNER"
+          ],
+          "example": "CUSTOM"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建UTC时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "更新UTC时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目id"
+        }
+      }
+    },
+    "ChannelUpdateReq": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "通道描述",
+          "example": "first channel",
+          "maxLength": 255
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目id"
+        },
+        "cross_account": {
+          "type": "boolean",
+          "description": "跨账号开关"
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": {
+            "properties": {
+              "Sid": {
+                "type": "string",
+                "description": "固定值:allow_account_to_put_events",
+                "default": "allow_account_to_put_events"
+              },
+              "Effect": {
+                "type": "string",
+                "description": "固定值:Allow",
+                "default": "Allow"
+              },
+              "Principal": {
+                "type": "object",
+                "additionalProperties": {
+                  "properties": {
+                    "IAM": {
+                      "type": "array",
+                      "items": {
+                        "default": "domainID",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "domain白名单"
+              },
+              "Action": {
+                "type": "string",
+                "description": "固定值:eg:channels:putEvents",
+                "default": "eg:channels:putEvents"
+              },
+              "Resource": {
+                "type": "string",
+                "description": "固定格式:urn:eg:cn-east-2:{project_id}:channel:{channel_name}",
+                "default": "urn:eg:cn-east-2:07d52e5245000fef0f08c008b20dc5c0:channel:testChannel"
+              }
+            }
+          },
+          "description": "策略"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "租户资源空间ID",
+      "required": true,
+      "type": "string",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "IamToken": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "required": true,
+      "maxLength": 16384,
+      "minLength": 1
+    },
+    "ChannelId": {
+      "name": "channel_id",
+      "in": "path",
+      "description": "指定查询的事件通道ID",
+      "required": true,
+      "type": "string",
+      "x-example": "092e1243e88146768798b0e8c9933192"
+    }
+  },
+  "host": "eg.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

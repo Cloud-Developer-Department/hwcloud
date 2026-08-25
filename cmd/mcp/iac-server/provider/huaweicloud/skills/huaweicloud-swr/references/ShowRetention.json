@@ -1,0 +1,220 @@
+{
+  "name": "ShowRetention",
+  "summary": "获取镜像老化规则记录",
+  "tags": "镜像老化规则管理",
+  "productshort": "SWR",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}": {
+      "get": {
+        "tags": [
+          "镜像老化规则管理"
+        ],
+        "summary": "获取镜像老化规则记录",
+        "operationId": "ShowRetention",
+        "produces": [
+          "application/json"
+        ],
+        "description": "获取镜像老化规则记录",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "default": "application/json",
+            "in": "header",
+            "description": "消息体的类型(格式),下方类型可任选其一使用:\napplication/json;charset=utf-8\napplication/json",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "application/json;charset=utf-8",
+              "application/json"
+            ],
+            "x-example": "application/json",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 2
+          },
+          {
+            "name": "namespace",
+            "in": "path",
+            "description": "组织名称。小写字母开头,后面跟小写字母、数字、小数点、下划线或中划线(其中下划线最多允许连续两个,小数点、下划线、中划线不能直接相连),小写字母或数字结尾,1-64个字符。",
+            "required": true,
+            "type": "string",
+            "x-example": "huawei",
+            "x-order": 3
+          },
+          {
+            "name": "repository",
+            "in": "path",
+            "description": "镜像仓库名称",
+            "required": true,
+            "type": "string",
+            "x-example": "test_repo",
+            "x-order": 4
+          },
+          {
+            "name": "retention_id",
+            "in": "path",
+            "description": "镜像老化规则id",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-order": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "examples": {
+              "application/json": {
+                "algorithm": "or",
+                "id": 222,
+                "rules": [
+                  {
+                    "params": {
+                      "days": "30"
+                    },
+                    "tag_selectors": [
+                      {
+                        "kind": "label",
+                        "pattern": "v5"
+                      },
+                      {
+                        "kind": "label",
+                        "pattern": "1.0.1"
+                      },
+                      {
+                        "kind": "regexp",
+                        "pattern": "^123$"
+                      }
+                    ],
+                    "template": "date_rule"
+                  }
+                ],
+                "scope": ""
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Retention"
+            }
+          },
+          "400": {
+            "description": "错误的请求"
+          },
+          "401": {
+            "description": "鉴权失败"
+          },
+          "404": {
+            "description": "组织或镜像仓库或规则不存在"
+          },
+          "500": {
+            "description": "内部错误"
+          }
+        },
+        "x-name": "获取镜像老化规则记录",
+        "x-constraint": "无",
+        "x-version": "v1",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "",
+        "x-request-examples-1": "GET https://{endpoint}/v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}",
+        "x-request-examples-text-1": "GET https://{endpoint}/v2/manage/namespaces/{namespace}/repos/{repository}/retentions/{retention_id}",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "x-apiexplorer-hide": "false",
+        "x-publishpath": "swr_02_0055"
+      }
+    }
+  },
+  "definitions": {
+    "Rule": {
+      "required": [
+        "params",
+        "tag_selectors",
+        "template"
+      ],
+      "properties": {
+        "template": {
+          "type": "string",
+          "enum": [
+            "date_rule",
+            "tag_rule"
+          ],
+          "description": "回收类型,date_rule、tag_rule"
+        },
+        "params": {
+          "type": "object",
+          "description": "template是date_rule时,设置params为{\"days\": \"xxx\"}\ntemplate是tag_rule时,设置params为{\"num\": \"xxx\"}"
+        },
+        "tag_selectors": {
+          "type": "array",
+          "description": "例外镜像",
+          "items": {
+            "$ref": "#/definitions/TagSelector"
+          }
+        }
+      }
+    },
+    "Retention": {
+      "required": [
+        "algorithm",
+        "id",
+        "rules",
+        "scope"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "description": "回收规则匹配策略,or"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "ID"
+        },
+        "rules": {
+          "type": "array",
+          "description": "镜像老化规则",
+          "items": {
+            "$ref": "#/definitions/Rule"
+          }
+        },
+        "scope": {
+          "type": "string",
+          "description": "保留字段"
+        }
+      },
+      "description": "镜像老化规则"
+    },
+    "TagSelector": {
+      "required": [
+        "kind",
+        "pattern"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "匹配规则,label、regexp"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "kind是label时,设置为镜像版本,kind是regexp时,设置为正则表达式"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "swr-api.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

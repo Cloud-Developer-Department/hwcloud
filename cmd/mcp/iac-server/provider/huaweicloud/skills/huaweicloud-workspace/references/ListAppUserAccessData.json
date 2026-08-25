@@ -1,0 +1,246 @@
+{
+  "name": "ListAppUserAccessData",
+  "summary": "查询云应用接入统计数据",
+  "tags": "报表统计",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/statistics/metrics/app-user-access": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "查询云应用接入统计数据",
+        "description": "查询云应用接入统计数据,一次最多查询30天,支持最近30天的数据查询。",
+        "operationId": "ListAppUserAccessData",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "查询起始时间,格式为:UTC格式,例如\"2022-05-11T11:45:42Z。\"",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": "2022-05-11T11:45:42Z"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "查询截止时间,格式为:UTC格式,例如\"2022-05-11T11:45:42Z。\"",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": "2022-05-11T11:45:42Z"
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "description": "用户名(模糊匹配)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "x-example": "xxx"
+          },
+          {
+            "name": "sort_field",
+            "in": "query",
+            "description": "按照指标进行排序\n* `access_failed_count` -  按照接入失败数排序\n* `last_access_failed_time` -  按照最近接入失败时间排序",
+            "required": false,
+            "type": "string",
+            "pattern": "(access_failed_count|last_access_failed_time)",
+            "x-example": "access_failed_count"
+          },
+          {
+            "name": "sort_type",
+            "in": "query",
+            "description": "按照指标进行排序的方向;需配合sort_field一起使用\n* `DESC` - 降序返回数据\n* `ASC` -  升序返回数据",
+            "required": false,
+            "type": "string",
+            "default": "DESC",
+            "pattern": "(ASC|DESC)",
+            "x-example": "DESC"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "查询的偏移量,默认值0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 2147483646,
+            "minimum": 0,
+            "x-example": "0"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit范围[1-100],默认值10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "x-example": "10"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功。",
+            "examples": {
+              "application/json": {
+                "count": 0,
+                "items": [
+                  {
+                    "username": "xxxx",
+                    "access_failed_count": 3,
+                    "last_access_failed_time": "2022-05-11T11:45:42Z",
+                    "error_code": "WKS.xxx",
+                    "error_msg": "login failed."
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListAppUserAccessDataRsp"
+            }
+          },
+          "400": {
+            "description": "客户端请求有误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction =  \"workspace:statistics:listAppUserAccessData\",  authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, rbac = {\"te_admin\", \"wks_adm\"})",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"ListAppUserAccessData\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ListAppUserAccessDataRsp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "example": 0,
+          "description": "总数。",
+          "readOnly": true
+        },
+        "items": {
+          "type": "array",
+          "description": "用户统计指标。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/AppUserAccessData"
+          }
+        }
+      },
+      "description": "查询云应用接入统计数据。"
+    },
+    "AppUserAccessData": {
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "xxxx",
+          "description": "用户名称。",
+          "readOnly": true
+        },
+        "access_failed_count": {
+          "type": "integer",
+          "example": 3,
+          "description": "接入失败数。",
+          "readOnly": true
+        },
+        "last_access_failed_time": {
+          "type": "string",
+          "example": "2022-05-11T11:45:42Z",
+          "description": "最近一次接入失败时间,UTC时间,格式为:2022-05-11T11:45:42Z。",
+          "readOnly": true
+        },
+        "error_code": {
+          "type": "string",
+          "example": "WKS.xxx",
+          "description": "错误码。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "login failed.",
+          "description": "错误信息。",
+          "readOnly": true
+        }
+      }
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

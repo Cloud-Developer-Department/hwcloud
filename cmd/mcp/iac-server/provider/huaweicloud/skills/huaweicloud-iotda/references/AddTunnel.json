@@ -1,0 +1,154 @@
+{
+  "name": "AddTunnel",
+  "summary": "创建设备隧道",
+  "tags": "设备隧道管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/tunnels": {
+      "post": {
+        "tags": [
+          "TunnelManagement"
+        ],
+        "summary": "创建设备隧道",
+        "description": "用户可以通过该接口创建隧道(WebSocket协议),应用服务器和设备可以通过该隧道进行数据传输。\n\n- 该API接口在基础版不支持。\n- 该API调用后平台会向对应的MQTT/MQTTS设备下发隧道地址及密钥,同时给应用服务器也返回隧道地址及密钥,设备可以通过该地址及密钥创建WebSocket协议连接。\n- 一个设备无法创建多个隧道。\n- 具体应用可见“设备远程登录”功能,请参见[设备远程登录](https://support.huaweicloud.com/usermanual-iothub/iot_01_00301.html)。",
+        "operationId": "AddTunnel",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0121.html) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "body",
+            "name": "AddTunnelRequestBody",
+            "description": "创建隧道请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddTunnelDto"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "创建设备隧道成功",
+            "x-SuccessCode": true,
+            "examples": {
+              "application/json": {
+                "tunnel_id": "d144a524-1997-4b99-94bf-f27128da8a34",
+                "tunnel_access_token": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX",
+                "expires_in": 86400,
+                "tunnel_uri": "wss://tunnel.st1.iotda-app.cn-XXX.myhuaweicloud.com/v5/iot/tunnels/XXX/source-connect"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/TunnelAccessInfo"
+            }
+          },
+          "400": {
+            "description": "输入参数不正确",
+            "x-Error": [
+              "IOTDA.019708",
+              "IOTDA.000006"
+            ]
+          },
+          "403": {
+            "description": "鉴权认证失败",
+            "x-Error": [
+              "IOTDA.021102",
+              "IOTDA.014016",
+              "IOTDA.019706",
+              "IOTDA.019707",
+              "IOTDA.014016"
+            ]
+          }
+        },
+        "x-iftype": "OpenAPI_new",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-returnType": "ResponseEntity<TunnelAccessInfo>",
+        "x-imports": "javax.validation.Valid;org.springframework.http.ResponseEntity",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/tunnels",
+        "x-request-examples-description-1": "创建设备隧道,设备id为b64b7a625b84c1334befb648b_test。",
+        "x-request-examples-1": {
+          "device_id": "b64b7a625b84c1334befb648b_test"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddTunnelDto": {
+      "type": "object",
+      "required": [
+        "device_id"
+      ],
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0",
+          "description": "**参数说明**:设备ID",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        }
+      },
+      "description": "创建隧道请求结构体"
+    },
+    "TunnelAccessInfo": {
+      "properties": {
+        "tunnel_id": {
+          "type": "string",
+          "example": "d144a524-1997-4b99-94bf-f27128da8a34",
+          "description": "隧道ID",
+          "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+        },
+        "tunnel_access_token": {
+          "type": "string",
+          "example": "d144a524-1997-4b99-94bf-f27128da8a34",
+          "description": "鉴权信息",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$",
+          "x-sensitive": true
+        },
+        "expires_in": {
+          "type": "integer",
+          "example": 86400,
+          "description": "鉴权信息的过期时间, 单位:秒",
+          "minimum": 0,
+          "maximum": 86400000
+        },
+        "tunnel_uri": {
+          "type": "string",
+          "example": "wss://xxx/xx/",
+          "description": "websocket接入地址",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "description": "创建隧道成功时返回的隧道接入信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

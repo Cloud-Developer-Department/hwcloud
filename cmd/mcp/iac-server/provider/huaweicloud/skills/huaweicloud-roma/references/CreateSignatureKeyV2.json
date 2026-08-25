@@ -1,0 +1,256 @@
+{
+  "name": "CreateSignatureKeyV2",
+  "summary": "创建签名密钥",
+  "tags": "签名密钥管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/signs": {
+      "post": {
+        "summary": "创建签名密钥",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-order": 1,
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "为了保护API的安全性,建议租户为API的访问提供一套保护机制,即租户开放的API,需要对请求来源进行认证,不符合认证的请求直接拒绝访问。\n\n其中,签名密钥就是API安全保护机制的一种。\n\n租户创建一个签名密钥,并将签名密钥与API进行绑定,则服务集成在请求这个API时,就会使用绑定的签名密钥对请求参数进行数据加密,生成签名。当租户的后端服务收到请求时,可以校验这个签名,如果签名校验不通过,则该请求不是服务集成发出的请求,租户可以拒绝这个请求,从而保证API的安全性,避免API被未知来源的请求攻击。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "签名密钥管理"
+        ],
+        "operationId": "CreateSignatureKeyV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/BaseSignature"
+            },
+            "in": "body",
+            "name": "CreateSignatureKeyV2RequestBody",
+            "description": "创建签名密钥的请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "创建一个签名密钥,签名密钥类型使用默认",
+        "x-request-examples-1": {
+          "name": "signature_demo",
+          "sign_key": "signkeysignkey",
+          "sign_secret": "sig**********ret"
+        },
+        "responses": {
+          "201": {
+            "schema": {
+              "$ref": "#/definitions/Signature"
+            },
+            "examples": {
+              "application/json": {
+                "sign_secret": "sig**********ret",
+                "update_time": "2020-08-03T03:39:38.119032888Z",
+                "create_time": "2020-08-03T03:39:38.119032659Z",
+                "name": "signature_demo",
+                "id": "0b0e8f456b8742218af75f945307173c",
+                "sign_key": "signkeysignkey",
+                "sign_type": "hmac"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2011",
+                "error_msg": "Invalid parameter value,parameterName:name. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3030",
+                "error_msg": "The instance does not exist;id:f0fa1789-3b76-433b-a787-9892951c620ec"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Signature": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseSignature"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "update_time": {
+              "description": "更新时间",
+              "type": "string",
+              "format": "date-time"
+            },
+            "create_time": {
+              "description": "创建时间",
+              "type": "string",
+              "format": "date-time"
+            },
+            "id": {
+              "description": "签名密钥的编号",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "BaseSignature": {
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "签名密钥的名称。支持汉字,英文,数字,下划线,且只能以英文和汉字开头。\n> 中文字符必须为UTF-8或者unicode编码。",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 64,
+          "pattern": "^([a-zA-Z]|[\\一-\\龥])([a-zA-Z0-9_]|[\\一-\\龥]){2,63}$",
+          "example": "signature01"
+        },
+        "sign_type": {
+          "description": "签名密钥类型:\n- hmac\n- basic\n- public_key\n- aes\n\nbasic和aes类型需要实例升级到对应版本,若不存在可联系技术工程师升级。\n\npublic_key类型开启实例配置public_key才可使用,实例特性配置详情请参考“附录 > 实例支持的APIC特性”,如确认实例不存在public_key配置可联系技术工程师开启。",
+          "enum": [
+            "hmac",
+            "basic",
+            "public_key",
+            "aes"
+          ],
+          "type": "string",
+          "example": "hmac"
+        },
+        "sign_key": {
+          "description": "签名密钥的key。\n- hmac类型的签名密钥key:支持英文,数字,下划线,中划线,且只能以英文字母或数字开头,8 ~ 32字符。未填写时后台自动生成。\n- basic类型的签名密钥key:支持英文,数字,下划线,中划线,且只能以英文字母开头,4 ~ 32字符。未填写时后台自动生成。\n- public_key类型的签名密钥key:支持英文,数字,下划线,中划线,+,/,=,可以英文字母,数字,+,/开头,8 ~ 512字符。未填写时后台自动生成。\n- aes类型的签名密钥key:支持英文,数字,下划线,中划线,!,@,#,$,%,+,/,=,可以英文字母,数字,+,/开头,签名算法为aes-128-cfb时为16个字符,签名算法为aes-256-cfb时为32个字符。未填写时后台自动生成。",
+          "type": "string",
+          "example": "abcd_123456789123456"
+        },
+        "sign_secret": {
+          "description": "签名密钥的密钥。\n- hmac类型的签名密钥key:支持英文,数字,下划线,中划线,!,@,#,$,%,且只能以英文字母或数字开头,16 ~ 64字符。未填写时后台自动生成。\n- basic类型的签名密钥key:支持英文,数字,下划线,中划线,!,@,#,$,%,且只能以英文字母或数字开头,8 ~ 64字符。未填写时后台自动生成。\n- public_key类型的签名密钥key:支持英文,数字,下划线,中划线,!,@,#,$,%,+,/,=,可以英文字母,数字,+,/开头,15 ~ 2048字符。未填写时后台自动生成。\n- aes类型签名密钥使用的向量:支持英文,数字,下划线,中划线,!,@,#,$,%,+,/,=,可以英文字母,数字,+,/开头,16个字符。未填写时后台自动生成。",
+          "type": "string",
+          "example": "sig**********ret"
+        },
+        "sign_algorithm": {
+          "description": "签名算法。默认值为空,仅aes类型签名密钥支持选择签名算法,其他类型签名密钥不支持签名算法。",
+          "enum": [
+            "aes-128-cfb",
+            "aes-256-cfb"
+          ],
+          "type": "string",
+          "example": "aes-128-cfb"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

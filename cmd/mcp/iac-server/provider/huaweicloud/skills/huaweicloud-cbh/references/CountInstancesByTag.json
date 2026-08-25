@@ -1,0 +1,386 @@
+{
+  "name": "CountInstancesByTag",
+  "summary": "统计符合标签条件的实例数量",
+  "tags": "标签管理",
+  "productshort": "CBH",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/cbs/instance/count": {
+      "post": {
+        "x-open-region-cloud": "hws,hws_hk,cmcc",
+        "tags": [
+          "标签管理"
+        ],
+        "operationId": "CountInstancesByTag",
+        "summary": "统计符合标签条件的实例数量",
+        "description": "统计符合标签条件的实例数量。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "in": "body",
+            "name": "CountInstancesByTagRequestBody",
+            "description": "CountInstancesByTagRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListCBHByTagsRequestBody"
+            }
+          }
+        ],
+        "x-apigateway-ratelimit": "CBH_Server",
+        "responses": {
+          "200": {
+            "description": "Show Project Tags Success",
+            "schema": {
+              "$ref": "#/definitions/CbsGetTagsCount"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1000
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp401"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp403"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorRsp400": {
+      "description": "请求参数错误。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "请求参数错误。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 400,
+        "description": "请求参数错误。"
+      }
+    },
+    "ErrorRsp401": {
+      "description": "校验TOKEN失败。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "校验TOKEN失败。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 401,
+        "description": "校验TOKEN失败"
+      }
+    },
+    "Tags": {
+      "description": "标签信息。\n\n> 说明:\n- 不允许重复key\n- 每实例最多允许20个标签(系统可配置),不包含_sys开头系统标签 \n- 优先按照创建时间的倒序排序。如果没有创建时间则按照资源名称ASCII码进行排序",
+      "required": [
+        "key",
+        "values"
+      ],
+      "properties": {
+        "key": {
+          "description": "键。\n\n> 说明:\n- key不能为空,长度1~128个字符(中文也可以输入128个字符)\n- 可用 UTF-8 格式表示的字母(包含中文)、数字和空格,以及以下字符: _ . : = + - @\n- _sys_开头属于系统标签,租户不能输入\n- 建议正则:^((?!_sys_)[\\\\p{L}\\\\p{Z}\\\\p{N}_.:=+\\\\-@]*)$",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "values": {
+          "description": "值列表。\n\n> 说明:\n- 长度0~255个字符(中文也可以输入255个字符)\n- 可用 UTF-8 格式表示的字母(包含中文)、数字和空格,以及以下字符: _ . : / = + - @ 建议正则:^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$\n- 资源标签值可以为空(empty or null)\n- 预定义标签值不可以为空",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 36,
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 64
+          }
+        }
+      }
+    },
+    "Match": {
+      "description": "match字段值描述。",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "description": "键。第一期限定为resource_name,后续扩展。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "value": {
+          "description": "值。每个值最大长度255个unicode字符 。不校验字符集范。。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "ErrorRsp404": {
+      "description": "没有找到CBH资源。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "没有找到CBH资源。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 404,
+        "description": "没有找到CBH资源"
+      }
+    },
+    "ListCBHByTagsRequestBody": {
+      "description": "TMS查询CBH资源实例列表请求体。",
+      "properties": {
+        "without_any_tag": {
+          "description": "不包含任意一个标签,该字段为true时查询所有不带标签的资源。\n\n此时忽略 “tags”、“tags_any”、“not_tags”、“not_tags_any”字段。",
+          "type": "boolean"
+        },
+        "tags": {
+          "description": "包含标签,最多包含50个key,每个key下面的value最多10个,每个key对应的value可以为空数组但结构体不能缺失。\n\nKey不能重复,同一个key中values不能重复。结果返回包含所有标签的资源列表,key之间是与的关系,\nkey-value结构中value是或的关系。\n\n无tag过滤条件时返回全量数据。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/Tags"
+          }
+        },
+        "tags_any": {
+          "description": "包含任意标签,最多包含50个key,每个key下面的value最多10个,每个key对应的value可以为空数组但结构体不能缺失。Key不能重复,同一个key中values不能重复。\n\n结果返回包含标签的资源列表,key之间是或的关系,key-value结构中value是或的关系。\n\n无过滤条件时返回全量数据。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/Tags"
+          }
+        },
+        "not_tags": {
+          "description": "不包含标签,最多包含50个key,每个key下面的value最多10个, 每个key对应的value可以为空数组但结构体不能缺失。Key不能重复,同一个key中values不能重复。\n\n结果返回不包含标签的资源列表,key之间是与的关系,key-value结构中value是或的关系。\n\n无过滤条件时返回全量数据。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/Tags"
+          }
+        },
+        "not_tags_any": {
+          "description": "不包含任意标签,最多包含50个key,每个key下面的value最多10个, 每个key对应的value可以为空数组但结构体不能缺失。Key不能重复,同一个key中values不能重复。\n\n结果返回不包含标签的资源列表,key之间是或的关系,key-value结构中value是或的关系。\n\n无过滤条件时返回全量数据。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/Tags"
+          }
+        },
+        "sys_tags": {
+          "description": "仅op_service权限可以使用此字段做资源实例过滤条件。\n\n目前TMS调用时只包含一个tag结构体。\n\nkey:_sys_enterprise_project_id\n\nvalue:企业项目id列表\n\n目前TMS调用时,key下面只包含一个value。0表示默认企业项目\n\nsys_tags和租户标签过滤条件(without_any_tag 、tags、tags_any、not_tags、not_tags_any)不能同时使用\n\n无sys_tags时按照tag接口处理,无tag过滤条件时返回全量数据。。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/Tags"
+          }
+        },
+        "matches": {
+          "description": "搜索字段,key为要匹配的字段,如resource_name等。\n\nvalue为匹配的值。key为固定字典值,不能包含重复的key或不支持的key。\n\n根据key的值确认是否需要模糊匹配,如resource_name默认为模糊搜索(不区分大小写),如果value为空字符串精确匹配(多数服务不存在资源名称为空的情况,因此此类情况返回空列表)。\n\nresource_id为精确匹配。第一期只做resource_name,后续再扩展。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/Match"
+          }
+        }
+      },
+      "example": {
+        "matches": [
+          {
+            "key": "resource_name",
+            "value": "resource1"
+          }
+        ],
+        "not_tags": [
+          {
+            "key": "key1",
+            "values": [
+              "*value1",
+              "value2"
+            ]
+          }
+        ],
+        "tags": [
+          {
+            "key": "key1",
+            "values": [
+              "*value1",
+              "value2"
+            ]
+          }
+        ],
+        "tags_any": [
+          {
+            "key": "key1",
+            "values": [
+              "value1",
+              "value2"
+            ]
+          }
+        ],
+        "not_tags_any": [
+          {
+            "key": "key1",
+            "values": [
+              "value1",
+              "value2"
+            ]
+          }
+        ],
+        "sys_tags": [
+          {
+            "key": "_sys_enterprise_project_id",
+            "values": [
+              "5aa119a8-d25b-45a7-8d1b-88e127885635"
+            ]
+          }
+        ]
+      }
+    },
+    "CbsGetTagsCount": {
+      "description": "CbsGetTagsCount。",
+      "required": [
+        "total_count"
+      ],
+      "properties": {
+        "total_count": {
+          "description": "总记录数。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        }
+      }
+    },
+    "ErrorRsp403": {
+      "description": "租户无权限操作。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "租户无权限操作。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 403,
+        "description": "租户无权限操作"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。\n\n获取方法详见API参考,附录\"获取项目ID\"",
+      "required": true,
+      "type": "string",
+      "x-example": "80baxxxxxxxxf9ad43xxxxxxxxx",
+      "minLength": 0,
+      "maxLength": 64
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n\n可参考\"IAM获取IAM用户Token\"获取",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIE5gYJKoZIhvcNAQcCoIIE1zCCXXXXXX...",
+      "minLength": 0,
+      "maxLength": 28000
+    }
+  },
+  "host": "cbh.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

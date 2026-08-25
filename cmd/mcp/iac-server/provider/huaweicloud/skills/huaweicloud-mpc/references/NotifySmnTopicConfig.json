@@ -1,0 +1,202 @@
+{
+  "name": "NotifySmnTopicConfig",
+  "summary": "配置转码服务端事件通知",
+  "tags": "授权与配置接口",
+  "productshort": "MPC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{project_id}/notification": {
+      "put": {
+        "x-navigation-title": "授权与配置接口",
+        "x-inner-api": true,
+        "description": "配置转码服务端事件通知。",
+        "summary": "配置转码服务端事件通知",
+        "operationId": "NotifySmnTopicConfig",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-since": "1.0.0",
+        "x-since-memo": "1.0.0 initial",
+        "x-modifier-memo": "版本 | 修改日期 | 修改说明 | 修改者\n------------ | ------------- | ------------- | -------------\n1.0.0 | 2018/3/28 |新增此接口。 | 吴晓瑜\n",
+        "tags": [
+          "AuthorizationAndConfiguration"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/authorization"
+          },
+          {
+            "$ref": "#/parameters/xProjectId"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](mpc_04_0064.xml)",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "in": "body",
+            "name": "NotifySmnTopicConfigRequestBody",
+            "description": "配置消息通知请求",
+            "schema": {
+              "$ref": "#/definitions/NotificationConfigReq"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "修改消息订阅配置成功。"
+          },
+          "400": {
+            "description": "修改消息订阅配置失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "MPC.10202",
+                "error_msg": "Invalid request parameter."
+              }
+            }
+          }
+        },
+        "x-request-examples-1": "PUT https://{endpoint}/v1/{project_id}/notification\n{\n    \"notifications\": [\n        {\n            \"event_name\": \"TranscodeComplete\",\n            \"topic\": \"test\",\n            \"msg_type\": 2,\n            \"status\": \"on\"\n        }\n    ]\n}\n"
+      }
+    }
+  },
+  "definitions": {
+    "Notification": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.*;javax.validation.constraints.NotEmpty;",
+      "properties": {
+        "event_name": {
+          "description": "消息事件的名称.",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "status": {
+          "description": "事件通知模板选中状态",
+          "enum": [
+            "on",
+            "off"
+          ],
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "topic": {
+          "description": "事件通知主题的URN.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "msg_type": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4,
+          "description": "订阅消息类型.",
+          "enum": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "NotificationConfigReq": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "notifications"
+      ],
+      "properties": {
+        "notifications": {
+          "description": "事件通知模板信息",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "$ref": "#/definitions/Notification"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xProjectId": {
+      "name": "X-Project_Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "mpc.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

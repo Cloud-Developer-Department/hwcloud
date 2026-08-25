@@ -1,0 +1,361 @@
+{
+  "name": "ListUserEvents",
+  "summary": "查询用户事件",
+  "tags": "用户操作日志",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/user-events": {
+      "get": {
+        "tags": [
+          "UserEvents"
+        ],
+        "summary": "查询用户事件",
+        "description": "查询用户事件,一次最多查询30天,支持最近30天的数据查询。",
+        "operationId": "ListUserEvents",
+        "consumes": [
+          "application/json;charset=UTF-8"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "查询起始时间,格式为:UTC时间,例如\"1970-01-01T00:00:00Z\"。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "1970-01-01T00:00:00Z"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "查询结束时间,格式为:UTC时间,例如\"1970-01-01T00:00:00Z\"。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "1970-01-01T00:00:00Z"
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "description": "用户名(精确搜索)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "zhangsan"
+          },
+          {
+            "name": "event_type",
+            "in": "query",
+            "description": "事件类型,英文逗号隔开。",
+            "required": false,
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "x-example": "loginByPassword,logout"
+          },
+          {
+            "name": "resource_id",
+            "in": "query",
+            "description": "操作资源ID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "407481bd-65b4-4de4-a553-67d858cbe29b"
+          },
+          {
+            "name": "resource_name",
+            "in": "query",
+            "description": "操作资源名称。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "zhangsan"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "description": "域名",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "local.com"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "用于分页查询,查询的起始记录序号,从0开始。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 2147483646,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "用于分页查询,返回用户事件数量限制,取值范围0-1000。如果不指定,默认为100。",
+            "required": false,
+            "type": "integer",
+            "default": 100,
+            "maximum": 1000,
+            "minimum": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功。",
+            "examples": {
+              "application/json": {
+                "count": 0,
+                "items": [
+                  {
+                    "project_id": "xxx",
+                    "username": "xxx",
+                    "workspace_id": "xxx",
+                    "event_trace_id": "407481bd-65b4-4de4-a553-67d858cbe29b",
+                    "event_type": "loginByPassword",
+                    "event_time": "1970-01-01T00:00:00Z",
+                    "resource_type": "USER",
+                    "resource_id": "407481bd-65b4-4de4-a553-67d858cbe29b",
+                    "resource_name": "DESKTOP-01",
+                    "client_type": "WINDOWS",
+                    "client_ip": "127.0.0.1",
+                    "client_mac": "xx.xx.xx.xx",
+                    "source_ip": "127.0.0.1",
+                    "is_success": true,
+                    "error_code": "WKS.00000000",
+                    "error_msg": "OK"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListUserEventsRsp"
+            }
+          },
+          "400": {
+            "description": "客户端请求有误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-imports": [
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta"
+        ],
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:userEvents:list\",  authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, rbac = {\"te_admin\", \"wks_adm\"})",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"ListUserEvents\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "UserEventRsp": {
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "example": "xxx",
+          "description": "项目id。",
+          "readOnly": true
+        },
+        "username": {
+          "type": "string",
+          "example": "xxx",
+          "description": "用户名。",
+          "readOnly": true
+        },
+        "workspace_id": {
+          "type": "string",
+          "example": "xxx",
+          "description": "企业id。",
+          "readOnly": true
+        },
+        "event_trace_id": {
+          "type": "string",
+          "example": "407481bd-65b4-4de4-a553-67d858cbe29b",
+          "description": "事件之间的关联id。",
+          "readOnly": true
+        },
+        "event_type": {
+          "type": "string",
+          "example": "loginByPassword",
+          "description": "事件类型。",
+          "readOnly": true
+        },
+        "event_time": {
+          "type": "string",
+          "example": "1970-01-01T00:00:00Z",
+          "description": "事件时间,格式为:UTC时间,例如\"1970-01-01T00:00:00Z\"。",
+          "readOnly": true
+        },
+        "resource_type": {
+          "type": "string",
+          "example": "USER",
+          "description": "操作对象类型。",
+          "readOnly": true
+        },
+        "resource_id": {
+          "type": "string",
+          "example": "407481bd-65b4-4de4-a553-67d858cbe29b",
+          "description": "操作对象id。",
+          "readOnly": true
+        },
+        "resource_name": {
+          "type": "string",
+          "example": "DESKTOP-01",
+          "description": "操作对象名称。",
+          "readOnly": true
+        },
+        "client_type": {
+          "type": "string",
+          "example": "WINDOWS",
+          "description": "客户端类型。",
+          "readOnly": true
+        },
+        "client_ip": {
+          "type": "string",
+          "example": "127.0.0.1",
+          "description": "客户端ip。",
+          "readOnly": true
+        },
+        "client_mac": {
+          "type": "string",
+          "example": "xx.xx.xx.xx",
+          "description": "客户端mac地址。",
+          "readOnly": true
+        },
+        "client_version": {
+          "type": "string",
+          "example": "24.6.0",
+          "description": "客户端版本。",
+          "readOnly": true
+        },
+        "source_ip": {
+          "type": "string",
+          "example": "127.0.0.1",
+          "description": "操作用户源ip。",
+          "readOnly": true
+        },
+        "is_success": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否成功。",
+          "readOnly": true
+        },
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00000000",
+          "description": "错误码。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "OK",
+          "description": "错误描述。",
+          "readOnly": true
+        },
+        "action_type": {
+          "type": "string",
+          "example": "USER",
+          "description": "触发事件的类型,USER-用户触发,SYSTEM-系统触发。",
+          "readOnly": true
+        }
+      }
+    },
+    "ListUserEventsRsp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "事件总数。",
+          "readOnly": true
+        },
+        "items": {
+          "type": "array",
+          "description": "用户事件列表。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/UserEventRsp"
+          }
+        }
+      }
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

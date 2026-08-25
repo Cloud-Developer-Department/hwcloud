@@ -1,0 +1,225 @@
+{
+  "name": "ListEvents",
+  "summary": "服务器事件列表",
+  "tags": "物理服务器诊断",
+  "productshort": "CloudDC",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/physicalservers/events": {
+      "get": {
+        "tags": [
+          "物理服务器诊断"
+        ],
+        "summary": "服务器事件列表",
+        "description": "该 API 用于查询服务器事件列表",
+        "operationId": "ListEvents",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "分页游标",
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "分页大小",
+            "type": "integer",
+            "format": "int32",
+            "default": 100
+          },
+          {
+            "name": "event_level",
+            "in": "query",
+            "required": false,
+            "description": "事件级别,值为critical为紧急,major为重要,minor为次要,info为提示",
+            "type": "string",
+            "enum": [
+              "critical",
+              "major",
+              "minor",
+              "info"
+            ]
+          },
+          {
+            "name": "resource_id",
+            "in": "query",
+            "required": false,
+            "description": "告警资源ID",
+            "type": "string"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "description": "查询开始时间,格式为时间戳(毫秒),from 必须小于 to,且查询时间范围最大不超过30天。",
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "description": "查询截止时间,格式为时间戳(毫秒),from 必须小于 to,且查询时间范围最大不超过30天。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "服务器事件列表",
+            "schema": {
+              "$ref": "#/definitions/EventInfoResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "EventInfoResponseBody": {
+      "type": "object",
+      "description": "事件列表响应体",
+      "properties": {
+        "events": {
+          "description": "事件列表对象",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EventInfo"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "description": "事件列表总数"
+        }
+      }
+    },
+    "EventInfo": {
+      "type": "object",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "description": "事件ID"
+        },
+        "message_id": {
+          "type": "string",
+          "description": "描述ID"
+        },
+        "event_message": {
+          "type": "string",
+          "description": "事件描述"
+        },
+        "event_level": {
+          "type": "string",
+          "description": "事件级别,枚举类型:critical, major, minor, info",
+          "enum": [
+            "critical",
+            "major",
+            "minor",
+            "info"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "事件状态"
+        },
+        "resource_id": {
+          "type": "string",
+          "description": "资源ID,最大长度128"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "事件发生时间,UNIX时间戳,单位毫秒"
+        },
+        "origin_event": {
+          "type": "string",
+          "description": "原始事件,最大长度4096"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

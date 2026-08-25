@@ -1,0 +1,275 @@
+{
+  "name": "ExecuteDesktopPoolScript",
+  "summary": "桌面池批量执行脚本",
+  "tags": "桌面池",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktop-pools/{pool_id}/script-executions": {
+      "post": {
+        "tags": [
+          "DesktopPool"
+        ],
+        "summary": "桌面池批量执行脚本",
+        "description": "桌面池批量执行脚本。",
+        "operationId": "ExecuteDesktopPoolScript",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "pool_id",
+            "in": "path",
+            "description": "桌面池ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31e-d520xxxx-xxebedb6-e57xxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "ExecuteDesktopPoolScriptRequestBody",
+            "description": "批量执行脚本请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ExecuteDesktopPoolScriptsReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常。",
+            "examples": {
+              "application/json": {
+                "task_id": "00298bb0-104a-4467-9b15-876c6fb7a99f"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ExecuteDesktopPoolScriptRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST /v2/0bec5db98280d2d02fd6c00c2de791ce/desktops-pools/a130ab3a-72bf-4b71-baa9-af4987c8e338/script-executions",
+        "x-request-examples-text-1": {
+          "script_ids": [
+            "0006e69f-5970-4af5-a652-e111055e630b"
+          ],
+          "gray_desktop_ids": [
+            "00298bb0-104a-4467-9b15-876c6fb7a99f"
+          ],
+          "post_finish": "reboot"
+        },
+        "x-request-examples-1": {
+          "script_ids": [
+            "0006e69f-5970-4af5-a652-e111055e630b"
+          ],
+          "gray_desktop_ids": [
+            "00298bb0-104a-4467-9b15-876c6fb7a99f"
+          ],
+          "post_finish": "reboot"
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceType = ResourceType.DESKTOP_POOL)",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"workspace:desktopPools:executeScripts\",  needApigwJwtAuthCheck = false, authContextInitializerName = \"executeDesktopPoolScriptAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"executeDesktopPoolScript\")"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "public,internal_token"
+      }
+    }
+  },
+  "definitions": {
+    "ExecuteDesktopPoolScriptsReq": {
+      "properties": {
+        "script_ids": {
+          "type": "array",
+          "description": "执行的脚本id列表,与command二选一。",
+          "items": {
+            "type": "string",
+            "description": "脚本id。",
+            "minLength": 0,
+            "maxLength": 255
+          },
+          "maxItems": 10,
+          "minItems": 0,
+          "x-maxLength": 10,
+          "x-minLength": 0,
+          "x-type": "List<@Size(min=0, max=255) String>"
+        },
+        "gray_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "首批执行的桌面数量,优先级高于gray_desktop_ids。",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "gray_desktop_ids": {
+          "type": "array",
+          "description": "首批执行的桌面id列表,优先级低于gray_count。",
+          "items": {
+            "type": "string",
+            "description": "桌面id。",
+            "minLength": 0,
+            "maxLength": 255
+          },
+          "maxItems": 1000,
+          "minItems": 0,
+          "x-maxLength": 1000,
+          "x-minLength": 0
+        },
+        "desktop_ids": {
+          "type": "array",
+          "description": "桌面id列表,支持桌面池部分桌面执行脚本。",
+          "items": {
+            "type": "string",
+            "description": "桌面id。",
+            "minLength": 0,
+            "maxLength": 255
+          },
+          "maxItems": 1000,
+          "minItems": 0,
+          "x-maxLength": 1000,
+          "x-minLength": 0
+        },
+        "gray_fail_threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "灰度失败阈值,灰度执行失败次数达到该值时,不执行下一批任务。",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "pre_start": {
+          "type": "string",
+          "description": "执行脚本前置步骤。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "post_finish": {
+          "type": "string",
+          "description": "执行脚本完成后置步骤,当前支持关机(stop)、重启(reboot)。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "command_content": {
+          "type": "string",
+          "description": "执行的命令行,与script_ids二选一。",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "command_type": {
+          "type": "string",
+          "description": "命令行类型,执行命令行时必传。\n- POWERSHELL:WINDOWS系统使用。\n- BAT:WINDOWS系统使用。\n- SHELL:LINUX系统使用。",
+          "minLength": 0,
+          "maxLength": 255,
+          "enum": [
+            "POWERSHELL",
+            "BAT",
+            "SHELL"
+          ]
+        },
+        "execution_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "执行脚本的超时时间,单位分钟,默认1分钟。",
+          "minimum": 1,
+          "maximum": 600,
+          "default": 1
+        }
+      },
+      "description": "桌面池执行脚本请求体。"
+    },
+    "ExecuteDesktopPoolScriptRsp": {
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务id。",
+          "readOnly": true
+        }
+      },
+      "description": "桌面池执行脚本响应。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

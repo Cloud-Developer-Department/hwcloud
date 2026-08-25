@@ -1,0 +1,503 @@
+{
+  "name": "ShowConnectors",
+  "summary": "查询Connector列表",
+  "tags": "连接器",
+  "productshort": "MSSI",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/connectors": {
+      "get": {
+        "tags": [
+          "连接器"
+        ],
+        "summary": "查询Connector列表",
+        "description": "查询Connector列表",
+        "operationId": "ShowConnectors",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询, offset大于等于0",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的条目数量",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "description": "连接器分类:onboard:查询所有的上架的、custom:自己创建的连接器",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "连接器种类(连接器市场的tab分类)",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "CustomConnectors的名字",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operation_type",
+            "in": "query",
+            "description": "operation条件过滤",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功,返回CustomConnector列表",
+            "schema": {
+              "$ref": "#/definitions/ConnectorInfoListV2"
+            }
+          },
+          "400": {
+            "description": "操作失败,返回错误信息",
+            "schema": {
+              "$ref": "#/definitions/ErrorInfo"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "操作失败,返回错误信息",
+            "schema": {
+              "$ref": "#/definitions/ErrorInfo"
+            }
+          }
+        },
+        "security": [
+          {
+            "X-Auth-Token": []
+          }
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorInfo": {
+      "title": "ErrorInfo",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "500"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "example": "failed"
+        }
+      },
+      "description": "通用的错误提示'"
+    },
+    "ConnectorInfo": {
+      "title": "ConnectorInfo",
+      "type": "object",
+      "properties": {
+        "action_count": {
+          "type": "integer",
+          "description": "执行动作数量",
+          "format": "int32",
+          "example": 4
+        },
+        "actions": {
+          "type": "array",
+          "description": "触发事件数量",
+          "items": {
+            "$ref": "#/definitions/ActionBaseInfo"
+          }
+        },
+        "auth_content": {
+          "type": "object",
+          "description": "安全认证配置内容"
+        },
+        "auth_id": {
+          "maxLength": 64,
+          "minLength": 0,
+          "type": "string",
+          "description": "认证配置ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "category": {
+          "maxLength": 64,
+          "minLength": 0,
+          "type": "string",
+          "description": "自定义连接器种类(连接器市场的tab分类)"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建时间",
+          "format": "date-time"
+        },
+        "description": {
+          "maxLength": 512,
+          "minLength": 0,
+          "type": "string",
+          "description": "自定义连接器描述",
+          "example": "快速接入ERP系统,创建订单等"
+        },
+        "favorite": {
+          "type": "boolean",
+          "description": "是否收藏",
+          "example": false
+        },
+        "icon": {
+          "type": "string",
+          "description": "logo base64编码",
+          "example": "base64"
+        },
+        "id": {
+          "maxLength": 64,
+          "minLength": 0,
+          "type": "string",
+          "description": "自定义连接器ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "name": {
+          "maxLength": 128,
+          "minLength": 0,
+          "type": "string",
+          "description": "自定义连接器名称",
+          "example": "ERP连接器"
+        },
+        "need_auth": {
+          "type": "boolean",
+          "description": "是否需要验证",
+          "example": false
+        },
+        "provider_name": {
+          "type": "string",
+          "description": "服务提供商"
+        },
+        "release_version": {
+          "type": "string",
+          "description": "发布版本"
+        },
+        "runtime_permissions": {
+          "type": "array",
+          "description": "权限",
+          "items": {
+            "$ref": "#/definitions/RuntimePermission"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "状态(dev:草稿、released:已发布、onboard:已上架)"
+        },
+        "swagger": {
+          "type": "object",
+          "description": "swagger文档(只包含基本信息+认证信息)",
+          "example": "json"
+        },
+        "swagger_version_id": {
+          "type": "string",
+          "description": "版本id"
+        },
+        "trigger_count": {
+          "type": "integer",
+          "description": "触发事件数量",
+          "format": "int32",
+          "example": 4
+        },
+        "triggers": {
+          "type": "array",
+          "description": "触发事件数量",
+          "items": {
+            "$ref": "#/definitions/TriggerBaseInfo"
+          }
+        },
+        "type": {
+          "maxLength": 16,
+          "minLength": 0,
+          "type": "string",
+          "description": "自定义连接器类型",
+          "example": "custom"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "修改时间",
+          "format": "date-time"
+        },
+        "version": {
+          "type": "object",
+          "description": "版本号"
+        }
+      },
+      "description": "Connector元数据"
+    },
+    "RuntimePermission": {
+      "title": "RuntimePermission",
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "动作列表",
+          "example": "xxx连接器"
+        },
+        "action_list": {
+          "type": "array",
+          "description": "动作列表",
+          "example": "xxx连接器",
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string",
+          "description": "权限名称",
+          "example": "java.util.PropertyPermission"
+        },
+        "permission_name": {
+          "type": "string",
+          "description": "权限名称",
+          "example": "文件权限"
+        },
+        "permission_type": {
+          "type": "string",
+          "description": "权限类型",
+          "example": "java.util.PropertyPermission"
+        }
+      }
+    },
+    "ActionBaseInfo": {
+      "title": "ActionBaseInfo",
+      "type": "object",
+      "properties": {
+        "action_type": {
+          "type": "object",
+          "description": "执行动作的类型",
+          "example": "api"
+        },
+        "category": {
+          "type": "string",
+          "description": "分类"
+        },
+        "connector_action_html": {
+          "type": "string"
+        },
+        "connector_created_type": {
+          "type": "string"
+        },
+        "connector_id": {
+          "maxLength": 64,
+          "minLength": 0,
+          "type": "string",
+          "description": "自定义连接器ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "connector_version": {
+          "type": "string",
+          "description": "连接器版本",
+          "example": "1"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建时间",
+          "format": "date-time"
+        },
+        "definition": {
+          "type": "object",
+          "description": "操作or触发器的详细定义",
+          "example": "json"
+        },
+        "description": {
+          "maxLength": 512,
+          "minLength": 0,
+          "type": "string",
+          "description": "描述",
+          "example": "快速接入ERP系统,创建订单等"
+        },
+        "id": {
+          "maxLength": 64,
+          "minLength": 0,
+          "type": "string",
+          "description": "执行动作ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "name": {
+          "maxLength": 128,
+          "minLength": 0,
+          "type": "string",
+          "description": "执行动作名称",
+          "example": "ERP连接器"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "执行动作ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "swagger": {
+          "type": "object",
+          "description": "swagger文档",
+          "example": "json"
+        },
+        "test_result": {
+          "type": "string",
+          "description": "最近一次测试结果",
+          "example": "OK、NG"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "修改时间",
+          "format": "date-time"
+        },
+        "visibility": {
+          "type": "string",
+          "description": "标记动作在流编排是否可见"
+        }
+      },
+      "description": "Connector执行动作基本数据"
+    },
+    "TriggerBaseInfo": {
+      "title": "TriggerBaseInfo",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "分类"
+        },
+        "connector_action_html": {
+          "type": "string"
+        },
+        "connector_created_type": {
+          "type": "string"
+        },
+        "connector_id": {
+          "maxLength": 64,
+          "minLength": 0,
+          "type": "string",
+          "description": "自定义连接器ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "connector_version": {
+          "type": "string",
+          "description": "连接器版本",
+          "example": "1"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建时间",
+          "format": "date-time"
+        },
+        "definition": {
+          "type": "object",
+          "description": "操作or触发器的详细定义",
+          "example": "json"
+        },
+        "description": {
+          "maxLength": 512,
+          "minLength": 0,
+          "type": "string",
+          "description": "描述",
+          "example": "快速接入ERP系统,创建订单等"
+        },
+        "id": {
+          "maxLength": 64,
+          "minLength": 0,
+          "type": "string",
+          "description": "触发事件ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "name": {
+          "maxLength": 128,
+          "minLength": 0,
+          "type": "string",
+          "description": "执行动作名称",
+          "example": "ERP连接器"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "执行动作ID",
+          "example": "297e5dcc7c885182017c885186e20000"
+        },
+        "swagger": {
+          "type": "object",
+          "description": "swagger文档",
+          "example": "json"
+        },
+        "test_result": {
+          "type": "string",
+          "description": "最近一次测试结果",
+          "example": "OK、NG"
+        },
+        "trigger_type": {
+          "type": "object",
+          "description": "触发事件的类型",
+          "example": "polling"
+        },
+        "type": {
+          "type": "string",
+          "description": "类型",
+          "example": "trigger/operation"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "修改时间",
+          "format": "date-time"
+        }
+      },
+      "description": "Connector触发事件基本数据"
+    },
+    "ConnectorInfoListV2": {
+      "title": "ConnectorInfoListV2",
+      "type": "object",
+      "properties": {
+        "connectors": {
+          "type": "array",
+          "description": "连接器列表",
+          "example": "[]",
+          "items": {
+            "$ref": "#/definitions/ConnectorInfo"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "description": "连接器数量",
+          "format": "int64",
+          "example": 50
+        }
+      },
+      "description": "连接器列表"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mssi.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

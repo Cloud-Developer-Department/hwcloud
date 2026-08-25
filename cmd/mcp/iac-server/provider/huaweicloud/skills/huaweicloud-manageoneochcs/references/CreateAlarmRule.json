@@ -1,0 +1,323 @@
+{
+  "name": "CreateAlarmRule",
+  "summary": "创建一条告警规则",
+  "tags": "租户保障",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/V1.0/{project_id}/alarms": {
+      "post": {
+        "summary": "创建一条告警规则",
+        "description": "创建一条告警规则。\n\ncurl命令调用示例:\n```\ncurl -v -H \"Content-Type:application/json\" -X POST -d \"{json}\" \"https://ip:port/v1.0/{projectId}/alarms\"\n```",
+        "x-filter": "ManageOne,openapi",
+        "x-precautions": "错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 租户保障特性”章节。\n",
+        "x-plane": "Tenant,OM",
+        "tags": [
+          "租户保障"
+        ],
+        "operationId": "CreateAlarmRule",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "有效的token(op_service权限的用户token),token中需要包含project信息。"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "project Id。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "alarm_rule",
+            "in": "body",
+            "description": "CES告警规则。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CesAlarmRule"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "返回生成的告警Id,{\"alarm_id\":\"al1450321795427dR8p5mQBo\"}。",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": {
+                "alarm_id": "al1450321795427dR8p5mQBo"
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "406": {
+            "description": "流控限流。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "alarm_name": "alarm-rp0E",
+          "alarm_description": "",
+          "metric": {
+            "namespace": "SYS.ECS",
+            "dimensions": [
+              {
+                "name": "instance_id",
+                "value": "33328f02-3814-422e-b688-bfdba93d4051"
+              }
+            ],
+            "metric_name": "cpu_util"
+          },
+          "condition": {
+            "period": 300,
+            "filter": "average",
+            "comparison_operator": ">=",
+            "value": 6,
+            "unit": "B/s",
+            "count": 1
+          },
+          "alarm_enabled": true,
+          "alarm_action_enabled": true,
+          "alarm_level": 2,
+          "alarm_actions": [
+            {
+              "type": "notification",
+              "notificationList": []
+            }
+          ],
+          "ok_actions": [
+            {
+              "type": "notification",
+              "notificationList": []
+            }
+          ],
+          "insufficientdata_actions": [
+            {
+              "type": "notification",
+              "notificationList": []
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CesDimensions": {
+      "required": [
+        "name",
+        "value"
+      ],
+      "description": "CES告警维度。",
+      "properties": {
+        "name": {
+          "description": "告警描述,只能包含0-9/az/A-Z/_/-或汉字,长度0-256。",
+          "type": "string"
+        },
+        "value": {
+          "description": "告警描述,只能包含0-9/az/A-Z/_/-或汉字,长度0-256。",
+          "type": "string"
+        }
+      }
+    },
+    "CesAlarmRule": {
+      "required": [
+        "alarm_name",
+        "metric",
+        "condition"
+      ],
+      "description": "CES告警规则。",
+      "properties": {
+        "alarm_name": {
+          "description": "告警名称,只能包含0-9/az/A-Z/_/-或汉字,长度1-128。",
+          "type": "string"
+        },
+        "alarm_description": {
+          "description": "告警描述,只能包含0-9/az/A-Z/_/-或汉字,长度0-256。",
+          "type": "string"
+        },
+        "condition": {
+          "description": "告警触发条件。",
+          "$ref": "#/definitions/CesCondition"
+        },
+        "alarm_action_enabled": {
+          "description": "是否启用该条告警触发的动作,默认为true。注:若alarm_action_enabled为true,对应的alarm_actions、insufficientdata_actions、ok_actions至少有一个不能为空。",
+          "type": "boolean",
+          "default": true
+        },
+        "ok_actions": {
+          "description": "告警恢复触发的动作。当前一直只支持传入一条动作。传入多条取第一条。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CesActionInfo"
+          },
+          "maxItems": 1000
+        },
+        "insufficientdata_actions": {
+          "description": "数据不足触发的动作。当前一直只支持传入一条动作。传入多条取第一条。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CesActionInfo"
+          },
+          "maxItems": 1000
+        },
+        "alarm_actions": {
+          "description": "告警触发的动作。当前一直只支持传入一条动作。传入多条取第一条。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CesActionInfo"
+          },
+          "maxItems": 1000
+        },
+        "metric": {
+          "description": "告警指标。",
+          "$ref": "#/definitions/CesMetric"
+        },
+        "alarm_enabled": {
+          "description": "是否启用该条告警,默认为true。",
+          "type": "boolean",
+          "default": true
+        },
+        "alarm_level": {
+          "description": "告警级别,默认为2。",
+          "type": "string",
+          "default": 2
+        },
+        "alarm_type": {
+          "description": "告警类型。",
+          "type": "string"
+        },
+        "regionId": {
+          "description": "区域ID。",
+          "type": "string"
+        }
+      }
+    },
+    "CesMetric": {
+      "required": [
+        "namespace",
+        "metric_name",
+        "dimensions"
+      ],
+      "description": "CES告警指标信息。",
+      "properties": {
+        "namespace": {
+          "description": "指标命名空间,必须以字母开头,只能包含0-9/a-z/AZ/_,总长度最短为3,最大为32。",
+          "type": "string"
+        },
+        "metric_name": {
+          "description": "指标名称,必须以字母开头,只能包含0-9/a-z/AZ/_,长度最短为1,最大为64。",
+          "type": "string"
+        },
+        "dimensions": {
+          "description": "指标维度列表。目前支持维度列表长度最大为3。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CesDimensions"
+          },
+          "maxItems": 1000
+        }
+      }
+    },
+    "CesCondition": {
+      "required": [
+        "period",
+        "filter",
+        "comparison_operator",
+        "value",
+        "count"
+      ],
+      "description": "CES告警条件。更新时只更新一个字段也要传全量字段。",
+      "properties": {
+        "period": {
+          "description": "告警条件判断周期,单位为秒,支持的值为1(实时),300,1200,3600,14400,86400。",
+          "type": "integer",
+          "format": "int32"
+        },
+        "filter": {
+          "description": "数据聚合的方式,支持max、min、average、sum、variance,分别表示最大值、最小值、平均值、求和值、方差值。",
+          "type": "string"
+        },
+        "comparison_operator": {
+          "description": "告警阈值的比较条件,可以是>、=、<、>=、<=。",
+          "type": "string"
+        },
+        "value": {
+          "description": "告警阈值。取值范围[0,Number.MAX_VALUE],Number.MAX_VALUE值为1.7976931348623157e+308",
+          "type": "string"
+        },
+        "unit": {
+          "description": "数据的单位,长度1-10。",
+          "type": "string"
+        },
+        "count": {
+          "description": "连续发生次数,取值范围[1,5]。",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "CesActionInfo": {
+      "required": [
+        "type",
+        "notificationList"
+      ],
+      "description": "CES告警通知规则。",
+      "properties": {
+        "type": {
+          "description": "告警动作类型,notification(邮件通知,暂不支持),autoscaling(AS使用),groupwatch(RTS使用)",
+          "type": "string"
+        },
+        "notificationList": {
+          "description": "被通知人topicUrn列表,列表最长为5,topicUrn可从SMN获取。当前不支持该字段。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

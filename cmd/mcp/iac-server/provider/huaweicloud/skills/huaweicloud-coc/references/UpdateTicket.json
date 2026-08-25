@@ -1,0 +1,312 @@
+{
+  "name": "UpdateTicket",
+  "summary": "变更单状态修改",
+  "tags": "ExternalCOCChange",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{ticket_type}/tickets/{ticket_id}": {
+      "put": {
+        "tags": [
+          "ExternalCocChange"
+        ],
+        "operationId": "UpdateTicket",
+        "summary": "变更单状态修改",
+        "description": "变更单状态修改,请求路径中的ticket_type为固定值change,且ticket_id传递变更单单号。此接口可操作变更开始、变更结束、变更取消和添加变更结果操作。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-sre-api-type": "D",
+        "x-methodAnnotations": [
+          "@CoaCustomizeAuthMeta",
+          "@CoaAuthExtendMeta(userType=UserTypeEnum.MAN_MACHINE_ACCOUNT)",
+          "@IamAuthMeta(authLevel = IamAuthLevel.TOKEN, abacAction = \"coc:ticket:update\", opType = BssOpType.RESOURCE, needApigwJwtAuthCheck = false, authContextInitializer = IAMCustomAuthContextInitializer.class)",
+          "@AuditLog(operation = \"gocm:UpdateTicket\", risk = \"middle\", resourceType = GomResourceTypeEnum.TICKET, resourceId = \"gocm:TicketId=#ticketId\", resourceName = \"#ticketId\")",
+          "@CtsMeta(resourceType = \"Ticket\", traceName = \"updateTicket\", operationId = \"UpdateTicket\")",
+          "@CtsExtendMeta(resourceId = \"#ticketId\", resourceName = \"#ticketId\")",
+          "@QuotaCheck(needTicketType = true, operateId = \"operate\")"
+        ],
+        "x-access-level": "ReadWrite",
+        "x-risk-level": "middle",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ticket_type",
+            "in": "path",
+            "description": "需要修改的工单类型,此处需传递固定值change,表示更新变更单状态。",
+            "required": true,
+            "default": "incident",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          {
+            "name": "ticket_id",
+            "in": "path",
+            "description": "变更单工单单号。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          {
+            "in": "body",
+            "name": "UpdateTicketRequestBody",
+            "description": "TicketInfo object that needs to be modified",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CocUpdateChangeRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "变更开始。",
+        "x-request-examples-url-1": "https://{Endpoint}/v1/change/tickets/CM202506261919380164485133",
+        "x-request-examples-1": "{\n  \"history_info\": {\n    \"action\": \"change_start_change_success\"\n  },\n  \"sub_tickets\": [\n    {\n      \"ticket_id\": \"e72f9b49-2294-4c58-bc57-4a0c6903c5e1\"\n    }\n  ]\n}",
+        "x-request-examples-description-2": "变更结束。",
+        "x-request-examples-url-2": "https://{Endpoint}/v1/change/tickets/CM202506261919380164485133",
+        "x-request-examples-2": "{\n  \"history_info\": {\n    \"action\": \"change_end_change_success\"\n  },\n  \"sub_tickets\": [\n    {\n      \"ticket_id\": \"e72f9b49-2294-4c58-bc57-4a0c6903c5e1\"\n    }\n  ]\n}",
+        "x-request-examples-description-3": "变更成功填写变更结果。",
+        "x-request-examples-url-3": "https://{Endpoint}/v1/change/tickets/CM202506261919380164485133",
+        "x-request-examples-3": "{\n  \"sub_tickets\": [\n    {\n      \"ticket_id\": \"e72f9b49-2294-4c58-bc57-4a0c6903c5e1\",\n      \"sub_tickets\": [],\n      \"change_result\": \"change_result_success\",\n      \"is_verified_in_change_time\": true,\n      \"verified_docs\": null,\n      \"comment\": \"变更成功\"\n    }\n  ],\n  \"history_info\": {\n    \"action\": \"change_set_change_result_success\"\n  }\n}",
+        "x-request-examples-description-4": "变更失败填写变更结果。",
+        "x-request-examples-url-4": "https://{Endpoint}/v1/change/tickets/CM202506261919380164485133",
+        "x-request-examples-4": "{\n  \"sub_tickets\": [\n    {\n      \"ticket_id\": \"80f198c6-14c0-4541-8e2d-1808bfcedf48\",\n      \"sub_tickets\": [],\n      \"change_result\": \"change_result_failed\",\n      \"verified_docs\": null,\n      \"comment\": \"变更失败了\",\n      \"change_fail_type\": \"fr_dependent_service_issue\",\n      \"rollback_start_time\": null,\n      \"rollback_end_time\": null,\n      \"is_rollback_success\": true,\n      \"is_monitor_found\": false\n    }\n  ],\n  \"history_info\": {\n    \"action\": \"change_set_change_result_success\"\n  }\n}",
+        "x-request-examples-description-6": "变更取消。",
+        "x-request-examples-url-6": "https://{Endpoint}/v1/change/tickets/CM202506261919380164485133",
+        "x-request-examples-6": "{\n  \"history_info\": {\n    \"action\": \"change_cancel_change_success\"\n  },\n  \"sub_tickets\": [\n    {\n      \"ticket_id\": \"b0a966fa-5be7-40e4-bad0-a0749d6fac9c\",\n      \"sub_tickets\": [ ],\n      \"change_result\": \"change_result_cancel\",\n      \"comment\": \"取消变更\"\n    }\n  ]\n}",
+        "responses": {
+          "200": {
+            "description": "Ticket Information",
+            "schema": {
+              "$ref": "#/definitions/TicketUpdateResponseInfo"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "GOM.00000000",
+                "error_msg": null,
+                "provider_code": "049",
+                "data": {
+                  "ticket_info": {
+                    "is_start_process_async": true,
+                    "is_update_null": false,
+                    "is_return_full_info": false,
+                    "is_start_process": true,
+                    "ticket_id": "CM202506261919380164485133",
+                    "sub_tickets": [],
+                    "enum_data_list": []
+                  },
+                  "history_info": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-order": 3
+      }
+    }
+  },
+  "definitions": {
+    "CocUpdateChangeRequestBody": {
+      "type": "object",
+      "description": "更新变更单工单请求body体。",
+      "properties": {
+        "ticket_info": {
+          "description": "变更主单信息。",
+          "properties": {
+            "phase": {
+              "type": "string",
+              "description": "-| 工单操作的类型,枚举值。 · phase_change_end:完成 · phase_change_cancel:撤销 · phase_change_draft:草稿 · phase_change_implemente:变更实施和验证 · phase_change_apply:申请人确认 · phase_change_approve:审批中 · phase_change_close:关闭",
+              "example": "phase_change_end",
+              "minLength": 0,
+              "maxLength": 255
+            },
+            "work_flow_status": {
+              "type": "string",
+              "description": "工单状态。",
+              "example": "COMPLETE",
+              "minLength": 0,
+              "maxLength": 255
+            }
+          },
+          "example": null
+        },
+        "sub_tickets": {
+          "description": "变更子单信息。",
+          "example": null,
+          "minItems": 0,
+          "maxItems": 10000,
+          "items": {
+            "example": null,
+            "properties": {
+              "ticket_id": {
+                "type": "string",
+                "description": "子单ID。",
+                "example": "b74acf6b-215c-4f4f-bff0-ad8bef57c8ad",
+                "minLength": 0,
+                "maxLength": 100
+              },
+              "change_result": {
+                "type": "string",
+                "description": "变更结果。",
+                "example": "change_result_failed",
+                "minLength": 0,
+                "maxLength": 100
+              },
+              "is_verified_in_change_time": {
+                "type": "boolean",
+                "description": "在时间窗内是否可验证。",
+                "example": true,
+                "minLength": 0,
+                "maxLength": 100
+              },
+              "verified_docs": {
+                "type": "string",
+                "description": "验证文档ID。",
+                "example": "170b5-8756-489a-9f23-12e7",
+                "minLength": 0,
+                "maxLength": 1000
+              },
+              "comment": {
+                "type": "string",
+                "description": "变更失败原因描述。",
+                "example": "备注信息",
+                "minLength": 0,
+                "maxLength": 10000
+              },
+              "change_fail_type": {
+                "type": "string",
+                "description": "变更失败类型。",
+                "example": "fr_dependent_service_issue",
+                "minLength": 0,
+                "maxLength": 100
+              },
+              "rollback_start_time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "回退开始时间。",
+                "example": 1677674295413,
+                "maximum": 9999999999999,
+                "minimum": 0
+              },
+              "rollback_end_time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "回退结束时间。",
+                "example": 1677674295413,
+                "minimum": 0,
+                "maximum": 9999999999999
+              },
+              "is_rollback_success": {
+                "type": "boolean",
+                "description": "是否回退成功。"
+              },
+              "is_monitor_found": {
+                "type": "boolean",
+                "description": "是否被监控发现。"
+              }
+            }
+          },
+          "type": "array"
+        },
+        "history_info": {
+          "description": "变更历史信息。",
+          "properties": {
+            "action": {
+              "type": "string",
+              "description": "-| 操作类型。 · change_start_change_success:变更开始 · change_end_change_success:变更结束 · change_set_change_result_success:变更成功添加变更结果 · change_result_failed:变更失败添加变更结果 · change_cancel_change_success:变更取消",
+              "example": "change_set_change_result_success",
+              "minLength": 0,
+              "maxLength": 1000
+            }
+          },
+          "example": null
+        }
+      },
+      "x-apidesigner-tag": "change"
+    },
+    "BaseResponse": {
+      "type": "object",
+      "description": "--",
+      "required": [
+        "provider_code",
+        "error_code"
+      ],
+      "properties": {
+        "provider_code": {
+          "type": "string",
+          "description": "服务标识",
+          "default": 4,
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "error_code": {
+          "type": "string",
+          "description": "请求响应代码,范围:0000~9999,正常时取值:0",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求响应描述",
+          "minLength": 0,
+          "maxLength": 10240
+        }
+      }
+    },
+    "TicketUpdateResponseInfo": {
+      "description": "更新变更单成功响应体。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "description": "返回体",
+              "properties": {
+                "is_start_process_async": {
+                  "type": "boolean",
+                  "description": "是否异步启动流程,该值固定值true,表示后台创建工单为异步流程。"
+                },
+                "is_update_null": {
+                  "type": "boolean",
+                  "description": "是否重新提交空字段。"
+                },
+                "is_return_full_info": {
+                  "type": "boolean",
+                  "description": "是否返回全部字段。"
+                },
+                "is_start_process": {
+                  "type": "boolean",
+                  "description": "是否启动流程"
+                },
+                "ticket_id": {
+                  "type": "string",
+                  "description": "被更新的变更单单号。",
+                  "example": "CM202506241152560174680890",
+                  "minLength": 1,
+                  "maxLength": 255
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

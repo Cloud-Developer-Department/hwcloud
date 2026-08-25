@@ -1,0 +1,282 @@
+{
+  "name": "CreateMultiTasks",
+  "summary": "创建组合任务",
+  "tags": "任务管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/fdi/instances/{instance_id}/multi-tasks": {
+      "post": {
+        "tags": [
+          "任务管理"
+        ],
+        "operationId": "CreateMultiTasks",
+        "summary": "创建组合任务",
+        "description": "创建组合任务",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/instance_id"
+          },
+          {
+            "in": "body",
+            "name": "CreateMultiTasksRequestBody",
+            "description": "组合任务创建Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MultiTaskRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-1": {
+          "task_name": "cdctest1",
+          "task_id": "a9fe65f41****6a5d646477c52",
+          "task_type": "REALTIME",
+          "description": "create",
+          "task_tag": "combination",
+          "operation_types": [
+            "INSERT",
+            "UPDATE",
+            "DELETE"
+          ],
+          "source_app_id": "d5afd9af-a8fe-47f6-a98c-edbcba11a0da",
+          "target_app_id": "d5afd9af-a8fe-47f6-a98c-edbcba11a0da"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/TaskSimpleRsp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "FDI.3150",
+                "error_msg": "The task list is empty."
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "FDI.3083",
+                "error_msg": "One or more scheduled tasks are not configured with scheduled plans."
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp500"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MultiTaskRequestBody": {
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "description": "任务名称,只能以字母、数字为开头,包含字母、数字和 . _ -  3~100个字符",
+          "minLength": 3,
+          "maxLength": 100,
+          "example": "fdi_task_v2mysql-tomysql"
+        },
+        "task_id": {
+          "type": "string",
+          "description": "任务ID,可以为空",
+          "minLength": 3,
+          "maxLength": 50,
+          "example": "5b481c5c8e564ee4a301577e31d95159"
+        },
+        "task_type": {
+          "type": "string",
+          "description": "任务类型,目前组合任务仅支持实时任务\n- REALTIME (实时)\n- TIMING (定时)",
+          "enum": [
+            "REALTIME",
+            "TIMING"
+          ],
+          "minLength": 1,
+          "maxLength": 10,
+          "example": "REALTIME"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述信息",
+          "minLength": 1,
+          "maxLength": 1024,
+          "example": "crate task"
+        },
+        "task_tag": {
+          "type": "string",
+          "description": "任务标签,只能包含字母、数字、中划线、下划线",
+          "minLength": 4,
+          "maxLength": 64,
+          "example": "fdi_autotest"
+        },
+        "operation_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "INSERT",
+              "UPDATE",
+              "DELETE"
+            ]
+          },
+          "description": "需要支持的操作类型,支持多选,至少需要选择以下一种:\n- INSERT\n- UPDATE\n- DELETE",
+          "minItems": 1,
+          "maxItems": 3,
+          "example": [
+            "INSERT",
+            "UPDATE",
+            "DELETE"
+          ]
+        },
+        "source_app_id": {
+          "type": "string",
+          "description": "源端数据源所属集成应用ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "eaaa8ad0-f967-416a-ab73-d995ef656e89"
+        },
+        "target_app_id": {
+          "type": "string",
+          "description": "目标端数据源所属集成应用ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "eaaa8ad0-f967-416a-ab73-d995ef656e89"
+        }
+      },
+      "required": [
+        "task_name",
+        "operation_types"
+      ]
+    },
+    "ErrorRsp400": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.3002"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "Invalid parameters."
+        }
+      }
+    },
+    "TaskSimpleRsp": {
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务ID, 可为空",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "15366328208d4d77b76532fe9f4006a6"
+        }
+      }
+    },
+    "ErrorRsp500": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.9999"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "Network error."
+        }
+      }
+    },
+    "ErrorRsp404": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.3081"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "The task does not exist."
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方式请参见《ROMA Connect API参考》的“附录 > 获取项目ID”章节。",
+      "type": "string",
+      "required": true,
+      "maxLength": 32,
+      "minLength": 0
+    },
+    "instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "description": "实例ID",
+      "type": "string",
+      "required": true,
+      "maxLength": 36,
+      "minLength": 0
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,269 @@
+{
+  "name": "ListUsageInfo",
+  "summary": "查询用量",
+  "tags": "卫星影像用量统计",
+  "productshort": "KooMap",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/kmp-control/usages": {
+      "get": {
+        "x-request-examples-description-1": "查询存储空间的用量列表。",
+        "x-request-examples-url-1": "GET https://{Endpoint}/v1/kmp-control/usages?usage_type=DATA&limit=0&offset=10",
+        "tags": [
+          "卫星影像用量统计"
+        ],
+        "operationId": "ListUsageInfo",
+        "summary": "查询用量",
+        "description": "您可以查询时空专属存储服务或卫星影像生产服务的用量统计。\n- 时空专属存储服务:统计导入的原始影像、矢量数据、生产资料和成果影像存储总量。\n- 卫星影像生产服务:统计L2、L3、L4、L5等级的成果影像存储用量、成功处理的次数。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-opseverity": "Info",
+        "x-apigateway-request-type": "Public",
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "usage_type",
+            "in": "query",
+            "required": true,
+            "description": "查询的用量类型。\n- DATA:时空专属存储服务占用空间大小。\n- TASK:成功处理的成果影像数据大小以及成功处理任务次数。",
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "租户Token,用于租户鉴权。该值由IAM接口获取。",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 5000
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "分页大小。",
+            "type": "integer",
+            "format": "int32",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 100
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "偏移量,表示从第几条记录开始查询。",
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "schema": {
+              "$ref": "#/definitions/ShowUsagesRsp"
+            },
+            "examples": {
+              "application/json": {
+                "data": [
+                  {
+                    "usage_measure_name": "时空专属存储",
+                    "usage_type": "DATA",
+                    "domain_id": "abc123c55c3c4526b2ed7a0213bc9xxx",
+                    "usage_subtype": null,
+                    "usage_unit_type": "VOLUME",
+                    "capacity": 0,
+                    "usage": 0,
+                    "unit": "GB",
+                    "created_time": "2022-10-27T13:12:56Z",
+                    "update_time": "2022-10-27T13:12:56Z"
+                  }
+                ],
+                "page": {
+                  "offset": 0,
+                  "limit": 10,
+                  "total": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "非法请求。",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            }
+          },
+          "500": {
+            "description": "服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Page": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "偏移量,表示从第几条数据开始查询。"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "每页包含的查询记录数量。"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "符合查询条件的记录总数。"
+        }
+      },
+      "required": [
+        "offset",
+        "limit",
+        "total"
+      ]
+    },
+    "ShowUsagesRsp": {
+      "type": "object",
+      "description": "查询用量列表响应。",
+      "required": [
+        "data",
+        "page"
+      ],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UsageInfo"
+          },
+          "description": "用量信息列表。"
+        },
+        "page": {
+          "description": "分页信息。",
+          "$ref": "#/definitions/Page"
+        }
+      }
+    },
+    "ErrorMsg": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "请求状态码。",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "UsageInfo": {
+      "description": "用量基本信息。",
+      "required": [
+        "usage_measure_name",
+        "usage_subtype",
+        "usage",
+        "capacity",
+        "unit",
+        "created_time",
+        "update_time"
+      ],
+      "properties": {
+        "usage_measure_name": {
+          "type": "string",
+          "description": "用量度量名称,通常与KooMap的计费项保持一致。当前支持以下用量度量名称:\n- 时空专属存储\n- 基础处理:色彩增强与粗纠正L2\n- 基础处理:色彩增强与精纠正L3\n- 基础处理:正射纠正L4\n- 基础处理:影像镶嵌L5",
+          "minLength": 0,
+          "maxLength": 50,
+          "example": "时空专属存储"
+        },
+        "usage_unit_type": {
+          "type": "string",
+          "description": "用量单位类型,表示单条用量单位所对应的类型。\n - 该值为“VOLUME”时表示用量单位是存储量。\n - 该值为“TIME”时表示用量单位是次数。",
+          "example": "VOLUME"
+        },
+        "usage_type": {
+          "type": "string",
+          "description": "用量类型。\n- 该值为“DATA”时表示时空专属存储服务对应的用量。\n- 该值为“TASK”时表示处理任务服务对应的用量。"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "用量所属租户ID,为32位UUID。",
+          "example": "abc123c55c3c4526b2ed7a0213bc9xxx",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "usage_subtype": {
+          "type": "string",
+          "description": "用量子类型,用于区分同一用量类型下的多个子用量,目前usage_type为“TASK”时才需要设置该值。\n- L2:L2等级生产服务\n- L3:L3等级生产服务\n- L4:L4等级生产服务\n- L5:L5等级生产服务",
+          "minLength": 0,
+          "maxLength": 20,
+          "example": "L2"
+        },
+        "usage": {
+          "type": "number",
+          "format": "float",
+          "description": "租户当前的使用量数值。",
+          "example": 1.8
+        },
+        "capacity": {
+          "type": "number",
+          "format": "float",
+          "description": "租户购买的套餐总量值,按需使用取值为0。",
+          "example": 0
+        },
+        "unit": {
+          "type": "string",
+          "description": "用量的计量单位。\n- 当用量单位类型为“VOLUME”时,单位为存储量相关的单位,如:GB。\n- 当用量单位类型为“TIME”时,单位为“次”。",
+          "example": "GB"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "用量记录的创建时间。格式为UTC标准时间:yyyy-MM-dd'T'HH:mm:ss'Z'。",
+          "example": "2022-11-23T20:00:00Z",
+          "minLength": 20,
+          "maxLength": 20
+        },
+        "update_time": {
+          "type": "string",
+          "description": "用量记录的更新时间。格式为UTC标准时间:yyyy-MM-dd'T'HH:mm:ss'Z'。",
+          "example": "2022-11-23T20:00:00Z",
+          "minLength": 20,
+          "maxLength": 20
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koomap.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

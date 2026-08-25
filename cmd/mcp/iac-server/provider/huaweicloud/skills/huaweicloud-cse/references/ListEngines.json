@@ -1,0 +1,383 @@
+{
+  "name": "ListEngines",
+  "summary": "查询微服务引擎列表",
+  "tags": "引擎管理",
+  "productshort": "CSE",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v2/{project_id}/enginemgr/engines": {
+      "get": {
+        "tags": [
+          "引擎管理"
+        ],
+        "summary": "查询微服务引擎列表",
+        "description": "查询微服务引擎列表。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "ListEngines",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "description": "用户Token。",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户子项目的唯一标识。字符长度为1~64。",
+            "required": true,
+            "type": "string",
+            "x-example": "79c4086f5f3a4e34a92601dfc64b1e8c"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量。",
+            "required": false,
+            "type": "integer",
+            "x-example": "0"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的条目数量。",
+            "required": false,
+            "type": "string",
+            "x-example": "10"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "查询所有微服务引擎需要将该值设置为ALL,查询ServiceComb引擎专享版需要将该值设置为CSE,查询注册配置中心需要将该值设置为Nacos,查询网关需要将该值设置为MicroGateway。",
+            "required": false,
+            "type": "string",
+            "x-example": "CSE2"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询微服务引擎列表响应结构体。",
+            "schema": {
+              "$ref": "#/definitions/EngineGetListResp"
+            }
+          },
+          "400": {
+            "description": "错误的请求。",
+            "schema": {
+              "$ref": "#/definitions/BadRequest"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EngineSimpleInfo": {
+      "type": "object",
+      "description": "查询微服务引擎列表引擎信息",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "微服务引擎的ID"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "[a-zA-Z]{1}[a-z0-9A-Z-]{3,24}[a-z0-9A-Z]$",
+          "description": "引擎的名称"
+        },
+        "enterpriseProjectId": {
+          "type": "string",
+          "description": "微服务引擎所属企业项目ID"
+        },
+        "enterpriseProjectName": {
+          "type": "string",
+          "description": "微服务引擎所属企业项目名称"
+        },
+        "type": {
+          "type": "string",
+          "description": "微服务引擎的类型,CSE为专享版引擎,CSE_Share表示为专业版引擎",
+          "enum": [
+            "CSE",
+            "CSE_Share"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "微服务引擎的描述"
+        },
+        "flavor": {
+          "type": "string",
+          "description": "微服务引擎的规格",
+          "enum": [
+            "cse.s1.small2",
+            "cse.s1.medium2",
+            "cse.s1.large2",
+            "cse.s1.xlarge2",
+            "cse.nacos2.c1.large.10",
+            "cse.nacos2.c1.xlarge.20",
+            "cse.nacos2.c1.xlarge.50",
+            "cse.nacos2.c1.xlarge.60",
+            "cse.nacos2.c1.2xlarge.100",
+            "cse.microgateway.pro.small.1",
+            "cse.microgateway.pro.medium.1",
+            "cse.microgateway.pro.large.1"
+          ]
+        },
+        "payment": {
+          "type": "string",
+          "description": "微服务引擎的计费方式,0表示包周期,1表示按需,2表示免费"
+        },
+        "authType": {
+          "type": "string",
+          "description": "微服务引擎的认证方式,RBAC/NONE",
+          "enum": [
+            "RBAC",
+            "NONE"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "微服务引擎当前的状态",
+          "enum": [
+            "Creating",
+            "Available",
+            "Unavailable",
+            "Deleting",
+            "Deleted",
+            "Upgrading",
+            "Modifying",
+            "CreateFailed",
+            "DeleteFailed",
+            "UpgradeFailed",
+            "ModifyFailed",
+            "Freezed"
+          ]
+        },
+        "externalAddress": {
+          "type": "string",
+          "description": "微服务引擎暴露的IP地址"
+        },
+        "serviceEndpoint": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/EntrypointItem"
+          },
+          "description": "微服务引擎组件的访问地址。"
+        },
+        "publicAddress": {
+          "type": "string",
+          "description": "微服务引擎的公网IP地址"
+        },
+        "publicServiceEndpoint": {
+          "type": "object",
+          "description": "微服务引擎的公网接入地址",
+          "additionalProperties": {
+            "$ref": "#/definitions/EntrypointItem"
+          }
+        },
+        "totalInstance": {
+          "type": "integer",
+          "format": "int32",
+          "description": "微服务引擎可支持的实例总数"
+        },
+        "usedInstance": {
+          "type": "integer",
+          "format": "int32",
+          "description": "已使用的实例总数"
+        },
+        "availableInstance": {
+          "type": "integer",
+          "format": "int32",
+          "description": "可用实例总数"
+        },
+        "version": {
+          "type": "string",
+          "description": "微服务引擎当前版本"
+        },
+        "latestVersion": {
+          "type": "string",
+          "description": "微服务引擎最新版本"
+        },
+        "createTime": {
+          "description": "微服务引擎创建时间",
+          "type": "integer",
+          "format": "int64"
+        },
+        "dueTo": {
+          "type": "integer",
+          "format": "int64",
+          "description": "微服务引擎到期时间"
+        },
+        "latestJobId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "微服务引擎最近的任务ID"
+        },
+        "engineAdditionalActions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Noting",
+              "ForceDelete",
+              "Rollback",
+              "Retry"
+            ]
+          },
+          "description": "微服务引擎允许的附加操作"
+        },
+        "specType": {
+          "type": "string",
+          "enum": [
+            "CCE",
+            "CSE",
+            "SpringCloud"
+          ],
+          "description": "微服务引擎应用部署类型"
+        },
+        "reference": {
+          "$ref": "#/definitions/EngineReference"
+        }
+      }
+    },
+    "BadRequest": {
+      "description": "错误的请求。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    },
+    "EntrypointItem": {
+      "type": "object",
+      "properties": {
+        "masterEntrypoint": {
+          "type": "string",
+          "description": "微服务引擎组件的ipv4主接入地址"
+        },
+        "masterEntrypointIpv6": {
+          "type": "string",
+          "description": "微服务引擎组件的ipv6主接入地址"
+        },
+        "slaveEntrypoint": {
+          "type": "string",
+          "description": "微服务引擎组件的ipv4备接入地址"
+        },
+        "slaveEntrypointIpv6": {
+          "type": "string",
+          "description": "微服务引擎组件的ipv6备接入地址"
+        },
+        "type": {
+          "type": "string",
+          "description": "微服务引擎组件类型",
+          "enum": [
+            "REGISTRY",
+            "SERVICE"
+          ]
+        }
+      }
+    },
+    "EngineReference": {
+      "type": "object",
+      "properties": {
+        "vpc": {
+          "type": "string",
+          "description": "vpc名称"
+        },
+        "azList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "微服务引擎部署的可用区列表"
+        },
+        "networkId": {
+          "type": "string",
+          "description": "微服务引擎子网网络ID"
+        },
+        "subnetCidr": {
+          "type": "string",
+          "description": "微服务引擎ipv4子网划分"
+        },
+        "subnetCidrV6": {
+          "type": "string",
+          "description": "微服务引擎ipv6子网划分"
+        },
+        "subnetGateway": {
+          "type": "string",
+          "description": "微服务引擎子网网关"
+        },
+        "publicIpId": {
+          "type": "string",
+          "description": "微服务引擎公网地址ID"
+        },
+        "serviceLimit": {
+          "type": "string",
+          "description": "微服务引擎可支持的微服务总数"
+        },
+        "instanceLimit": {
+          "type": "string",
+          "description": "微服务引擎可支持的实例总数"
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "微服务引擎附加参数"
+        }
+      }
+    },
+    "EngineGetListResp": {
+      "type": "object",
+      "description": "查询微服务引擎列表响应结构体",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "当前符合查询条件的微服务引擎个数"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EngineSimpleInfo"
+          },
+          "description": "微服务引擎详情"
+        }
+      }
+    },
+    "InternalServerError": {
+      "description": "服务内部错误",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cse.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

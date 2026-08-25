@@ -1,0 +1,196 @@
+{
+  "name": "CreateGaussMySqlBackup",
+  "summary": "创建手动备份",
+  "tags": "备份管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/backups/create": {
+      "post": {
+        "tags": [
+          "备份管理"
+        ],
+        "operationId": "CreateGaussMySqlBackup",
+        "summary": "创建手动备份",
+        "description": "创建手动备份。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "MysqlCreateBackupRequest",
+            "in": "body",
+            "description": "请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MysqlCreateBackupRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/MysqlCreateBackupResponse"
+            },
+            "examples": {
+              "application/json": {
+                "backup": {
+                  "id": "2f4ddb93-b901-4b08-93d8-1d2e472f30fe",
+                  "name": "backup-1",
+                  "description": "手动备份",
+                  "begin_time": "2020-07-07T01:17:05+0800",
+                  "status": "BUILDING",
+                  "type": "manual",
+                  "instance_id": "ef25188419f941309882d2986b2210b9in07"
+                },
+                "job_id": "e0fbbfc8-1ac4-4721-b9e9-7dd685c5bdd7"
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "创建手动备份。",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/619d3e78f61b4be68bc5aa0b59edcf7b/backups/create",
+        "x-request-examples-1": {
+          "instance_id": "07033b125fd94a8a96896f8bcfee6ddain07",
+          "name": "backup-1",
+          "description": "手动备份"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MysqlCreateBackupRequest": {
+      "required": [
+        "instance_id",
+        "name"
+      ],
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID,严格匹配UUID规则。"
+        },
+        "name": {
+          "type": "string",
+          "description": "备份名称。\n\n取值范围:最小为4个字符,最大为64个字符且不超过64个字节(注意:一个中文字符占用3个字节),必须以字母或中文开头,区分大小写,可以包含字母、数字、中划线、下划线或中文,不能包含其他特殊字符。"
+        },
+        "description": {
+          "type": "string",
+          "description": "备份描述,不能包含>!<\"&'=特殊字符,不大于256个字符。"
+        }
+      }
+    },
+    "backup": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "备份ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "备份名称。"
+        },
+        "description": {
+          "type": "string",
+          "description": "备份描述。"
+        },
+        "begin_time": {
+          "type": "string",
+          "description": "备份开始时间,格式为“yyyy-mm-ddThh:mm:ssZ”,其中T指时间字段的开始;Z指时区偏移量。"
+        },
+        "status": {
+          "enum": [
+            "BUILDING",
+            "COMPLETED",
+            "FAILED",
+            "AVAILABLE"
+          ],
+          "type": "string",
+          "description": "备份状态,取值:\n- BUILDING:备份中。\n- COMPLETED:备份完成。\n- FAILED:备份失败。\n- AVAILABLE:备份可用。"
+        },
+        "type": {
+          "enum": [
+            "manual"
+          ],
+          "type": "string",
+          "description": "备份类型,取值:\n- manual:手动全量备份。"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID。"
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    },
+    "MysqlCreateBackupResponse": {
+      "properties": {
+        "backup": {
+          "description": "备份信息。",
+          "$ref": "#/definitions/backup"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务ID。",
+          "example": "e0fbbfc8-1ac4-4721-b9e9-7dd685c5bdd7"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,862 @@
+{
+  "name": "ShowEventStreaming",
+  "summary": "查询事件流详情",
+  "tags": "事件流管理",
+  "productshort": "EG",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v1/{project_id}/eventstreamings/{eventstreaming_id}": {
+      "get": {
+        "x-request-examples-url-1": "GET https://{eg_endpoint}/v1/{project_id}/eventstreamings/{eventstreaming_id}",
+        "x-request-examples-description-1": "查询事件流详情",
+        "x-api-framework": "RestfulAPI",
+        "x-is-open-doc": "Y",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "事件流管理"
+        ],
+        "operationId": "ShowEventStreaming",
+        "summary": "查询事件流详情",
+        "description": "查询事件流详情。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/EventStreamingId"
+          },
+          {
+            "$ref": "#/parameters/IamToken"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "单个事件流详情",
+            "schema": {
+              "$ref": "#/definitions/EventStreamingDetail"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SourceMobileMQParameters": {
+      "type": "object",
+      "description": "事件流移动云rockectMq事件源参数",
+      "required": [
+        "group_id",
+        "instance_id",
+        "topic",
+        "message_model",
+        "addr_type",
+        "addr",
+        "sdk_url",
+        "consume_timeout",
+        "message_type"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string",
+          "description": "消费组id",
+          "minLength": 3,
+          "maxLength": 128
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "实例id",
+          "minLength": 3,
+          "maxLength": 128
+        },
+        "topic": {
+          "type": "string",
+          "description": "topic",
+          "minLength": 3,
+          "maxLength": 128
+        },
+        "tag": {
+          "type": "string",
+          "description": "标签",
+          "maxLength": 128
+        },
+        "authentication_required": {
+          "type": "boolean",
+          "description": "鉴权认证"
+        },
+        "msg_trace_switch": {
+          "type": "boolean",
+          "description": "保存消息轨迹"
+        },
+        "access_key": {
+          "type": "string",
+          "description": "AccessKey",
+          "maxLength": 128
+        },
+        "secret_key": {
+          "type": "string",
+          "description": "SecretKey",
+          "maxLength": 128
+        },
+        "message_model": {
+          "type": "string",
+          "description": "订阅方式",
+          "default": "CLUSTERING",
+          "enum": [
+            "CLUSTERING",
+            "BROADCASTING"
+          ]
+        },
+        "addr_type": {
+          "type": "string",
+          "description": "接入点类型",
+          "default": "PUBLIC",
+          "enum": [
+            "PUBLIC",
+            "PRIVATE"
+          ]
+        },
+        "addr": {
+          "type": "string",
+          "description": "地址",
+          "maxLength": 256
+        },
+        "sdk_url": {
+          "type": "string",
+          "description": "依赖SDK",
+          "maxLength": 256
+        },
+        "consume_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "消费超时时间",
+          "default": 30000,
+          "minimum": 1000,
+          "maximum": 900000
+        },
+        "message_type": {
+          "type": "string",
+          "description": "消息类型",
+          "enum": [
+            "NORMAL"
+          ]
+        },
+        "suspend_time": {
+          "type": "integer",
+          "format": "int32",
+          "description": "失败重试的等待时间",
+          "default": 1800,
+          "minimum": 10,
+          "maximum": 1800
+        },
+        "max_reconsumer_times": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大重试次数",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 16
+        },
+        "consumer_thread_nums": {
+          "type": "integer",
+          "format": "int32",
+          "description": "消费线程数",
+          "default": 20,
+          "minimum": 20,
+          "maximum": 64
+        },
+        "consumer_batch_max_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "批量消费最大消息数",
+          "default": 20,
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "consumer_max_wait": {
+          "type": "integer",
+          "format": "int32",
+          "description": "批量消费最大等待时长,单位:秒",
+          "default": 5,
+          "minimum": 0,
+          "maximum": 450
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "虚拟私有云"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "子网"
+        }
+      }
+    },
+    "TransForm": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "description": "订阅的事件目标转换规则",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "转换规则类型",
+          "enum": [
+            "ORIGINAL",
+            "CONSTANT",
+            "VARIABLE"
+          ],
+          "example": "VARIABLE"
+        },
+        "value": {
+          "type": "string",
+          "description": "常量类型规则时,字段为常量内容定义;\n变量类型规则时,为变量定义,内容必须为JsonObject字符串。\n变量最多支持100个,且不支持嵌套结构定义;\n变量名由字母、数字、点、下划线和中划线组成,必须字母或数字开头不能以HC.开头,长度不超过64个字符;\n变量值表达式支持常量或JsonPath表达式,字符串长度不超过1024个字符。",
+          "maxLength": 1024,
+          "example": "{\"contant_boolean\": true,\"contant_string\": \"constant\",\"varaible_string\": \"$.data.string\",\"varaible_json_object\": \"$.data.object\"}"
+        },
+        "template": {
+          "type": "string",
+          "description": "变量类型规则时,规则内容的模板定义,支持对已定义变量的引用。",
+          "maxLength": 2048,
+          "example": "{\"contant_boolean\": ${contant_boolean},\"contant_string\": \"${contant_string!\\\"default\\\"}\",\"varaible_string\": \"${contant_boolean}\",\"varaible_json_object\": ${varaible_json_object!\"null\"}}"
+        }
+      }
+    },
+    "SourceCommunityMQParameters": {
+      "type": "object",
+      "required": [
+        "addr",
+        "group",
+        "topic",
+        "vpc_id",
+        "subnet_id"
+      ],
+      "properties": {
+        "instance_name": {
+          "type": "string",
+          "description": "实例名称,仅dms的rockectMq需要该字段",
+          "maxLength": 128,
+          "example": "instance-name-test"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID,仅dms的rockectMq需要该字段",
+          "maxLength": 128,
+          "example": "instance-id-test"
+        },
+        "addr": {
+          "type": "string",
+          "description": "rockectMq连接地址",
+          "example": "10.10.10.10:8100"
+        },
+        "group": {
+          "type": "string",
+          "description": "消费组",
+          "minLength": 3,
+          "maxLength": 64,
+          "example": "group-test"
+        },
+        "topic": {
+          "type": "string",
+          "description": "topic名称",
+          "minLength": 3,
+          "maxLength": 128,
+          "example": "topic-test"
+        },
+        "tag": {
+          "type": "string",
+          "description": "标签",
+          "maxLength": 128
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "虚拟云id",
+          "maxLength": 256
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "子网id",
+          "maxLength": 256
+        },
+        "ssl_enable": {
+          "type": "boolean",
+          "description": "开启SSL"
+        },
+        "enable_acl": {
+          "type": "boolean",
+          "description": "ACL访问控制"
+        },
+        "access_key": {
+          "type": "string",
+          "description": "用户名",
+          "maxLength": 128
+        },
+        "secret_key": {
+          "type": "string",
+          "description": "密码"
+        },
+        "message_type": {
+          "type": "string",
+          "description": "消息类型",
+          "enum": [
+            "normal"
+          ]
+        },
+        "consume_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "消费超时时间",
+          "default": 30000,
+          "maximum": 900000,
+          "minimum": 1000
+        },
+        "consumer_thread_nums": {
+          "type": "integer",
+          "format": "int32",
+          "description": "线程消费数",
+          "default": 20,
+          "minimum": 20,
+          "maximum": 64
+        },
+        "consumer_batch_max_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "批量消费最大消息数",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 32
+        },
+        "max_reconsume_times": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大重试次数,-1表示一直重试",
+          "default": -1,
+          "minimum": -1
+        },
+        "suspend_current_queue_time_millis": {
+          "type": "integer",
+          "format": "int32",
+          "description": "重试间隔,单位ms",
+          "default": 1000,
+          "maximum": 30000,
+          "minimum": 20
+        }
+      }
+    },
+    "RunOption": {
+      "type": "object",
+      "properties": {
+        "thread_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "并发数",
+          "example": "3"
+        },
+        "batch_window": {
+          "description": "批量推送",
+          "$ref": "#/definitions/BatchWindow"
+        }
+      }
+    },
+    "EventStreamingSink": {
+      "type": "object",
+      "description": "事件目标,一个事件流中只有一个事件目标,sink_fg、sink_kafka值能选择其中一个参数",
+      "properties": {
+        "sink_fg": {
+          "$ref": "#/definitions/SinkFGParameters"
+        },
+        "sink_kafka": {
+          "$ref": "#/definitions/SinkKafkaParameters"
+        },
+        "sink_obs": {
+          "$ref": "#/definitions/SinkObsParameters"
+        },
+        "name": {
+          "type": "string",
+          "description": "事件目标类型名称",
+          "enum": [
+            "HC.FunctionGraph",
+            "HC.Kafka"
+          ]
+        }
+      }
+    },
+    "EventStreamingCreateReq": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "sink"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "事件流名称,租户下唯一,由字母、数字、点、下划线和中划线组成,必须字母或数字开头",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "test-eventstreaming"
+        },
+        "description": {
+          "type": "string",
+          "description": "事件流描述",
+          "maxLength": 255,
+          "example": "this is a test eventstreaming"
+        },
+        "source": {
+          "$ref": "#/definitions/EventStreamingSource"
+        },
+        "sink": {
+          "$ref": "#/definitions/EventStreamingSink"
+        },
+        "rule_config": {
+          "description": "事件规则,包括过滤规则和转换规则",
+          "properties": {
+            "transform": {
+              "description": "转换规则",
+              "$ref": "#/definitions/TransForm"
+            },
+            "filter": {
+              "type": "object",
+              "description": "过滤规则"
+            }
+          }
+        },
+        "option": {
+          "$ref": "#/definitions/RunOption"
+        }
+      }
+    },
+    "SourceKafkaMQParameters": {
+      "type": "object",
+      "required": [
+        "group",
+        "topic"
+      ],
+      "properties": {
+        "addr": {
+          "type": "string",
+          "description": "kafka连接地址",
+          "example": "10.10.10.10:8100"
+        },
+        "group": {
+          "type": "string",
+          "description": "kafka消费组",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "group-test"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "kafka实例名称",
+          "minLength": 4,
+          "maxLength": 64,
+          "example": "instance-name-test"
+        },
+        "security_protocol": {
+          "type": "string",
+          "description": "安全协议",
+          "example": "PLAINTEXT"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "kafka实例ID",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "instance-id-test"
+        },
+        "topic": {
+          "type": "string",
+          "description": "kafka topic名称",
+          "minLength": 3,
+          "maxLength": 200,
+          "example": "topic-test"
+        },
+        "seek_to": {
+          "type": "string",
+          "description": "消费点位",
+          "enum": [
+            "latest",
+            "earliest"
+          ],
+          "example": "earliest"
+        },
+        "enable_sasl_ssl": {
+          "type": "boolean",
+          "description": "SASL_SSL是否开启",
+          "example": true
+        },
+        "sasl_mechanism": {
+          "type": "string",
+          "description": "SASL认证机制",
+          "enum": [
+            "SCRAM-SHA-512",
+            "PLAIN"
+          ],
+          "example": "PLAIN"
+        },
+        "ssl_certificate_url": {
+          "type": "string",
+          "description": "SASL证书地址,配置的obs地址",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "https://domain/kafka-certs.zip"
+        },
+        "ssl_certificate_pwd": {
+          "type": "string",
+          "description": "SASL证书密码",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": null
+        },
+        "user_name": {
+          "type": "string",
+          "description": "用户名",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": ""
+        },
+        "password": {
+          "type": "string",
+          "description": "用户密码",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": ""
+        }
+      }
+    },
+    "EventStreamingDetail": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/EventStreamingCreateReq"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "事件流状态",
+              "minLength": 1,
+              "maxLength": 128,
+              "example": "running",
+              "enum": [
+                "CREATED",
+                "RUNNING",
+                "ERROR",
+                "STOPPED"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "description": "事件流ID"
+            },
+            "created_time": {
+              "type": "string",
+              "description": "创建时间"
+            },
+            "updated_time": {
+              "type": "string",
+              "description": "更新时间"
+            }
+          }
+        }
+      ]
+    },
+    "EventStreamingSource": {
+      "type": "object",
+      "description": "事件源,一个事件流中事件源只有一个",
+      "properties": {
+        "source_kafka": {
+          "$ref": "#/definitions/SourceKafkaMQParameters"
+        },
+        "source_mobile_rocketmq": {
+          "$ref": "#/definitions/SourceMobileMQParameters"
+        },
+        "source_community_rocketmq": {
+          "$ref": "#/definitions/SourceCommunityMQParameters"
+        },
+        "source_dms_rocketmq": {
+          "$ref": "#/definitions/SourceDMSMQParameters"
+        },
+        "name": {
+          "type": "string",
+          "description": "事件源类型名称",
+          "enum": [
+            "HC.DMS_ROCKETMQ",
+            "HC.COMMUNITY_ROCKETMQ",
+            "HC.Kafka"
+          ]
+        }
+      }
+    },
+    "BatchWindow": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "批量推送条数[1,10000]",
+          "example": 500
+        },
+        "time": {
+          "type": "integer",
+          "description": "重试次数",
+          "example": 10
+        },
+        "interval": {
+          "type": "integer",
+          "format": "int32",
+          "description": "批量推送间隔[0,15],单位秒"
+        }
+      }
+    },
+    "SinkKafkaParameters": {
+      "type": "object",
+      "required": [
+        "topic",
+        "connectionId"
+      ],
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "topic名称"
+        },
+        "keyTransform": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransForm"
+          },
+          "description": "key的转换规则"
+        },
+        "connectionId": {
+          "type": "string",
+          "description": "目标连接id"
+        }
+      }
+    },
+    "SinkObsParameters": {
+      "type": "object",
+      "required": [
+        "access_key",
+        "secret_key",
+        "obs_bucket",
+        "time_format"
+      ],
+      "properties": {
+        "access_key": {
+          "type": "string",
+          "description": "AK",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "secret_key": {
+          "type": "string",
+          "description": "SK"
+        },
+        "obs_bucket": {
+          "type": "string",
+          "description": "桶"
+        },
+        "obs_path": {
+          "type": "string",
+          "description": "转储目录",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "time_format": {
+          "type": "string",
+          "description": "时间目录格式",
+          "enum": [
+            "yyyy",
+            "yyyy/MM",
+            "yyyy/MM/dd",
+            "yyyy/MM/dd/HH",
+            "yyyy/MM/dd/HH/mm"
+          ]
+        }
+      }
+    },
+    "SinkFGParameters": {
+      "type": "object",
+      "properties": {
+        "invoke_type": {
+          "type": "string",
+          "description": "函数执行方式,同步/异步",
+          "example": "SYNC/ASYNC",
+          "enum": [
+            "SYNC,ASYNC"
+          ]
+        },
+        "urn": {
+          "type": "string",
+          "description": "函数链接",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "String"
+        },
+        "agency": {
+          "type": "string",
+          "description": "租户委托"
+        }
+      }
+    },
+    "SourceDMSMQParameters": {
+      "type": "object",
+      "required": [
+        "instance_id",
+        "group",
+        "topic"
+      ],
+      "properties": {
+        "instance_name": {
+          "type": "string",
+          "description": "实例名称,仅dms的rockectMq需要该字段",
+          "maxLength": 128,
+          "example": "instance-name-test"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID,仅dms的rockectMq需要该字段",
+          "maxLength": 128,
+          "example": "instance-id-test"
+        },
+        "group": {
+          "type": "string",
+          "description": "消费组",
+          "minLength": 3,
+          "maxLength": 64,
+          "example": "group-test"
+        },
+        "topic": {
+          "type": "string",
+          "description": "topic名称",
+          "minLength": 3,
+          "maxLength": 128,
+          "example": "topic-test"
+        },
+        "tag": {
+          "type": "string",
+          "description": "标签",
+          "maxLength": 128
+        },
+        "ssl_enable": {
+          "type": "boolean",
+          "description": "开启SSL"
+        },
+        "enable_acl": {
+          "type": "boolean",
+          "description": "ACL访问控制"
+        },
+        "access_key": {
+          "type": "string",
+          "description": "用户名",
+          "maxLength": 128
+        },
+        "secret_key": {
+          "type": "string",
+          "description": "密码"
+        },
+        "message_type": {
+          "type": "string",
+          "description": "消费方式,针对不同生产顺序消息类型,选择消费方式会导致不同结果,请严格按照需求选择消费方式。1、生产顺序为:设置消息组,保证消息顺序发送。消费方式为:顺序消费,实际消息处理结果:按照消息组粒度,严格保证消息顺序。 同一消息组内的消息的消费顺序和发送顺序完全一致。2、生产顺序为:设置消息组,保证消息顺序发送。消费方式为:并发消费,实际消息处理结果:并发消费,尽可能按时间顺序处理。3、生产顺序为:未设置消息组,消息乱序发送。消费方式为:顺序消费,实际消息处理结果:按队列存储粒度,严格顺序。 基于 Apache RocketMQ 本身队列的属性,消费顺序和队列存储的顺序一致,但不保证和发送顺序一致。4、生产顺序为:未设置消息组,消息乱序发送。消费方式为:并发消费,实际消息处理结果:并发消费,尽可能按照时间顺序处理。",
+          "enum": [
+            "NORMAL",
+            "ORDER"
+          ]
+        },
+        "engine_version": {
+          "type": "string",
+          "description": "mq实例版本",
+          "enum": [
+            "4.x",
+            "5.x"
+          ]
+        },
+        "consume_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "消费超时时间",
+          "default": 30000,
+          "maximum": 900000,
+          "minimum": 1000
+        },
+        "consumer_thread_nums": {
+          "type": "integer",
+          "format": "int32",
+          "description": "线程消费数",
+          "default": 20,
+          "minimum": 20,
+          "maximum": 64
+        },
+        "consumer_batch_max_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "批量消费最大消息数",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 32
+        },
+        "max_reconsume_times": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大重试次数,-1表示一直重试",
+          "default": -1,
+          "minimum": -1
+        },
+        "suspend_current_queue_time_millis": {
+          "type": "integer",
+          "format": "int32",
+          "description": "重试间隔,单位ms",
+          "default": 1000,
+          "maximum": 30000,
+          "minimum": 20
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "租户资源空间ID",
+      "required": true,
+      "type": "string",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "EventStreamingId": {
+      "name": "eventstreaming_id",
+      "in": "path",
+      "description": "事件流ID",
+      "required": true,
+      "type": "string",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "IamToken": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "required": true,
+      "maxLength": 16384,
+      "minLength": 1
+    }
+  },
+  "host": "eg.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

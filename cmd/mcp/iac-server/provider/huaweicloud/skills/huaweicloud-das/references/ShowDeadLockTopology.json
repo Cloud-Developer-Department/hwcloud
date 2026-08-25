@@ -1,0 +1,413 @@
+{
+  "name": "ShowDeadLockTopology",
+  "summary": "获取死锁拓扑图数据",
+  "tags": "云DBA",
+  "productshort": "DAS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/connections/{connection_id}/dead-lock-topology": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-das-is-publish": "#ShowDeadLockTopology_Placeholder#",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "GET https://das.cn-north-1.myhuaweicloud.com/v3/054e292c9880d4992f02c0196d3ea468/connections/7ba24c03-23e8-4c49-ae31-836b108b91a5/dead-lock-topology",
+        "tags": [
+          "云DBA"
+        ],
+        "summary": "获取死锁拓扑图数据",
+        "description": "获取死锁拓扑图数据",
+        "operationId": "ShowDeadLockTopology",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID",
+            "minLength": 32,
+            "maxLength": 64
+          },
+          {
+            "name": "connection_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "数据库用户ID。用户使用数据库账号与数据库建立的连接ID。",
+            "minLength": 36,
+            "maxLength": 64
+          },
+          {
+            "name": "dead_lock_id",
+            "in": "query",
+            "required": true,
+            "description": "死锁的ID值",
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 250
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取死锁拓扑图数据响应体",
+            "schema": {
+              "$ref": "#/definitions/ShowDeadLockTopologyGraphResp"
+            }
+          },
+          "400": {
+            "description": "BadRequest.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "InternalServerError.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    },
+    "ShowDeadLockTopologyGraphResp": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "properties": {
+            "dead_lock_id": {
+              "type": "string",
+              "example": "58e779185a2547509bd0f314a0dbb860in07_4a6f23f4be254776a4f7d3bc22ee9b7dno07_1781176542000",
+              "description": "死锁唯一标识"
+            },
+            "instance_id": {
+              "type": "string",
+              "example": "58e779185a2547509bd0f314a0dbb860in07",
+              "description": "实例ID"
+            },
+            "project_id": {
+              "type": "string",
+              "example": "052041494800d57c2f02c00275b4c247",
+              "description": "项目ID"
+            },
+            "occur_time": {
+              "type": "integer",
+              "format": "int64",
+              "example": 1781176542000,
+              "description": "死锁的发生时间,Unix 毫秒时间戳"
+            },
+            "total_transactions_in_cycle": {
+              "type": "integer",
+              "format": "int32",
+              "example": 5,
+              "description": "死锁的事务总数"
+            },
+            "total_transactions_returned": {
+              "type": "integer",
+              "format": "int64",
+              "example": 5,
+              "description": "本次实际返回的事务数"
+            },
+            "truncated": {
+              "type": "boolean",
+              "example": false,
+              "description": "是否裁剪(>10 事务只返回 10 个)"
+            }
+          },
+          "description": "死锁概况",
+          "required": [
+            "dead_lock_id",
+            "instance_id",
+            "project_id",
+            "occur_time",
+            "total_transactions_in_cycle",
+            "total_transactions_returned",
+            "truncated"
+          ]
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "transaction_id": {
+                "type": "string",
+                "example": "134423",
+                "description": "事务ID"
+              },
+              "thread_id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 5330410,
+                "description": "线程ID"
+              },
+              "rollback_target": {
+                "type": "boolean",
+                "example": false,
+                "description": "是否被回滚"
+              },
+              "sql": {
+                "type": "string",
+                "example": "INSERT INTO t_deadlock_complex (uk, data) VALUES ('ef', 4000)",
+                "description": "SQL语句"
+              },
+              "table": {
+                "type": "string",
+                "example": "`test`.`t_deadlock_complex`",
+                "description": "操作的表名"
+              },
+              "operator": {
+                "type": "string",
+                "example": "inserting",
+                "description": "操作类型"
+              },
+              "row_lock_count": {
+                "type": "integer",
+                "format": "int64",
+                "example": 2,
+                "description": "行锁数量"
+              },
+              "undo_log_entries": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1,
+                "description": "Undo日志条数"
+              }
+            },
+            "required": [
+              "transaction_id",
+              "thread_id",
+              "rollback_target",
+              "sql",
+              "table",
+              "operator",
+              "row_lock_count",
+              "undo_log_entries"
+            ]
+          },
+          "description": "事务节点"
+        },
+        "locks": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "lock_id": {
+                "type": "string",
+                "example": "134423_idx_uk_rec_6",
+                "description": "锁节点唯一标识"
+              },
+              "transaction_id": {
+                "type": "string",
+                "example": "134423",
+                "description": "事务节点唯一标识"
+              },
+              "index_name": {
+                "type": "string",
+                "example": "idx_uk",
+                "description": "索引名字"
+              },
+              "lock_type": {
+                "type": "string",
+                "example": "GAP",
+                "description": "锁类型"
+              },
+              "lock_mode": {
+                "type": "string",
+                "example": "X",
+                "description": "锁模式"
+              },
+              "lock_status": {
+                "type": "string",
+                "example": "GRANTED",
+                "description": "锁状态"
+              },
+              "space_id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 10019,
+                "description": "表空间ID"
+              },
+              "page_no": {
+                "type": "integer",
+                "format": "int64",
+                "example": 5,
+                "description": "页号"
+              },
+              "heap_no": {
+                "type": "integer",
+                "format": "int64",
+                "example": 6,
+                "description": "堆号"
+              },
+              "table_name": {
+                "type": "string",
+                "example": "`test`.`t_deadlock_complex`",
+                "description": "操作的表名"
+              },
+              "primary_key": {
+                "type": "boolean",
+                "example": false,
+                "description": "是否主键索引"
+              },
+              "locked_data": {
+                "type": "array",
+                "items": {
+                  "properties": {
+                    "field_index": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 0,
+                      "description": "字段序号"
+                    },
+                    "hex": {
+                      "type": "string",
+                      "example": "6565",
+                      "description": "十六进制原始值"
+                    },
+                    "decoded": {
+                      "type": "string",
+                      "example": "ee",
+                      "description": "可读解码值"
+                    },
+                    "column_name": {
+                      "type": "string",
+                      "example": "uk",
+                      "description": "列名"
+                    }
+                  },
+                  "required": [
+                    "field_index",
+                    "hex",
+                    "decoded",
+                    "column_name"
+                  ]
+                },
+                "description": "锁定的字段数据"
+              },
+              "unknown": {
+                "type": "boolean",
+                "example": false,
+                "description": "是否未知锁"
+              }
+            },
+            "required": [
+              "lock_id",
+              "transaction_id",
+              "index_name",
+              "lock_type",
+              "lock_mode",
+              "lock_status",
+              "space_id",
+              "page_no",
+              "heap_no",
+              "table_name",
+              "primary_key",
+              "locked_data",
+              "unknown"
+            ]
+          },
+          "description": "锁节点"
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "source": {
+                "type": "string",
+                "example": "134423_idx_uk_rec_6",
+                "description": "起始节点唯一标识"
+              },
+              "target": {
+                "type": "string",
+                "example": "134423",
+                "description": "终点节点唯一标识"
+              },
+              "type": {
+                "type": "string",
+                "example": "holds",
+                "description": "关系类型"
+              }
+            },
+            "required": [
+              "source",
+              "target",
+              "type"
+            ]
+          },
+          "description": "边,连接节点表达关系"
+        },
+        "conflict_groups": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "group_id": {
+                "type": "string",
+                "example": "cg_0",
+                "description": "冲突组唯一标识"
+              },
+              "waiting_lock_id": {
+                "type": "string",
+                "example": "134423_idx_uk_rec_1",
+                "description": "等待锁节点唯一标识"
+              },
+              "granted_lock_id": {
+                "type": "string",
+                "example": "134420_idx_uk_rec_1",
+                "description": "持有锁节点唯一标识"
+              }
+            },
+            "required": [
+              "group_id",
+              "waiting_lock_id",
+              "granted_lock_id"
+            ]
+          },
+          "description": "冲突组,每条 conflicts_with 边对应一个"
+        }
+      },
+      "description": "死锁拓扑图。",
+      "required": [
+        "meta",
+        "transactions",
+        "locks",
+        "edges",
+        "conflict_groups"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "das.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

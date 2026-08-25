@@ -1,0 +1,340 @@
+{
+  "name": "UpdateScript",
+  "summary": "修改脚本",
+  "tags": "ScriptManagement",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/job/scripts/{script_uuid}": {
+      "put": {
+        "tags": [
+          "ScriptManagement"
+        ],
+        "summary": "修改脚本",
+        "description": "修改作业脚本:自定义脚本\n约束条件:\n脚本名称:同一租户下,脚本名称不能重复,最大字符64个字符,支持中文+字母+数字+下划线。\n脚本内容最大4096个字符。\n脚本参数个数最多20个。\n脚本描述:最大256个字符。\n单个参数的参数名称 64个字符,只支持字母+数字+下划线。\n单个参数的值最大1024个字符,正则表达式如下:^((?!.{2,})[a-zA-Z0-9_-/.*\\x20?:\",=+@\\[{]}])*$。\n修改的脚本如果有审批人,在修改之后,需要再次选择审批人,查询审批",
+        "operationId": "UpdateScript",
+        "parameters": [
+          {
+            "name": "script_uuid",
+            "in": "path",
+            "description": "脚本uuid",
+            "required": true,
+            "type": "string",
+            "maxLength": 25,
+            "minLength": 1
+          },
+          {
+            "in": "body",
+            "name": "UpdateScriptRequestBody",
+            "description": "待更新的脚本内容",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EditScriptModel"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "国际化标记,zh-cn表示中文,en-us或不传表示英文",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-project-id",
+            "in": "header",
+            "description": "项目ID,一个项目对应一个region",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-user-profile",
+            "in": "header",
+            "description": "IAM5.0用户信息",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "脚本uuid",
+            "examples": {
+              "application/json": {
+                "data": "SC2023110211155901a787af4"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/UpdateScriptRessponse"
+            }
+          },
+          "400": {
+            "description": "",
+            "examples": {
+              "application/json": {
+                "error_code": "COC.00040701",
+                "error_msg": "error_msg"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://coc.myhuaweicloud.com/v1/job/scripts/SC2023110211155901a700000",
+        "x-request-examples-text-1": {
+          "type": "SHELL",
+          "content": "echo ${a}",
+          "name": "019101112",
+          "description": "修改",
+          "properties": {
+            "risk_level": "HIGH",
+            "version": "1.1.1",
+            "reviewers": []
+          },
+          "script_params": [
+            {
+              "param_name": "a",
+              "param_value": "string",
+              "param_description": "string",
+              "param_order": 1,
+              "sensitive": true
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "type": "SHELL",
+          "content": "echo ${a}",
+          "name": "019101112",
+          "description": "修改",
+          "properties": {
+            "risk_level": "HIGH",
+            "version": "1.1.1",
+            "reviewers": []
+          },
+          "script_params": [
+            {
+              "param_name": "a",
+              "param_value": "string",
+              "param_description": "string",
+              "param_order": 1,
+              "sensitive": true
+            }
+          ]
+        },
+        "x-apiexplorer-hide": false,
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "EditScriptModel": {
+      "type": "object",
+      "required": [
+        "content",
+        "description"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "example": "修改脚本时的描述信息",
+          "description": "脚本描述",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "content": {
+          "type": "string",
+          "example": "echo ${value}",
+          "description": "脚本内容",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "properties": {
+          "description": "风险等级:LOW;HIGH;MEDIUM;审批人只支持修改",
+          "$ref": "#/definitions/ScriptPropertiesModel"
+        },
+        "script_params": {
+          "type": "array",
+          "description": "脚本入参",
+          "items": {
+            "$ref": "#/definitions/ScriptParamDefine"
+          },
+          "maxItems": 5,
+          "minItems": 0
+        }
+      },
+      "description": "修改脚本"
+    },
+    "ScriptPropertiesModel": {
+      "type": "object",
+      "required": [
+        "risk_level",
+        "version"
+      ],
+      "properties": {
+        "risk_level": {
+          "type": "string",
+          "example": "LOW",
+          "description": "风险等级\nLOW:低风险\nMEDIUM:中风险\nHIGH:高风险",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "example": "v1.0.0",
+          "description": "脚本版本号",
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "reviewers": {
+          "type": "array",
+          "description": "审批人,不填写不需要审批",
+          "items": {
+            "$ref": "#/definitions/ReviewerInfo"
+          },
+          "maxItems": 5,
+          "minItems": 0,
+          "x-internal": "false"
+        },
+        "protocol": {
+          "type": "string",
+          "example": "WECHAT",
+          "description": "审批消息通知协议,用于通知审批人\nDEFAULT:默认\nSMS:短信\nEMAIL:邮件\nDING_TALK:钉钉\nWE_LINK:welink\nWECHAT:微信\nCALLNOTIFY:语言\nNOT_TO_NOTIFY:不通知",
+          "enum": [
+            "DEFAULT",
+            "SMS",
+            "EMAIL",
+            "DING_TALK",
+            "WE_LINK",
+            "WECHAT",
+            "CALLNOTIFY",
+            "NOT_TO_NOTIFY"
+          ],
+          "x-internal": false
+        }
+      },
+      "description": "脚本标签:风险等级risk_level(取值范围:LOW/MEDIUM/HIGH)、审批人reviewer、脚本解释器interpreter等"
+    },
+    "ReviewerInfo": {
+      "type": "object",
+      "required": [
+        "reviewer_id",
+        "reviewer_name"
+      ],
+      "properties": {
+        "reviewer_name": {
+          "type": "string",
+          "example": "test",
+          "description": "审批人名称(IAM用户名)",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "reviewer_id": {
+          "type": "string",
+          "example": "e99a6f27cfe7497084ac9c07bfa573d7",
+          "description": "审批人ID(IAM用户Id)",
+          "minLength": 0,
+          "maxLength": 32
+        }
+      },
+      "description": "审批人信息"
+    },
+    "UpdateScriptRessponse": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "string",
+          "example": "SC2023102521413701c4a8a62",
+          "description": "被修改脚本的script_uuid"
+        }
+      },
+      "description": "修改自定义脚本的返回体"
+    },
+    "ScriptParamDefine": {
+      "type": "object",
+      "required": [
+        "param_description",
+        "param_name",
+        "param_value",
+        "param_order",
+        "sensitive"
+      ],
+      "properties": {
+        "param_name": {
+          "type": "string",
+          "example": "value",
+          "description": "参数名仅支持字母、数字以及下划线",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "param_value": {
+          "type": "string",
+          "example": "test",
+          "description": "1.参数长度为1-4096位\n2.可以包含大写字母、小写字母、数字及特殊字符(_-/.* ?:\",=+@#\\[{]})\n3.禁止出现连续'.'",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "param_description": {
+          "type": "string",
+          "example": "测试参数",
+          "description": "参数描述",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "param_order": {
+          "type": "integer",
+          "format": "int32",
+          "description": "该参数已废弃,传入该参数不会生效。"
+        },
+        "sensitive": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否是敏感参数"
+        }
+      },
+      "description": "顺序参数,没有参数名字段\n参数顺序,从1开始,不连续会报错\n\napi层用不同的vo对象接收,管理面没有order字段。service层统一处理差异\n\n拼接:sh xxx.sh  'aaa' 'a' 'b'\n执行时值为空:sh xxx.sh  '' 'a' 'b'"
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

@@ -1,0 +1,399 @@
+{
+  "name": "CreateJobV3",
+  "summary": "创建作业V3",
+  "tags": "自动化运维",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/moautoops/v3/jobs": {
+      "post": {
+        "summary": "创建作业V3",
+        "description": "创建作业。\n|SLA项|定义|\n|-----|-----|\n|请求成功率| ≥99.9%|\n|可用性|Tier 1|\n|数据一致性|最终一致,不一致时长<1min|\n|吞吐量|60次/分钟|\n|TP50请求时延|500 ms|\n|TP99.9请求时延|1000 ms|",
+        "x-filter": "ManageOne,irservice,openapi,cloudservice",
+        "x-plane": "OM",
+        "x-precautions": "1.权限码:(自动作业-作业-创建作业) moocapp:moautoops-job:create; \n2.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > ManageOne运维面错误码说明 > 自动化运维”章节。\n",
+        "tags": [
+          "自动化运维"
+        ],
+        "operationId": "CreateJobV3",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "timestamp",
+            "in": "query",
+            "description": "发送操作请求时间。",
+            "type": "integer",
+            "format": "int64",
+            "required": true
+          },
+          {
+            "name": "noise",
+            "in": "query",
+            "description": "加密密文。",
+            "type": "string",
+            "maxLength": 64,
+            "required": true
+          },
+          {
+            "name": "certsn",
+            "in": "query",
+            "description": "证书序列号。证书在ManageOne运维面“系统>系统集成>信任证书”页面导入,用于和回调服务器建立HTTPS连接,建议在导入页面的附加信息内添加说明信息,明确证书作用。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "verifyUrl",
+            "in": "query",
+            "description": "回调服务器地址,需使用HTTPS协议。回调报文格式样例:{\"jobHisId\":\"1\",\"status\":\"AllCompleted\",\"targetIds\":[\"77cc7c2d-9d33-4c74-94f5-059faac6aeb8\"]}",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "notifyTime",
+            "in": "query",
+            "description": "回调时机(OneCompleted, OneSuccess, OneFailed, OneTimedOut, Never, AllCompleted)",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "job",
+            "in": "body",
+            "description": "作业信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建作业成功。",
+            "schema": {
+              "$ref": "#/definitions/CreateJobResponseV3"
+            },
+            "examples": {
+              "application/json": {
+                "id": "5097676E5AB14F64A6BD1AA1510297D2",
+                "message": "",
+                "success": true,
+                "detail": {
+                  "xx": "xx"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "鉴权失败。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/moautoops/v3/jobs?timestamp=1732160018&noise=xxx&certsn=2S5952525038210826064597446594538607866265960324&notifyUrl=https://x.x.x.x:xx/xxxx/task/status&notifyTime=allCompleted",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "name": "test",
+          "operationId": "2A1CE16FC2D9471A8701DE4AE49EA7AE",
+          "executeMode": "manual",
+          "params": [
+            {
+              "paramId": 6046,
+              "paramValue": "123"
+            }
+          ],
+          "targets": [],
+          "sameParams": true,
+          "executeNow": true,
+          "jobType": "operation"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "JobRequest": {
+      "description": "作业信息请求。",
+      "properties": {
+        "name": {
+          "description": "作业名称,最大长度256。",
+          "type": "string"
+        },
+        "operationId": {
+          "description": "操作Id,最大长度64。",
+          "type": "string"
+        },
+        "executeMode": {
+          "description": "执行方式,可取值为:\n* manual  (手动执行)\n* once    (定时单次执行)\n* repeat  (周期执行)",
+          "type": "string"
+        },
+        "workflowExecuteMode": {
+          "description": "执行模式,可取值为(操作不使用该字段):\n* NONBLOCK  (执行异常时不挂起)\n* BLOCK     (执行异常时挂起)",
+          "type": "string"
+        },
+        "executeNow": {
+          "description": "是否立即执行。",
+          "type": "boolean"
+        },
+        "sameParams": {
+          "description": "所有target是否共用输入参数。可取值为:\n*  true  (共用输入参数)",
+          "type": "boolean"
+        },
+        "jobType": {
+          "description": "作业类型,可取值为:\n*  operation  (操作)\n*  workflow (编排)",
+          "type": "string"
+        },
+        "startTime": {
+          "description": "开始时间,执行方式为once或者repeat时,必须填写,且执行时间必须大于当前时间。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "fretime": {
+          "description": "频率次数,执行方式为repeat时,必须填写。可取值为:\n*  频率为hour时,取值范围:1-23\n*  频率为day时,取值范围:1-31\n*  频率为week时,取值范围:1-4\n*  频率为month时,取值范围:1,2,3,4,6",
+          "type": "integer",
+          "format": "int32"
+        },
+        "frequency": {
+          "description": "频率。执行方式为repeat时,必须填写。可取值为:\n*  hour  (时)\n*  day (天)\n*  week (周)\n* month (月)",
+          "type": "string"
+        },
+        "params": {
+          "description": "输入参数。",
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "$ref": "#/definitions/JobParam"
+          }
+        },
+        "targets": {
+          "description": "执行目标。",
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/JobTarget"
+          }
+        },
+        "regionIds": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "array",
+          "maxItems": 5000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "executeSingle": {
+          "description": "是否编排单独执行(操作不使用该字段)。",
+          "type": "boolean"
+        },
+        "remark": {
+          "description": "备注,最大长度128。",
+          "type": "string"
+        },
+        "triggerEvents": {
+          "description": "触发事件集合。",
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/TriggerEvent"
+          }
+        },
+        "ciType": {
+          "description": "归属资源类型,类型列表参照资源管理(CMDB),最大长度64。",
+          "type": "string"
+        },
+        "ciInstanceId": {
+          "description": "归属资源实例ID,最大长度36。",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "operationId",
+        "executeMode",
+        "executeNow",
+        "sameParams",
+        "jobType"
+      ]
+    },
+    "JobTarget": {
+      "description": "作业执行目标信息。",
+      "properties": {
+        "agentId": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        },
+        "id": {
+          "description": "执行目标Id,最大长度128。",
+          "type": "string"
+        },
+        "name": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        },
+        "ip": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        },
+        "type": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        },
+        "taskStatus": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        },
+        "params": {
+          "description": "输入参数。",
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "$ref": "#/definitions/JobParam"
+          }
+        },
+        "regionId": {
+          "description": "bizRegionId,最大长度64。",
+          "type": "string"
+        }
+      }
+    },
+    "TriggerEvent": {
+      "description": "触发事件。",
+      "properties": {
+        "eventType": {
+          "description": "触发事件类型,最大长度128。可取值为:\n* alarm:告警",
+          "type": "string"
+        },
+        "alarmId": {
+          "description": "告警ID,最大长度128。",
+          "type": "string"
+        },
+        "alarmGroupId": {
+          "description": "告警分组ID,最大长度128。",
+          "type": "string"
+        }
+      }
+    },
+    "JobParam": {
+      "description": "作业输入参数信息。",
+      "properties": {
+        "paramType": {
+          "description": "参数类型,可取值为:\n*  text\n*  file\n*  device\n*  date\n*  enum",
+          "type": "string"
+        },
+        "paramId": {
+          "description": "参数Id最大长度12。",
+          "type": "string"
+        },
+        "paramName": {
+          "description": "参数名称,最大长度64。",
+          "type": "string"
+        },
+        "paramValue": {
+          "description": "参数值,最大长度5000。",
+          "type": "string"
+        },
+        "datatype": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        },
+        "mandatory": {
+          "description": "是否必须。",
+          "type": "boolean"
+        },
+        "hide": {
+          "description": "是否隐藏。",
+          "type": "boolean"
+        },
+        "validateRule": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        },
+        "paramDesc": {
+          "description": "参数描述,最大长度256。",
+          "type": "string"
+        },
+        "paramSeq": {
+          "description": "参数序号。",
+          "type": "integer",
+          "format": "int32"
+        },
+        "fileName": {
+          "description": "文件名称,最大长度256。",
+          "type": "string"
+        },
+        "paramValueExt": {
+          "description": "参数扩展信息,文件类型参数包含文件名、id,枚举类型参数包含枚举名、id,设备类型参数包含设备名、id、类型、ip、状态。",
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "paramValueObtainType": {
+          "description": "取值类型,默认为0。可取值为:\n* 0  (固定值)\n* 1  (映射触发事件参数)",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "CreateJobResponseV3": {
+      "description": "rest响应信息",
+      "properties": {
+        "id": {
+          "description": "作业ID",
+          "type": "string"
+        },
+        "success": {
+          "description": "成功或失败",
+          "type": "boolean"
+        },
+        "message": {
+          "description": "响应消息",
+          "type": "string"
+        },
+        "detail": {
+          "description": "作业详情",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

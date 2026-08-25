@@ -1,0 +1,217 @@
+{
+  "name": "ListOpsDatasetItems",
+  "summary": "获取评测集条目列表",
+  "tags": "评测集管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/ops/datasets/{dataset_id}/items": {
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "获取评测集条目列表",
+        "description": "该接口用于分页检索指定评测集的具体数据记录,支持查看当前草稿态数据或特定历史发布版本的数据样本。\n适用场景:\n- 内容预览:在评测集详情页分页展示具体的数据行,供用户直观核查数据质量。\n- 版本溯源:通过指定版本ID,检索并对比历史发布版本中的样本数据。",
+        "operationId": "ListOpsDatasetItems",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "description": "**参数解释:**\n评测集的唯一标识符(ID)\n**约束限制:**\n由英文、数字、“-”、“_”组成,长度为1到64个字符。\n**取值范围:**\n由英文、数字、连字符(-)、下划线(_)组成的1-64位字符串。\n**默认取值:**\n无。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "version_id",
+            "in": "query",
+            "description": "**参数解释:**\n评测集的版本标识符(ID),用于指定查询特定历史版本下的数据条目。\n**约束限制:**\n字符串长度限制为0到100个字符。\n**取值范围:**\n有效的版本ID字符串。\n**默认取值:**\n若为空,默认指向当前的草稿版本(Draft)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "**参数解释:**\n分页查询的起始偏移量。用于指定从满足条件的第几条记录开始返回,常与 limit参数配合实现分页功能。\n**约束限制:**\n必须为整数,且大小在0到10,000之间。\n**取值范围:**\n0-10000。\n**默认取值:**\n0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 10000,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "**参数解释:**\n单次查询返回的最大记录数量。用于控制分页查询时每页显示的数据条数。\n**约束限制:**\n必须为整数,且大小在1到100之间。\n**取值范围:**\n1-100。\n**默认取值:**\n10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "items": [
+                  {
+                    "id": "69db711057456f5c7d422aa9",
+                    "turns": [
+                      {
+                        "fields": {
+                          "input": {
+                            "type": "String",
+                            "content_type": "text",
+                            "value": "中国首都是哪里"
+                          },
+                          "reference_output": {
+                            "type": "String",
+                            "content_type": "text",
+                            "value": "北京"
+                          }
+                        }
+                      }
+                    ],
+                    "created_at": "2026-04-12T10:16:48Z",
+                    "updated_at": "2026-04-12T10:16:48Z"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListOpsDatasetItemsResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://*.com/agentarts/v1/ops/datasets/8a77718d-ce32-40f6-aca1-8ef4ffd339fa/items?offset=0&limit=100",
+        "x-request-examples-description-1": "分页查看评测集 \"8a77718d...\" 中的数据项,包含具体的输入问题和参考答案。",
+        "x-request-examples-text-1": "",
+        "x-request-examples-1": "",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-open-api": true,
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L4"
+      }
+    }
+  },
+  "definitions": {
+    "OpsItemDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "507f1f77bcf86cd799439011",
+          "description": "**参数解释:**\n数据条目的唯一标识符。\n**取值范围:**\n通常为符合 MongoDB ObjectID 规范的 24 位十六进制字符串。",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "turns": {
+          "type": "array",
+          "description": "**参数解释:**\n包含该条目具体业务内容的轮次数据列表,支持多轮对话格式。\n**取值范围:**\n符合OpsTurn定义的对象数组。",
+          "items": {
+            "$ref": "#/definitions/OpsTurn"
+          },
+          "maxItems": 10000,
+          "minItems": 0
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-15T10:30:00Z",
+          "description": "**参数解释:**\n该条目被首次创建的时间。\n**取值范围:**\nUTC 时间字符串。"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-15T10:30:00Z",
+          "description": "**参数解释:**\n该条目最后一次被修改的时间。\n**取值范围:**\nUTC 时间字符串。"
+        }
+      },
+      "description": "**参数解释:**\n评测集中具体条目的详细信息。\n**取值范围:**\n不涉及。"
+    },
+    "ListOpsDatasetItemsResponseBody": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "**参数解释:**\n当前分页返回的数据条目详细内容列表。\n**取值范围:**\n参考OpsItemDetail 结构。",
+          "items": {
+            "$ref": "#/definitions/OpsItemDetail"
+          },
+          "maxItems": 10000,
+          "minItems": 0
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "example": 100,
+          "description": "**参数解释:**\n评测集中满足查询条件的记录总数。\n**取值范围:**\n0到2147483647。",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "description": "**参数解释:**\n查询数据条目列表的响应体,包含分页数据及总计。\n**取值范围:**\n不涉及。"
+    },
+    "OpsTurn": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "object",
+          "description": "**参数解释:**\n该轮次中具体字段的键值对集合。\n**取值范围:**\nMap 结构,Value 参考OpsFieldValue定义。",
+          "additionalProperties": {
+            "$ref": "#/definitions/OpsFieldValue"
+          }
+        }
+      },
+      "description": "**参数解释:**\n定义对话或数据记录中的单次交互轮次。\n**取值范围:**\n不涉及。"
+    },
+    "OpsFieldValue": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "string",
+          "description": "**参数解释:**\n字段的数据类型。\n**取值范围:**\n如 string, integer, float 等。",
+          "minLength": 0,
+          "maxLength": 10000
+        },
+        "content_type": {
+          "type": "string",
+          "example": "text",
+          "description": "**参数解释:**\n内容展示类型。\n**取值范围:**\n如 text, markdown, image 等。",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "value": {
+          "type": "object",
+          "example": "这是用户的输入内容",
+          "description": "**参数解释:**\n字段承载的实际业务数据。\n**取值范围:**\n根据type字段确定具体数据类型和格式。"
+        }
+      },
+      "description": "**参数解释:**\n具体字段的存储值及其元信息。\n**取值范围:**\n不涉及。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

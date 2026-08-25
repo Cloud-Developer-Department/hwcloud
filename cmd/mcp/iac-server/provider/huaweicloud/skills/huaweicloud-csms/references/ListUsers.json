@@ -1,0 +1,254 @@
+{
+  "name": "ListUsers",
+  "summary": "查询用户列表",
+  "tags": "用户管理",
+  "productshort": "CSMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/csms/users": {
+      "get": {
+        "x-request-examples-description-1": "查询用户列表,查询前10条所有组织下的用户列表",
+        "x-request-examples-text-1": "/api/v1/tenant/users?org_id=&offset=0&limit=10",
+        "x-request-examples-1": "/api/v1/tenant/users?org_id=&offset=0&limit=10",
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "查询用户列表",
+        "description": "查询用户列表。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "operationId": "ListUsers",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "type": "string",
+            "maxLength": 2097152,
+            "minLength": 32
+          },
+          {
+            "name": "org_id",
+            "in": "query",
+            "required": false,
+            "description": "组织id,为空时查询所有用户。",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": true,
+            "description": "第几页。最小值:0",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "description": "每页多少条。最小值:10。最大值:100",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 10,
+            "maximum": 100
+          },
+          {
+            "name": "user_info",
+            "in": "query",
+            "required": false,
+            "description": "最长64位,用户名,支持模糊查询",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "schema": {
+              "$ref": "#/definitions/UsersListResponse"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "users": [
+                  {
+                    "extension": {},
+                    "user_name": "zhangsan",
+                    "mobile": "12345678901",
+                    "created_at": "2022-03-31 16:46:02.964",
+                    "pwd_must_modify": false,
+                    "updated_at": "2022-03-31 16:48:44.073",
+                    "user_id": "20220331164602949-904C-D475B60AE",
+                    "org_id": "20220331135144180-0FA5-EE3B69068",
+                    "grade": 1,
+                    "name": "zhangsan",
+                    "disabled": false,
+                    "pwd_change_at": "2022-03-31 16:47:51.481",
+                    "locked": false,
+                    "user_org_relation_list": [
+                      {
+                        "org_id": "20220331135144180-0FA5-EE3B69068",
+                        "relation_type": "1F"
+                      },
+                      {
+                        "org_id": "20220415103506608-AF59-5CC9081B9",
+                        "relation_type": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "请求失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/ErrorDetail",
+          "description": "错误信息返回体。"
+        }
+      },
+      "type": "object"
+    },
+    "UsersListResponse": {
+      "type": "object",
+      "required": [
+        "total",
+        "users"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "description": "用户总数。"
+        },
+        "users": {
+          "items": {
+            "$ref": "#/definitions/UsersDetailsResult"
+          },
+          "description": "用户列表。",
+          "type": "array"
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    },
+    "UserOrgRelationListResult": {
+      "type": "object",
+      "required": [
+        "org_id",
+        "relation_type"
+      ],
+      "properties": {
+        "org_id": {
+          "type": "string",
+          "description": "组织id"
+        },
+        "relation_type": {
+          "type": "string",
+          "description": "关系类型。"
+        }
+      }
+    },
+    "UsersDetailsResult": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "用户id。"
+        },
+        "org_id": {
+          "type": "string",
+          "description": "用户所属组织。"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "用户名。"
+        },
+        "name": {
+          "type": "string",
+          "description": "姓名。"
+        },
+        "mobile": {
+          "type": "string",
+          "description": "手机号。"
+        },
+        "email": {
+          "type": "string",
+          "description": "邮箱。"
+        },
+        "pwd_must_modify": {
+          "type": "boolean",
+          "description": "首次登录是否强制修改密码。"
+        },
+        "pwd_change_at": {
+          "type": "string",
+          "description": "密码修改时间。"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "创建时间。"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "最后一次修改时间。"
+        },
+        "disabled": {
+          "type": "string",
+          "description": "是否禁用。"
+        },
+        "grade": {
+          "type": "string",
+          "description": "可信等级。"
+        },
+        "locked": {
+          "type": "string",
+          "description": "是否锁定。"
+        },
+        "extension": {
+          "type": "string",
+          "description": "自定义扩展属性。"
+        },
+        "user_org_relation_list": {
+          "items": {
+            "$ref": "#/definitions/UserOrgRelationListResult"
+          },
+          "description": "用户组织关系集合。",
+          "type": "array"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

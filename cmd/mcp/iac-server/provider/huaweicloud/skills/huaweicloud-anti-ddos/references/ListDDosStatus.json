@@ -1,0 +1,215 @@
+{
+  "name": "ListDDosStatus",
+  "summary": "查询EIP防护状态列表",
+  "tags": "DDoS防护管理",
+  "productshort": "Anti-DDoS",
+  "region_id": "me-east-1",
+  "paths": {
+    "/v1/{project_id}/antiddos": {
+      "get": {
+        "tags": [
+          "DDoS防护管理"
+        ],
+        "summary": "查询EIP防护状态列表",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "description": "查询用户所有EIP的Anti-DDoS防护状态信息,用户的EIP无论是否绑定到云服务器,都可以进行查询。",
+        "operationId": "ListDDosStatus",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "default": "application/json;charset=utf8",
+            "description": "Content-Type请求头"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 64,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "可选范围:\n- normal:表示正常\n- configging:表示设置中\n- notConfig:表示未设置\n- packetcleaning:表示清洗\n- packetdropping:表示黑洞\n\n不带此参数默认所有列表,以neutron查询到的顺序为准。"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "返回结果个数限制,取值范围:1~100",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 3,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,取值范围:0~2147483647",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 10,
+            "type": "string"
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "description": "IP地址,支持IPv4格式和IPv6格式输入,支持部分查询。例如“?ip=192.168”,会返回192.168.111.1和10.192.168.8所对应的EIP防护状态。",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "ddosStatus": [
+                  {
+                    "floating_ip_id": "18e6ace5-eb36-4196-a15e-1e000c24e026",
+                    "floating_ip_address": "139.9.116.167",
+                    "network_type": "EIP",
+                    "status": "normal",
+                    "blackhole_endtime": 0,
+                    "protect_type": "default",
+                    "traffic_threshold": 99,
+                    "http_threshold": 0
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListDDosStatus"
+            }
+          }
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "ListDDosStatus": {
+      "type": "object",
+      "required": [
+        "total",
+        "ddosStatus"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "弹性IP总数"
+        },
+        "ddosStatus": {
+          "type": "array",
+          "description": "防护状态列表",
+          "items": {
+            "$ref": "#/definitions/DDosStatus"
+          }
+        }
+      },
+      "example": {
+        "total": 1,
+        "ddosStatus": [
+          {
+            "floating_ip_id": "18e6ace5-eb36-4196-a15e-1e000c24e026",
+            "floating_ip_address": "139.9.116.167",
+            "network_type": "EIP",
+            "status": "normal",
+            "blackhole_endtime": 0,
+            "protect_type": "default",
+            "traffic_threshold": 99,
+            "http_threshold": 0
+          }
+        ]
+      }
+    },
+    "DDosStatus": {
+      "type": "object",
+      "required": [
+        "floating_ip_id",
+        "floating_ip_address",
+        "network_type",
+        "status",
+        "blackhole_endtime",
+        "protect_type",
+        "traffic_threshold",
+        "http_threshold"
+      ],
+      "description": "ddos状态响应体",
+      "properties": {
+        "floating_ip_id": {
+          "type": "string",
+          "description": "EIP的ID"
+        },
+        "floating_ip_address": {
+          "type": "string",
+          "description": "浮动IP地址"
+        },
+        "network_type": {
+          "type": "string",
+          "description": "EIP所属类型,可选范围:\n- EIP:未绑定到ECS的EIP或绑定到ECS的EIP\n- ELB:绑定到ELB的EIP"
+        },
+        "status": {
+          "type": "string",
+          "description": "防护状态,可选范围:\n- normal:表示正常\n- configging:表示设置中\n- notConfig:表示未设置\n- packetcleaning:表示清洗\n- packetdropping:表示黑洞"
+        },
+        "blackhole_endtime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "黑洞结束时间"
+        },
+        "protect_type": {
+          "type": "string",
+          "description": "防护类型"
+        },
+        "traffic_threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "流量阈值"
+        },
+        "http_threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "http流量阈值"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "antiddos.me-east-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

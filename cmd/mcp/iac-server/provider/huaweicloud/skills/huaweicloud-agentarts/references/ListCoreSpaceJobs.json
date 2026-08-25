@@ -1,0 +1,273 @@
+{
+  "name": "ListCoreSpaceJobs",
+  "summary": "列出异步任务",
+  "tags": "记忆异步任务管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/core/spaces/{space_id}/jobs": {
+      "get": {
+        "tags": [
+          "记忆异步任务管理"
+        ],
+        "summary": "列出异步任务",
+        "description": "分页列出指定Space下的异步任务",
+        "operationId": "ListCoreSpaceJobs",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Control-plane",
+        "x-is-registered": "Y",
+        "x-sec-data-level": "L3",
+        "x-apigateway-request-type": "public",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-request-examples-url-1": "/v1/core/spaces/123e4567-e89b-12d3-a456-426614174000/jobs?limit=20&offset=0",
+        "parameters": [
+          {
+            "$ref": "#/parameters/SpaceIdPath"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "**参数解释:**\n每页返回的记录数量(条),用于分页查询。\n**约束限制:**\n不涉及。\n**取值范围:**\n1-100。\n**默认取值:**\n20。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "**参数解释:**\n偏移量(条),用于分页查询时指定起始位置,从0开始。\n**约束限制:**\n不涉及。\n**取值范围:**\n0-100000。\n**默认取值:**\n0。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100000,
+            "default": 0
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "**参数解释:**\n按任务执行状态过滤异步任务。\n**约束限制:**\n不涉及。\n**取值范围:**\n- running: 执行中\n- success: 成功\n- failed: 失败\n**默认取值:**\n不涉及。",
+            "type": "string",
+            "enum": [
+              "running",
+              "success",
+              "failed"
+            ]
+          },
+          {
+            "name": "job_name",
+            "in": "query",
+            "description": "**参数解释:**\n按任务名称过滤(模糊匹配)。\n**约束限制:**\n长度不超过128个字符,支持[待补充]字符。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取任务列表",
+            "schema": {
+              "$ref": "#/definitions/ListCoreSpaceJobsResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求参数错误。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "403": {
+            "description": "权限不足。",
+            "schema": {
+              "$ref": "#/definitions/AuthorizationError"
+            }
+          },
+          "404": {
+            "description": "记忆库未找到",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "429": {
+            "description": "请求频率超限。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListCoreSpaceJobsResponseBody": {
+      "type": "object",
+      "required": [
+        "jobs",
+        "size",
+        "total"
+      ],
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "**参数解释:**\n异步任务列表。\n**取值范围:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceJobSummary"
+          }
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "**参数解释:**\n当前页返回的任务数量(条)。\n**取值范围:**\n不涉及。"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1000000,
+          "description": "**参数解释:**\n任务总数(条)。\n**取值范围:**\n不涉及。"
+        }
+      }
+    },
+    "CoreSpaceJobSummary": {
+      "type": "object",
+      "description": "**参数解释:**\n异步任务摘要信息(用于列表接口)。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+      "required": [
+        "id",
+        "job_name",
+        "status",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "description": "**参数解释:**\n异步任务 ID,唯一标识一个异步任务,可通过创建异步任务的接口返回获取。\n**取值范围:**\n不涉及。"
+        },
+        "job_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "**参数解释:**\n异步任务名称,标识任务的类型。\n**取值范围:**\n- create_space: 创建记忆库\n- update_network: 更新网络配置\n- [待补充]: 其他任务类型"
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释:**\n异步任务的当前执行状态。\n**取值范围:**\n- running: 执行中\n- success: 成功\n- failed: 失败",
+          "enum": [
+            "running",
+            "success",
+            "failed"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释:**\n记录的创建时间,由系统自动生成,格式为 ISO 8601(YYYY-MM-DDTHH:mm:ssZ)。\n**取值范围:**\n不涉及。"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释:**\n记录的最近更新时间,由系统自动更新,格式为 ISO 8601(YYYY-MM-DDTHH:mm:ssZ)。\n**取值范围:**\n不涉及。"
+        }
+      }
+    },
+    "AuthorizationError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.XXXXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "**参数解释:**\n编码后的授权失败信息。\n**取值范围:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "details": {
+          "type": "array",
+          "description": "**参数解释:**\n依赖的下游服务错误信息列表,包含导致当前请求失败的下游服务错误详情。\n**取值范围:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceCommonError"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    },
+    "CoreSpaceCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.01XXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "SpaceIdPath": {
+      "name": "space_id",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "format": "uuid",
+      "description": "**参数解释:** \n记忆库 ID,唯一标识一个记忆库,可以通过AgentArts智能体记忆库控制台或者记忆库查询接口获取。\n**约束限制:**\n仅支持字母、数字和中划线。\n**取值范围:**\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值:**\n不涉及。"
+    }
+  },
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

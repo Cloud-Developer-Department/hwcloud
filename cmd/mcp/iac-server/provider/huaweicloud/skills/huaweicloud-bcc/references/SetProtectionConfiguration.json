@@ -1,0 +1,403 @@
+{
+  "name": "SetProtectionConfiguration",
+  "summary": "配置资源保护",
+  "tags": "配置保护",
+  "productshort": "BCC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{domain_id}/resources-backup/configurations": {
+      "post": {
+        "tags": [
+          "配置保护"
+        ],
+        "operationId": "SetProtectionConfiguration",
+        "summary": "配置资源保护",
+        "description": "配置资源保护,资源保护情况发生变动后,相关资源的合规结果可能会发生变化",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-method-annotations": [
+          "@CtsMeta(resourceType = \"Configure\", traceName = \"SetProtectionConfiguration\", operationId = \"SetProtectionConfiguration\", isReadOnly=false)"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 1,
+            "description": "账号ID"
+          },
+          {
+            "name": "SetProtectionConfigurationRequestBody",
+            "in": "body",
+            "required": false,
+            "description": "配置保护的body",
+            "schema": {
+              "$ref": "#/definitions/ConfigureProtectionBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回成功的id",
+            "schema": {
+              "$ref": "#/definitions/ProtectionConfigurationResponse"
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "ids": [
+                    "1"
+                  ],
+                  "code": 200
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "未提供认证信息或认证信息错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "请求页面被禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "404": {
+            "description": "未找到资源。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "408": {
+            "description": "请求超出了服务器的等待时间。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "429": {
+            "description": "当前请求过多。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "请求未完成,服务异常。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "503": {
+            "description": "系统暂时不可用,请求受限。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "bcc::createResourceConfig",
+          "authLevel": "NO_INSTANCE",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": false,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": false,
+          "needCbcCheck": false,
+          "model": "v5",
+          "authContextInitializerName": "iamAuthBatchModifyContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ConfigureVaults": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ConfigureVaultItem"
+      },
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "ConfigureProtectionBody": {
+      "type": "object",
+      "description": "资源配置保护结构体",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "example": "1a6b0eae4f7f4ccfa479ca32b9381fe9in14"
+          },
+          "description": "资源ID列表",
+          "minItems": 1,
+          "maxItems": 10,
+          "example": [
+            "1a6b0eae4f7f4ccfa479ca32b9381fe9in14"
+          ]
+        },
+        "protect_engine": {
+          "type": "string",
+          "description": "资源保护采用的方式。分为云备份cbr和数据库db",
+          "enum": [
+            "cbr",
+            "db"
+          ],
+          "minLength": 1,
+          "maxLength": 10,
+          "example": "cbr"
+        },
+        "local_vaults": {
+          "description": "本地备份存储库配置。protect_type为cbr时可用且必填",
+          "$ref": "#/definitions/ConfigureVaults"
+        },
+        "remote_vaults": {
+          "description": "异地备份存储库配置。protect_type为cbr时可用",
+          "$ref": "#/definitions/ConfigureVaults"
+        },
+        "db_backup_policy": {
+          "description": "数据库备份策略配置。protect_type为db时可用",
+          "$ref": "#/definitions/DbBackupPolicyBody"
+        },
+        "db_offsite_backup_policy": {
+          "description": "数据库跨区域备份策略配置。protect_type为db时可用",
+          "$ref": "#/definitions/DbOffsiteBackupPolicyBody"
+        }
+      },
+      "required": [
+        "ids",
+        "protect_engine"
+      ]
+    },
+    "ConfigureVaultItem": {
+      "type": "object",
+      "description": "配置保护的存储库实体",
+      "properties": {
+        "vault_id": {
+          "type": "string",
+          "description": "CBR存储库ID",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "037ac31c-cc58-4fdd-9695-50b1ed4c2590"
+        },
+        "policy_id": {
+          "type": "string",
+          "description": "策略ID",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "03bc7d8d-01fc-4634-87eb-b113b9ee984d"
+        },
+        "encrypted": {
+          "type": "boolean",
+          "description": "是否加密",
+          "example": false
+        },
+        "worm": {
+          "type": "boolean",
+          "description": "是否备份锁定",
+          "example": false
+        },
+        "policy_enable": {
+          "type": "boolean",
+          "description": "策略是否启用",
+          "example": true
+        }
+      },
+      "required": [
+        "vault_id",
+        "policy_id",
+        "policy_enable"
+      ]
+    },
+    "DbOffsiteBackupPolicyBody": {
+      "type": "object",
+      "required": [
+        "backup_type",
+        "keep_days"
+      ],
+      "properties": {
+        "backup_type": {
+          "type": "string",
+          "description": "指定备份的类型。取值如下:auto:自动全量备份。incremental:自动增量备份。all:同时设置所有备份类型。Db: 数据库。Log:日志",
+          "enum": [
+            "auto",
+            "incremental",
+            "all",
+            "Db",
+            "Log"
+          ],
+          "minLength": 1,
+          "maxLength": 32,
+          "example": "auto"
+        },
+        "keep_days": {
+          "type": "integer",
+          "format": "int32",
+          "description": "指定已生成的备份文件可以保存的天数。取值范围:0~1825。保存天数设置为0时,表示关闭跨区域备份策略。",
+          "minimum": 0,
+          "maximum": 1825,
+          "example": 1
+        },
+        "destination_region": {
+          "type": "string",
+          "description": "设置跨区域备份策略的目标区域ID。",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "region-xx-7"
+        },
+        "destination_project_id": {
+          "type": "string",
+          "description": "设置跨区域备份策略的目标project ID。",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "6e0251c544894fe989f64a4e04da7fc4"
+        }
+      }
+    },
+    "ProtectionConfigurationResponseItem": {
+      "type": "object",
+      "required": [
+        "ids",
+        "code"
+      ],
+      "properties": {
+        "ids": {
+          "type": "array",
+          "description": "资源ID",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "minLength": 1,
+            "maxLength": 512,
+            "type": "string"
+          }
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态码",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误编码",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "description": "bcc向其他云服务请求的requestId",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_stage": {
+          "type": "string",
+          "description": "发生错误的阶段",
+          "minLength": 1,
+          "maxLength": 10
+        }
+      }
+    },
+    "DbBackupPolicyBody": {
+      "type": "object",
+      "description": "数据库备份策略修改结构体",
+      "required": [
+        "keep_days",
+        "start_time",
+        "period"
+      ],
+      "properties": {
+        "keep_days": {
+          "type": "integer",
+          "format": "int32",
+          "description": "备份文件可以保存的天数。取值范围:1-36500天。",
+          "minimum": 1,
+          "maximum": 36500,
+          "example": 1
+        },
+        "start_time": {
+          "type": "string",
+          "description": "备份时间段。自动备份将在该时间段内触发。取值范围:非空,格式必须为hh:mm-HH:MM且有效,当前时间指UTC时间。HH取值必须比hh大1,mm和MM取值必须相同,且取值必须为00。取值示例:21:00-22:00",
+          "minLength": 1,
+          "maxLength": 32,
+          "example": "21:00-22:00"
+        },
+        "period": {
+          "type": "string",
+          "description": "全量备份周期配置。自动全量备份将在每周对应的UTC日期进行。取值范围:格式为逗号隔开的数字,数字代表星期,取1~7。",
+          "minLength": 1,
+          "maxLength": 32,
+          "example": 1
+        },
+        "differential_period": {
+          "type": "string",
+          "description": "差异备份间隔时间配置。每次自动差异备份的间隔时间。取值范围15、30、60、180、360、720、1440。单位:分钟",
+          "minLength": 1,
+          "maxLength": 32,
+          "example": 1
+        }
+      }
+    },
+    "ProtectionConfigurationResponse": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProtectionConfigurationResponseItem"
+      },
+      "description": "配置保护的返回体"
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcc.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

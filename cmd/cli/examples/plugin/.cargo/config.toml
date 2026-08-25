@@ -1,0 +1,25 @@
+# Build the example WASM plugins for hwcloud.
+#
+# Why this exists: hwcloud-pdk is #![no_std] (see plugin/pdk/rust/src/lib.rs).
+# A no_std crate cannot use the default panic="unwind" strategy — unwinding
+# needs std's runtime — so the release profile MUST set panic="abort".
+# Without it, `cargo build` on a recent Rust fails with
+# "unwinding panics are not supported without std".
+#
+# The default build target is wasm32-unknown-unknown: these cdylib crates
+# compile to .wasm files loaded by the wazero host. A bare `cargo build`
+# here emits wasm, not a host ELF — that is intentional, so plugin authors
+# don't have to remember the --target flag.
+#
+# Scope: this config only applies to the example plugins under
+# cmd/cli/examples/plugin/. The PDK's own `cargo test` (plugin/pdk/rust)
+# runs on the host target with std and is unaffected — cargo searches
+# upward for the nearest .cargo, and this directory is below the PDK.
+
+[build]
+target = "wasm32-unknown-unknown"
+
+[profile.release]
+panic = "abort"
+opt-level = "z"
+lto = true

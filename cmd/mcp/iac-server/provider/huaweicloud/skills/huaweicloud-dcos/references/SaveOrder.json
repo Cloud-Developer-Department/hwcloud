@@ -1,0 +1,523 @@
+{
+  "name": "SaveOrder",
+  "summary": "客户创建服务单",
+  "tags": "服务单管理",
+  "productshort": "DCOS",
+  "region_id": "cn-north-9",
+  "paths": {
+    "/v1/orders/save": {
+      "post": {
+        "tags": [
+          "服务单管理"
+        ],
+        "summary": "客户创建服务单",
+        "description": "客户创建服务单",
+        "operationId": "SaveOrder",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "saveOrderRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "创建服务单信息",
+            "schema": {
+              "$ref": "#/definitions/SaveOrderBody"
+            }
+          }
+        ],
+        "x-cts-meta-anno": {
+          "resourceType": "Order",
+          "traceName": "SaveOrder",
+          "isAsyncApi": "false"
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OperationStatus"
+            },
+            "examples": {
+              "application/json": ""
+            }
+          },
+          "400": {
+            "description": "字段校验错误信息",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "服务单创建失败信息",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "dcos:order:createOrder",
+          "authLevel": "NO_INSTANCE",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": true,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": true,
+          "needCbcCheck": false,
+          "model": "v5",
+          "authContextInitializerName": "defaultIamAuthContextInitializer"
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "UploadFileInfo": {
+      "type": "object",
+      "description": "上传文件信息",
+      "properties": {
+        "file_name": {
+          "type": "string",
+          "description": "用户上传附件名称",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "file_id": {
+          "type": "string",
+          "description": "用户上传附件唯一id",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "file_type": {
+          "type": "string",
+          "description": "文件类型"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "用户上传附件大小",
+          "minimum": 0,
+          "maximum": 100000000
+        }
+      },
+      "required": [
+        "file_id"
+      ]
+    },
+    "ContactInformation": {
+      "type": "object",
+      "description": "人员联系信息",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "人员姓名",
+          "example": "张三",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "certificate_no_top": {
+          "type": "string",
+          "description": "证件号前三位",
+          "example": "123",
+          "minLength": 0,
+          "maxLength": 3
+        },
+        "certificate_no_last": {
+          "type": "string",
+          "description": "证件号后四位",
+          "example": "4567",
+          "minLength": 0,
+          "maxLength": 4
+        },
+        "country_code": {
+          "type": "string",
+          "description": "手机国际码",
+          "example": "+86",
+          "minLength": 0,
+          "maxLength": 8
+        },
+        "phone": {
+          "type": "string",
+          "description": "电话",
+          "example": "13456788888",
+          "minLength": 0,
+          "maxLength": 24
+        },
+        "work_unit": {
+          "type": "string",
+          "description": "单位",
+          "example": "好快的快递有限公司",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "remarks": {
+          "type": "string",
+          "description": "备注",
+          "example": "董事长",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "DeliveryInfo": {
+      "type": "object",
+      "description": "交付信息",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "类型,收货/发货"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "起始时间,UTC格式",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间,UTC格式",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "room_code": {
+          "type": "string",
+          "description": "机房编码"
+        },
+        "contacts": {
+          "type": "array",
+          "description": "联系人",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/ContactInformation"
+          }
+        },
+        "assets": {
+          "type": "array",
+          "description": "资产清单",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/AssetInfo"
+          }
+        }
+      }
+    },
+    "FieldEntity": {
+      "type": "object",
+      "description": "字段实体",
+      "required": [
+        "field_code"
+      ],
+      "properties": {
+        "field_code": {
+          "type": "string",
+          "description": "字段编码",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "field_value": {
+          "type": "object",
+          "description": "字段值"
+        }
+      }
+    },
+    "AccessWhiteList": {
+      "type": "object",
+      "description": "进出登记白名单",
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "description": "开始时间",
+          "minLength": 0,
+          "maxLength": 32,
+          "example": "2025-05-13T00:00:00Z"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间",
+          "minLength": 0,
+          "maxLength": 32,
+          "example": "2025-05-13T00:00:00Z"
+        },
+        "reason": {
+          "type": "string",
+          "description": "原因",
+          "example": "设备上架/综合布线/设备运维/配件更换/其他",
+          "minLength": 1,
+          "maxLength": 64,
+          "enum": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "reason_supplement": {
+          "type": "string",
+          "description": "原因补充",
+          "maxLength": 512,
+          "minLength": 0
+        },
+        "scope": {
+          "type": "string",
+          "description": "作业范围",
+          "example": "room",
+          "minLength": 0,
+          "maxLength": 64,
+          "enum": [
+            "room",
+            "rack",
+            "device"
+          ]
+        },
+        "room_code": {
+          "type": "string",
+          "description": "机房编码"
+        },
+        "whitelist": {
+          "type": "array",
+          "description": "人员名单",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/ContactInformation"
+          }
+        }
+      }
+    },
+    "OperationStatus": {
+      "type": "object",
+      "description": "批量资源操作状态\nid表示资源表示,比如SN,IP等\nret_status 表示资源状态, 成功使用SUCCESS表示,失败填写具体的失败原因",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "标识",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "ret_status": {
+          "type": "string",
+          "description": "状态,successful/error",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "OperationObject": {
+      "type": "object",
+      "description": "操作对象",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "对象类型",
+          "example": "rack",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "room_code": {
+          "type": "string",
+          "description": "机房编码",
+          "example": "dc_001",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "rack_code": {
+          "type": "string",
+          "description": "机柜编码",
+          "example": "rack_001",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "u_position": {
+          "type": "string",
+          "description": "u位",
+          "example": "3",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "sn": {
+          "type": "string",
+          "description": "sn",
+          "example": "sn123456",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "port_or_slot": {
+          "type": "string",
+          "description": "端口号或槽口号",
+          "example": "23456",
+          "minLength": 0,
+          "maxLength": 24
+        }
+      }
+    },
+    "SaveOrderBody": {
+      "type": "object",
+      "description": "客户服务单",
+      "required": [
+        "title",
+        "model_code",
+        "is_accept_terms"
+      ],
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "服务单号,修改已保存的草稿时使用",
+          "example": "SCR202501010101",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "title": {
+          "type": "string",
+          "description": "标题",
+          "example": "设备上下电-墨西哥XX机房",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "model_code": {
+          "type": "string",
+          "description": "服务单类型编码",
+          "example": "model_code_verification",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "access_whitelist": {
+          "description": "进出白名单",
+          "$ref": "#/definitions/AccessWhiteList",
+          "minItems": 0,
+          "maxItems": 10
+        },
+        "delivery_info": {
+          "description": "资产交付信息",
+          "$ref": "#/definitions/DeliveryInfo"
+        },
+        "operation_objects": {
+          "type": "array",
+          "description": "操作对象",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/OperationObject"
+          }
+        },
+        "operation_attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadFileInfo"
+          },
+          "description": "操作内容附件",
+          "minItems": 0,
+          "maxItems": 10
+        },
+        "additional_attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadFileInfo"
+          },
+          "description": "补充附件",
+          "minItems": 0,
+          "maxItems": 10
+        },
+        "additional_content": {
+          "type": "string",
+          "description": "补充说明",
+          "example": "补充说明示例:客观原因无法关机,请继续操作。",
+          "minLength": 0,
+          "maxLength": 4000
+        },
+        "country_code": {
+          "type": "string",
+          "description": "手机国际码",
+          "example": "+86",
+          "minLength": 0,
+          "maxLength": 8
+        },
+        "phone": {
+          "type": "string",
+          "example": 18888888888,
+          "description": "联系电话",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "fields": {
+          "type": "array",
+          "description": "扩展字段",
+          "minItems": 0,
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/definitions/FieldEntity"
+          }
+        },
+        "is_accept_terms": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否同意服务条款"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "编码",
+          "minLength": 0,
+          "maxLength": 200
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "信息",
+          "minLength": 0,
+          "maxLength": 200
+        }
+      }
+    },
+    "AssetInfo": {
+      "type": "object",
+      "description": "资产信息",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "资产类型;服务器设备/网络设备/配件/耗材/其他",
+          "example": "Accessories",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "数量",
+          "example": 10
+        },
+        "remarks": {
+          "type": "string",
+          "description": "备注",
+          "example": "风扇10个",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "required": [
+        "type",
+        "amount"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcos.cn-north-9.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

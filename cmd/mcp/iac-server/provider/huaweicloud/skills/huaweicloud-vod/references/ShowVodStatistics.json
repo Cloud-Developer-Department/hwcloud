@@ -1,0 +1,181 @@
+{
+  "name": "ShowVodStatistics",
+  "summary": "查询源站统计信息",
+  "tags": "统计分析",
+  "productshort": "VOD",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v1.0/{project_id}/asset/vod-statistics": {
+      "get": {
+        "x-publishpath": "vod_04_0104",
+        "description": "查询点播源站的统计数据,包括存储空间、转码时长。",
+        "summary": "查询源站统计信息",
+        "operationId": "ShowVodStatistics",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "统计分析"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/usermanual-vod/vod_01_0058.html)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "required": false,
+            "type": "string",
+            "description": "起始时间,格式为yyyymmddhhmmss。"
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "required": false,
+            "type": "string",
+            "description": "结束时间,格式为yyyymmddhhmmss。\n- “start_time”、“end_time”均不存在时,“start_time”取当天零点,“end_time”取当前时间。\n- “start_time”不存在、“end_time”存在,请求非法。\n- “start_time”存在、“end_time”不存在,“end_time”取当前时间。\n- 只能查询最近三个月内的数据,且时间跨度不能超过31天。\n- 起始时间和结束时间会自动规整,起始时间规整为指定时间所在的整点时刻,结束时间规整为指定时间所在时间的下一小时整点时刻。"
+          },
+          {
+            "in": "query",
+            "name": "interval",
+            "required": false,
+            "type": "integer",
+            "description": "查询粒度间隔。\n\n取值如下:\n- 时间跨度1天:1小时、4小时、8小时,分别对应3600秒、14400秒和28800秒。\n- 时间跨度2~7天:1小时、4小时、8小时、1天,分别对应3600秒、14400秒、28800秒和86400秒。\n- 时间跨度8~31天:4小时、8小时、1天,分别对应14400秒、28800秒和86400秒。\n\n单位:秒。\n\n若不设置,默认取对应时间跨度的最小间隔。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "schema": {
+              "$ref": "#/definitions/queryVodStatRsp"
+            },
+            "examples": {
+              "application/json": {
+                "start_time": "20190528000000",
+                "interval": 3600,
+                "sample_data": [
+                  {
+                    "storage": 0,
+                    "transcode": 0
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10053",
+                "error_msg": "The request parameter is illegal, illegal field: {xx}."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET\nhttps://{endpoint}/v1.0/{project_id}/asset/vod-statistics?start_time={start_time}"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "queryVodStatRsp": {
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "description": "统计起始时间。"
+        },
+        "interval": {
+          "type": "integer",
+          "description": "统计间隔。"
+        },
+        "sample_data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VodSampleData"
+          },
+          "description": "采样数据数组。从start_time开始,每个间隔对应一个采样数据。"
+        }
+      }
+    },
+    "VodSampleData": {
+      "properties": {
+        "storage": {
+          "type": "number",
+          "format": "float",
+          "description": "存储空间。\n\n单位:GB。"
+        },
+        "storage_warm": {
+          "type": "number",
+          "format": "float",
+          "description": "低频存储空间。\n\n单位:GB。"
+        },
+        "storage_cold": {
+          "type": "number",
+          "format": "float",
+          "description": "归档存储空间。\n\n单位:GB。"
+        },
+        "transcode": {
+          "type": "integer",
+          "format": "int64",
+          "description": "转码时长。\n\n单位:分钟。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

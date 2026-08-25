@@ -1,0 +1,278 @@
+{
+  "name": "CreateSearchJob",
+  "summary": "创建分子搜索作业",
+  "tags": "分子搜索作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/search": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-partial": true,
+        "x-interface-name": "ISearchJobController",
+        "tags": [
+          "分子搜索作业管理"
+        ],
+        "summary": "创建分子搜索作业",
+        "description": "创建分子搜索作业",
+        "operationId": "CreateSearchJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreateSearchJobRequestBody",
+            "description": "CreateSearchJobRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSearchJobReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "schema": {
+              "$ref": "#/definitions/DrugJobIdRsp"
+            },
+            "x-response-examples-1": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1"
+              }
+            },
+            "x-response-examples-description-1": "创建分子搜索作业成功",
+            "x-response-examples-2": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                "limit_concurrency": 50
+              }
+            },
+            "x-response-examples-description-2": "创建分子搜索作业成功,当前运行作业数已达配额限制,此作业会等待"
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/search",
+        "x-request-examples-description-1": "创建分子搜索作业,作业名称为demo-job,分子SMILES表达式为string,从数据库中找到最相似top100的分子",
+        "x-request-examples-1": {
+          "basic_info": {
+            "name": "demo-job",
+            "labels": [
+              "labelA"
+            ]
+          },
+          "smiles": "string",
+          "top_n": 100,
+          "databases": [
+            "databaseA",
+            "databaseB"
+          ],
+          "custom_databases": [
+            "custom_databaseA_id",
+            "custom_databaseB_id"
+          ],
+          "model_ids": [
+            "model_id"
+          ],
+          "search_method": [
+            "ECFP_4"
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateDrugJobBasicInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "description": "创建药物作业基本信息",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "minLength": 5,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9A-Z]+[a-z0-9A-Z-_\\s]+$",
+          "x-pattern-message": "The name format does not match.",
+          "description": "作业的名称,取值范围:[5,64],允许大小写字母、数字、空格、下划线(_)和中划线(-),只能以数字或字母开头"
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "标签,取值范围[0,5],单个标签最大长度32字符,支持中文、字母、数字、空格、下划线和中划线,且不能以空格开头或者结尾。",
+          "items": {
+            "type": "string",
+            "pattern": "^[\\一-\\龥A-Za-z0-9-_]+(\\s+[\\一-\\龥A-z0-9-_]+)*$",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-pattern-message": "The label name format does not match"
+          },
+          "minItems": 0,
+          "maxItems": 5
+        },
+        "upstream_job_info": {
+          "type": "string",
+          "maxLength": 10240,
+          "minLength": 1,
+          "example": "{\"job_id\":\"demo-job-id\",\"job_name\":\"demo-job-name\"}",
+          "description": "**参数解释**:\n上游作业信息。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1-10240]个字符。\n**默认取值**:\n不涉及"
+        }
+      }
+    },
+    "CreateSearchJobReq": {
+      "required": [
+        "basic_info",
+        "smiles"
+      ],
+      "properties": {
+        "basic_info": {
+          "$ref": "#/definitions/CreateDrugJobBasicInfo"
+        },
+        "smiles": {
+          "type": "string",
+          "description": "分子SMILES表达式",
+          "example": "CN(C)CCN(C)C1=NC(OCC(F)(F)F)=C(NC2=NC=CC(=N2)C2=CN(C)C3=C2C=CC=C3)C=C1NC(=O)C=C",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[ ]*[^\\一-\\龥\\s\\n]+[ ]*$",
+          "x-pattern-message": "Smiles should not contain spaces, Chinese, or line break."
+        },
+        "scaffold": {
+          "type": "string",
+          "description": "分子骨架表达式",
+          "example": "CN(C)CCN(C)C1",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "top_n": {
+          "description": "最相似的top_n个",
+          "type": "integer",
+          "format": "int32",
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 1
+        },
+        "databases": {
+          "description": "可供搜索分子的公共数据库名称列表",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "minItems": 0,
+          "maxItems": 10,
+          "example": [
+            "top_science",
+            "zinc"
+          ]
+        },
+        "custom_databases": {
+          "description": "可供搜索分子的自定义数据库id列表",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "minItems": 0,
+          "maxItems": 10,
+          "example": [
+            "custom_databaseA_id",
+            "custom_databaseB_id"
+          ]
+        },
+        "model_ids": {
+          "description": "模型id列表",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "example": [
+            "model_id"
+          ],
+          "minItems": 0,
+          "maxItems": 10
+        },
+        "search_method": {
+          "type": "string",
+          "description": "分子搜索方法",
+          "default": "ECFP_4",
+          "$ref": "#/definitions/SearchType"
+        }
+      }
+    },
+    "DrugJobIdRsp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "limit_concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "example": 50,
+          "description": "限制的并发量"
+        }
+      }
+    },
+    "SearchType": {
+      "type": "string",
+      "enum": [
+        "ECFP_4",
+        "SCAFFOLD"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

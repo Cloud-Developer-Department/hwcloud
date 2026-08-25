@@ -1,0 +1,209 @@
+{
+  "name": "ShowTopology",
+  "summary": "调用链拓扑图",
+  "tags": "VIEW",
+  "productshort": "APM",
+  "region_id": "ru-moscow-1",
+  "paths": {
+    "/v1/apm2/openapi/view/trace/topology": {
+      "get": {
+        "x-request-examples-url-1": "/v1/apm2/openapi/view/trace/topology?region=suzhou-roma-2&trace_id=16-1666684411910-1326",
+        "x-request-examples-description-1": "入参为调用链trace_id。",
+        "x-hybridcloud": true,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "VIEW"
+        ],
+        "summary": "调用链拓扑图",
+        "description": "调用链拓扑图。",
+        "operationId": "ShowTopology",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "trace_id",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "调用链traceId。"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK,请求响应成功。",
+            "schema": {
+              "$ref": "#/definitions/TraceTopologyResult"
+            },
+            "examples": {
+              "application/json": {
+                "node_list": [
+                  {
+                    "node_id": 11,
+                    "node_name": "apm-pu-task:suzhou-roma-2",
+                    "hint": null
+                  }
+                ],
+                "line_list": [
+                  {
+                    "start_node_id": null,
+                    "end_node_id": 11,
+                    "span_id": "1",
+                    "client_info": null,
+                    "server_info": {
+                      "start_time": 1666684411910,
+                      "time_used": 1,
+                      "argument": "(GET)(/apm2/health/v1/health-check)(200)",
+                      "event_id": "1"
+                    },
+                    "hint": "(1)((GET)(/apm2/health/v1/health-check)(200))",
+                    "id": "1+1"
+                  }
+                ],
+                "global_trace_id": null
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized,没有权限。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden,禁止访问。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found,没有找到要请求的资源。",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TraceTopologyNode": {
+      "properties": {
+        "node_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "节点id。"
+        },
+        "node_name": {
+          "type": "string",
+          "description": "节点名称。"
+        },
+        "hint": {
+          "type": "string",
+          "description": "节点提示字段。"
+        }
+      },
+      "description": "调用链拓扑图的节点。",
+      "type": "object"
+    },
+    "TraceTopologyLineInfo": {
+      "properties": {
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "开始时间。"
+        },
+        "time_used": {
+          "type": "integer",
+          "format": "int64",
+          "description": "耗时。"
+        },
+        "argument": {
+          "type": "string",
+          "description": "参数信息,比如调用的url信息等。"
+        },
+        "event_id": {
+          "type": "string",
+          "description": "event的id。"
+        }
+      },
+      "description": "拓扑图上线条的的信息。",
+      "type": "object"
+    },
+    "TraceTopologyLine": {
+      "properties": {
+        "start_node_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "开始节点id。"
+        },
+        "end_node_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "结束节点id。"
+        },
+        "span_id": {
+          "type": "string",
+          "description": "调用跨度id。"
+        },
+        "client_info": {
+          "description": "客户端看到的信息。",
+          "$ref": "#/definitions/TraceTopologyLineInfo"
+        },
+        "server_info": {
+          "description": "服务端信息。",
+          "$ref": "#/definitions/TraceTopologyLineInfo"
+        },
+        "id": {
+          "type": "string",
+          "description": "id。"
+        },
+        "hint": {
+          "type": "string",
+          "description": "获取一条线的提示信息。"
+        }
+      },
+      "description": "拓扑图上的组件调用指向线。",
+      "type": "object"
+    },
+    "TraceTopologyResult": {
+      "properties": {
+        "global_trace_id": {
+          "type": "string",
+          "description": "全局traceId。"
+        },
+        "line_list": {
+          "items": {
+            "$ref": "#/definitions/TraceTopologyLine"
+          },
+          "description": "组件之间调用指向线列表。",
+          "type": "array"
+        },
+        "node_list": {
+          "items": {
+            "$ref": "#/definitions/TraceTopologyNode"
+          },
+          "description": "组件节点列表。",
+          "type": "array"
+        }
+      },
+      "description": "调用链拓扑图查询返回结果。",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "apm2.ru-moscow-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

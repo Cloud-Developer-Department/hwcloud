@@ -1,0 +1,358 @@
+{
+  "name": "GetScriptJobBatch",
+  "summary": "展示批次详情",
+  "tags": "ScriptExecutionManagement",
+  "productshort": "COC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/job/script/orders/{execute_uuid}/batches/{batch_index}": {
+      "get": {
+        "tags": [
+          "ScriptExecutionManagement"
+        ],
+        "summary": "展示批次详情",
+        "description": "查询:批次详情,分页获取批次中的实例列表。\n过滤条件:分页参数",
+        "operationId": "GetScriptJobBatch",
+        "parameters": [
+          {
+            "name": "batch_index",
+            "in": "path",
+            "description": "批次index",
+            "required": true,
+            "type": "integer",
+            "maximum": 20,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "execute_uuid",
+            "in": "path",
+            "description": "脚本工单的执行Id,取自executeJobScript和ListJobScriptOrders返回体中",
+            "required": true,
+            "type": "string",
+            "maxLength": 26,
+            "minLength": 1
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "实例执行状态\nREADY:待执行\nPROCESSING:执行中\nABNORMAL:异常\nCANCELED:已取消\nFINISHED:成功",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "READY",
+              "PROCESSING",
+              "ABNORMAL",
+              "CANCELED",
+              "FINISHED"
+            ]
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页参数:每页返回记录个数限制",
+            "required": true,
+            "type": "integer",
+            "maximum": 50,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页参数:上一页最后一个记录id",
+            "type": "integer",
+            "maximum": 2147483647,
+            "minimum": 0,
+            "format": "int64"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "国际化标记,zh-cn表示中文,en-us或不传表示英文",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-project-id",
+            "in": "header",
+            "description": "项目ID,一个项目对应一个region",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-user-profile",
+            "in": "header",
+            "description": "IAM5.0用户信息",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回结果",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "batch_index": 1,
+                  "total_instances": 1,
+                  "execute_instances": [
+                    {
+                      "id": 1588,
+                      "target_instance": {
+                        "resource_id": "resource_id",
+                        "agent_sn": "agent_sn",
+                        "properties": {
+                          "host_name": "host_name",
+                          "fixed_ip": "x.x.x.x",
+                          "region_id": "cn-north-7",
+                          "zone_id": "cn-north-7c"
+                        }
+                      },
+                      "gmt_created": 1697946452436,
+                      "gmt_finished": 1697946763467,
+                      "execute_costs": 311031,
+                      "status": "CANCELED",
+                      "message": "Script execution result"
+                    }
+                  ]
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowScriptOrdersBatchDetailRes"
+            }
+          }
+        },
+        "x-apiexplorer-hide": false,
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ShowScriptOrdersBatchDetailRes": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "description": "展示批次详情返回体",
+          "$ref": "#/definitions/JobScriptBatchDetailModel"
+        }
+      },
+      "description": "展示批次详情返回体"
+    },
+    "ExectionInstanceModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "主键id"
+        },
+        "target_instance": {
+          "description": "目标实例",
+          "$ref": "#/definitions/ResourceInstance"
+        },
+        "gmt_created": {
+          "type": "integer",
+          "format": "int64",
+          "description": "创建时间"
+        },
+        "gmt_finished": {
+          "type": "integer",
+          "format": "int64",
+          "description": "完成时间"
+        },
+        "execute_costs": {
+          "type": "integer",
+          "format": "int64",
+          "description": "耗时时间,单位:秒"
+        },
+        "status": {
+          "type": "string",
+          "description": "实例执行状态",
+          "enum": [
+            "READY",
+            "PROCESSING",
+            "ABNORMAL",
+            "CANCELED",
+            "FINISHED",
+            "ROLLBACKED"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "实例执行日志"
+        }
+      },
+      "description": "执行主机实例详情"
+    },
+    "ResourceInstance": {
+      "type": "object",
+      "required": [
+        "provider",
+        "region_id",
+        "resource_id",
+        "type"
+      ],
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "example": "66006c8e-dc6b-45bb-a65b-6f8a3700392f",
+          "description": "实例唯一id"
+        },
+        "provider": {
+          "type": "string",
+          "description": "资源提供者:ECS。单个脚本工单, 每个实例的provider是一致的"
+        },
+        "region_id": {
+          "type": "string",
+          "description": "机器所属region的ID"
+        },
+        "type": {
+          "type": "string",
+          "description": "资源提供者下资源类型,不传默认为CLOUDSERVER\nCLOUDSERVER:CLOUDSERVER类型",
+          "enum": [
+            "CLOUDSERVER"
+          ]
+        },
+        "custom_attributes": {
+          "type": "array",
+          "description": "支持用户自定义5个key_value形式的属性。\n约束条件:\n\t- key值长度为20\n    - value长度为50\n    - map长度最大为5",
+          "items": {
+            "$ref": "#/definitions/Customttribute"
+          }
+        },
+        "agent_sn": {
+          "type": "string",
+          "example": "7aec98ca0edd45bc8145005c1892cb3a",
+          "description": "agent纳管id。该参数即将废弃,请勿使用。"
+        },
+        "agent_status": {
+          "type": "string",
+          "example": "ONLINE",
+          "description": "agent纳管状态。该参数即将废弃,请勿使用。"
+        },
+        "properties": {
+          "description": "主机附加属性。该参数即将废弃,请勿使用。",
+          "$ref": "#/definitions/ResourceInstanceProp"
+        }
+      }
+    },
+    "JobScriptBatchDetailModel": {
+      "type": "object",
+      "properties": {
+        "batch_index": {
+          "type": "integer",
+          "format": "int32",
+          "description": "批次索引,从1开始"
+        },
+        "total_instances": {
+          "type": "integer",
+          "format": "int32",
+          "description": "批次内执行实例数量"
+        },
+        "execute_instances": {
+          "type": "array",
+          "description": "执行实例列表,分页",
+          "items": {
+            "$ref": "#/definitions/ExectionInstanceModel"
+          }
+        }
+      },
+      "description": "执行批次详情"
+    },
+    "ResourceInstanceProp": {
+      "type": "object",
+      "required": [
+        "fixed_ip",
+        "host_name",
+        "region_id",
+        "zone_id"
+      ],
+      "properties": {
+        "host_name": {
+          "type": "string",
+          "example": "coc-cdr001-0002",
+          "description": "主机名\n未校验:长度"
+        },
+        "fixed_ip": {
+          "type": "string",
+          "example": "192.168.0.163",
+          "description": "内网ip\n未校验:\n格式,长度"
+        },
+        "floating_ip": {
+          "type": "string",
+          "example": "1.1.1.1",
+          "description": "弹性公网ip\n未校验:\n格式,长度"
+        },
+        "region_id": {
+          "type": "string",
+          "example": "cn-north-7",
+          "description": "区域\n未校验:\n长度"
+        },
+        "zone_id": {
+          "type": "string",
+          "example": "cn-north-7a",
+          "description": "可用区"
+        },
+        "application": {
+          "type": "string",
+          "description": "CMDB应用,CMDB应用视图才有值。类似管理面的云服务"
+        },
+        "group": {
+          "type": "string",
+          "description": "CMDB分组,CMDB应用视图才有值。类似管理面的schema"
+        },
+        "project_id": {
+          "type": "string",
+          "example": "1076d5e8a93f4fd383ad8b40498fcf7d",
+          "description": "实例的 project_id\n\n需要消费,建议必填\n未校验长度"
+        }
+      },
+      "description": "主机附加属性"
+    },
+    "Customttribute": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "1kkkkkk",
+          "description": "自定义属性key",
+          "minLength": 0,
+          "maxLength": 10
+        },
+        "value": {
+          "type": "string",
+          "example": "1lhkjh",
+          "description": "自定义属性的value",
+          "minLength": 0,
+          "maxLength": 20
+        }
+      },
+      "description": "当前执行脚本的自定义属性,仅用于表示本次执行的产生工单的信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc-intl.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

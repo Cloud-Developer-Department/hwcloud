@@ -1,0 +1,944 @@
+{
+  "name": "ShowSecurityReportContent",
+  "summary": "查询安全报告内容",
+  "tags": "安全报告管理",
+  "productshort": "WAF",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/waf/security-reports/{report_id}": {
+      "get": {
+        "tags": [
+          "安全报告管理"
+        ],
+        "operationId": "ShowSecurityReportContent",
+        "summary": "查询安全报告内容",
+        "description": "查询安全报告内容",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释:**\n项目ID,对应控制台用户名->我的凭证->项目列表->项目ID。\n**约束限制:**\n不涉及\n**取值范围:**\n只能由英文字母、数字组成,且长度为32个字符。\n**默认取值:**\n不涉及"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数解释:**\n用户Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 4096
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "**参数解释:**\n内容类型\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\napplication/json;charset=utf8",
+            "required": true,
+            "type": "string",
+            "default": "application/json;charset=utf8"
+          },
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释:**\n报告ID,请从接口 “查询安全报告发送记录”(ListSecurityReportSendingRecords)中获取\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+          },
+          {
+            "name": "subscription_id",
+            "in": "query",
+            "required": true,
+            "description": "**参数解释:**\n需要删除的订阅id,从“查询安全报告订阅列表”(ListSecurityReportSubscriptions)中获取\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "examples": {
+              "application/json": {
+                "report_id": "b4e80ab721ca43e5bc515746d80c6190",
+                "subscription_id": "88c8dfefe647462ea82f8aa7b03c4183",
+                "report_name": "www.test.com安全报告",
+                "report_category": "custom_report",
+                "subscription_type": "message_center",
+                "stat_period": {
+                  "begin_time": 1757433600000,
+                  "end_time": 1757606399999
+                }
+              }
+            },
+            "description": "内容报告内容响应",
+            "schema": {
+              "$ref": "#/definitions/SecurityReportContentResponse"
+            }
+          },
+          "400": {
+            "description": "请求失败",
+            "schema": {
+              "$ref": "#/definitions/RestErrorResponse"
+            }
+          },
+          "401": {
+            "description": "token权限不足",
+            "schema": {
+              "$ref": "#/definitions/RestErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/RestErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "IAM5ErrorDetails": {
+      "description": "调用下游服务的报错信息集合,IAM5鉴权错误时才会返回此信息0。",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "下游服务错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "下游服务报错信息"
+        }
+      }
+    },
+    "SecurityReportContentResponse": {
+      "type": "object",
+      "example": {
+        "report_id": "b4e80ab721ca43e5bc515746d80c6190",
+        "subscription_id": "88c8dfefe647462ea82f8aa7b03c4183",
+        "report_name": "www.test.com安全报告",
+        "report_category": "custom_report",
+        "subscription_type": "message_center",
+        "stat_period": {
+          "begin_time": 1757433600000,
+          "end_time": 1757606399999
+        },
+        "report_content_info": {
+          "overview_statistics_info_list": [
+            {
+              "key": "ACCESS",
+              "num": 877144,
+              "top_domains": [
+                {
+                  "num": 876943,
+                  "host": "www.ws-wrk.com"
+                }
+              ]
+            },
+            {
+              "key": "WEB_ATTACK",
+              "num": 11,
+              "block_num": 3,
+              "only_log_num": 8,
+              "top_domains": [
+                {
+                  "num": 9,
+                  "host": "wse.open.com",
+                  "block_num": 1,
+                  "only_log_num": 8
+                },
+                {
+                  "num": 2,
+                  "host": "www.test.com",
+                  "block_num": 2,
+                  "only_log_num": 0
+                }
+              ]
+            },
+            {
+              "key": "ATTACK",
+              "num": 15,
+              "block_num": 7,
+              "only_log_num": 8,
+              "top_domains": [
+                {
+                  "num": 9,
+                  "host": "wse.open.com",
+                  "block_num": 1,
+                  "only_log_num": 8
+                },
+                {
+                  "num": 4,
+                  "host": "wujie.elbtest.com:785ba547-cf1d-4def-8704-702188c53f49",
+                  "block_num": 4,
+                  "only_log_num": 0
+                },
+                {
+                  "num": 2,
+                  "host": "www.test.com",
+                  "block_num": 2,
+                  "only_log_num": 0
+                }
+              ]
+            }
+          ],
+          "request_statistics_info_list": [
+            {
+              "key": "ACCESS",
+              "timeline": [
+                {
+                  "time": 1757433600000,
+                  "num": 95
+                },
+                {
+                  "time": 1757520000000,
+                  "num": 877049
+                }
+              ]
+            }
+          ],
+          "qps_statistics_info": {
+            "average_info_list": [
+              {
+                "key": "ACCESS",
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 1
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 2231
+                  }
+                ]
+              }
+            ],
+            "peak_info_list": [
+              {
+                "key": "ACCESS",
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 10
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 6544
+                  }
+                ]
+              }
+            ]
+          },
+          "bandwidth_statistics_info": {
+            "average_info_list": [
+              {
+                "key": "OUT_BANDWIDTH",
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 1925
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 4045412
+                  }
+                ]
+              },
+              {
+                "key": "IN_BANDWIDTH",
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 837
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 114988068
+                  }
+                ]
+              },
+              {
+                "key": "BANDWIDTH",
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 2762
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 119033480
+                  }
+                ]
+              }
+            ],
+            "peak_info_list": [
+              {
+                "key": "OUT_BANDWIDTH",
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 114584
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 11894904
+                  }
+                ]
+              }
+            ]
+          },
+          "response_code_statistics_info": {
+            "response_source_waf_info_list": [
+              {
+                "key": 200,
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 81
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 877016
+                  }
+                ]
+              }
+            ],
+            "response_source_upstream_info_list": [
+              {
+                "key": 200,
+                "timeline": [
+                  {
+                    "time": 1757433600000,
+                    "num": 78
+                  },
+                  {
+                    "time": 1757520000000,
+                    "num": 876952
+                  }
+                ]
+              }
+            ]
+          },
+          "attack_type_distribution_info_list": [
+            {
+              "key": "xss",
+              "num": 9
+            }
+          ],
+          "top_attacked_domains_info_list": [
+            {
+              "key": "wse.open.com",
+              "num": 9
+            }
+          ],
+          "top_attack_source_ips_info_list": [
+            {
+              "key": "100.95.151.61",
+              "num": 9
+            }
+          ],
+          "top_attacked_urls_info_list": [
+            {
+              "key": "/<script>",
+              "num": 9,
+              "host": "wse.open.com"
+            }
+          ],
+          "top_attack_source_locations_info_list": [
+            {
+              "key": "unknown",
+              "num": 15
+            }
+          ],
+          "top_error_pages_info": {
+            "abnormal_404_info_list": [],
+            "abnormal_500_info_list": [],
+            "abnormal_502_info_list": []
+          }
+        },
+        "create_time": 1757573102017
+      },
+      "properties": {
+        "report_id": {
+          "type": "string",
+          "example": 111111,
+          "description": "**参数解释:**\n报告ID,唯一标识当前查询的安全报告。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+        },
+        "subscription_id": {
+          "type": "string",
+          "example": 11111,
+          "description": "**参数解释:**\n订阅ID,关联当前报告所属的安全报告订阅记录。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+        },
+        "sending_period": {
+          "type": "string",
+          "example": "morning",
+          "description": "**参数解释:**\n发送时间段,标识报告的预设发送时间(如morning表示早晨时段)。\n**约束限制:**\n不涉及\n**取值范围:**\n- morning : 00:00~06:00\n- noon : 06:00~12:00\n- afternoon : 12:00~18:00\n- evening : 12:00~18:00\n\n**默认取值:**\n不涉及"
+        },
+        "report_name": {
+          "type": "string",
+          "example": "安全日报-华北4区-业务A",
+          "description": "**参数解释:**\n报告名称,用于标识当前安全报告的名称。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+        },
+        "report_category": {
+          "type": "string",
+          "example": "daily_report",
+          "description": "**参数解释:**\n报告类别,设置订阅的报告类型(如daily_report表示安全日报)。\n**约束限制:**\n不涉及\n**取值范围:**\n- daily_report : 日报\n- weekly_report : 周报\n- monthly_report : 月报\n- custom_report : 自定义\n\n**默认取值:**\n不涉及"
+        },
+        "topic_urn": {
+          "type": "string",
+          "example": "topic_test",
+          "description": "**参数解释:**\n主题urn,关联报告发送的SMN主题唯一标识。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+        },
+        "subscription_type": {
+          "type": "string",
+          "example": "slient",
+          "description": "**参数解释:**\n订阅类型,接收安全报告的订阅方式(如slient表示静默订阅)。\n**约束限制:**\n不涉及\n**取值范围:**\n- smn_topic : 消息主题\n- silent : 静默\n- message_center : 消息中心\n\n**默认取值:**\n不涉及"
+        },
+        "report_content_info": {
+          "description": "**参数解释:**\n报告内容订阅,包含安全报告的各类统计数据详情。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+          "properties": {
+            "overview_statistics_list_info": {
+              "items": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "example": "ACCESS",
+                    "description": "**参数解释:**\n统计维度标识(如ACCESS表示访问类统计)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  },
+                  "num": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 256,
+                    "description": "**参数解释:**\n该统计维度的总数量。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                  },
+                  "top_domains": {
+                    "items": {
+                      "properties": {
+                        "num": {
+                          "type": "integer",
+                          "format": "int32",
+                          "example": 208,
+                          "description": "**参数解释:**\n该域名在对应统计维度下的数量。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                        },
+                        "host": {
+                          "type": "string",
+                          "example": "*:55378a97-a3e9-46bb-bfa7-45fcf6185a73",
+                          "description": "**参数解释:**\n域名标识,包含域名及关联标识。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                        }
+                      }
+                    },
+                    "type": "array",
+                    "description": "**参数解释:**\nTOP域名列表,按统计数量排序的域名信息。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  }
+                }
+              },
+              "type": "array",
+              "description": "**参数解释:**\n总览统计信息,包含各维度的汇总统计数据及TOP域名详情。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "request_statistics_info_list": {
+              "items": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "example": "ACCESS",
+                    "description": "**参数解释:**\n统计维度标识(如ACCESS表示访问类统计)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  },
+                  "timeline": {
+                    "items": {
+                      "properties": {
+                        "time": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 1683302400000,
+                          "description": "**参数解释:**\n时间戳(毫秒级),标识统计数据对应的时间点。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                        },
+                        "num": {
+                          "type": "integer",
+                          "format": "int32",
+                          "example": 34,
+                          "description": "**参数解释:**\n该时间点对应统计维度的数量。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                        }
+                      }
+                    },
+                    "type": "array",
+                    "description": "**参数解释:**\n时间线数据,按时间顺序排列的统计数量。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  }
+                }
+              },
+              "type": "array",
+              "description": "**参数解释:**\n请求次数统计信息,包含各维度按时间线的请求数量统计。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "qps_statistics_info": {
+              "properties": {
+                "average_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": "ACCESS",
+                        "description": "**参数解释:**\n统计维度标识(如ACCESS表示访问类统计)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "timeline": {
+                        "items": {
+                          "properties": {
+                            "time": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 1683302400000,
+                              "description": "**参数解释:**\n时间戳(毫秒级),标识统计数据对应的时间点。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                            },
+                            "num": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 34,
+                              "description": "**参数解释:**\n该时间点对应统计维度的平均QPS值。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                            }
+                          }
+                        },
+                        "type": "array",
+                        "description": "**参数解释:**\n时间线数据,按时间顺序排列的平均QPS值。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\n平均QPS统计列表,包含各维度按时间线的平均QPS数据。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                },
+                "peak_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": "ACCESS",
+                        "description": "**参数解释:**\n统计维度标识(如ACCESS表示访问类统计)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "timeline": {
+                        "items": {
+                          "properties": {
+                            "time": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 1683302400000,
+                              "description": "**参数解释:**\n时间戳(毫秒级),标识统计数据对应的时间点。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                            },
+                            "num": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 34,
+                              "description": "**参数解释:**\n该时间点对应统计维度的峰值QPS值。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                            }
+                          }
+                        },
+                        "type": "array",
+                        "description": "**参数解释:**\n时间线数据,按时间顺序排列的峰值QPS值。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\n峰值QPS统计列表,包含各维度按时间线的峰值QPS数据。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                }
+              },
+              "description": "**参数解释:**\nQPS统计信息,包含平均QPS和峰值QPS的各维度时间线统计。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "bandwidth_statistics_info": {
+              "properties": {
+                "average_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": "BANDWIDTH",
+                        "description": "**参数解释:**\n统计维度标识(如BANDWIDTH表示带宽类统计)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "timeline": {
+                        "items": {
+                          "properties": {
+                            "time": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 1683302400000,
+                              "description": "**参数解释:**\n时间戳(毫秒级),标识统计数据对应的时间点。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                            },
+                            "num": {
+                              "type": "integer",
+                              "format": "int32",
+                              "example": 0,
+                              "description": "**参数解释:**\n该时间点对应统计维度的平均带宽值。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                            }
+                          }
+                        },
+                        "type": "array",
+                        "description": "**参数解释:**\n时间线数据,按时间顺序排列的平均带宽值。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\n平均带宽统计列表,包含各维度按时间线的平均带宽数据。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                },
+                "peak_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": "BANDWIDTH",
+                        "description": "**参数解释:**\n统计维度标识(如BANDWIDTH表示带宽类统计)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "timeline": {
+                        "items": {
+                          "properties": {
+                            "time": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 1683302400000,
+                              "description": "**参数解释:**\n时间戳(毫秒级),标识统计数据对应的时间点。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                            },
+                            "num": {
+                              "type": "integer",
+                              "format": "int32",
+                              "example": 0,
+                              "description": "**参数解释:**\n该时间点对应统计维度的峰值带宽值。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                            }
+                          }
+                        },
+                        "type": "array",
+                        "description": "**参数解释:**\n时间线数据,按时间顺序排列的峰值带宽值。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\n峰值带宽统计列表,包含各维度按时间线的峰值带宽数据。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                }
+              },
+              "description": "**参数解释:**\n带宽统计信息,包含平均带宽和峰值带宽的各维度时间线统计。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "response_code_statistics_info": {
+              "properties": {
+                "response_source_waf_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": 504,
+                        "description": "**参数解释:**\n响应码标识(如504表示网关超时)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "timeline": {
+                        "items": {
+                          "properties": {
+                            "time": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 1683302400000,
+                              "description": "**参数解释:**\n时间戳(毫秒级),标识统计数据对应的时间点。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                            },
+                            "num": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 0,
+                              "description": "**参数解释:**\n该时间点WAF返回该响应码的数量。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                            }
+                          }
+                        },
+                        "type": "array",
+                        "description": "**参数解释:**\n时间线数据,按时间顺序排列的WAF响应码数量。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\nWAF响应码统计列表,包含各响应码按时间线的WAF返回数量。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                },
+                "response_source_upstream_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": 504,
+                        "description": "**参数解释:**\n响应码标识(如504表示网关超时)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "timeline": {
+                        "items": {
+                          "properties": {
+                            "time": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 1683302400000,
+                              "description": "**参数解释:**\n时间戳(毫秒级),标识统计数据对应的时间点。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                            },
+                            "num": {
+                              "type": "integer",
+                              "format": "int64",
+                              "example": 0,
+                              "description": "**参数解释:**\n该时间点上游服务器返回该响应码的数量。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                            }
+                          }
+                        },
+                        "type": "array",
+                        "description": "**参数解释:**\n时间线数据,按时间顺序排列的上游响应码数量。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\n上游响应码统计列表,包含各响应码按时间线的上游返回数量。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                }
+              },
+              "description": "**参数解释:**\n响应码统计信息,包含WAF和上游服务器各响应码的时间线统计。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "attack_type_distribution_info_list": {
+              "items": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "example": "custom_custom",
+                    "description": "**参数解释:**\n攻击类型标识(如custom_custom表示精准防护类攻击)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  },
+                  "num": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 12671,
+                    "description": "**参数解释:**\n该攻击类型的总数量。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                  }
+                }
+              },
+              "type": "array",
+              "description": "**参数解释:**\n攻击类型分布统计信息,包含各攻击类型的数量分布。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "top_attacked_domains_info_list": {
+              "items": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "example": "*:80",
+                    "description": "**参数解释:**\n域名标识,包含域名及端口(如*:80表示所有域名的80端口)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  },
+                  "num": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 6904,
+                    "description": "**参数解释:**\n该域名被攻击的总次数。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                  },
+                  "web_tag": {
+                    "type": "string",
+                    "example": "dd",
+                    "description": "**参数解释:**\n域名的Web标签,用于标识域名所属业务类型。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  }
+                }
+              },
+              "type": "array",
+              "description": "**参数解释:**\nTOP被攻击的域名信息,按被攻击次数排序的域名列表。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "top_attack_source_ips_info_list": {
+              "items": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "example": "100.85.134.184",
+                    "description": "**参数解释:**\n攻击源IP地址。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  },
+                  "num": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 4670,
+                    "description": "**参数解释:**\n该IP发起攻击的总次数。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                  }
+                }
+              },
+              "type": "array",
+              "description": "**参数解释:**\nTOP攻击的源IP信息,按攻击次数排序的攻击源IP列表。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "top_attacked_urls_info_list": {
+              "items": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "example": "/",
+                    "description": "**参数解释:**\n被攻击的URL路径。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  },
+                  "num": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 452,
+                    "description": "**参数解释:**\n该URL被攻击的总次数。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                  },
+                  "host": {
+                    "type": "string",
+                    "example": "*:80",
+                    "description": "**参数解释:**\n该URL所属的域名标识(如*:80表示所有域名的80端口)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  }
+                }
+              },
+              "type": "array",
+              "description": "**参数解释:**\nTOP被攻击的URL信息,按被攻击次数排序的URL列表。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "top_attack_source_locations_info_list": {
+              "items": {
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "example": "unknown",
+                    "description": "**参数解释:**\n攻击源地理位置标识(如unknown表示未知位置)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                  },
+                  "num": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 14745,
+                    "description": "**参数解释:**\n该地理位置发起攻击的总次数。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                  }
+                }
+              },
+              "type": "array",
+              "description": "**参数解释:**\nTOP攻击的源地理位置信息,按攻击次数排序的地理位置列表。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "top_abnormal_urls_info": {
+              "properties": {
+                "abnormal_502_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": "/",
+                        "description": "**参数解释:**\n返回502错误的URL路径。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "num": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 6,
+                        "description": "**参数解释:**\n该URL返回502错误的总次数。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                      },
+                      "host": {
+                        "type": "string",
+                        "example": "shiro2.dangmuchen.com",
+                        "description": "**参数解释:**\n该URL所属的域名。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\nTOP返回502错误的URL列表,按错误次数排序。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                },
+                "abnormal_500_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": "/",
+                        "description": "**参数解释:**\n返回500错误的URL路径。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "num": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 6,
+                        "description": "**参数解释:**\n该URL返回500错误的总次数。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                      },
+                      "host": {
+                        "type": "string",
+                        "example": "shiro2.dangmuchen.com",
+                        "description": "**参数解释:**\n该URL所属的域名。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\nTOP返回500错误的URL列表,按错误次数排序。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                },
+                "abnormal_404_info_list": {
+                  "items": {
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "example": "/",
+                        "description": "**参数解释:**\n返回404错误的URL路径。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      },
+                      "num": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 6,
+                        "description": "**参数解释:**\n该URL返回404错误的总次数。\n**约束限制:**\n不涉及\n**取值范围:**\n≥0\n**默认取值:**\n0"
+                      },
+                      "host": {
+                        "type": "string",
+                        "example": "shiro2.dangmuchen.com",
+                        "description": "**参数解释:**\n该URL所属的域名。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                      }
+                    }
+                  },
+                  "type": "array",
+                  "description": "**参数解释:**\nTOP返回404错误的URL列表,按错误次数排序。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+                }
+              },
+              "description": "**参数解释:**\nTOP异常URL信息,包含返回502、500、404等错误的URL列表。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            }
+          }
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 222222,
+          "description": "**参数解释:**\n创建时间,报告的创建时间。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+        },
+        "stat_period": {
+          "description": "**参数解释:**\n统计周期,标识当前安全报告统计数据的时间范围。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+          "properties": {
+            "begin_time": {
+              "type": "integer",
+              "format": "int64",
+              "example": 11111,
+              "description": "**参数解释:**\n开始时间,统计周期的起始时间戳(毫秒级)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "end_time": {
+              "type": "integer",
+              "format": "int64",
+              "example": 222222,
+              "description": "**参数解释:**\n结束时间,统计周期的终止时间戳(毫秒级)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            }
+          },
+          "required": [
+            "begin_time",
+            "end_time"
+          ]
+        }
+      },
+      "required": [
+        "report_id",
+        "subscription_id",
+        "sending_period",
+        "report_name",
+        "report_category",
+        "subscription_type",
+        "report_content_subscription_info",
+        "stat_period"
+      ]
+    },
+    "RestErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "编码 (加密) 后的详细拒绝原因,用户可以自行调用 STS 服务的decode-authorization-message接口进行解码,可参考STS5联调自验证。IAM5鉴权错误时才会返回此字段。"
+        },
+        "details": {
+          "type": "array",
+          "description": "调用下游服务的报错信息集合,IAM5鉴权错误时才会返回此字段。",
+          "items": {
+            "$ref": "#/definitions/IAM5ErrorDetails"
+          }
+        }
+      },
+      "title": "RestErrorResponse"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "waf.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

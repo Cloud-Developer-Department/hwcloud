@@ -1,0 +1,254 @@
+{
+  "name": "ChangeResourcesLevel",
+  "summary": "指定资源等级",
+  "tags": "资源管理",
+  "productshort": "BCC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{domain_id}/resources/resource-level": {
+      "put": {
+        "tags": [
+          "资源管理"
+        ],
+        "operationId": "ChangeResourcesLevel",
+        "summary": "指定资源等级",
+        "description": "手动更改资源的等级,可能会导致资源的合规结果发生变化",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-method-annotations": [
+          "@CtsMeta(resourceType = \"Resources\", traceName = \"ChangeResourcesLevel\", operationId = \"ChangeResourcesLevel\", isReadOnly=false)"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 1,
+            "description": "账号ID"
+          },
+          {
+            "name": "changeResourcesLevelRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "手动改变资源等级的请求体",
+            "schema": {
+              "$ref": "#/definitions/UpdateResourceLevelBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "修改资源等级的返回",
+            "schema": {
+              "$ref": "#/definitions/UpdateResourceLevelRsp"
+            },
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "id": "0bc266cf-02c4-48fc-8868-7263b3ae944c",
+                    "result": "succeed",
+                    "message": null
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "未提供认证信息或认证信息错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "请求页面被禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "404": {
+            "description": "未找到资源。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "408": {
+            "description": "请求超出了服务器的等待时间。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "429": {
+            "description": "当前请求过多。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "请求未完成,服务异常。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "BCC.00000006",
+                "error_msg": "Failed to check input parameter. Error: not find resources info."
+              }
+            }
+          },
+          "503": {
+            "description": "系统暂时不可用,请求受限。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "bcc::updateResourceLevelBinding",
+          "authLevel": "NO_INSTANCE",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": false,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": false,
+          "needCbcCheck": false,
+          "model": "v5",
+          "authContextInitializerName": "iamAuthBatchModifyContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UpdateResourceLevelBody": {
+      "type": "object",
+      "description": "手动改变资源等级请求体",
+      "required": [
+        "change_type",
+        "resource_ids"
+      ],
+      "properties": {
+        "change_type": {
+          "type": "string",
+          "description": "change和recover两种枚举",
+          "enum": [
+            "change",
+            "recover"
+          ],
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "resource_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "description": "resource_id的列表",
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "resource_level_id": {
+          "type": "string",
+          "description": "资源等级ID",
+          "minLength": 24,
+          "maxLength": 24
+        }
+      },
+      "example": {
+        "change_type": "change",
+        "resource_ids": [
+          "1a6b0eae4f7f4ccfa479ca32b9381fe9in14"
+        ],
+        "resource_level_id": "682ee92a39765b40b3f26b92"
+      }
+    },
+    "UpdateResourceLevelRsp": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceChangeLevelItem"
+          },
+          "description": "每个资源更改等级的结果",
+          "minItems": 1,
+          "maxItems": 20
+        }
+      }
+    },
+    "ResourceChangeLevelItem": {
+      "type": "object",
+      "required": [
+        "id",
+        "result"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "资源ID",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "result": {
+          "type": "string",
+          "description": "结果:succeed-成功,failed-失败",
+          "enum": [
+            "succeed",
+            "failed"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcc.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

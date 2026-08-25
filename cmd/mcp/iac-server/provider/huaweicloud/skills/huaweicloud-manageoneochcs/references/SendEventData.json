@@ -1,0 +1,193 @@
+{
+  "name": "SendEventData",
+  "summary": "向CES发送主机配置信息的接口",
+  "tags": "租户保障",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/V1.0/{project_id}/event-data": {
+      "post": {
+        "summary": "向CES发送主机配置信息的接口",
+        "description": "向CES发送主机配置信息的接口。\n\ncurl命令调用示例:\n```\ncurl -v -H \"Content-Type:application/json\" -X POST -d \"{json}\" \"https://ip:port/V1.0/{project_id}/event-data\"\n```",
+        "x-filter": "ManageOne,openapi",
+        "x-precautions": "错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 租户保障特性”章节。\n",
+        "x-plane": "Tenant,OM",
+        "tags": [
+          "租户保障"
+        ],
+        "operationId": "SendEventData",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "有效的token(op_service权限的用户token)。"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "project Id。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "event_data",
+            "in": "body",
+            "description": "主机配置信息。",
+            "required": true,
+            "x-maxLength": 1000,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CesEventData"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "主机信息插入成功,无返回值。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "406": {
+            "description": "流控限流。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": [
+          {
+            "event": {
+              "namespace": "SYS.ECS",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                }
+              ],
+              "type": "instance_host_info"
+            },
+            "value": "xxx",
+            "ttl": 604800,
+            "collect_time": 1463598260000
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "CesEvent": {
+      "required": [
+        "namespace",
+        "type",
+        "dimensions"
+      ],
+      "description": "完整的主机配置信息定义。",
+      "properties": {
+        "namespace": {
+          "description": "指标命名空间,必须以字母开头,只能包含0-9/a-z/AZ/_,总长度最短为3,最大为32。",
+          "type": "string"
+        },
+        "type": {
+          "description": "事件类型,只允许字母、下划线、中划线,以字母或汉字开头,长度不超过64,如instance_host_info。",
+          "type": "string"
+        },
+        "dimensions": {
+          "description": "指标维度列表。目前支持维度列表长度最大为3。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CesDimensions"
+          },
+          "maxItems": 1000
+        }
+      }
+    },
+    "CesDimensions": {
+      "required": [
+        "name",
+        "value"
+      ],
+      "description": "CES告警维度。",
+      "properties": {
+        "name": {
+          "description": "告警描述,只能包含0-9/az/A-Z/_/-或汉字,长度0-256。",
+          "type": "string"
+        },
+        "value": {
+          "description": "告警描述,只能包含0-9/az/A-Z/_/-或汉字,长度0-256。",
+          "type": "string"
+        }
+      }
+    },
+    "CesEventData": {
+      "required": [
+        "value",
+        "collect_time",
+        "ttl",
+        "event"
+      ],
+      "description": "主机配置信息。",
+      "properties": {
+        "value": {
+          "description": "主机配置信息,可以为任意字符串,最大长度为4k。",
+          "type": "string"
+        },
+        "collect_time": {
+          "description": "数据采集的时间,格式为timestamp (ms)。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "ttl": {
+          "description": "数据的有效期,超出该有效期则自动删除该数据,取值范围(0-604800](1周),单位为秒。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "event": {
+          "description": "完整的主机配置信息定义。",
+          "$ref": "#/definitions/CesEvent"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

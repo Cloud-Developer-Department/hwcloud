@@ -1,0 +1,199 @@
+{
+  "name": "ListIpAuthList",
+  "summary": "查询IP黑/白名单",
+  "tags": "鉴权管理",
+  "productshort": "Live",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v1/{project_id}/guard/ip": {
+      "get": {
+        "tags": [
+          "鉴权管理"
+        ],
+        "summary": "查询IP黑/白名单",
+        "operationId": "ListIpAuthList",
+        "description": "查询推流/播放域名的IP黑/白名单。\n- 黑名单模式:禁止指定的IP或网段\n- 白名单模式:仅允许指定的IP或网段\n- 默认:全放通。",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "description": "推流域名或播放域名",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "x-example": "play.example.huawei.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询IP黑/白名单成功",
+            "schema": {
+              "$ref": "#/definitions/IPAuthInfo"
+            },
+            "examples": {
+              "application/json": {
+                "domain": "play.example.huawei.com",
+                "auth_type": "WHITE",
+                "ip_auth_list": "192.168.0.0;192.168.0.8"
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。格式为:request_id-timestamp-hostname(request_id在服务器端生成UUID,timestamp为当前时间戳,hostname为处理当前接口的服务器名称)"
+              }
+            }
+          },
+          "400": {
+            "description": "查询IP黑/白名单失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。格式为:request_id-timestamp-hostname(request_id在服务器端生成UUID,timestamp为当前时间戳,hostname为处理当前接口的服务器名称)"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/guard/ip?domain=play.example.huawei.com"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "IPAuthInfo": {
+      "type": "object",
+      "required": [
+        "domain",
+        "auth_type",
+        "ip_auth_list"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "推流域名或播放域名",
+          "minLength": 1,
+          "maxLength": 255,
+          "example": "play.example.huawei.com"
+        },
+        "auth_type": {
+          "type": "string",
+          "description": "鉴权类型。\n包含如下取值:\n- WHITE:IP白名单鉴权。\n- BLACK:IP黑名单鉴权。\n- NONE:不鉴权。",
+          "enum": [
+            "WHITE",
+            "BLACK",
+            "NONE"
+          ],
+          "minLength": 4,
+          "maxLength": 5,
+          "example": "WHITE"
+        },
+        "ip_auth_list": {
+          "type": "string",
+          "description": "IP黑名单列表,IP之间用;分隔,如192.168.0.0;192.168.0.8,最多支持配置100个IP。支持IP网段添加,例如127.0.0.1/24表示采用子网掩码中的前24位为有效位,即用32-24=8bit来表示主机号,该子网可以容纳2^8 - 2 = 254 台主机。故127.0.0.1/24 表示IP网段范围是:127.0.0.1~127.0.0.255",
+          "minLength": 0,
+          "maxLength": 2000,
+          "example": "192.168.0.0;192.168.0.8"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "用户Token,使用Token鉴权方式时必填。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。",
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

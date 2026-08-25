@@ -1,0 +1,192 @@
+{
+  "name": "ShowSecurityProfile",
+  "summary": "查询某个具体id的安全态势感知配置详情",
+  "tags": "安全态势感知配置管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/security-profiles/{profile_id}": {
+      "get": {
+        "tags": [
+          "SecurityProfileManagement"
+        ],
+        "summary": "查询某个具体id的安全态势感知配置详情",
+        "description": "应用服务器可调用此接口查询某个具体id的安全态势感知配置详情。",
+        "operationId": "ShowSecurityProfile",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html)。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数说明**:用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+            "required": false,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-effective-scene": "huaweicloud"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,一般华为云租户无需携带该参数,仅在物理多租场景下从管理面访问API时需要携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "name": "profile_id",
+            "in": "path",
+            "description": "**参数说明**:安全态势感知配置ID,在创建安全态势感知配置时由物联网平台分配。\n**取值范围**:长度不超过24,数字与字符串的组合。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "profile_id": "04ed32dc1b0025b52fe3c01a27c2babc",
+                "security_type": "DEVICE_MEMORY_CHECK",
+                "alarm_level": "CRITICAL",
+                "security_level": "BASIC_SECURITY",
+                "enable": true,
+                "profile": [
+                  {
+                    "key": "memory_threshold",
+                    "value": 80
+                  }
+                ],
+                "profile_targets": {
+                  "target_type": "PRODUCT",
+                  "target_ids": [
+                    "1d7616926636486cb05120018018cafc:67443bd4ad7db3647deb4f7a"
+                  ]
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SecurityProfileDTO"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IOTDA.013800"
+            ]
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<SecurityProfileDTO>",
+        "x-request-examples-url-1": "GET https://{endpoint}/v5/iot/{project_id}/security-profiles/{profile_id}",
+        "x-request-examples-description-1": "查询指定id的安全态势感知配置详情",
+        "x-order": 2
+      }
+    }
+  },
+  "definitions": {
+    "SecurityTarget": {
+      "type": "object",
+      "properties": {
+        "target_type": {
+          "type": "string",
+          "description": "安全态势感知配置绑定的对象,目前仅支持PRODUCT产品级别,仅对设备级别的安全态势感知项生效。",
+          "pattern": "(PRODUCT)"
+        },
+        "target_ids": {
+          "type": "array",
+          "description": "绑定对象id列表,target_type为PRODUCT时,由于产品ID在不同资源空间下可以重复,target_id格式为:资源空间ID:产品ID;资源空间ID与产品ID使用冒号拼接而成。",
+          "items": {
+            "type": "string"
+          },
+          "x-maxLength": 20,
+          "x-minLength": 1,
+          "x-annotations": [
+            "@PatternInList(regexp = \"^[a-zA-Z0-9:_-]{1,128}$\")"
+          ]
+        }
+      },
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;com.huawei.m2m.validator.PatternInList;"
+    },
+    "SecurityProfileDTO": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "description": "安全态势感知配置id"
+        },
+        "security_type": {
+          "type": "string",
+          "description": "安全态势感知配置类型"
+        },
+        "alarm_level": {
+          "type": "string",
+          "description": "安全态势感知告警级别,CRITICAL:严重告警,MAJOR:重要告警,MINOR:一般告警"
+        },
+        "security_level": {
+          "type": "string",
+          "description": "安全态势感知项所属安全风险级别;BASIC_SECURITY:基础安全,ADVANCE_SECURITY:高级安全,ULTIMATE_SECURITY:极致安全"
+        },
+        "enable": {
+          "type": "boolean",
+          "description": "安全态势感知项是否开启"
+        },
+        "profile": {
+          "type": "array",
+          "description": "安全态势感知项配置结构体,用于设备侧检测项下发给设备",
+          "items": {
+            "$ref": "#/definitions/SecurityProfile"
+          }
+        },
+        "profile_targets": {
+          "description": "安全态势感知配置绑定对象结构体",
+          "$ref": "#/definitions/SecurityTarget"
+        }
+      },
+      "title": "安全态势感知配置结构体",
+      "description": "安全态势感知配置"
+    },
+    "SecurityProfile": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "安全态势感知项配置值名称"
+        },
+        "value": {
+          "type": "object",
+          "description": "安全态势感知项配置值,数据格式参考创建安全态势感知接口说明",
+          "properties": {}
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

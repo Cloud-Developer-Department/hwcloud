@@ -1,0 +1,399 @@
+{
+  "name": "ImportDataMapLineage",
+  "summary": "导入血缘(邀测)",
+  "tags": "数据地图接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/datamap/lineage/import": {
+      "post": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "数据地图接口"
+        ],
+        "summary": "导入血缘(邀测)",
+        "description": "血缘导入接口,一次性获取所有作业算子的血缘。该接口功能处于邀测阶段,后续将随功能公测将逐步开放。",
+        "operationId": "ImportDataMapLineage",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,使用[Token认证](dataartsstudio_02_0010.xml)时必选。通过调用“获取用户Token”接口获取响应消息头中X-Subject-Token的值。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          {
+            "name": "instance",
+            "in": "header",
+            "required": true,
+            "description": "实例ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 36
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 36
+          },
+          {
+            "name": "ImportDataMapLineageRequestBody",
+            "in": "body",
+            "description": "导入血缘请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImportDataMapLineageRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK。",
+            "schema": {
+              "$ref": "#/definitions/NodeLineageConfigResponse"
+            },
+            "examples": {
+              "application/json": {
+                "guids": [
+                  {
+                    "node": "285cde264c25d20e030e5f7822097c22",
+                    "column_lineages": [
+                      "dd10a433e2199f8fc5f38285394c3ac4"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest。",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized。",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          },
+          "403": {
+            "description": "Forbidden。",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          },
+          "404": {
+            "description": "Not Found。",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          },
+          "500": {
+            "description": "InternalServerError。",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "TableConfig": {
+      "description": "导入血缘请求体。",
+      "type": "object",
+      "required": [
+        "name",
+        "input_tables",
+        "output_table"
+      ],
+      "properties": {
+        "database": {
+          "description": "数据库名称。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "schema": {
+          "description": "schema名称。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "table": {
+          "description": "表名称。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "is_exist": {
+          "description": "是否存在。",
+          "type": "boolean"
+        }
+      },
+      "title": "TableConfig"
+    },
+    "ColumnLineageConfig": {
+      "description": "导入血缘请求体。",
+      "type": "object",
+      "required": [
+        "input_columns",
+        "output_column"
+      ],
+      "properties": {
+        "name": {
+          "description": "字段血缘节点名称。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "input_columns": {
+          "description": "输入字段血缘信息。",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/ColumnConfig"
+          }
+        },
+        "output_column": {
+          "description": "输出字段血缘信息。",
+          "type": "string",
+          "$ref": "#/definitions/ColumnConfig"
+        }
+      },
+      "title": "ColumnLineageConfig"
+    },
+    "SubNodeLineageConfig": {
+      "description": "导入血缘请求体。",
+      "type": "object",
+      "required": [
+        "name",
+        "input_tables",
+        "output_table"
+      ],
+      "properties": {
+        "name": {
+          "description": "节点名称。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "sql_statement": {
+          "description": "待接续sql语句。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32768
+        },
+        "input_tables": {
+          "description": "输入表。",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/TableConfig"
+          }
+        },
+        "output_table": {
+          "description": "输出表。",
+          "type": "object",
+          "$ref": "#/definitions/TableConfig"
+        },
+        "column_lineages": {
+          "description": "字段血缘信息。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/ColumnLineageConfig"
+          }
+        }
+      },
+      "title": "SubNodeLineageConfig"
+    },
+    "ImportDataMapLineageRequestBody": {
+      "description": "导入血缘请求体。",
+      "type": "object",
+      "required": [
+        "input_source_id",
+        "output_source_id",
+        "lineage_configs"
+      ],
+      "properties": {
+        "input_source_id": {
+          "description": "上游血缘sourceId。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50
+        },
+        "output_source_id": {
+          "description": "下游血缘sourceId。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50
+        },
+        "lineage_configs": {
+          "description": "血缘信息。",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/SubNodeLineageConfig"
+          }
+        }
+      },
+      "example": {
+        "input_source_id": "hive@d66e4a53-0929-4816-b41d-09b30f54d882",
+        "output_source_id": "hive@d66e4a53-0929-4816-b41d-09b30f54d882",
+        "lineage_configs": [
+          {
+            "name": "表级血缘1",
+            "input_tables": [
+              {
+                "database": "dls",
+                "schema": null,
+                "table": "test9999"
+              }
+            ],
+            "output_table": {
+              "database": "dls",
+              "schema": null,
+              "table": "aaa448"
+            },
+            "column_lineages": [
+              {
+                "name": "字段血缘1",
+                "input_columns": [
+                  {
+                    "database": "dls",
+                    "schema": null,
+                    "table": "test9999",
+                    "column": "ads"
+                  }
+                ],
+                "output_column": {
+                  "database": "dls",
+                  "schema": null,
+                  "table": "aaa448",
+                  "column": "ft_col1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "title": "ImportDataMapLineageRequestBody"
+    },
+    "NodeLineageConfigResponse": {
+      "description": "导入血缘响应体。",
+      "type": "object",
+      "properties": {
+        "guids": {
+          "description": "血缘信息资产guids。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeLineageGuids"
+          }
+        }
+      },
+      "title": "NodeLineageConfigResponse"
+    },
+    "DlgErrorResponseVO": {
+      "description": "请求失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "NodeLineageGuids": {
+      "description": "导入血缘响应体。",
+      "type": "object",
+      "properties": {
+        "node": {
+          "description": "节点guid。",
+          "type": "string"
+        },
+        "column_lineages": {
+          "description": "schema名称。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "NodeLineageGuids"
+    },
+    "ColumnConfig": {
+      "description": "导入血缘请求体。",
+      "type": "object",
+      "required": [
+        "database",
+        "table",
+        "column"
+      ],
+      "properties": {
+        "database": {
+          "description": "数据库名称。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "schema": {
+          "description": "schema名称。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "table": {
+          "description": "表名称。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "column": {
+          "description": "字段名称。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "is_exist": {
+          "description": "是否存在。",
+          "type": "boolean"
+        }
+      },
+      "title": "ColumnConfig"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

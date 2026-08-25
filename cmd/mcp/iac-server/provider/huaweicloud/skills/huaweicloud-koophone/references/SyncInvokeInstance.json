@@ -1,0 +1,215 @@
+{
+  "name": "SyncInvokeInstance",
+  "summary": "实例执行同步命令",
+  "tags": "实例管理",
+  "productshort": "KooPhone",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/instances/sync-command": {
+      "post": {
+        "x-request-examples-url-1": "/v1/instances/sync-command",
+        "x-request-examples-text-1": {
+          "command": "ls -l /system",
+          "instance_ids": [
+            "a44uhlf7",
+            "efjy72gs"
+          ]
+        },
+        "x-request-examples-1": {
+          "command": "ls -l /system",
+          "instance_ids": [
+            "a44uhlf7",
+            "efjy72gs"
+          ]
+        },
+        "tags": [
+          "实例管理"
+        ],
+        "operationId": "SyncInvokeInstance",
+        "summary": "实例执行同步命令",
+        "description": "实例执行同步命令接口。调用此api的前提条件是租户需要先购买koophone云手机实例。可以通过调用该接口实现对自己的koophone云手机实例进行adb指令操作。\n该接口是同步操作接口,如果有耗时adb操作建议使用实例执行异步命令接口。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "InstanceSyncCommandsReq",
+            "description": "执行同步命令请求",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InstanceSyncCommandsReq"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "租户级Token",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常响应",
+            "schema": {
+              "$ref": "#/definitions/InstanceSyncCommandsRsp"
+            },
+            "examples": {
+              "application/json": {
+                "data": {
+                  "cmd_results": [
+                    {
+                      "instance_id": "a44uhlf7",
+                      "status": -1,
+                      "error_code": "CPS.0191",
+                      "error_msg": "Run command failed.",
+                      "execute_msg": "ls: cannot access '/system': No such file or directory"
+                    },
+                    {
+                      "instance_id": "efjy72gs",
+                      "status": 2,
+                      "error_code": "",
+                      "error_msg": "",
+                      "execute_msg": "xxxxxx"
+                    }
+                  ]
+                },
+                "error_code": "0",
+                "error_msg": "ok"
+              }
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorInfo"
+            }
+          },
+          "500": {
+            "description": "内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorInfo": {
+      "description": "响应结果",
+      "required": [
+        "error_code"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码,KOOPHONE.API.0001,数字递增"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应描述"
+        }
+      },
+      "type": "object"
+    },
+    "CmdResultWrapper": {
+      "description": "命令执行结果包装",
+      "properties": {
+        "cmd_results": {
+          "type": "array",
+          "description": "命令执行结果",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/CmdResult"
+          }
+        }
+      }
+    },
+    "InstanceSyncCommandsReq": {
+      "description": "执行同步命令请求",
+      "required": [
+        "command",
+        "instance_ids"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "命令,最大长度为1024字节,只支持大小写字母、数字、下划线(_)、点(.)、斜线(/)、冒号(:)、中划线(-)。",
+          "maxLength": 1024
+        },
+        "instance_ids": {
+          "type": "array",
+          "description": "实例列表",
+          "maxItems": 100,
+          "items": {
+            "maxLength": 32,
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "CmdResult": {
+      "description": "命令执行结果",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "实例id",
+          "maxLength": 32
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "任务状态。1表示运行中,2表示成功,-1表示失败"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "任务错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "任务错误码说明"
+        },
+        "execute_msg": {
+          "type": "string",
+          "description": "任务执行返回内容,最长1024字节。命令执行成功和失败均将命令的输出返回",
+          "maxLength": 1024
+        }
+      },
+      "type": "object"
+    },
+    "InstanceSyncCommandsRsp": {
+      "description": "执行同步命令响应",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码,错误码规范KP.API.0001,数字递增"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应描述"
+        },
+        "data": {
+          "type": "object",
+          "description": "命令执行结果",
+          "$ref": "#/definitions/CmdResultWrapper"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koophone.myhuaweicloud.com",
+  "base_path": "/v1",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

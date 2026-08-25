@@ -1,0 +1,413 @@
+{
+  "name": "CreateAutoScalingPolicy",
+  "summary": "创建弹性伸缩策略",
+  "tags": "弹性伸缩接口",
+  "productshort": "MRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/autoscaling-policy/{cluster_id}": {
+      "post": {
+        "x-request-examples-url-1": "/v2/{project_id}/autoscaling-policy/{cluster_id}",
+        "x-request-examples-description-1": "创建一个弹性伸缩策略, 在节点组node_group_1中配置节点组数量范围为0-5,并配置2个伸缩规则。  如果YARNAppRunning 大于等于 75 ,并持续 1 个五分钟,则添加1 个Task节点。如果 YARNAppRunning  小于等于25 ,并持续 1 个五分钟,则终止 1个Task节点。冷却时间皆为20分钟,并且设置了该策略下弹出的节点会打上aaa=bbb的标签。",
+        "x-request-examples-text-1": {
+          "node_group_name": "node_group_1",
+          "auto_scaling_policy": {
+            "auto_scaling_enable": true,
+            "min_capacity": 0,
+            "max_capacity": 5,
+            "rules": [
+              {
+                "name": "default-expand-1",
+                "adjustment_type": "scale_out",
+                "cool_down_minutes": 20,
+                "scaling_adjustment": 1,
+                "trigger": {
+                  "metric_name": "YARNAppRunning",
+                  "metric_value": 75,
+                  "comparison_operator": "GT",
+                  "evaluation_periods": 1
+                }
+              },
+              {
+                "name": "default-shrink-1",
+                "adjustment_type": "scale_in",
+                "cool_down_minutes": 20,
+                "scaling_adjustment": 1,
+                "trigger": {
+                  "metric_name": "YARNAppRunning",
+                  "metric_value": 25,
+                  "comparison_operator": "LT",
+                  "evaluation_periods": 1
+                }
+              }
+            ],
+            "resources_plans": [
+              {
+                "period_type": "daily",
+                "start_time": "06:00",
+                "end_time": "20:00",
+                "min_capacity": "0",
+                "max_capacity": "2",
+                "effective_days": [
+                  "MONDAY"
+                ]
+              }
+            ],
+            "exec_scripts": [],
+            "tags": [
+              {
+                "key": "aaa",
+                "value": "bbb"
+              }
+            ]
+          },
+          "resource_pool_name": "default"
+        },
+        "x-request-examples-1": {
+          "node_group_name": "node_group_1",
+          "auto_scaling_policy": {
+            "auto_scaling_enable": true,
+            "min_capacity": 0,
+            "max_capacity": 5,
+            "rules": [
+              {
+                "name": "default-expand-1",
+                "adjustment_type": "scale_out",
+                "cool_down_minutes": 20,
+                "scaling_adjustment": 1,
+                "trigger": {
+                  "metric_name": "YARNAppRunning",
+                  "metric_value": 75,
+                  "comparison_operator": "GT",
+                  "evaluation_periods": 1
+                }
+              },
+              {
+                "name": "default-shrink-1",
+                "adjustment_type": "scale_in",
+                "cool_down_minutes": 20,
+                "scaling_adjustment": 1,
+                "trigger": {
+                  "metric_name": "YARNAppRunning",
+                  "metric_value": 25,
+                  "comparison_operator": "LT",
+                  "evaluation_periods": 1
+                }
+              }
+            ],
+            "resources_plans": [
+              {
+                "period_type": "daily",
+                "start_time": "06:00",
+                "end_time": "20:00",
+                "min_capacity": "0",
+                "max_capacity": "2",
+                "effective_days": [
+                  "MONDAY"
+                ]
+              }
+            ],
+            "exec_scripts": [],
+            "tags": [
+              {
+                "key": "aaa",
+                "value": "bbb"
+              }
+            ]
+          },
+          "resource_pool_name": "default"
+        },
+        "x-name": "创建弹性伸缩策略",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "tags": [
+          "弹性伸缩接口"
+        ],
+        "x-tags": "弹性伸缩接口",
+        "summary": "创建弹性伸缩策略",
+        "description": "创建弹性伸缩策略。",
+        "operationId": "CreateAutoScalingPolicy",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID。"
+          },
+          {
+            "name": "cluster_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "集群ID。"
+          },
+          {
+            "name": "CreateAutoScalingPolicyRequestBody",
+            "in": "body",
+            "required": false,
+            "description": "创建弹性伸缩策略请求",
+            "schema": {
+              "$ref": "#/definitions/AutoScalingPolicyV2"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "创建弹性伸缩策略完成"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AutoScalingPolicyV2": {
+      "type": "object",
+      "required": [
+        "node_group_name",
+        "resource_pool_name",
+        "auto_scaling_policy"
+      ],
+      "properties": {
+        "node_group_name": {
+          "type": "string",
+          "description": "节点组名称。必填参数。如果resource_pool_name为default,则创建节点组维度的弹性伸缩策略。如果resource_pool_name不为default,则在该节点组下创建对应资源池维度的策略。",
+          "example": "task_node_default_group"
+        },
+        "resource_pool_name": {
+          "type": "string",
+          "description": "资源池名称。必填参数。当集群版本不支持按指定资源池进行弹性伸缩时,需要填写为default资源池。不为default时删除指定资源池维度的弹性伸缩策略。",
+          "example": "default"
+        },
+        "auto_scaling_policy": {
+          "type": "object",
+          "description": "弹性伸缩规则。",
+          "$ref": "#/definitions/AutoScalingPolicyInfo"
+        }
+      }
+    },
+    "Tag": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "键。\n- 最大长度36个unicode字符,不能为空字符串。\n- 标签的key值不能包含非打印字符ASCII(0-31),“=”,“*”,“<”,“>”,“\\”,“,”,“|”,“/”,且首尾字符不能为空格。\n- 同一资源的key值不能重复。",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "value": {
+          "type": "string",
+          "description": "值。\n- 最大长度43个unicode字符,可以为空字符串。\n- 标签的value值不能包含非打印字符ASCII(0-31),“=”,“*”,“<”,“>”,“\\”,“,”,“|”,“/”,且首尾字符不能为空格。",
+          "minLength": 0,
+          "maxLength": 43
+        }
+      }
+    },
+    "ResourcesPlan": {
+      "type": "object",
+      "required": [
+        "end_time",
+        "max_capacity",
+        "min_capacity",
+        "period_type",
+        "start_time"
+      ],
+      "properties": {
+        "period_type": {
+          "type": "string",
+          "description": "资源计划的周期类型,当前只允许以下类型:\n\ndaily",
+          "example": "daily"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "资源计划的起始时间,格式为“hour:minute”,表示时间在0:00-23:59之间。",
+          "example": "20:00"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "资源计划的结束时间,格式与“start_time”相同,不早于start_time表示的时间,且与start_time间隔不小于30min。",
+          "example": "21:00"
+        },
+        "min_capacity": {
+          "type": "integer",
+          "format": "int32",
+          "description": "资源计划内该节点组的最小保留节点数。\n取值范围:[0~500]",
+          "minimum": 0,
+          "maximum": 500,
+          "example": 3
+        },
+        "max_capacity": {
+          "type": "integer",
+          "format": "int32",
+          "description": "资源计划内该节点组的最大保留节点数。\n取值范围:[0~500]",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "effective_days": {
+          "type": "array",
+          "description": "资源计划的生效日期,为空时代表每日,另外也可为以下返回值:\n\nMONDAY(周一)、TUESDAY(周二)、WEDNESDAY(周三)、THURSDAY(周四)、FRIDAY(周五)、SATURDAY(周六)、SUNDAY(周日)",
+          "items": {
+            "type": "string",
+            "description": "枚举值:\n- MONDAY: 星期一\n- TUESDAY: 星期二\n- WEDNESDAY: 星期三\n- THURSDAY: 星期四\n- FRIDAY: 星期五\n- SATURDAY: 星期六\n- SUNDAY: 星期日",
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          }
+        }
+      }
+    },
+    "AutoScalingPolicyInfo": {
+      "type": "object",
+      "properties": {
+        "auto_scaling_enable": {
+          "type": "boolean",
+          "description": "当前自动伸缩规则是否开启。",
+          "example": true
+        },
+        "min_capacity": {
+          "type": "integer",
+          "format": "int32",
+          "description": "指定该节点组的最小保留节点数。\n取值范围:[0~500]",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "max_capacity": {
+          "type": "integer",
+          "format": "int32",
+          "description": "指定该节点组的最大节点数。\n取值范围:[0~500]",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "resources_plans": {
+          "type": "array",
+          "description": "资源计划列表。若该参数为空表示不启用资源计划。\n\n当启用弹性伸缩时,资源计划与自动伸缩规则需至少配置其中一种。",
+          "items": {
+            "$ref": "#/definitions/ResourcesPlan"
+          },
+          "maxItems": 5,
+          "minItems": 0
+        },
+        "rules": {
+          "type": "array",
+          "description": "自动伸缩的规则列表。\n当启用弹性伸缩时,资源计划与自动伸缩规则需至少配置其中一种。",
+          "items": {
+            "$ref": "#/definitions/Rule"
+          },
+          "maxItems": 10,
+          "minItems": 0
+        },
+        "tags": {
+          "type": "array",
+          "description": "弹性伸缩标签列表",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/Tag"
+          }
+        }
+      }
+    },
+    "Rule": {
+      "type": "object",
+      "required": [
+        "adjustment_type",
+        "cool_down_minutes",
+        "name",
+        "scaling_adjustment",
+        "trigger"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "弹性伸缩规则的名称。\n只能由字母、数字、中划线和下划线组成,并且长度为1~64个字符。\n在一个节点组范围内,不允许重名。",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "rule_xxx"
+        },
+        "description": {
+          "type": "string",
+          "description": "弹性伸缩规则的说明。\n最大长度为1024字符。",
+          "minLength": 0,
+          "maxLength": 1024,
+          "example": "for_xxx"
+        },
+        "adjustment_type": {
+          "type": "string",
+          "description": "弹性伸缩规则的调整类型,只允许以下类型:\n枚举值:\n- scale_out:扩容\n- scale_in:缩容",
+          "enum": [
+            "scale_out",
+            "scale_in"
+          ]
+        },
+        "cool_down_minutes": {
+          "type": "integer",
+          "format": "int32",
+          "description": "触发弹性伸缩规则后,该集群处于冷却状态(不再执行弹性伸缩操作)的时长,单位为分钟。\n取值范围[0~10080],10080为一周的分钟数。",
+          "minimum": 0,
+          "maximum": 10080
+        },
+        "scaling_adjustment": {
+          "type": "integer",
+          "format": "int32",
+          "description": "单次调整集群节点的个数。\n取值范围[1~100]",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "trigger": {
+          "description": "描述该规则触发条件。",
+          "$ref": "#/definitions/Trigger"
+        }
+      }
+    },
+    "Trigger": {
+      "type": "object",
+      "required": [
+        "evaluation_periods",
+        "metric_name",
+        "metric_value"
+      ],
+      "properties": {
+        "metric_name": {
+          "type": "string",
+          "description": "指标名称。 该触发条件会依据该名称对应指标的值来进行判断。 最大长度为64个字符。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "metric_value": {
+          "type": "string",
+          "description": "指标阈值。\n\n触发该条件的指标阈值,只允许输入整数或者带两位小数的数。",
+          "example": 50
+        },
+        "comparison_operator": {
+          "type": "string",
+          "description": "指标判断逻辑运算符,包括:\n- LT:小于\n- GT:大于\n- LTOE:小于等于\n- GTOE:大于等于",
+          "example": "LT"
+        },
+        "evaluation_periods": {
+          "type": "integer",
+          "format": "int32",
+          "description": "判断连续满足指标阈值的周期数(一个周期为5分钟)。\n取值范围[1~288]",
+          "minimum": 1,
+          "maximum": 288
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mrs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,477 @@
+{
+  "name": "CreateOrder",
+  "summary": "创建专享版实例(包周期)",
+  "tags": "专享版-实例管理",
+  "productshort": "APIG",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/{project_id}/apigw/prepay-instances": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "operationId": "CreateOrder",
+        "summary": "创建专享版实例(包周期)",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-open-region-cloud": "hws,ctc",
+        "description": "创建包周期专享版实例。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "专享版-实例管理"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/InstanceOrderReq"
+            },
+            "in": "body",
+            "name": "CreateOrderRequestBody",
+            "description": "创建包周期专享版实例的请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-1": {
+          "product_id": "00301-35126-0--0",
+          "charging_mode": 1,
+          "period_type": 2,
+          "period_num": 1,
+          "instance_info": {
+            "available_zone_ids": [
+              "xx-xxx-7b",
+              "xx-xxx-7a"
+            ],
+            "bandwidth_size": 5,
+            "description": "test create instance",
+            "eip_id": "41f961ab-2bdd-4ca7-9b59-cfc4fcef10c9",
+            "enterprise_project_id": "0",
+            "instance_name": "apig-demo",
+            "maintain_begin": "22:00:00",
+            "maintain_end": "02:00:00",
+            "security_group_id": "36d0ec18-bd10-4da7-86f3-ad7a5ddc55d7",
+            "spec_id": "PROFESSIONAL",
+            "subnet_id": "a938121c-11c4-4c91-b983-bc9acd347bb5",
+            "vpc_id": "0957108c-257c-4ce0-9e93-527d279ce763"
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/OrderResp"
+            },
+            "examples": {
+              "application/json": {
+                "order_id": "CS2306142249SHP53"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7102",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7106",
+                "error_msg": "No permissions to request for the method"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.9000",
+                "error_msg": "Failed to request internal service"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "OrderResp": {
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "订单编号"
+        }
+      }
+    },
+    "InstanceCreateReqV2": {
+      "required": [
+        "available_zone_ids"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/InstanceCreateReq"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "available_zone_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "可用区列表"
+            },
+            "loadbalancer_provider": {
+              "type": "string",
+              "description": "负载均衡器类型:\n- lvs\n- elb",
+              "enum": [
+                "lvs",
+                "elb"
+              ]
+            },
+            "ingress_bandwidth_size": {
+              "type": "integer",
+              "description": "入口带宽大小"
+            },
+            "ingress_bandwidth_charging_mode": {
+              "type": "string",
+              "description": "入口带宽收费模式:\n- bandwidth:按带宽计费\n-",
+              "enum": [
+                "bandwidth",
+                "traffic"
+              ],
+              "default": "bandwidth"
+            },
+            "bandwidth_charging_mode": {
+              "type": "string",
+              "description": "带宽收费模式:\n- bandwidth:按带宽计费\n-",
+              "enum": [
+                "bandwidth",
+                "traffic"
+              ],
+              "default": "bandwidth"
+            }
+          }
+        }
+      ]
+    },
+    "InstanceAbstractReq": {
+      "properties": {
+        "description": {
+          "description": "实例描述。支持除>和<以外的字符,长度为0~255。",
+          "type": "string",
+          "pattern": "^[^><]{0,255}$"
+        },
+        "maintain_begin": {
+          "description": "维护时间窗开始时间。时间格式为 xx:00:00,xx取值为02,06,10,14,18,22。\n\n在这个时间段内,运维人员可以对该实例的节点进行维护操作。维护期间,业务可以正常使用,可能会发生闪断。维护操作通常几个月一次。",
+          "type": "string",
+          "pattern": "^([0-1][0-9]|[2][0-4]):00:00$"
+        },
+        "maintain_end": {
+          "description": "维护时间窗结束时间。时间格式为 xx:00:00,与维护时间窗开始时间相差4个小时。\n\n在这个时间段内,运维人员可以对该实例的节点进行维护操作。维护期间,业务可以正常使用,可能会发生闪断。维护操作通常几个月一次。",
+          "type": "string",
+          "pattern": "^([0-1][0-9]|[2][0-4]):00:00$"
+        }
+      }
+    },
+    "TmsKeyValue": {
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "键。\n\n支持可用 UTF-8 格式表示的字母(包含中文)、数字和空格,以及以下字符: _ . : = + - @;\n\\_sys\\_开头属于系统标签,租户不能输入"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "值。\n\n支持可用 UTF-8 格式表示的字母(包含中文)、数字和空格,以及以下字符: _ . : / = + - @"
+        }
+      }
+    },
+    "ErrorMsg": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "InstanceOrderReq": {
+      "properties": {
+        "product_id": {
+          "type": "string",
+          "description": "产品编号"
+        },
+        "charging_mode": {
+          "description": "计费模式:\n- 0:按需\n- 1:包周期",
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "payment_mode": {
+          "description": "支付模式:\n- ALL_UPFRONT:全预付",
+          "example": "ALL_UPFRONT",
+          "default": "ALL_UPFRONT",
+          "type": "string",
+          "enum": [
+            "ALL_UPFRONT"
+          ]
+        },
+        "period_type": {
+          "description": "订购周期类型:\n- 2:月\n- 3:年",
+          "type": "integer",
+          "enum": [
+            2,
+            3
+          ]
+        },
+        "period_num": {
+          "description": "订购周期数:1-9",
+          "format": "int32",
+          "example": 1,
+          "type": "integer",
+          "pattern": "^[1-9]$"
+        },
+        "is_auto_renew": {
+          "type": "integer",
+          "description": "是否支持自动续费:\n- 0:不自动续费\n- 1:自动续费",
+          "format": "int32",
+          "example": 0,
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "promotion_id": {
+          "type": "string",
+          "description": "促销产品编号"
+        },
+        "promotion_plan_id": {
+          "type": "string",
+          "description": "促销计划编号"
+        },
+        "promotion_info": {
+          "type": "string",
+          "description": "促销信息"
+        },
+        "composite_product_id": {
+          "type": "string",
+          "description": "组合产品编号"
+        },
+        "instance_info": {
+          "description": "实例信息",
+          "$ref": "#/definitions/InstanceCreateReqV2"
+        }
+      }
+    },
+    "InstanceCreateReq": {
+      "required": [
+        "instance_name",
+        "spec_id",
+        "vpc_id",
+        "subnet_id",
+        "security_group_id",
+        "available_zone_ids"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/InstanceAbstractReq"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "instance_name": {
+              "description": "实例名称。\n\n中英文字符开头,只能由中英文字符、数字、中划线、下划线组成,长度为3~64。\n\n> 中文字符必须为UTF-8或者unicode编码。",
+              "type": "string",
+              "pattern": "^([a-zA-Z]|[\\一-\\龥])([a-zA-Z0-9_-]|[\\一-\\龥]){2,63}$",
+              "minLength": 3,
+              "maxLength": 64
+            },
+            "instance_id": {
+              "description": "实例编号,不填写自动生成",
+              "type": "string",
+              "pattern": "^[a-f0-9][a-fA-F0-9_-]{34}[a-f0-9]$"
+            },
+            "spec_id": {
+              "description": "实例规格:\n- BASIC:基础版实例\n- PROFESSIONAL:专业版实例\n- ENTERPRISE:企业版实例\n- PLATINUM:铂金版实例\n- BASIC_IPV6:基础版IPV6实例\n- PROFESSIONAL_IPV6:专业版IPV6实例\n- ENTERPRISE_IPV6:企业版IPV6实例\n- PLATINUM_IPV6:铂金版IPV6实例\n- PLATINUM_X2:铂金版 x2实例\n- PLATINUM_X3:铂金版 x3实例\n- PLATINUM_X4:铂金版 x4实例\n- PLATINUM_X5:铂金版 x5实例\n- PLATINUM_X6:铂金版 x6实例\n- PLATINUM_X7:铂金版 x7实例\n- PLATINUM_X8:铂金版 x8实例\n\n当前仅部分region支持铂金版 x2、铂金版 x3、铂金版 x4、铂金版 x5、铂金版 x6、铂金版 x7、铂金版 x8",
+              "type": "string",
+              "enum": [
+                "BASIC",
+                "PROFESSIONAL",
+                "ENTERPRISE",
+                "PLATINUM",
+                "BASIC_IPV6",
+                "PROFESSIONAL_IPV6",
+                "ENTERPRISE_IPV6",
+                "PLATINUM_IPV6",
+                "PLATINUM_X2",
+                "PLATINUM_X3",
+                "PLATINUM_X4",
+                "PLATINUM_X5",
+                "PLATINUM_X6",
+                "PLATINUM_X7",
+                "PLATINUM_X8"
+              ]
+            },
+            "vpc_id": {
+              "description": "虚拟私有云ID。\n\n获取方法如下:\n  - 方法1:在虚拟私有云服务的控制台界面,进入虚拟私有云的详情页面查找VPC ID。\n  - 方法2:通过虚拟私有云服务的API接口查询,具体方法请参见《虚拟私有云服务API参考》的“查询VPC列表”章节。",
+              "type": "string",
+              "example": "0402ea19-5457-4032-9d1b-eb48b98f6c66"
+            },
+            "subnet_id": {
+              "description": "子网的网络ID。\n\n获取方法如下:\n- 方法1:在虚拟私有云服务的控制台界面,单击VPC下的子网,进入子网详情页面,查找网络ID。\n- 方法2:通过虚拟私有云服务的API接口查询,具体方法请参见《虚拟私有云服务API参考》的“查询子网列表”章节。",
+              "type": "string",
+              "example": "a3bd29e4-d5bc-414c-a79a-1f35ee4ead88"
+            },
+            "security_group_id": {
+              "description": "指定实例所属的安全组。\n\n获取方法如下:\n- 方法1:在虚拟私有云服务的控制台界面,进入安全组的详情页面查找安全组ID。\n- 方法2:通过虚拟私有云服务的API接口查询,具体方法请参见《虚拟私有云服务API参考》的“查询安全组列表”章节。",
+              "type": "string",
+              "pattern": "^[a-f0-9][a-fA-F0-9_-]{34}[a-f0-9]$",
+              "example": "4b95a790-5cfc-463d-8de5-42199e55371c"
+            },
+            "eip_id": {
+              "description": "弹性公网IP ID。\n\n实例需要开启公网访问,且loadbalancer_provider为lvs时需要填写,绑定后使用者可以通过该入口从公网访问APIG实例中的API等资源\n\n获取方法:在虚拟私有云服务的控制台界面,进入弹性公网IP的详情页面查找弹性公网IP ID。",
+              "type": "string",
+              "example": "41f961ab-2bdd-4ca7-9b59-cfc4fcef10c9"
+            },
+            "enterprise_project_id": {
+              "description": "企业项目ID,企业账号必填。\n\n获取方法如下:\n- 方法1:在企业项目管理界面,进入项目管理详情页面查找项目ID。\n- 方法2:通过企业项目管理的API接口查询,具体方法请参见《企业管理API参考》的“查询企业项目列表”章节。",
+              "type": "string"
+            },
+            "available_zone_ids": {
+              "description": "可用区列表。\n\n可用区指在同一地域下,电力、网络隔离的物理区域,可用区之内内网互通,不同可用区之间物理隔离。选择多个AZ部署可以有效提升可靠性。\n\n获取方法:通过文档中实例管理的可用区列表接口查询。",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "xx-xxx-4a",
+                "xx-xxx-4b"
+              ]
+            },
+            "bandwidth_size": {
+              "description": "出公网带宽\n\n实例需要开启出公网功能时需要填写,绑定后使用者可以利用该出口访问公网上的互联网资源",
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "bandwidth_charging_mode": {
+              "description": "出公网带宽计费类型,实例需要开启出公网功能时需要填写:\n- bandwidth:按带宽计费\n-",
+              "type": "string",
+              "enum": [
+                "bandwidth",
+                "traffic"
+              ],
+              "default": "bandwidth"
+            },
+            "ipv6_enable": {
+              "description": "公网访问是否支持IPv6。\n\n当前仅部分region部分可用区支持IPv6",
+              "type": "boolean"
+            },
+            "loadbalancer_provider": {
+              "type": "string",
+              "description": "实例使用的负载均衡器类型\n- 该字段废弃,由Region支持的负载均衡模式决定使用elb还是lvs,详情参考产品介绍下的约束与限制。\n- lvs Linux虚拟服务器\n- elb 弹性负载均衡,elb仅部分region支持",
+              "default": "lvs",
+              "example": "elb",
+              "enum": [
+                "lvs",
+                "elb"
+              ]
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TmsKeyValue"
+              },
+              "minItems": 0,
+              "maxItems": 20,
+              "description": "标签列表。\n\n一个实例默认最多支持创建20个标签"
+            },
+            "vpcep_service_name": {
+              "description": "终端节点服务的名称。\n\n支持英文、数字、中划线、下划线,0~16个字符。\n\n如果您不填写该参数,系统生成的终端节点服务的名称为{region}.apig.{service_id}。\n如果您填写该参数,系统生成的终端节点服务的名称为{region}.{vpcep_service_name}.{service_id}。\n实例创建完成后,可以在实例管理->终端节点管理页面修改该名称。",
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{0,16}$",
+              "example": "apig_vpcep1"
+            },
+            "ingress_bandwidth_size": {
+              "description": "入公网带宽\n\n实例需要开启入公网功能,且loadbalancer_provider为elb时需要填写,绑定后使用者可以通过该入口从公网访问APIG实例中的API等资源",
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "ingress_bandwidth_charging_mode": {
+              "description": "入公网带宽计费类型,实例需要开启入公网功能,且loadbalancer_provider为elb时需要填写:\n- bandwidth:按带宽计费\n-",
+              "type": "string",
+              "enum": [
+                "bandwidth",
+                "traffic"
+              ],
+              "default": "bandwidth"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见[获取项目ID](apig-api-180713009.xml)。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "apig.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

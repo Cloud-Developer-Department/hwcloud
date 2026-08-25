@@ -1,0 +1,176 @@
+{
+  "name": "ShowPauseResumeStutus",
+  "summary": "获取容灾实例数据同步状态",
+  "tags": "容灾管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/disaster-recovery/data-synchronization": {
+      "get": {
+        "x-open-region-cloud": "hc,hk",
+        "x-constraint": "该接口支持GeminiDB Redis数据库实例。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/0549b4a43100d4f32f51c01c2fe4acdb/instances/b0965c9010f44ffca9af4ee00746aa8din12/disaster-recovery/data-synchronization",
+        "x-request-examples-description-1": "获取实例b0965c9010f44ffca9af4ee00746aa8din12数据同步状态",
+        "tags": [
+          "容灾管理"
+        ],
+        "summary": "获取容灾实例数据同步状态",
+        "description": "获取容灾实例数据同步状态,主备实例id,数据同步指标值,以及倒换和切换场景下的RPO,RTO指标值。",
+        "operationId": "ShowPauseResumeStutus",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "用户在某一region下的projectId。"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例ID。"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NoSqlDrStatusResponseBody"
+            },
+            "examples": {
+              "application/json": "请求实例id为主实例id:\n{\n  \"master_instance_id\": \"b0965c9010f44ffca9af4ee00746aa8din12\",\n  \"slave_instance_id\": \"c0965c9010f44ffca9af4ee00746aa8din12\",\n  \"status\": \"SYNCING\",\n  \"data_sync_indicators\": {\n    \"rsync_ops\": 100,\n    \"rsync_wal_size\": 30,\n    \"rsync_push_cost\": 30,\n    \"rsync_send_cost\": 20,\n    \"rsync_max_push_cost\": 35,\n    \"rsync_max_send_cost\": 25,\n    \"rsync_status\": 1\n  },\n  \"rto_and_rpo_indicators\": [\n    {\n      \"scene\": \"SWITCHOVER\",\n      \"rpo\": 20,\n      \"rto\": 40\n    },\n    {\n      \"scene\": \"FAILOVER\",\n      \"rpo\": 20,\n      \"rto\": 40\n    }\n  ]\n}\n请求实例id为备实例id:\n{\n  \"master_instance_id\": \"c0965c9010f44ffca9af4ee00746aa8din12\",\n  \"slave_instance_id\": \"b0965c9010f44ffca9af4ee00746aa8din12\",\n  \"status\": \"SYNCING\"\n}"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "NoSQLDrDateSyncIndicators": {
+      "type": "object",
+      "description": "双活实例rsync同步状态指标值",
+      "properties": {
+        "rsync_ops": {
+          "type": "integer",
+          "format": "int64",
+          "description": "节点内同步命令的执行速率,每秒多少条数据;"
+        },
+        "rsync_wal_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "节点内的同步WAL堆积大小,单位MB;"
+        },
+        "rsync_push_cost": {
+          "type": "integer",
+          "format": "int64",
+          "description": "同步消息从放入消息队列,直到收到对端响应的平均耗时,单位us;"
+        },
+        "rsync_send_cost": {
+          "type": "integer",
+          "format": "int64",
+          "description": "同步消息从消息队列取出,直到收到对端响应的平均耗时,单位us;"
+        },
+        "rsync_max_push_cost": {
+          "type": "integer",
+          "format": "int64",
+          "description": "采集周期内rsync的同步推送耗时最大值,单位us;"
+        },
+        "rsync_max_send_cost": {
+          "type": "integer",
+          "format": "int64",
+          "description": "采集周期内rsync的同步发送耗时最大值,单位us;"
+        },
+        "rsync_status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "rsync的同步状态,1表示正在同步,0表示没有同步;"
+        }
+      }
+    },
+    "NoSqlDrStatusResponseBody": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "master_instance_id": {
+          "type": "string",
+          "description": "主实例id"
+        },
+        "slave_instance_id": {
+          "type": "string",
+          "description": "备实例id"
+        },
+        "status": {
+          "type": "string",
+          "description": "容灾实例数据同步状态\n- NA:实例尚未搭建容灾关系\n- NEW:尚未启动的数据同步状态\n- SYNCING:数据同步正常进行中\n- SUSPENDING:正在暂停数据同步\n- SUSPENDED:数据同步已暂停\n- RECOVERYING:正在恢复数据同步",
+          "enum": [
+            "NA",
+            "NEW",
+            "SYNCING",
+            "SUSPENDING",
+            "SUSPENDED",
+            "RECOVERYING"
+          ]
+        },
+        "data_sync_indicators": {
+          "description": "数据同步指标,仅当请求实例id为主实例时有值",
+          "$ref": "#/definitions/NoSQLDrDateSyncIndicators"
+        },
+        "rto_and_rpo_indicators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NoSQLDrRpoAndRto"
+          },
+          "description": "切换或倒换RPO和RTO值,仅当请求实例id为主实例时有值"
+        }
+      }
+    },
+    "NoSQLDrRpoAndRto": {
+      "type": "object",
+      "description": "容灾实例切换的RPO和RTO指标",
+      "properties": {
+        "scene": {
+          "type": "string",
+          "description": "场景,枚举值\n  FAILOVER 强制切换; \n  SWITCHOVER 主备倒换",
+          "enum": [
+            "FAILOVER",
+            "SWITCHOVER"
+          ]
+        },
+        "rpo": {
+          "type": "integer",
+          "format": "int64",
+          "description": "倒换或切换丢失数据时长,单位:秒(s)"
+        },
+        "rto": {
+          "type": "integer",
+          "format": "int64",
+          "description": "倒换或切换恢复时长,单位:秒(s)"
+        }
+      },
+      "required": [
+        "scene"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

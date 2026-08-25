@@ -1,0 +1,213 @@
+{
+  "name": "CreateCommand",
+  "summary": "下发设备命令",
+  "tags": "设备命令",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/devices/{device_id}/commands": {
+      "post": {
+        "tags": [
+          "CommandManagement"
+        ],
+        "summary": "下发设备命令",
+        "description": "设备的产品模型中定义了物联网平台可向设备下发的命令,应用服务器可调用此接口向指定设备下发命令,以实现对设备的同步控制。平台负责将命令以同步方式发送给设备,并将设备执行命令结果同步返回, 如果设备没有响应,平台会返回给应用服务器超时,平台超时时间是20秒。如果命令下发需要超过20秒,建议采用[消息下发](https://support.huaweicloud.com/api-iothub/iot_06_v5_0059.html)。\n注意:\n- 此接口适用于MQTT设备同步命令下发,暂不支持NB-IoT设备命令下发。\n- 此接口仅支持单个设备同步命令下发,如需多个设备同步命令下发,请参见 [创建批量任务](https://support.huaweicloud.com/api-iothub/iot_06_v5_0045.html)。",
+        "operationId": "CreateCommand",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "device_id",
+            "in": "path",
+            "description": "**参数说明**:下发消息的设备ID,用于唯一标识一个设备,在注册设备时由物联网平台分配获得。\n**取值范围**:长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0121.html) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "body",
+            "name": "CreateCommandRequestBody",
+            "description": "请求结构体,见请求结构体说明",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceCommandRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "command_id": "b1224afb-e9f0-4916-8220-b6bab568e888",
+                "response": {
+                  "result_code": 0,
+                  "response_name": "COMMAND_RESPONSE",
+                  "paras": {
+                    "result": "success"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DeviceCommandResponse"
+            },
+            "x-SuccessCode": true,
+            "x-Error": [
+              "IOTDA.014111"
+            ]
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.014108",
+              "IOTDA.014028",
+              "IOTDA.014112",
+              "IOTDA.014115"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.014106",
+              "IOTDA.014016",
+              "IOTDA.000021",
+              "IOTDA.001006",
+              "IOTDA.000022",
+              "IOTDA.014018",
+              "IOTDA.014115"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IOTDA.014000"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IOTDA.000001",
+              "IOTDA.000020"
+            ]
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "iot_06_v5_0038",
+        "x-imports": "java.util.concurrent.CompletableFuture;",
+        "x-iftype": "OpenAPI_new",
+        "x-returnType": "CompletableFuture<DeviceCommandResponse>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/devices/{device_id}/commands",
+        "x-request-examples-description-1": "创建命令,命令名为ON_OFF,命令为ON。",
+        "x-request-examples-1": {
+          "service_id": "reboot",
+          "command_name": "ON_OFF",
+          "paras": {
+            "value": "ON"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DeviceCommandRequest": {
+      "type": "object",
+      "required": [
+        "paras"
+      ],
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "example": "sensor",
+          "description": "**参数说明**:设备命令所属的设备服务ID,在设备关联的产品模型中定义。\n**取值范围**:长度不超过64的字符串。",
+          "maxLength": 64,
+          "x-NotEmpty": false
+        },
+        "command_name": {
+          "type": "string",
+          "example": "ON_OFF",
+          "description": "**参数说明**:设备命令名称,在设备关联的产品模型中定义。\n**取值范围**:长度不超过128的字符串。",
+          "maxLength": 128,
+          "x-NotEmpty": true
+        },
+        "paras": {
+          "type": "object",
+          "example": {
+            "value": "ON"
+          },
+          "description": "**参数说明**:设备执行的命令,Json格式,里面是一个个键值对,如果serviceId不为空,每个键都是profile中命令的参数名(paraName);如果serviceId为空则由用户自定义命令格式。设备命令示例:{\"value\":\"1\"},具体格式需要应用和设备约定。此参数仅支持Json格式,暂不支持字符串。",
+          "properties": {},
+          "x-NotEmpty": true
+        }
+      },
+      "title": "DeviceCommandRequest 创建设备命令的请求对象"
+    },
+    "DeviceCommandResponse": {
+      "type": "object",
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "example": "b1224afb-e9f0-4916-8220-b6bab568e888",
+          "description": "设备命令ID,用于唯一标识一条命令,在下发设备命令时由物联网平台分配获得。",
+          "x-NotEmpty": false
+        },
+        "response": {
+          "type": "object",
+          "example": {
+            "result_code": 0,
+            "response_name": "COMMAND_RESPONSE",
+            "paras": {
+              "result": "success"
+            }
+          },
+          "description": "设备上报的命令执行结果。Json格式,具体格式需要应用和设备约定。",
+          "x-NotEmpty": false
+        },
+        "error_code": {
+          "type": "string",
+          "example": "IOTDA.014111",
+          "description": "命令下发异常错误码。",
+          "x-NotEmpty": false
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Command request timed out. Check whether the device returns a response within the specified time after receiving the request.",
+          "description": "命令下发异常错误信息。",
+          "x-NotEmpty": false,
+          "properties": {}
+        }
+      },
+      "title": "DeviceCommandResponse 创建设备命令返回结构体V5"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

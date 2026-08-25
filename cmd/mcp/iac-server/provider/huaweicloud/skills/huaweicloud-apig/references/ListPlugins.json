@@ -1,0 +1,335 @@
+{
+  "name": "ListPlugins",
+  "summary": "查询插件列表",
+  "tags": "专享版-插件管理",
+  "productshort": "APIG",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/{project_id}/apigw/instances/{instance_id}/plugins": {
+      "get": {
+        "tags": [
+          "专享版-插件管理"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-order": 4,
+        "x-apigateway-request-type": "public",
+        "x-open-region-cloud": "hws,hws_hk,cmcc,ctc,dt,g42,hk_g42,hk_sbc,hk_tm,hws_eu,hws_ocb,ocb,sbc,tm,srg,ax",
+        "x-api-type": "open-api",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "operationId": "ListPlugins",
+        "summary": "查询插件列表",
+        "description": "查询一组符合条件的API网关插件详情。\n- 支持分页\n- 支持根据插件类型查询\n- 支持根据插件可见范围查询\n- 支持根据插件编码查询\n- 支持根据名称模糊查询",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_offset"
+          },
+          {
+            "$ref": "#/parameters/apic_limit"
+          },
+          {
+            "name": "plugin_type",
+            "in": "query",
+            "type": "string",
+            "description": "插件类型",
+            "x-example": "cros"
+          },
+          {
+            "name": "plugin_scope",
+            "in": "query",
+            "type": "string",
+            "description": "插件可见范围",
+            "x-example": "global"
+          },
+          {
+            "name": "plugin_id",
+            "in": "query",
+            "type": "string",
+            "description": "插件编码",
+            "x-example": "5b729aa252764739b3s237ef0d66dc63"
+          },
+          {
+            "name": "plugin_name",
+            "in": "query",
+            "type": "string",
+            "description": "插件名称,支持模糊查询",
+            "x-example": "跨域插件"
+          },
+          {
+            "in": "query",
+            "name": "precise_search",
+            "description": "指定需要精确匹配查找的参数名称,目前支持插件名称",
+            "type": "string",
+            "x-example": "name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PluginPageInfo"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "size": 1,
+                "plugins": [
+                  {
+                    "plugin_id": "5b729aa252764739b3s237ef0d66dc63",
+                    "plugin_name": "跨域插件",
+                    "plugin_type": "cors",
+                    "plugin_scope": "global",
+                    "plugin_content": "{\"allow_origin\": \"*\",\"allow_methods\": \"GET,POST,PUT\",\"allow_headers\": \"Content-Type,Accept,Accept-Ranges,Cache-Control\",\"expose_headers\": \"X-Request-Id,X-Apig-Latency\",\"max_age\": 172800,\"allow_credentials\": true}",
+                    "remark": "CORS跨域资源访问",
+                    "create_time": "2022-11-02T12:31:23.353Z",
+                    "update_time": "2022-11-02T12:31:23.353Z"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:plugin_name. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BasePage": {
+      "properties": {
+        "size": {
+          "description": "本次返回的列表长度",
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "description": "满足条件的记录数",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "分页基本信息",
+      "required": [
+        "size",
+        "total"
+      ]
+    },
+    "PluginPageInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasePage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "plugins": {
+              "description": "插件列表。",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PluginInfo"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ErrorMsg": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "PluginInfo": {
+      "required": [
+        "plugin_id",
+        "plugin_name",
+        "plugin_type",
+        "plugin_scope",
+        "plugin_content"
+      ],
+      "properties": {
+        "plugin_id": {
+          "type": "string",
+          "description": "插件编码。",
+          "example": "5b729aa252764739b3s237ef0d66dc63"
+        },
+        "plugin_name": {
+          "type": "string",
+          "pattern": "^([a-zA-Z]|[\\一-\\龥])([a-zA-Z0-9_-]|[\\一-\\龥]){2,254}$",
+          "description": "插件名称。支持汉字,英文,数字,中划线,下划线,且只能以英文和汉字开头,3-255字符。\n> 中文字符必须为UTF-8或者unicode编码。",
+          "example": "跨域插件"
+        },
+        "plugin_type": {
+          "type": "string",
+          "enum": [
+            "cors",
+            "set_resp_headers",
+            "kafka_log",
+            "breaker",
+            "rate_limit",
+            "third_auth",
+            "proxy_cache",
+            "proxy_mirror",
+            "oidc_auth",
+            "jwt_auth"
+          ],
+          "description": "插件类型。\n- cors:跨域资源共享\n- set_resp_headers:HTTP响应头管理\n- kafka_log:Kafka日志推送\n- breaker:断路器\n- rate_limit: 流量控制\n- third_auth: 第三方认证\n- proxy_cache: 响应缓存\n- proxy_mirror: 请求镜像\n- oidc_auth: OIDC认证\n- jwt_auth: JWT认证",
+          "example": "cors"
+        },
+        "plugin_scope": {
+          "type": "string",
+          "enum": [
+            "global"
+          ],
+          "description": "插件可见范围。global:全局可见;",
+          "example": "global"
+        },
+        "plugin_content": {
+          "type": "string",
+          "maxLength": 65535,
+          "description": "插件定义内容,支持json。参考提供的具体模型定义\n\n[CorsPluginContent](apig-api-CorsPluginContent.xml):跨域资源共享 定义内容\n[SetRespHeadersContent](apig-api-SetRespHeadersContent.xml):HTTP响应头管理 定义内容\n[KafkaLogContent](apig-api-KafkaLogContent.xml):Kafka日志推送 定义内容\n[BreakerContent](apig-api-BreakerContent.xml):断路器 定义内容\n[RateLimitContent](apig-api-RateLimitContent.xml):流量控制 定义内容\n[ThirdAuthContent](apig-api-ThirdAuthContent.xml):第三方认证 定义内容\n[ProxyCacheContent](apig-api-ProxyCacheContent.xml):响应缓存 定义内容\n[ProxyMirrorContent](apig-api-ProxyMirrorContent.xml):请求镜像 定义内容\n[OIDCAuthResp](apig-api-OIDCAuthContent.xml):OIDC认证 定义内容\n[JWTAuthContent](apig-api-JWTAuthContent.xml):JWT认证 定义内容",
+          "example": "'{\n  \"allow_origin\": \"*\",\n  \"allow_methods\": \"GET,POST,PUT\",\n  \"allow_headers\": \"Content-Type,Accept,Accept-Ranges,Cache-Control\",\n  \"expose_headers\": \"X-Request-Id,X-Apig-Latency\",\n  \"max_age\": 172800,\n  \"allow_credentials\": true\n  }'\n"
+        },
+        "remark": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "插件描述,255字符。\n> 中文字符必须为UTF-8或者unicode编码。",
+          "example": "CORS跨域资源访问"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间。",
+          "example": "2022-11-02T12:31:23.353Z"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "更新时间。",
+          "example": "2022-11-02T12:31:23.353Z"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_offset": {
+      "name": "offset",
+      "in": "query",
+      "type": "integer",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量小于0时,自动转换为0",
+      "format": "int64",
+      "default": 0,
+      "x-example": 1
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID,在API网关控制台的“实例信息”中获取。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见[获取项目ID](apig-api-180713009.xml)。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "apic_limit": {
+      "name": "limit",
+      "in": "query",
+      "type": "integer",
+      "description": "每页显示的条目数量,条目数量小于等于0时,自动转换为20,条目数量大于500时,自动转换为500",
+      "format": "int32",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 20,
+      "x-example": 10
+    }
+  },
+  "host": "apig.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

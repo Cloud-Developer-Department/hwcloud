@@ -1,0 +1,671 @@
+{
+  "name": "RunAgent",
+  "summary": "运行一个智能体",
+  "tags": "VersatileRuntime",
+  "productshort": "Versatile",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/agents/{agent_id}/conversations/{conversation_id}": {
+      "post": {
+        "tags": [
+          "VersatileRuntime"
+        ],
+        "operationId": "RunAgent",
+        "summary": "运行一个智能体",
+        "description": "运行一个智能体,支持流式和非流式",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/projectId"
+          },
+          {
+            "$ref": "#/parameters/agentId"
+          },
+          {
+            "$ref": "#/parameters/conversationId"
+          },
+          {
+            "$ref": "#/parameters/workspaceId"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/agentType"
+          },
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/stream"
+          },
+          {
+            "in": "body",
+            "name": "AgentRunReq",
+            "description": "智能体运行入参",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AgentRunReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "stream 为 true 时返回类型是 SseEmitter, 为 false 时返回类型是 WorkflowRunRsp",
+            "schema": {
+              "$ref": "#/definitions/WorkflowRunRsp"
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "Unauthorized 鉴权失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "Forbidden 没有操作权限",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "404": {
+            "description": "Not Found 找不到资源",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error 服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc",
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/agents/{agent_id}/conversations/{conversation_id}",
+        "x-request-examples-1": {
+          "query": "你好"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AgentRunReq": {
+      "type": "object",
+      "required": [
+        "query"
+      ],
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "请求问题"
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "user_profile": {
+          "$ref": "#/definitions/UserProfile"
+        },
+        "tool_switch_dict": {
+          "type": "object",
+          "description": "插件是否开启",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "model_deployment_id": {
+          "type": "string",
+          "description": "模型ID",
+          "maxLength": 128
+        },
+        "enable_history": {
+          "type": "boolean",
+          "description": "是否记录会话历史",
+          "default": true
+        },
+        "histories": {
+          "type": "array",
+          "description": "传入的会话历史",
+          "items": {
+            "$ref": "#/definitions/Message"
+          }
+        },
+        "files": {
+          "type": "array",
+          "description": "上传文件列表",
+          "items": {
+            "type": "string",
+            "description": "上传文件url"
+          }
+        }
+      },
+      "description": "知识型Agent执行请求体"
+    },
+    "Message": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "角色"
+        },
+        "content": {
+          "type": "string",
+          "description": "内容"
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "时间戳"
+        },
+        "name": {
+          "type": "object",
+          "description": "工具名称"
+        },
+        "function_call": {
+          "type": "object",
+          "description": "工具调用信息"
+        },
+        "tool_calls": {
+          "type": "object",
+          "description": "工具调用信息"
+        },
+        "tool_call_id": {
+          "type": "object",
+          "description": "工具调用ID信息"
+        },
+        "enable_history": {
+          "type": "boolean",
+          "description": "是否开启会话历史"
+        },
+        "intent": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "execution_id": {
+          "type": "string",
+          "description": "对话ID"
+        },
+        "node_id": {
+          "type": "string",
+          "description": "节点ID"
+        },
+        "agent_id": {
+          "type": "string",
+          "description": "agent id"
+        },
+        "rating": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "评分,-1(点赞)、1(点踩)"
+        },
+        "files": {
+          "type": "array",
+          "description": "多模态文件列表",
+          "items": {
+            "type": "object"
+          }
+        },
+        "reason": {
+          "$ref": "#/definitions/FeedbackReason"
+        }
+      }
+    },
+    "WorkflowRunRsp": {
+      "type": "object",
+      "description": "agent 非流式运行结果",
+      "properties": {
+        "conversation_id": {
+          "type": "string",
+          "description": "会话id"
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeMessage"
+          }
+        },
+        "error_code": {
+          "type": "string",
+          "description": "会话id"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "会话id"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "开始时间"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "结束时间"
+        },
+        "node_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeRunInfo"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowRunStreamRsp"
+          }
+        }
+      }
+    },
+    "ErrorRsp": {
+      "type": "object",
+      "description": "完整错误信息",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        },
+        "error_reason": {
+          "type": "string",
+          "description": "错误原因"
+        },
+        "error_suggestion": {
+          "type": "string",
+          "description": "错误建议"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          },
+          "description": "调用接口返回的错误信息"
+        }
+      }
+    },
+    "NodeRunInfo": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "工作流id"
+        },
+        "node_id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "节点id"
+        },
+        "parent_node_id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "父节点id"
+        },
+        "node_status": {
+          "type": "string",
+          "description": "工作流节点状态",
+          "enum": [
+            "node_started",
+            "node_wait",
+            "node_finished"
+          ]
+        },
+        "parent_workflow_id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "父工作流节点id"
+        },
+        "loop_index": {
+          "type": "integer",
+          "description": "循环次数"
+        },
+        "loop_node_id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "上层循环节点id"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "node_name": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "节点名称"
+        },
+        "node_type": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "节点类型"
+        },
+        "error_message": {
+          "type": "string",
+          "maxLength": 4096,
+          "description": "错误信息"
+        },
+        "inputs": {
+          "type": "object",
+          "description": "输入参数:debug才设置",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "outputs": {
+          "type": "object",
+          "description": "输出参数:debug才设置",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Message"
+          },
+          "description": "消息节点或提问器节点的输出"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          },
+          "description": "节点特有的输出,如:大模型原始回复debug才设置"
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "开始时间,13位时间戳 workflow_started,node_started必填"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "结束时间,13位时间戳 workflow_finished,node_finished必填"
+        },
+        "startup_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "真正启动的时间,13位时间戳"
+        },
+        "prefill_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "预热时间,如大模型节点表示首token时间"
+        },
+        "execution_id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "execution id"
+        },
+        "inner_error": {
+          "type": "object",
+          "properties": {
+            "is_success": {
+              "type": "boolean",
+              "description": "是否成功"
+            },
+            "error_body": {
+              "type": "object",
+              "properties": {
+                "error_code": {
+                  "type": "string",
+                  "description": "错误码"
+                },
+                "error_message": {
+                  "type": "string",
+                  "description": "错误信息"
+                }
+              }
+            }
+          }
+        },
+        "memory": {
+          "type": "object",
+          "description": "记忆变量",
+          "additionalProperties": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "Status": {
+      "type": "object",
+      "required": [
+        "code",
+        "desc"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "description": "错误码"
+        },
+        "desc": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "错误描述信息"
+        }
+      }
+    },
+    "WorkflowRunStreamRsp": {
+      "type": "object",
+      "description": "工作流执行接口流式响应体",
+      "properties": {
+        "event": {
+          "type": "string",
+          "description": "事件类型:1、workflow_started 2、node_started 3、node_wait 4、node_finished 5、workflow_finished 6、text_chunk :流式输出到对话框的信息"
+        },
+        "conversation_id": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "执行的conversation_id"
+        },
+        "data": {
+          "type": "object",
+          "description": "类型说明:1. node_started,node_finished,node_wait data使用NodeInfo对象 2. workflow_started, workflow_finished  data使用 WorkflowInfo对象 3. text_chunk使用对象TextChunk"
+        },
+        "createdTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "事件发生时间"
+        }
+      }
+    },
+    "UserProfile": {
+      "type": "object",
+      "properties": {
+        "enable_retrieve": {
+          "type": "boolean",
+          "description": "运行时, 是否读取用户画像",
+          "default": false
+        },
+        "enable_extract": {
+          "type": "boolean",
+          "description": "运行时, 是否构建用户画像",
+          "default": false
+        }
+      }
+    },
+    "ErrorDetail": {
+      "type": "object",
+      "description": "错误信息",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    },
+    "FeedbackReason": {
+      "type": "object",
+      "description": "用户反馈原因",
+      "required": [
+        "tags"
+      ],
+      "properties": {
+        "tags": {
+          "type": "array",
+          "description": "原因标签列表",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "content": {
+          "type": "string",
+          "description": "具体原因内容",
+          "maxLength": 256
+        }
+      }
+    },
+    "NodeMessage": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "角色"
+        },
+        "content": {
+          "type": "string",
+          "description": "内容"
+        },
+        "origin": {
+          "type": "string",
+          "description": "原始内容"
+        },
+        "nodeId": {
+          "type": "string",
+          "description": "节点id"
+        },
+        "nodeType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "节点类型"
+        },
+        "nodeName": {
+          "type": "string",
+          "description": "节点名"
+        },
+        "createdTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "事件发生时间"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "stream": {
+      "name": "stream",
+      "in": "header",
+      "description": "**参数解释**:\n是否流式响应\n\n**取值范围**:\ntrue,false(不传默认 true,支持流式)",
+      "required": false,
+      "type": "boolean"
+    },
+    "conversationId": {
+      "name": "conversation_id",
+      "in": "path",
+      "description": "**参数解释**:\n会话ID,历史对话记忆功能基于同一个会话\n\n**取值范围**:\n由英文,数字,“-”,“_”组成,不超过64位字符。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "maxLength": 64
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n\n**取值范围**:\n不涉及。",
+      "required": true,
+      "type": "string",
+      "maxLength": 15000
+    },
+    "agentId": {
+      "name": "agent_id",
+      "in": "path",
+      "description": "**参数解释**:\n智能体ID\n\n**取值范围**:\n由英文,数字,“-”,“_”组成,不超过64位字符。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "maxLength": 64
+    },
+    "projectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "**参数解释**:\n当前租户项目ID。\n\n**取值范围**:\n由英文,数字,“-”,“_”组成,不超过64位字符。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "maxLength": 64
+    },
+    "workspaceId": {
+      "name": "workspace_id",
+      "in": "query",
+      "description": "**参数解释**:\n空间ID,当前资源所属工作空间\n\n**取值范围**:\n由英文,数字,“-”,“_”组成,不超过64位字符。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64
+    },
+    "version": {
+      "name": "version",
+      "in": "query",
+      "description": "**参数解释**:\n运行的智能体/工作流的发布版本号,默认运行最新发布版本\n\n**取值范围**:\n不涉及",
+      "required": false,
+      "type": "string",
+      "maxLength": 128
+    },
+    "agentType": {
+      "name": "type",
+      "in": "query",
+      "description": "**参数解释**:\n指定运行的智能体是单智能体还是多智能体,默认 agent\n\n**取值范围**:\nagent, controller",
+      "required": false,
+      "type": "string",
+      "maxLength": 32
+    }
+  },
+  "host": "versatile.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

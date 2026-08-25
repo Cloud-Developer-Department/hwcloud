@@ -1,0 +1,331 @@
+{
+  "name": "ListWatermarkRule",
+  "summary": "查询水印规则列表",
+  "tags": "直播水印管理",
+  "productshort": "Live",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{project_id}/watermark/rules": {
+      "get": {
+        "x-navigation-title": "查询水印规则",
+        "description": "查询水印规则列表接口,通过指定条件,查询满足条件的水印规则列表。",
+        "summary": "查询水印规则列表",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-region-cloud": "hc,hk,hws_eu",
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "template_id",
+            "in": "query",
+            "description": "水印模板ID",
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "required": false
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "description": "推流域名",
+            "type": "string"
+          },
+          {
+            "name": "app",
+            "in": "query",
+            "required": false,
+            "description": "推流appname",
+            "type": "string"
+          },
+          {
+            "name": "channel_id",
+            "in": "query",
+            "required": false,
+            "description": "OTT场景,频道ID",
+            "type": "string"
+          },
+          {
+            "name": "stream",
+            "in": "query",
+            "required": false,
+            "description": "OTT场景,填转码模板ID,云直播填流名",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询,offset大于等于0",
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "maximum": 4096,
+            "minimum": 0,
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页记录数,取值范围[1,100],默认值10",
+            "type": "integer",
+            "format": "int32",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询水印规则成功",
+            "schema": {
+              "$ref": "#/definitions/WatermarkRuleList"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "rules_infos": [
+                  {
+                    "template_id": "70b76xxxxxx34253880af501cdxxxxxx",
+                    "domain": "push.example.com",
+                    "app": "live",
+                    "stream": "watermarkStream",
+                    "location": {
+                      "location": "TOPLEFT",
+                      "x_offset": 20,
+                      "y_offset": 10
+                    }
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。格式为:request_id-timestamp-hostname(request_id在服务器端生成UUID,timestamp为当前时间戳,hostname为处理当前接口的服务器名称)"
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。格式为:request_id-timestamp-hostname(request_id在服务器端生成UUID,timestamp为当前时间戳,hostname为处理当前接口的服务器名称)"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://live.hwcloud.com/v1/{project_id}/watermark/rules",
+        "operationId": "ListWatermarkRule",
+        "tags": [
+          "直播水印管理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "WatermarkRuleList": {
+      "type": "object",
+      "required": [
+        "total",
+        "data"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数"
+        },
+        "rules_infos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WatermarkRule"
+          },
+          "description": "响应数据"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "WatermarkRule": {
+      "required": [
+        "template_id",
+        "domain"
+      ],
+      "properties": {
+        "rule_name": {
+          "type": "string",
+          "description": "水印规则名称,如果不填会使用默认名称。默认名称的构造规则为“域名:应用名:流名”,示例“example.com:live:stream”。",
+          "maxLength": 255,
+          "minLength": 1
+        },
+        "template_id": {
+          "type": "string",
+          "description": "水印模板ID,只包含数字字母中划线,创建模板时生成",
+          "maxLength": 255,
+          "minLength": 1
+        },
+        "domain": {
+          "type": "string",
+          "description": "域名",
+          "maxLength": 255,
+          "minLength": 1
+        },
+        "app": {
+          "type": "string",
+          "description": "APP名。须知:云直播场景是可选配置,媒体直播场景为必选配置。",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "stream": {
+          "type": "string",
+          "description": "流名OTT场景下,可以不填",
+          "maxLength": 255,
+          "minLength": 1
+        },
+        "location": {
+          "description": "水印位置",
+          "$ref": "#/definitions/WatermarkLocation"
+        },
+        "channel_id": {
+          "type": "string",
+          "description": "OTT场景使用,填对应频道的频ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "transcode_template_name": {
+          "type": "string",
+          "description": "OTT场景时,填频道对应的转码模板名称",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "type": "object"
+    },
+    "WatermarkLocation": {
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "水印位置。\n\n包含如下选项:\n- TOPLEFT:左上\n- TOPRIGHT:右上\n- BOTTOMLEFT:左下\n- BOTTOMRIGHT:右下\n- RANDOM:随机模式,图片水印将随机在视频流的左上、右上、左下、右下四个位置展示。",
+          "maxLength": 255,
+          "minLength": 1,
+          "enum": [
+            "TOPLEFT",
+            "TOPRIGHT",
+            "BOTTOMLEFT",
+            "BOTTOMRIGHT",
+            "RANDOM"
+          ]
+        },
+        "x_offset": {
+          "type": "number",
+          "description": "水印相对输出视频的水平偏移量。\n说明:值有两种形式:\n1)整数型代表偏移像素,范围[1,4096],单位px。\n2)小数型代表水平偏移量与输出分辨率宽的比率,范围[0,1)\n百分比限制最多保留小数点后4位",
+          "maximum": 4096,
+          "minimum": 0
+        },
+        "y_offset": {
+          "type": "number",
+          "description": "水印相对输出视频的垂直偏移量\n说明: 值有两种形式:\n1)整数型代表偏移像素,范围[1,4096],单位px。\n2)小数型代表垂直偏移量与输出分辨率高的比率,范围[0,1)\n百分比限制最多保留小数点后4位",
+          "maximum": 4096,
+          "minimum": 0
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "用户Token,使用Token鉴权方式时必填。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。",
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

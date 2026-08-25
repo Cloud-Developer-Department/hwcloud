@@ -1,0 +1,348 @@
+{
+  "name": "ListUsers",
+  "summary": "获取用户列表",
+  "tags": "User",
+  "productshort": "LakeFormation",
+  "region_id": "cn-north-9",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/users": {
+      "get": {
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/instances/{instance_id}/users",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "User"
+        ],
+        "summary": "获取用户列表",
+        "description": "获取用户列表",
+        "operationId": "ListUsers",
+        "x-enable-auth-anno": {
+          "type": "iam-token"
+        },
+        "x-iam-auth-meta-anno": {
+          "authLevel": "instance",
+          "abacAction": "lakeformation:user:describe"
+        },
+        "x-method-annotations": [
+          "@ApiCount"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "租户token",
+            "required": true,
+            "minItems": 1,
+            "maxItems": 100
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号。获取方法,请参见[获取项目ID](lakeformation_04_0026.xml)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+$"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "LakeFormation实例ID。创建实例时自动生成。例如:2180518f-42b8-4947-b20b-adfc53981a25。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{36}$",
+            "minLength": 1
+          },
+          {
+            "name": "user_source",
+            "in": "query",
+            "description": "查询的用户来源。只能为IAM或SAML或LDAP或LOCAL或AGENTTENANT或OTHER。默认为IAM。",
+            "required": false,
+            "type": "string",
+            "default": "IAM",
+            "pattern": "^(IAM|SAML|LDAP|LOCAL|AGENTTENANT|OTHER)$"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询返回条数。默认值为1000。最小值为1,最大值为2000。",
+            "type": "integer",
+            "default": 1000,
+            "maximum": 2000,
+            "format": "int32",
+            "required": false,
+            "minimum": 1
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "查询的起始记录ID。最小长度为0,最大长度为256。",
+            "type": "string",
+            "required": false,
+            "minLength": 0,
+            "maxLength": 256
+          },
+          {
+            "name": "reverse_page",
+            "in": "query",
+            "description": "是否查询上一页。默认为false。",
+            "default": false,
+            "type": "boolean",
+            "required": false,
+            "x-annotations": [
+              "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+            ],
+            "x-imports": [
+              "com.huawei.us.validator.annotation.UsNoConstraint;"
+            ]
+          },
+          {
+            "name": "user_name_pattern",
+            "in": "query",
+            "required": false,
+            "description": "用户模糊查询。只能包含字母、数字和_|*.特殊字符,且长度为1~255个字符。",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_|*.]*$",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedListUser"
+            },
+            "examples": {
+              "application/json": {
+                "users": [
+                  {
+                    "user_name": "string",
+                    "user_source": "string",
+                    "user_id": "string"
+                  }
+                ],
+                "page_info": {
+                  "current_count": 2000,
+                  "next_marker": "006f492b-xxxx",
+                  "previous_marker": "003e6eba-xxxx"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "error_code": null,
+                  "error_msg": null,
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "PagedInfo": {
+      "type": "object",
+      "required": [
+        "current_count",
+        "next_marker",
+        "previous_marker"
+      ],
+      "properties": {
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本次返回的对象个数",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "next_marker": {
+          "type": "string",
+          "example": "006f492b-xxxx",
+          "description": "下一页查询地址",
+          "maxLength": 32
+        },
+        "previous_marker": {
+          "type": "string",
+          "example": "003e6eba-xxxx",
+          "description": "上一页查询地址",
+          "maxLength": 32
+        }
+      },
+      "description": "分页返回信息"
+    },
+    "User": {
+      "properties": {
+        "user_name": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_0-9\\-.]+$",
+          "description": "用户名"
+        },
+        "user_source": {
+          "type": "string",
+          "enum": [
+            "IAM",
+            "SAML",
+            "LDAP",
+            "LOCAL",
+            "AGENTTENANT",
+            "OTHER"
+          ],
+          "description": "用户类型\nIAM云用户\nSAML联邦\nLDAP ld用户\nLOCAL 本地用户\nAGENTTENANT 委托\nOTHER 其它"
+        },
+        "user_id": {
+          "type": "string",
+          "maxLength": 256,
+          "pattern": "[a-zA-Z0-9_]+",
+          "description": "用户ID"
+        }
+      },
+      "title": "User",
+      "description": "user",
+      "required": [
+        "user_name",
+        "user_source",
+        "user_id"
+      ],
+      "type": "object"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "PagedListUser": {
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          },
+          "description": "用户列表",
+          "minItems": 0,
+          "maxItems": 100000
+        },
+        "page_info": {
+          "$ref": "#/definitions/PagedInfo",
+          "description": "分页信息"
+        }
+      },
+      "title": "PagedListUser",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.cn-north-9.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

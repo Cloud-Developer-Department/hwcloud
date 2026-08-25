@@ -1,0 +1,209 @@
+{
+  "name": "ShowDatabaseWaterMark",
+  "summary": "提取数据水印",
+  "tags": "数据水印",
+  "productshort": "DSC",
+  "region_id": "tr-west-1",
+  "paths": {
+    "/v1/{project_id}/sdg/database/watermark/extract": {
+      "post": {
+        "x-hybridcloud": "true",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/{project_id}/sdg/database/watermark/extract",
+        "x-apiErrorCodes": [],
+        "x-request-examples-text-1": {
+          "watermark_key": "key",
+          "columns": {
+            "name": "col",
+            "type": "INTEGER",
+            "primary_key": false
+          },
+          "data": {
+            "col": 0.1
+          }
+        },
+        "tags": [
+          "数据水印"
+        ],
+        "summary": "提取数据水印",
+        "description": "提取请求数据中水印内容",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "operationId": "ShowDatabaseWaterMark",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32
+          },
+          {
+            "name": "ShowDatabaseWaterMarkRequestBody",
+            "in": "body",
+            "description": "提取数据的水印请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ExtractedDatabaseWatermark"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。通过调用IAM服务“获取用户Token接口”获取(响应消息头中X-Subject-Token的值)",
+            "type": "string"
+          }
+        ],
+        "x-request-examples-1": {
+          "watermark_key": "key",
+          "columns": {
+            "name": "col",
+            "type": "INTEGER",
+            "primary_key": false
+          },
+          "data": {
+            "col": 0.1
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "examples": {
+              "application/json": {
+                "watermarks": [
+                  "watermark"
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ExtractedDataMark"
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "examples": {
+              "application/json": {
+                "error_code": "DSC.00000004",
+                "error_msg": "Invalid parameter"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorReturnInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ExtractedDataMark": {
+      "properties": {
+        "watermarks": {
+          "description": "提取水印内容列表。上传数据中不同列可能包含不同水印,返回时将所有提取到的水印返回,列表中水印个数不超过100",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ExtractedDatabaseWatermark": {
+      "required": [
+        "watermark_key",
+        "columns",
+        "data"
+      ],
+      "example": {
+        "watermark_key": "key",
+        "columns": "{}",
+        "data": "{}"
+      },
+      "properties": {
+        "watermark_key": {
+          "description": "水印密钥",
+          "type": "string",
+          "maxLength": 32,
+          "minLength": 1
+        },
+        "columns": {
+          "type": "array",
+          "description": "字段类型列表,最大长度100。使用时,要包含嵌入时所有“primary_key”为true的字段,和至少一个为false的字段用来提取水印",
+          "items": {
+            "$ref": "#/definitions/Columns"
+          }
+        },
+        "data": {
+          "description": "水印数据,数据条数不超过30,000条",
+          "maxItems": 2000,
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "description": "待提取水印的数据",
+              "type": "object"
+            }
+          },
+          "type": "array"
+        }
+      }
+    },
+    "Columns": {
+      "description": "字段类型列表,最大长度100",
+      "required": [
+        "name",
+        "type",
+        "primary_key"
+      ],
+      "example": "name:\"col1\" type:\"INTEGER\" primary_key:false",
+      "properties": {
+        "name": {
+          "description": "数据的字段名称,最大支持长度256",
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "type": {
+          "description": "数据的字段类型",
+          "type": "string",
+          "enum": [
+            "INTEGER",
+            "STRING",
+            "DOUBLE"
+          ]
+        },
+        "primary_key": {
+          "description": "标记该字段是否为主键。true为主键,表示用来定位水印位置;false为非主键,将在该列嵌入/提取水印内容。字段类型列表中可同时包含多个为true或为false的字段",
+          "type": "boolean"
+        }
+      }
+    },
+    "ErrorReturnInfo": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sdg.tr-west-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

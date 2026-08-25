@@ -1,0 +1,179 @@
+{
+  "name": "ListMonitoredObjects",
+  "summary": "查询主维度信息列表",
+  "tags": "其他接口",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/dims/monitored-objects": {
+      "get": {
+        "summary": "查询主维度信息列表",
+        "x-constraint": "",
+        "x-name": "主维度监控对象列表查询",
+        "x-scope": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-produc-type": "dcs",
+        "description": "查询主维度对象列表,主维度ID当前支持dcs_instance_id,dcs_memcached_instance_id。\n> 该接口当前仅在中国华南区开放。",
+        "operationId": "ListMonitoredObjects",
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/CESMonitoredObject"
+            },
+            "examples": {
+              "application/json": {
+                "router": [
+                  "dcs_instance_id"
+                ],
+                "total": 3,
+                "children": [
+                  {
+                    "dim_name": "dcs_cluster_redis_node",
+                    "dim_route": "dcs_instance_id,dcs_cluster_redis_node"
+                  },
+                  {
+                    "dim_name": "dcs_cluster_proxy_node",
+                    "dim_route": "dcs_instance_id,dcs_cluster_proxy_node"
+                  }
+                ],
+                "instances": [
+                  {
+                    "name": "dcs-redis-single-node",
+                    "status": "RUNNING",
+                    "dcs_instance_id": "fe909c47-8990-44a0-9154-d0a1e95e78fe"
+                  },
+                  {
+                    "name": "dcs-redis-master-standby",
+                    "status": "RUNNING",
+                    "dcs_instance_id": "877e5ae3-482e-4c38-88a0-030a0fa6f399"
+                  },
+                  {
+                    "name": "dcs-proxy-cluster",
+                    "status": "RUNNING",
+                    "dcs_instance_id": "448ee851-1366-47f2-913a-e21032e690c4"
+                  }
+                ]
+              }
+            },
+            "description": "查询主维度监控列表成功。"
+          },
+          "500": {
+            "description": "内部服务错误。"
+          }
+        },
+        "x-request-examples-1": "GET https://{dcs_endpoint}}/v2/{project_id}}/dims/monitored-objects?dim_name={dim_name}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "x-example": "666486c2d9b948c1bbea57e714d744fa",
+            "description": "租户ID。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "dim_name",
+            "x-example": "dcs_instance_id",
+            "description": "主维度ID,当前支持dcs_instance_id,dcs_memcached_instance_id。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "default": 0,
+            "in": "query",
+            "allowEmptyValue": true,
+            "name": "offset",
+            "x-example": 0,
+            "description": "偏移量,表示从此偏移量开始查询,offset大于等于0",
+            "type": "integer"
+          },
+          {
+            "default": 10,
+            "in": "query",
+            "allowEmptyValue": true,
+            "name": "limit",
+            "x-example": 10,
+            "description": "每页显示的条目数量",
+            "type": "integer"
+          }
+        ],
+        "tags": [
+          "其他接口"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "InstancesMonitoredObject": {
+      "description": "监控对象结构",
+      "properties": {
+        "dcs_instance_id": {
+          "description": "测量对象ID,即实例的ID。",
+          "type": "string"
+        },
+        "name": {
+          "description": "测量对象名称,即实例名称。",
+          "type": "string"
+        },
+        "status": {
+          "description": "测量对象状态,即实例状态。",
+          "type": "string"
+        }
+      }
+    },
+    "DimChild": {
+      "description": "维度对象结构体",
+      "properties": {
+        "dim_name": {
+          "description": "维度名称,当前支持维度有dcs_instance_id、dcs_cluster_redis_node、 dcs_cluster_proxy_node和dcs_memcached_instance_id。",
+          "type": "string"
+        },
+        "dim_route": {
+          "description": "维度的路由,结构为主维度名称,当前维度名称,比如: dim_name字段为dcs_cluster_redis_node时,这个字段的值为dcs_instance_id,dcs_cluster_redis_node。",
+          "type": "string"
+        }
+      }
+    },
+    "CESMonitoredObject": {
+      "description": "监控对象结构",
+      "properties": {
+        "router": {
+          "description": "当前查询维度路由。如果是主维度,则数组中是自身ID。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "children": {
+          "description": "当前查询维度子维度对象列表。当前只有维度为dcs_instance_id时才有值。\n- Proxy集群有两个子维度,分别为dcs_cluster_redis_node和dcs_cluster_proxy_node。\n- Cluster集群有一个子维度 dcs_cluster_proxy_node。",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/DimChild"
+          }
+        },
+        "instances": {
+          "description": "当前查询维度监控对象列表。",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/InstancesMonitoredObject"
+          }
+        },
+        "total": {
+          "description": "主维度监控对象的总数。",
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

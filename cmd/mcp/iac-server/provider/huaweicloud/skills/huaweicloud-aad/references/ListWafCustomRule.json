@@ -1,0 +1,184 @@
+{
+  "name": "ListWafCustomRule",
+  "summary": "查询精准防护规则",
+  "tags": "DDoS高防-防护策略",
+  "productshort": "AAD",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/aad/policies/waf/custom-rule": {
+      "get": {
+        "tags": [
+          "DDoS高防-防护策略"
+        ],
+        "operationId": "ListWafCustomRule",
+        "summary": "查询精准防护规则",
+        "description": "查询精准防护规则",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "Content-Type",
+            "required": true,
+            "type": "string",
+            "default": "application/json;charset=utf8"
+          },
+          {
+            "name": "domain_name",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "域名"
+          },
+          {
+            "name": "overseas_type",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "description": "防护区域,0-大陆,1-海外"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ListWafCustomRuleResponseBody"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListWafCustomRuleResponseBody": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "example": 33,
+          "description": "total"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/definitions/WafCustomRule"
+          },
+          "type": "array",
+          "description": "items"
+        }
+      }
+    },
+    "WafCustomCondition": {
+      "type": "object",
+      "description": "cc规则防护规则限速条件",
+      "required": [
+        "category",
+        "logic_operation",
+        "contents"
+      ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "字段类型\n枚举值:\nurl:路径\nip:IPv4\nuser-agent: User Agent\nmethod: Method\nreferer: Referer\nparams:Params\ncookie:Cookie\nheader:Header\nrequest_line: Request Line\nrequest: Request"
+        },
+        "index": {
+          "type": "string",
+          "description": "子字段\n- 当字段类型为url,user-agent、refer、request_line、method、request时,不需要传index参数\n- 当字段类型为ip或ipv6时,index必填且必须为以下值:\n   client-ip:客户端IP\n   x-forwarded-for:X-Forwarded-For\n   TCP连接IP: $remote_addr\n- 当字段类型(category)选择“params”、“cookie”、“header”时,请根据实际需求配置子字段且该参数必填。\n- 当匹配逻辑为num_greater、num_less、num_equal、num_not_equal时,子字段必须为空\n- 当子字段不为空时,最大长度不超过2048"
+        },
+        "logic_operation": {
+          "type": "string",
+          "description": "条件列表匹配逻辑。\n如果字段类型category是url、user-agent或者referer, 匹配逻辑可以为:contain、 not_contain、 equal、 not_equal、 prefix、 not_prefix、 suffix、 not_suffix、 len_greater、 len_less、len_equal或者len_not_equal\n如果字段类型category是ip、ipv6或method,匹配逻辑可以为: equal、not_equal\n如果字段类型category是request_line或者request, 匹配逻辑可以为: len_greater、len_less、len_equal或者len_not_equal\n如果字段类型category是params、cookie或者header, 匹配逻辑可以为:contain、 not_contain、 equal、 not_equal、 prefix、 not_prefix、 suffix、 not_suffix、 len_greater、 len_less、len_equal、len_not_equal、num_greater、num_less、num_equal、num_not_equal、exist或者not_exist"
+        },
+        "contents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "条件列表逻辑匹配内容。\n- 当匹配逻辑为exist或not_exist时,contents必须为空,其他情况下contents必填且长度不超过2048\n- 当匹配逻辑包含\"len\"时,contents必须为0~65535的整数;当匹配逻辑包含\"num\"时,contents必须为0~512的整数\n- 当category为method时, contents必须是1-64位大写字母"
+        }
+      }
+    },
+    "WafCustomRule": {
+      "type": "object",
+      "required": [
+        "time",
+        "priority"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id"
+        },
+        "name": {
+          "type": "string",
+          "description": "name"
+        },
+        "time": {
+          "type": "boolean",
+          "description": "精准防护规则生效时间。true-自定义生效时间,false-立即生效"
+        },
+        "start": {
+          "type": "integer",
+          "format": "int64",
+          "description": "精准防护规则生效的起始时间戳(秒)"
+        },
+        "terminal": {
+          "type": "integer",
+          "format": "int64",
+          "description": "精准防护规则生效的终止时间戳(秒)"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32",
+          "description": "执行该规则的优先级,值越小,优先级越高。取值范围:0到1000。"
+        },
+        "conditions": {
+          "items": {
+            "$ref": "#/definitions/WafCustomCondition"
+          },
+          "type": "array",
+          "description": "condition"
+        },
+        "action": {
+          "$ref": "#/definitions/WafCustomRuleAction",
+          "description": "action"
+        },
+        "domain_name": {
+          "type": "string",
+          "description": "域名"
+        },
+        "overseas_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "防护区域,0-大陆,1-海外"
+        }
+      }
+    },
+    "WafCustomRuleAction": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "example": "block",
+          "description": "防护动作。\n“block”:拦截。\n“pass”:放行。\n“log”:仅记录"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "aad.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

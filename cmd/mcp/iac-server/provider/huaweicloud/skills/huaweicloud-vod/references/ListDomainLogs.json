@@ -1,0 +1,199 @@
+{
+  "name": "ListDomainLogs",
+  "summary": "查询域名播放日志",
+  "tags": "统计分析",
+  "productshort": "VOD",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1.0/{project_id}/vod/cdn/logs": {
+      "get": {
+        "description": "查询指定点播域名某段时间内在CDN的相关日志。",
+        "summary": "查询域名播放日志",
+        "operationId": "ListDomainLogs",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "统计分析"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/usermanual-vod/vod_01_0058.html)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "domain_name",
+            "required": true,
+            "type": "string",
+            "description": "加速域名,参考格式:www.test1.com。",
+            "x-annotations": [
+              "@NotNull"
+            ]
+          },
+          {
+            "in": "query",
+            "name": "query_date",
+            "required": true,
+            "type": "string",
+            "description": "查询开始时间,格式为yyyyMMddHHmmss。\n- 查询结果为开始时间之后24小时内的日志数据\n- 只能查最近一个月内的数据",
+            "x-annotations": [
+              "@NotNull"
+            ]
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "每页显示日志数量。\n"
+          },
+          {
+            "in": "query",
+            "name": "page_number",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "当前页数。\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "schema": {
+              "$ref": "#/definitions/QueryDomainLogsRsp"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "logs": [
+                  {
+                    "domain_name": "1866.cdn-vod.huaweicloud.com",
+                    "start_time": "2021-12-23 23:00:00",
+                    "end_time": "2021-12-24 00:00:00",
+                    "name": "2021122323-1866.cdn-vod.huaweicloud.com-cn.gz",
+                    "size": 225,
+                    "link": "http://cdn-log-user-bj4.obs.cn-north-4.myhuaweicloud.com:80/mainland/20211223/23/2021122323-1866.cdn-vod.huaweicloud.com-cn.gz?AccessKeyId=AOV5GWALBMNTLIYDEQLV&Expires=1641433717&response-content-disposition=attachment%3Bfilename%3D%222021122323-1866.cdn-vod.huaweicloud.com-cn.gz%22&Signature=1wRf15485Ftde423huRbqdBaFhA%3D"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10053",
+                "error_msg": "The request parameter is illegal, illegal field: {xx}."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET\nhttps://{endpoint}/v1.0/{project_id}/vod/cdn/logs?domain_name=1866.cdn-vod.huaweicloud.com&query_date=20211223000000"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "CdnLog": {
+      "properties": {
+        "domain_name": {
+          "type": "string",
+          "description": "域名名称。"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "查询起始时间。"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "查询结束时间。"
+        },
+        "name": {
+          "type": "string",
+          "description": "日志名称。"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "日志大小。\n\n单位:byte。"
+        },
+        "link": {
+          "type": "string",
+          "description": "日志下载链接,日志文件[参数说明](https://support.huaweicloud.com/usermanual-cdn/zh-cn_topic_0073337424.html)。"
+        }
+      }
+    },
+    "QueryDomainLogsRsp": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "日志总数。"
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CdnLog"
+          },
+          "description": "日志列表数据。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

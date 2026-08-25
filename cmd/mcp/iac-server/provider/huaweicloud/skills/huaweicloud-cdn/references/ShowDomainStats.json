@@ -1,0 +1,198 @@
+{
+  "name": "ShowDomainStats",
+  "summary": "查询域名统计数据",
+  "tags": "统计分析",
+  "productshort": "CDN",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1.0/cdn/statistics/domain-stats": {
+      "get": {
+        "x-test": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "统计分析"
+        ],
+        "operationId": "ShowDomainStats",
+        "summary": "查询域名统计数据",
+        "description": "- 支持查询90天内的数据。\n\n- 支持多指标同时查询,不超过5个。\n\n- 最多同时指定20个域名。\n\n- 起始时间和结束时间需要同时指定,左闭右开,毫秒级时间戳,且时间点必须为与查询时间间隔参数匹配的整时刻点。比如查询时间间隔为5分钟时,起始时间和结束时间必须为5分钟整时刻点,如:0分、5分、10分、15分等,如果时间点与时间间隔不匹配,返回数据可能与预期不一致。统一用开始时间表示一个时间段,如:2019-01-24 20:15:00 表示取 [20:15:00, 20:20:00)的统计数据,且左闭右开。\n\n- action取值:detail,summary\n\n- 流量类指标单位统一为Byte(字节)、带宽类指标单位统一为bit/s(比特/秒)、请求数类和状态码类指标单位统一为次数。用于查询指定域名、指定统计指标的明细数据。\n\n- 单租户调用频率:15次/s。\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/action_m"
+          },
+          {
+            "$ref": "#/components/parameters/start_time_m"
+          },
+          {
+            "$ref": "#/components/parameters/end_time_m"
+          },
+          {
+            "$ref": "#/components/parameters/domain_name_m"
+          },
+          {
+            "$ref": "#/components/parameters/stat_type_m"
+          },
+          {
+            "$ref": "#/components/parameters/interval"
+          },
+          {
+            "$ref": "#/components/parameters/group_by"
+          },
+          {
+            "$ref": "#/components/parameters/service_area"
+          },
+          {
+            "$ref": "#/components/parameters/enterprise_project_id"
+          }
+        ],
+        "x-request-examples-description-1": "不分组详情数据",
+        "x-request-examples-url-1": "GET https://cdn.myhuaweicloud.com/v1.0/cdn/statistics/domain-stats?action=summary&start_time=1667030400000&end_time=1667116800000&domain_name=www.test1.com&stat_type=flux&interval=300&service_area=mainland_china&enterprise_project_id=all",
+        "x-request-examples-description-2": "按域名分组详情数据",
+        "x-request-examples-url-2": "GET https://cdn.myhuaweicloud.com/v1.0/cdn/statistics/domain-stats?action=summary&start_time=1667030400000&end_time=1667116800000&domain_name=www.test1.com&stat_type=flux&interval=300&group_by=domain&service_area=mainland_china&enterprise_project_id=all",
+        "responses": {
+          "200": {
+            "description": "正常响应",
+            "x-response-examples-description-1": "不分组详情数据",
+            "x-response-examples-1": {
+              "application/json": {
+                "start_time": 1667030400000,
+                "end_time": 1667034000000,
+                "stat_type": "flux",
+                "action": "detail",
+                "interval": 300,
+                "result": {
+                  "503": [
+                    1000,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "504": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1000
+                  ]
+                }
+              }
+            },
+            "x-response-examples-description-2": "根据域名分组详情数据",
+            "x-response-examples-2": {
+              "application/json": {
+                "start_time": 1667030400000,
+                "end_time": 1667034000000,
+                "stat_type": "flux",
+                "action": "detail",
+                "interval": 300,
+                "group_by": "domain",
+                "result": {
+                  "www.test1.com": {
+                    "200": [
+                      118,
+                      105,
+                      113,
+                      115,
+                      114,
+                      111,
+                      106,
+                      108,
+                      118,
+                      94,
+                      97,
+                      113
+                    ],
+                    "206": [
+                      115,
+                      113,
+                      125,
+                      102,
+                      132,
+                      95,
+                      133,
+                      105,
+                      117,
+                      109,
+                      128,
+                      109
+                    ]
+                  },
+                  "www.test2.com": {
+                    "200": [
+                      118,
+                      105,
+                      113,
+                      115,
+                      114,
+                      111,
+                      106,
+                      108,
+                      118,
+                      94,
+                      97,
+                      113
+                    ],
+                    "206": [
+                      115,
+                      113,
+                      125,
+                      102,
+                      132,
+                      95,
+                      133,
+                      105,
+                      117,
+                      109,
+                      128,
+                      109
+                    ]
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainStatsRsp"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "异常响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrRsp"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": null,
+  "version": "3.0.1",
+  "parameters": null,
+  "host": "cdn.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

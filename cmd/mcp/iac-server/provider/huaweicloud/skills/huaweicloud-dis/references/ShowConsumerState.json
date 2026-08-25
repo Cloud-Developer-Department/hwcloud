@@ -1,0 +1,200 @@
+{
+  "name": "ShowConsumerState",
+  "summary": "查看App消费状态",
+  "tags": "App管理",
+  "productshort": "DIS",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v2/{project_id}/apps/{app_name}/streams/{stream_name}": {
+      "get": {
+        "x-version": "v2",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "查询App消费状态",
+        "x-request-examples-url-1": "GET https://{Endpoint}/v2/{project_id}/apps/{app_name}/streams/{stream_name}",
+        "x-request-examples-1": "",
+        "x-source": "SelfDeveloped",
+        "x-timeout": "60s",
+        "x-support-sdk": "Y",
+        "description": "本接口用于查询APP消费状态。",
+        "summary": "查看App消费状态",
+        "operationId": "ShowConsumerState",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "app_name",
+            "in": "path",
+            "description": "需要查询的App名称。",
+            "required": true,
+            "type": "string",
+            "x-example": "new-app",
+            "x-order": 1
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "description": "需要查询的通道名称。",
+            "required": true,
+            "type": "string",
+            "maxLength": 60,
+            "x-example": "new-stream",
+            "x-order": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "单次请求返回的最大分区数。最小值是1,最大值是1000;默认值是100。",
+            "default": 100,
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "start_partition_id",
+            "in": "query",
+            "required": false,
+            "description": "从该分区值开始返回分区列表,返回的分区列表不包括此分区。",
+            "type": "string"
+          },
+          {
+            "name": "checkpoint_type",
+            "in": "query",
+            "required": true,
+            "description": "Checkpoint类型。\n\n- LAST_READ:在数据库中只记录序列号。",
+            "enum": [
+              "LAST_READ"
+            ],
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回",
+            "examples": {
+              "application/json": {
+                "stream_name": "newstream",
+                "app_name": "newapp",
+                "partition_consuming_states": [
+                  {
+                    "partition_id": "2",
+                    "sequence_number": "485",
+                    "latest_offset": "1000",
+                    "earliest_offset": "10",
+                    "checkpoint_type": "LAST_READ"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowConsumerState"
+            }
+          }
+        },
+        "tags": [
+          "App管理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "PartitionConsumingStates": {
+      "properties": {
+        "partition_id": {
+          "type": "string",
+          "example": "shardId-0000000000",
+          "description": "通道的分区标识符。 可定义为如下两种样式: - shardId-0000000000 - 0 比如一个通道有三个分区,那么分区标识符分别为0, 1, 2,或者shardId-0000000000, shardId-0000000001, shardId-0000000002"
+        },
+        "sequence_number": {
+          "type": "string",
+          "example": 10,
+          "description": "需要提交的序列号,用来记录该通道的消费检查点,需要保证该序列号处于有效范围内。"
+        },
+        "latest_offset": {
+          "type": "integer",
+          "description": "索引位置, 最新的一条索引位置。",
+          "format": "int64"
+        },
+        "earliest_offset": {
+          "type": "integer",
+          "description": "索引位置, 最早的一条索引位置。",
+          "format": "int64"
+        },
+        "checkpoint_type": {
+          "type": "string",
+          "example": "LAST_READ",
+          "description": "Checkpoint类型。\n- LAST_READ:在数据库中只记录序列号。",
+          "enum": [
+            "LAST_READ"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "分区的当前状态。\n- CREATING:创建中\n- ACTIVE:可用\n- DELETED:删除中\n- EXPIRED:已过期",
+          "enum": [
+            "CREATING",
+            "ACTIVE",
+            "DELETED",
+            "EXPIRED"
+          ]
+        }
+      }
+    },
+    "ShowConsumerState": {
+      "properties": {
+        "has_more": {
+          "type": "boolean",
+          "description": "是否还有更多满足条件的App。\n\n- true:是。\n- false:否。"
+        },
+        "stream_name": {
+          "type": "string",
+          "description": "要查询的通道名称。",
+          "maxLength": 64,
+          "example": "new-stream"
+        },
+        "app_name": {
+          "type": "string",
+          "example": "new-app",
+          "description": "要查询的APP的名称,用户数据消费程序的唯一标识符。"
+        },
+        "partition_consuming_states": {
+          "type": "array",
+          "description": "当前分区消费状态.",
+          "items": {
+            "$ref": "#/definitions/PartitionConsumingStates"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dis.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

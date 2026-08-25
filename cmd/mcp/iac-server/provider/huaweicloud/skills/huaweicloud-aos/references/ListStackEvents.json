@@ -1,0 +1,385 @@
+{
+  "name": "ListStackEvents",
+  "summary": "列举资源栈事件",
+  "tags": "资源编排-资源栈",
+  "productshort": "AOS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/events": {
+      "get": {
+        "tags": [
+          "Stack"
+        ],
+        "summary": "列举资源栈事件",
+        "description": "列举资源栈事件(ListStackEvents)\n\n此API用于列举资源栈某一次或全部的部署事件\n\n* 如果给予deployment_id,则会将deployment_id作为查询条件,返回对应某一次部署的资源栈事件;如果不给予deployment_id,则返回全量的资源栈事件\n* 如果给定的deployment_id对应的部署不存在,则返回404\n* 可以使用filter作为过滤器,过滤出指定事件类型(event_type)、资源类型(resource_type)、资源名称(resource_name)的资源栈事件\n* 可以使用field选择数据应返回的属性,属性事件类型(event_type)不可配置,一定会返回,可选择的属性有逝去时间(elapsed_seconds)、事件消息(event_message)、 资源ID键(resource_id_key)、资源ID值(resource_id_value)、资源键(resource_key)、资源类型(resource_type)、资源名称(resource_name)和时间戳(timestamp)\n* 事件返回将以时间降序排列\n* 支持分页返回。如果响应中存在next_marker,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null",
+        "operationId": "ListStackEvents",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "stack_id",
+            "in": "query",
+            "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          },
+          {
+            "name": "deployment_id",
+            "in": "query",
+            "description": "标识部署的唯一ID,此ID由资源编排服务在触发部署、回滚等操作时生成,为UUID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "过滤条件      \n* 与(AND)运算符使用逗号(,)定义\n* 或(OR)运算符使用竖线(|)定义,OR运算符优先级高于AND运算符\n* 不支持括号\n* 过滤运算符仅支持等号(==)\n* 过滤参数名及其值仅支持包含大小写英文、数字和下划线\n* 过滤条件中禁止使用分号,如果有分号,则此条过滤会被忽略\n* 一个过滤参数仅能与一个与条件相关,一个与条件中的多个或条件仅能与一个过滤参数相关",
+            "required": false,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 0
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "description": "选择的属性名称\n\n* 属性名仅支持包含大小写英文、数字和下划线\n* 多个属性名称之间以逗号(,)分隔",
+            "required": false,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 0
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页标记。当一页无法返回所有结果,上一次的请求将返回next_marker以指引还有更多页数,用户可以将next_marker中的值放到此处以查询下一页的信息。此marker只能用于与上一请求指定的相同参数的请求。不指定时默认从第一页开始查询。",
+            "required": false,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页返回的最多结果数量",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "maximum": 1000,
+            "minimum": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列举资源栈事件成功",
+            "examples": {
+              "x-response-examples-1": {
+                "stack_events": [
+                  {
+                    "event_message": "Apply required resource success. ",
+                    "event_type": "LOG",
+                    "time": "2023-05-17T11:56:47Z"
+                  },
+                  {
+                    "event_message": "Apply complete! Resources: 1 added, 0 changed, 0 destroyed.",
+                    "event_type": "SUMMARY",
+                    "time": "2023-05-17T11:56:45Z"
+                  },
+                  {
+                    "resource_type": "huaweicloud_vpc",
+                    "resource_name": "vpc",
+                    "elapsed_seconds": 8,
+                    "event_message": "huaweicloud_vpc.vpc: Creation complete after 8s [id=38d617da-9b7f-4550-9ff7-d0e271dd4735]",
+                    "event_type": "CREATION_COMPLETE",
+                    "resource_id_key": "id",
+                    "resource_id_value": "38d617da-9b7f-4550-9ff7-d0e271dd4735",
+                    "time": "2023-05-17T11:56:40Z"
+                  },
+                  {
+                    "resource_type": "huaweicloud_vpc",
+                    "resource_name": "vpc",
+                    "event_message": "huaweicloud_vpc.vpc: Creating...",
+                    "event_type": "CREATION_IN_PROGRESS",
+                    "time": "2023-05-17T11:56:32Z"
+                  },
+                  {
+                    "event_message": "Creating required resource now",
+                    "event_type": "LOG",
+                    "time": "2023-05-17T11:56:31Z"
+                  }
+                ],
+                "page_info": {
+                  "current_count": "5,",
+                  "previous_marker": "zxc1oHc08HcCmypYGTsOoRcvoHUvHRUAW5NOSnc1oHc08HcCPZrwP5NOeTlRiukJgtGxeujJeuGwGIihaIUCmypYGTsOtqvKPr2xmH8fPqpGWyQ0axGwGZp9aqvx8pQ7m5FvGTsJiKk7gtNFiuaxetdRCks="
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListStackEventsResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源栈或指定的部署不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/events?filter=event_type==LOG,resource_name==my_hello_world_resource",
+        "x-request-examples-description-1": "通过filter获取指定event_type和resource_name的资源栈事件",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/events?field=resource_key,resource_name",
+        "x-request-examples-description-2": "通过field选择返回resource_key、resource_name和event_type三个属性,其中event_type为自动补选",
+        "x-request-examples-url-3": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/events?deployment_id=81edbb3e-00d9-42fd-94c8-59c7525d0f28",
+        "x-request-examples-description-3": "通过deployment_id获取指定部署的资源栈事件",
+        "x-request-examples-url-4": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/events?stack_id=ea6a4f0e-ee8a-494e-b12a-8be4a1e65af2",
+        "x-request-examples-description-4": "通过stack_id获取指定部署的资源栈事件"
+      }
+    }
+  },
+  "definitions": {
+    "StackEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceTypePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ResourceNamePrimitiveTypeHolder"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "resource_id_key": {
+              "type": "string",
+              "description": "资源id的名称,即对应资源作为id使用的值的名称,当资源未创建的时候,不返回resource_id_key\n此id由provider定义,因此不同的provider可能遵循了不同的命名规则,具体的命名规则请与provider开发者确认或阅读provider文档"
+            },
+            "resource_id_value": {
+              "type": "string",
+              "description": "资源id的值,即对应资源作为id使用的值,当资源未创建的时候,不返回resource_id_value"
+            },
+            "resource_key": {
+              "type": "string",
+              "description": "资源键,如果用户在模板中使用了count或for_each则会返回resource_key\n\n如果用户在模板中使用count,则resource_key为从0开始的数字\n\n以HCL格式的模板为例,模板中count为2,意味着将会生成两个资源,对应的resource_key分别为0和1\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  count = 2\n  name = \"test_vpc\"\n}\n```\n\n以json格式的模板为例,模板中count为2,意味着将会生成两个资源,对应的resource_key分别为0和1\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"name\": \"test_vpc\",\n        \"count\": 2\n      }\n    }\n  }\n}\n```\n\n如果用户在模板中使用for_each,则resource_key为用户自定义的字符串\n\n以HCL格式的模板为例,resource_key分别为vpc1和vpc2\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  for_each = {\n    \"vpc1\" = \"test_vpc\"\n    \"vpc2\" = \"test_vpc\"\n  }\n  name = each.value\n}\n```\n\n以json格式的模板为例,resource_key分别为vpc1和vpc2\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"for_each\": {\n          \"vpc1\": \"test_vpc\",\n          \"vpc2\": \"test_vpc\"\n        }\n        \"name\": \"${each.value}\"\n      }\n    }\n  }\n}\n```"
+            },
+            "time": {
+              "type": "string",
+              "description": "事件发生的时间\n格式遵循RFC3339,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z"
+            },
+            "event_type": {
+              "type": "string",
+              "description": "此次事件的类型\n* `LOG` - 记录状态信息,比如当前状态,目标状态等。\n* `ERROR` - 记录失败信息\n* `DRIFT` - 记录资源偏移信息\n* `SUMMARY` - 记录资源变更结果总结\n* `CREATION_IN_PROGRESS` - 正在生成\n* `CREATION_FAILED` - 生成失败\n* `CREATION_COMPLETE` - 生成完成\n* `DELETION_IN_PROGRESS` - 正在删除\n* `DELETION_FAILED` - 删除失败\n* `DELETION_COMPLETE` - 已经删除\n* `UPDATE_IN_PROGRESS` - 正在更新。此处的更新特指非替换式更新,如果是替换式更新,则是DELETION后CREATION,或者CREATION后DELETION,具体以何种行为进行替换式更新由Provider定义。\n* `UPDATE_FAILED` - 更新失败。此处的更新特指非替换式更新,如果是替换式更新,则是DELETION后CREATION,或者CREATION后DELETION,具体以何种行为进行替换式更新由Provider定义。\n* `UPDATE_COMPLETE` - 更新完成。此处的更新特指非替换式更新,如果是替换式更新,则是DELETION后CREATION,或者CREATION后DELETION,具体以何种行为进行替换式更新由Provider定义。",
+              "enum": [
+                "LOG",
+                "ERROR",
+                "DRIFT",
+                "SUMMARY",
+                "CREATION_IN_PROGRESS",
+                "CREATION_FAILED",
+                "CREATION_COMPLETE",
+                "DELETION_IN_PROGRESS",
+                "DELETION_FAILED",
+                "DELETION_COMPLETE",
+                "UPDATE_IN_PROGRESS",
+                "UPDATE_FAILED",
+                "UPDATE_COMPLETE"
+              ]
+            },
+            "event_message": {
+              "type": "string",
+              "description": "该资源栈事件对应的详细信息"
+            },
+            "elapsed_seconds": {
+              "type": "integer",
+              "description": "此事件执行所花的时间,以秒为单位"
+            }
+          },
+          "description": "资源栈事件"
+        }
+      ]
+    },
+    "PageInfo": {
+      "type": "object",
+      "properties": {
+        "next_marker": {
+          "type": "string",
+          "description": "向后分页标识符。如果存在,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "向前分页标识符。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "current_count": {
+          "type": "integer",
+          "description": "本页显示的条目数量。",
+          "x-omitempty": false
+        }
+      },
+      "description": "分页信息",
+      "x-isnullable": false
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "ListStackEventsResponseBody": {
+      "type": "object",
+      "properties": {
+        "stack_events": {
+          "type": "array",
+          "description": "资源栈事件列表",
+          "items": {
+            "$ref": "#/definitions/StackEvent"
+          },
+          "x-omitempty": true
+        },
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageInfo"
+        }
+      },
+      "description": "ListStackEvents API的响应Body体"
+    },
+    "ResourceNamePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "resource_name": {
+          "type": "string",
+          "description": "资源的名称,默认为资源的逻辑名称\n\n以HCL格式的模板为例,resource_name 为 my_hello_world_vpc\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  name = \"test_vpc\"\n}\n```\n\n以json格式的模板为例,resource_name 为 my_hello_world_vpc\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"name\": \"test_vpc\"\n      }\n    }\n  }\n}\n```"
+        }
+      },
+      "example": {
+        "resource_name": "my_hello_world_vpc"
+      }
+    },
+    "ResourceTypePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "resource_type": {
+          "type": "string",
+          "description": "资源的类型\n\n以HCL格式的模板为例,resource_type 为 huaweicloud_vpc\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  name = \"test_vpc\"\n}\n```\n\n以json格式的模板为例,resource_type 为 huaweicloud_vpc\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"name\": \"test_vpc\"\n      }\n    }\n  }\n}\n```"
+        }
+      },
+      "example": {
+        "resource_type": "huaweicloud_vpc"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

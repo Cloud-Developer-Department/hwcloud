@@ -1,0 +1,318 @@
+{
+  "name": "RunCheckData",
+  "summary": "检查数据",
+  "tags": "检查数据",
+  "productshort": "ImageSearch",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/mms/{service_name}/data/check": {
+      "post": {
+        "tags": [
+          "检查数据"
+        ],
+        "summary": "检查数据",
+        "description": "检查指定服务实例中的对应数据,支持指定ID检查和条件检查。",
+        "operationId": "RunCheckData",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例所属的项目ID,登陆华为云->用户中心->我的凭证->API凭证,即可查看对应区域的项目ID。",
+            "required": true
+          },
+          {
+            "name": "service_name",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例的名称,用户创建服务实例时指定。",
+            "required": true
+          },
+          {
+            "name": "checkParam",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CheckParam"
+            },
+            "description": "检查数据的请求body参数。",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/CheckDataResponse"
+            },
+            "description": "检查数据的响应body参数。",
+            "examples": {
+              "application/json": {
+                "result": "success",
+                "data": {
+                  "existed": true,
+                  "item_info": {
+                    "desc": "行摄天地,纵横自然,我心宇宙",
+                    "custom_tags": {
+                      "brand": "HUAWEI"
+                    },
+                    "custom_num_tags": {
+                      "year": 2022
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "BAD REQUEST",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0003",
+                "error_msg": "Invalid parameter: item_id"
+              }
+            }
+          },
+          "403": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "FORBIDDEN",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0001",
+                "error_msg": "Request is unauthorized."
+              }
+            }
+          },
+          "500": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "INTERNAL SERVER ERROR",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.1015",
+                "error_msg": "Process INDEX failed."
+              }
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-request-examples-description-1": "检查数据",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/mms/{service_name}/data/check",
+        "x-request-examples-1": {
+          "item_id": "electronics_01"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CheckRestInfo": {
+      "type": "object",
+      "description": "检查数据的相关信息。",
+      "properties": {
+        "existed": {
+          "type": "boolean",
+          "description": "数据是否存在,存在返回true,不存在返回false。仅在指定ID检查时包含该字段。"
+        },
+        "item_info": {
+          "$ref": "#/definitions/ItemSource",
+          "description": "数据的元信息,仅在指定ID检查时包含该字段。"
+        },
+        "items": {
+          "type": "array",
+          "description": "检查结果列表,仅在条件检查时包含该字段。",
+          "items": {
+            "$ref": "#/definitions/SearchItem"
+          }
+        },
+        "check_info": {
+          "$ref": "#/definitions/CheckInfo",
+          "description": "检查结果的相关信息,仅在条件检查时包含该字段。"
+        }
+      }
+    },
+    "CheckDataResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "检查数据完成返回success。"
+        },
+        "data": {
+          "$ref": "#/definitions/CheckRestInfo"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "请求失败时的错误编码,请求成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求失败时的错误信息,请求成功时无此字段。"
+        }
+      }
+    },
+    "CheckInfo": {
+      "type": "object",
+      "description": "检查结果的相关信息。",
+      "properties": {
+        "total_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "符合条件的结果总数。"
+        },
+        "return_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "返回的结果总数。"
+        },
+        "last_item": {
+          "$ref": "#/definitions/SearchAfterParam",
+          "description": "最后一个检查结果的排序信息。"
+        }
+      }
+    },
+    "SearchAfterParam": {
+      "type": "object",
+      "description": "最后一个结果的排序信息,用于全量召回场景。\n- 目前仅KEYWORD搜索和条件检查支持全量召回。",
+      "properties": {
+        "score": {
+          "type": "number",
+          "format": "double",
+          "description": "结果的得分。"
+        },
+        "id": {
+          "type": "string",
+          "description": "结果的唯一ID。"
+        }
+      }
+    },
+    "RangeParam": {
+      "type": "object",
+      "description": "数值范围参数结构体。",
+      "properties": {
+        "from": {
+          "type": "number",
+          "description": "数值下界,默认包含该下界。",
+          "format": "double"
+        },
+        "to": {
+          "type": "number",
+          "description": "数值上界,默认包含该上界。",
+          "format": "double"
+        }
+      }
+    },
+    "ItemSource": {
+      "type": "object",
+      "description": "数据的元信息,不同数据包含的字段可能不同。",
+      "properties": {
+        "desc": {
+          "type": "string",
+          "description": "数据描述信息。"
+        },
+        "custom_tags": {
+          "type": "object",
+          "description": "数据自定义字符标签。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "custom_num_tags": {
+          "type": "object",
+          "description": "数据自定义数值标签。",
+          "additionalProperties": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "keywords": {
+          "type": "array",
+          "description": "数据关键词列表。",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CheckParam": {
+      "type": "object",
+      "properties": {
+        "item_id": {
+          "type": "string",
+          "description": "数据的服务实例级唯一标识,字符长度范围为[1, 256]。\n- item_id/custom_tags/custom_num_tags中必须给定至少一个参数,以支持对服务实例中的数据进行指定ID检查或条件检查。\n- 如给定item_id参数,则进行指定ID检查,否则进行条件检查。",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "返回检查结果的数量,默认为10,取值范围为[1, 100]。仅对条件检查生效。",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10
+        },
+        "last_item": {
+          "$ref": "#/definitions/SearchAfterParam",
+          "description": "前一次检查的最后一个检查结果的排序信息。仅对条件检查生效,可将上一次检查返回结果中的last_item字段直接用于此处。"
+        },
+        "custom_tags": {
+          "type": "object",
+          "description": "自定义字符标签,用于对服务实例中的数据进行条件查找。格式为键值对{key:value}。\n- key: 必须为服务实例custom_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。\n- value: 标签值列表,列表内多个标签值为“或”关系,即满足一个即可。列表长度范围为[1, 32],标签值类型为字符串,字符长度范围为[1, 64]。",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "自定义字符标签值",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "minItems": 1,
+            "maxItems": 32
+          }
+        },
+        "custom_num_tags": {
+          "type": "object",
+          "description": "自定义数值标签,用于对服务实例中的数据进行条件查找。格式为键值对{key:value}。\n- key: 必须为服务实例custom_num_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。针对没有设置该数值标签的数据,会直接过滤。\n- value: 标签值的取值范围,标签值在给定的取值范围内即视为符合条件。",
+          "additionalProperties": {
+            "$ref": "#/definitions/RangeParam"
+          }
+        }
+      }
+    },
+    "SearchItem": {
+      "type": "object",
+      "description": "搜索结果参数结构体。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "数据唯一ID。"
+        },
+        "score": {
+          "type": "number",
+          "format": "double",
+          "description": "数据匹配分数。"
+        },
+        "source": {
+          "$ref": "#/definitions/ItemSource"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mms.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

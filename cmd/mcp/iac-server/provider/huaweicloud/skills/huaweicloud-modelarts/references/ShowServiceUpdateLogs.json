@@ -1,0 +1,289 @@
+{
+  "name": "ShowServiceUpdateLogs",
+  "summary": "查询服务更新日志",
+  "tags": "服务管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/services/{service_id}/logs": {
+      "get": {
+        "x-publish-doc": "Y",
+        "tags": [
+          "服务管理"
+        ],
+        "summary": "查询服务更新日志",
+        "description": "查询实时服务更新日志。",
+        "operationId": "ShowServiceUpdateLogs",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户项目ID。获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "eae4ac05e51643c8a8ad644eace39981"
+          },
+          {
+            "name": "service_id",
+            "in": "path",
+            "description": "服务ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "a6f49042-771c-451a-bb53-e175fc7d95cf"
+          },
+          {
+            "name": "update_time",
+            "in": "query",
+            "description": "待过滤的更新时间,查询在线服务更新日志可使用,可准确过滤出某次更新任务;默认不过滤。",
+            "required": false,
+            "type": "number",
+            "x-example": 1574768487777
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "服务更新日志",
+            "examples": {
+              "application/json": {
+                "service_name": "mnist",
+                "service_id": "195c1f2d-136d-40af-a0f3-db5717d2634a",
+                "logs": [
+                  {
+                    "result": "SUCCESS",
+                    "update_time": 1574770228888,
+                    "config": [
+                      {
+                        "model_version": "0.0.1",
+                        "specification": "modelarts.vm.cpu.2u",
+                        "model_name": "minst",
+                        "weight": 100,
+                        "model_id": "0e07b41b-173e-42db-8c16-8e1b44cc0d44",
+                        "instance_count": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/GetServiceUpdateLogsResponse"
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "x-is-registered": "Y",
+        "x-open-region-cloud": "hk,hc,fcs",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/services/{service_id}/logs"
+      }
+    }
+  },
+  "definitions": {
+    "ServiceLogConfig": {
+      "type": "object",
+      "description": "模型运行配置。",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": "公共参数。模型ID。通过调用查询AI应用列表接口可以获取。"
+        },
+        "model_name": {
+          "type": "string",
+          "description": "模型名称。"
+        },
+        "model_version": {
+          "type": "string",
+          "description": "模型版本。"
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32",
+          "description": "real-time类型必选。权重百分比,分配到此模型的流量权重,仅当infer_type为real-time时需要配置,多个权重相加必须等于100;当在一个在线服务中同时配置了多个模型版本且设置不同的流量权重比例时,持续地访问此服务的预测接口,ModelArts会按此权重比例将预测请求转发到对应的模型版本实例。"
+        },
+        "specification": {
+          "type": "string",
+          "description": "资源规格,当infer_type为real-time/edge时会返回此值。"
+        },
+        "custom_spec": {
+          "description": "自定义资源规格配置。",
+          "$ref": "#/definitions/CustomSpec"
+        },
+        "envs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "运行模型需要的环境变量键值对。"
+        },
+        "cluster_id": {
+          "type": "string",
+          "description": "专属资源池ID。"
+        },
+        "instance_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "模型部署的实例数,当infer_type为real-time时会返回此值。"
+        }
+      }
+    },
+    "CustomSpec": {
+      "required": [
+        "memory",
+        "cpu"
+      ],
+      "properties": {
+        "gpu_p4": {
+          "type": "number",
+          "format": "float",
+          "example": 0.0,
+          "description": "GPU个数,可选,默认不使用,支持配置小数,输入值不能小于0(最多支持2位小数,小数点后第3位做四舍五入处理)。"
+        },
+        "memory": {
+          "type": "integer",
+          "example": 8192,
+          "description": "内存,单位为MB,仅支持整数。"
+        },
+        "cpu": {
+          "type": "number",
+          "format": "float",
+          "example": 2.0,
+          "description": "CPU核数,支持配置小数,输入值不能小于0.01(最多支持2位小数,小数点后第3位做四舍五入处理)。"
+        },
+        "ascend_a310": {
+          "type": "integer",
+          "example": 0,
+          "description": "Ascend芯片个数,可选,默认不使用,不支持与gpu同时配置。"
+        }
+      },
+      "description": "自定义资源规格配置,仅当specification配置为custom时返回。",
+      "type": "object"
+    },
+    "Log": {
+      "properties": {
+        "update_time": {
+          "type": "number",
+          "example": 1574770228888.0,
+          "description": "更新时间,距“1970.1.1 0:0:0 UTC”的毫秒数。"
+        },
+        "result": {
+          "type": "string",
+          "example": "SUCCESS",
+          "description": "更新结果,取值为:\n- SUCCESS:成功\n- FAIL:失败\n- RUNNING:运行中",
+          "enum": [
+            "SUCCESS",
+            "FAIL",
+            "RUNNING"
+          ]
+        },
+        "config": {
+          "items": {
+            "required": [
+              "model_id",
+              "specification",
+              "instance_count"
+            ],
+            "$ref": "#/definitions/ServiceLogConfig"
+          },
+          "description": "模型运行配置。",
+          "type": "array"
+        },
+        "success_num": {
+          "type": "number",
+          "example": 1.0,
+          "description": "操作成功的节点数,当infer_type为edge时会返回此值。"
+        },
+        "failed_num": {
+          "type": "number",
+          "example": 0.0,
+          "description": "操作失败的节点数,当infer_type为edge时会返回此值。"
+        },
+        "result_detail": {
+          "type": "array",
+          "description": "操作结果详情,当infer_type为edge时会返回此值。",
+          "items": {
+            "$ref": "#/definitions/UpdateResult"
+          }
+        },
+        "cluster_id": {
+          "type": "string",
+          "description": "专属资源池ID。"
+        },
+        "extend_config": {
+          "type": "array",
+          "description": "服务个性化配置。",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "服务更新日志。",
+      "type": "object"
+    },
+    "UpdateResult": {
+      "properties": {
+        "result": {
+          "type": "boolean",
+          "example": true,
+          "description": "操作结果,true代表成功,false表示操作失败。"
+        },
+        "node_name": {
+          "type": "string",
+          "example": "sda",
+          "description": "边缘节点名称。"
+        },
+        "operation": {
+          "type": "string",
+          "example": "deploy",
+          "description": "操作类型,取值:\n- deploy:部署\n- delete:删除",
+          "enum": [
+            "deploy",
+            "delete"
+          ]
+        },
+        "node_id": {
+          "type": "string",
+          "example": "asdasd",
+          "description": "边缘节点ID。在IEF上创建边缘节点后可得到。"
+        }
+      },
+      "description": "服务更新日志结果详情。",
+      "type": "object"
+    },
+    "GetServiceUpdateLogsResponse": {
+      "properties": {
+        "service_name": {
+          "type": "string",
+          "example": "service-111",
+          "description": "服务名称。"
+        },
+        "service_id": {
+          "type": "string",
+          "example": "0e07b41b-173e-42db-8c16-8e1b44cc0d44",
+          "description": "服务ID。"
+        },
+        "logs": {
+          "type": "array",
+          "description": "服务的更新记录。",
+          "items": {
+            "$ref": "#/definitions/Log"
+          }
+        }
+      },
+      "description": "服务更新日志响应体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

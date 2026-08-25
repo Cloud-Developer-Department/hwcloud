@@ -1,0 +1,380 @@
+{
+  "name": "CreateAuthorizingAppsV2",
+  "summary": "APP授权",
+  "tags": "APP授权管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/app-auths": {
+      "post": {
+        "summary": "APP授权",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-order": 1,
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "APP创建成功后,还不能访问API,如果想要访问某个环境上的API,需要将该API在该环境上授权给APP。授权成功后,APP即可访问该环境上的这个API。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "APP授权管理"
+        ],
+        "operationId": "CreateAuthorizingAppsV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ApiAuthCreate"
+            },
+            "in": "body",
+            "name": "CreateAuthorizingAppsV2RequestBody",
+            "description": "APP授权的请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "为发布在指定环境上的API配置授权的集成应用",
+        "x-request-examples-1": {
+          "env_id": "DEFAULT_ENVIRONMENT_RELEASE_ID",
+          "app_ids": [
+            "356de8eb7a8742168586e5daf5339965"
+          ],
+          "api_ids": [
+            "5f918d104dc84480a75166ba99efff21"
+          ]
+        },
+        "responses": {
+          "201": {
+            "schema": {
+              "$ref": "#/definitions/ApiAuthResult"
+            },
+            "examples": {
+              "application/json": {
+                "auths": [
+                  {
+                    "api_id": "5f918d104dc84480a75166ba99efff21",
+                    "auth_result": {
+                      "status": "SUCCESS"
+                    },
+                    "auth_time": "2020-08-04T04:02:22.482227344Z",
+                    "id": "dd29b33ae4394e3b924b582c6b40880b",
+                    "app_id": "356de8eb7a8742168586e5daf5339965",
+                    "auth_role": "PROVIDER",
+                    "auth_tunnel": "NORMAL",
+                    "auth_whitelist": [],
+                    "auth_blacklist": []
+                  }
+                ]
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2011",
+                "error_msg": "Invalid parameter value,parameterName:api_ids. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3004",
+                "error_msg": "App 356de8eb7a8742168586e5daf5339965 does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiAuthCreate": {
+      "required": [
+        "api_ids",
+        "app_ids",
+        "env_id"
+      ],
+      "properties": {
+        "env_id": {
+          "description": "需要授权的环境编号",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65,
+          "pattern": "^[a-zA-Z0-9-_]{0,64}$",
+          "example": "DEFAULT_ENVIRONMENT_RELEASE_ID"
+        },
+        "app_ids": {
+          "description": "APP的编号列表",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "f8c6ea150d1b4c5bbd4b911610bd3b3e"
+          ]
+        },
+        "api_ids": {
+          "description": "API的编号列表。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "8aa097b00e9843efabc9c593d11b769d"
+          ]
+        },
+        "auth_tunnel": {
+          "description": "授权通道类型:\n- GREEN:绿色通道\n- NORMAL:非绿色通道\n\n实例开启green_tunnel特性时可以开启绿色通道,此字段不填默认为不使用绿色通道",
+          "type": "string",
+          "default": "NORMAL",
+          "example": "GREEN"
+        },
+        "auth_whitelist": {
+          "description": "绿色通道授权白名单。\n\n允许白名单中的IP不使用认证信息访问,auth_tunnel = GREEN时生效",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "auth_blacklist": {
+          "description": "绿色通道授权黑名单。\n\nauth_tunnel = GREEN时生效",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visit_params": {
+          "description": "访问参数列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApiAuthVisitParam"
+          }
+        }
+      }
+    },
+    "ApiAuthVisitParam": {
+      "required": [
+        "api_id",
+        "visit_param"
+      ],
+      "properties": {
+        "api_id": {
+          "description": "需要授权的API编号",
+          "type": "string"
+        },
+        "app_id": {
+          "description": "需要授权的APP编号",
+          "type": "string"
+        },
+        "visit_param": {
+          "description": "访问参数\n\n支持英文、数字、下划线和中划线,多个参数以英文格式下的逗号隔开,单个参数须以英文或数字结尾且不能重复,且单个参数长度不超过255个字符。",
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_,]*$"
+        }
+      }
+    },
+    "AuthResult": {
+      "description": "授权结果",
+      "properties": {
+        "status": {
+          "description": "授权结果\n- SUCCESS:授权成功\n- SKIPPED:跳过\n- FILAED:授权失败",
+          "enum": [
+            "SUCCESS",
+            "SKIPPED",
+            "FAILED"
+          ],
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "授权失败错误信息",
+          "type": "string"
+        },
+        "error_code": {
+          "description": "授权失败错误码",
+          "type": "string"
+        },
+        "api_name": {
+          "description": "授权失败的API名称",
+          "type": "string"
+        },
+        "app_name": {
+          "description": "授权失败的APP名称",
+          "type": "string"
+        }
+      }
+    },
+    "ApiAuthResult": {
+      "properties": {
+        "auths": {
+          "description": "API与APP的授权关系列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApiAuthRelations"
+          }
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "ApiAuthRelations": {
+      "properties": {
+        "api_id": {
+          "description": "API编号",
+          "type": "string"
+        },
+        "auth_result": {
+          "description": "授权结果",
+          "$ref": "#/definitions/AuthResult"
+        },
+        "auth_time": {
+          "description": "授权时间",
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "description": "授权关系编号",
+          "type": "string"
+        },
+        "app_id": {
+          "description": "APP编号",
+          "type": "string"
+        },
+        "auth_role": {
+          "description": "授权者\n- PROVIDER:API提供者授权\n- CONSUMER:API消费者授权",
+          "enum": [
+            "PROVIDER",
+            "CONSUMER"
+          ],
+          "type": "string"
+        },
+        "auth_tunnel": {
+          "description": "授权通道类型:\n- GREEN:绿色通道\n- NORMAL:非绿色通道\n\n此字段不填默认为不使用绿色通道",
+          "type": "string",
+          "default": "NORMAL",
+          "example": "GREEN"
+        },
+        "auth_whitelist": {
+          "description": "绿色通道授权白名单。\n\n允许白名单中的IP不使用认证信息访问",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "auth_blacklist": {
+          "description": "绿色通道授权黑名单",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visit_params": {
+          "description": "访问参数。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

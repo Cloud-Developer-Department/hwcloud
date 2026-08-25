@@ -1,0 +1,201 @@
+{
+  "name": "ShowReal3DUsage",
+  "summary": "查询实景三维用量",
+  "tags": "实景三维用量统计",
+  "productshort": "KooMap",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/real3d/usages": {
+      "get": {
+        "x-request-examples-description-1": "查询时空专属存储空间的用量列表。",
+        "x-request-examples-url-1": "GET https://{Endpoint}/v1/real3d/usages?usage_type=DATA",
+        "tags": [
+          "实景三维用量统计"
+        ],
+        "operationId": "ShowReal3DUsage",
+        "summary": "查询实景三维用量",
+        "description": "您可以查询实景三维生产服务时空专属存储或影像建模的用量统计。\n- 时空专属存储:统计导入的原始影像、生产资料和成果影像存储总量(单位为“GB”)。\n- 影像建模用量:统计成功建模的倾斜影像的像素点数量(单位为“GP”,即十亿像素)、成功建模的次数。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-opseverity": "Info",
+        "x-apigateway-request-type": "Public",
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "usage_type",
+            "in": "query",
+            "required": true,
+            "description": "查询的用量类型。\n\n- DATA:时空专属存储占用空间大小。\n- REAL3D:统计实景三维生产服务完成的建模的倾斜影像的像素点数量(单位为“GP”,即十亿像素)以及次数。",
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "IAM Token信息,用于租户鉴权,该字段由租户请求IAM的Token接口获得。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "schema": {
+              "$ref": "#/definitions/ShowReal3DUsagesRsp"
+            },
+            "examples": {
+              "application/json": {
+                "data": [
+                  {
+                    "usage_measure_name": "时空专属存储",
+                    "usage_type": "DATA",
+                    "domain_id": "abc123c55c3c4526b2ed7a0213bc9xxx",
+                    "usage_subtype": "REAL3D_BASIC",
+                    "usage_unit_type": "VOLUME",
+                    "capacity": 0,
+                    "usage": 0,
+                    "unit": "GB",
+                    "created_time": "2022-10-27T13:12:56Z",
+                    "update_time": "2022-10-27T13:12:56Z"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "非法请求。",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            }
+          },
+          "500": {
+            "description": "服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UsageVo": {
+      "type": "object",
+      "description": "查询用量返回数据模型。",
+      "required": [
+        "usage_measure_name",
+        "usage_subtype",
+        "usage",
+        "capacity",
+        "unit",
+        "created_time",
+        "update_time"
+      ],
+      "properties": {
+        "usage_measure_name": {
+          "type": "string",
+          "description": "用量度量名称,通常与KooMap的计费项保持一致。当前支持以下用量度量名称:\n- 时空专属存储\n- 实景三维生产服务基础版\n- 实景三维生产服务专业版",
+          "example": "时空专属存储"
+        },
+        "usage_type": {
+          "type": "string",
+          "description": "用量类型。\n- 该值为“DATA”时表示时空专属存储对应的用量消耗。\n- 该值为“REAL3D”时表示处理三维建模任务对应的用量消耗。"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "用量所属租户ID,为32位UUID。",
+          "example": "abc123c55c3c4526b2ed7a0213bc9xxx",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "usage_subtype": {
+          "type": "string",
+          "description": "用量子类型,用于区分同一用量类型下的多个子用量,目前usage_type为“REAL3D”时才需要设置该值。\n- REAL3D_BASIC:实景三维生产服务基础版用量\n- REAL3D_PRO:实景三维生产服务专业版用量",
+          "example": "REAL3D_BASIC"
+        },
+        "usage": {
+          "type": "number",
+          "format": "float",
+          "description": "租户当前的使用量数值。",
+          "example": 1.8
+        },
+        "capacity": {
+          "type": "number",
+          "format": "float",
+          "description": "租户购买的套餐总量值,按需使用取值为0。",
+          "example": 0
+        },
+        "usage_unit_type": {
+          "type": "string",
+          "description": "用量的计量单位类型。\n- “VOLUME”:容量。\n- “NUMBER”:数量。\n- “COUNT”:次数。"
+        },
+        "unit": {
+          "type": "string",
+          "description": "用量的计量单位。\n- 当用量单位类型为“VOLUME”时,单位为存储量相关的单位,如:GB。\n- 当用量单位类型为“NUMBER”时,单位为十亿像素点,“GP”。\n- 当用量单位类型为“COUNT”时,单位为“次”。",
+          "example": "GB"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "用量记录的创建时间。格式为UTC标准时间:yyyy-MM-dd'T'HH:mm:ss'Z'。",
+          "example": "2022-11-23T20:00:00Z"
+        },
+        "update_time": {
+          "type": "string",
+          "description": "用量记录的更新时间。格式为UTC标准时间:yyyy-MM-dd'T'HH:mm:ss'Z'。",
+          "example": "2022-11-23T20:00:00Z"
+        }
+      }
+    },
+    "ErrorMsg": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "请求状态码。",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "ShowReal3DUsagesRsp": {
+      "type": "object",
+      "description": "查询用量列表响应。",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UsageVo"
+          },
+          "description": "用量信息列表。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koomap.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

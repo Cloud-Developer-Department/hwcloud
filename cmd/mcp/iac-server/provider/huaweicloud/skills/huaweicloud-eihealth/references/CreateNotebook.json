@@ -1,0 +1,337 @@
+{
+  "name": "CreateNotebook",
+  "summary": "创建notebook",
+  "tags": "notebook开发环境",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/notebooks": {
+      "post": {
+        "tags": [
+          "notebook开发环境"
+        ],
+        "x-interface-name": "INotebookController",
+        "summary": "创建notebook",
+        "description": "创建notebook",
+        "operationId": "CreateNotebook",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,获取Token接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1,
+            "x-example": "termToken"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid",
+            "x-example": "fce1376b-72f9-4d15-9f95-9b533cb988ab"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreateNotebookRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateNotebookReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "examples": {
+              "application/json": {
+                "id": "fce1376b-72f9-4d15-9f95-9b533cb96fda"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateNotebookRsp"
+            }
+          }
+        },
+        "x-ut-partial": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-1": {
+          "flavor": {
+            "cpu": 1,
+            "gpu": 0,
+            "memory": 5
+          },
+          "image": {
+            "image_type": "SYSTEM",
+            "image_info": {
+              "profile": "PY3"
+            }
+          },
+          "storages": [
+            {
+              "path": "OBSFS:test-bucket:/"
+            }
+          ],
+          "name": "test-notebook",
+          "description": "test"
+        },
+        "x-request-examples-description-1": "创建notebook,使用系统默认镜像,需要cpu资源1C,内存资源5G。",
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/notebooks"
+      }
+    }
+  },
+  "definitions": {
+    "Profile": {
+      "type": "string",
+      "enum": [
+        "PY3"
+      ],
+      "x-json-name": "profile"
+    },
+    "ImageInfo": {
+      "type": "object",
+      "properties": {
+        "source_project_name": {
+          "type": "string",
+          "example": "atelier",
+          "description": "源项目名",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "image_name": {
+          "type": "string",
+          "example": "mul-kernel-cpu-cp27",
+          "description": "镜像名",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z0-9]([a-z0-9-_/.]*[a-z0-9])?$",
+          "x-pattern-message": "image name should start and end with lowercase letter or number, only support lowercase letters, numbers, `-`, `_`, `.` and `/`"
+        },
+        "image_tag": {
+          "type": "string",
+          "example": "3.1.0-latest",
+          "description": "镜像tag名",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9-_./]*$",
+          "x-pattern-message": "image tag length should between 1-64, only support letters, numbers and `-`, `_`, `.`, `/`"
+        },
+        "profile": {
+          "description": "系统镜像名",
+          "$ref": "#/definitions/Profile"
+        }
+      },
+      "title": "ImageInfo",
+      "description": "镜像信息"
+    },
+    "CreateNotebookReq": {
+      "type": "object",
+      "required": [
+        "flavor",
+        "image",
+        "name",
+        "storages"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "example": "description",
+          "description": "描述信息,取值范围[0,1024]",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "storages": {
+          "type": "array",
+          "description": "挂载信息",
+          "items": {
+            "$ref": "#/definitions/NotebookStorage"
+          },
+          "maxItems": 6,
+          "minItems": 1
+        },
+        "flavor": {
+          "description": "notebook规格",
+          "$ref": "#/definitions/FlavorInfo"
+        },
+        "image": {
+          "description": "镜像信息",
+          "$ref": "#/definitions/NotebookImage"
+        },
+        "name": {
+          "type": "string",
+          "example": "notebook-{@UniqueIndex}",
+          "description": "notebook名称,取值范围[1,63],仅支持小写字母、数字、中划线(-),开始只能是小写字母,结束只能是小写字母或数字",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-z][a-z0-9-]*(?<![-])$",
+          "x-pattern-message": "notebook name length should between 1-63, support numbers, lower letters and `-`,start with lower letter and end with lower letter or number"
+        }
+      },
+      "title": "CreateNotebookReq",
+      "description": "创建notebook请求体"
+    },
+    "NotebookStorage": {
+      "type": "object",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "example": "project_name:/example",
+          "description": "notebook存储路径",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "mount_path": {
+          "type": "string",
+          "example": "/example",
+          "description": "挂载路径,由于目前暂不支持自定义挂载,暂不开放",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "title": "NotebookStorage",
+      "description": "notebook存储信息"
+    },
+    "CreateNotebookRsp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "DE-7d558ef8-c73d-11ea-964c-0255ac100033",
+          "description": "notebook ID"
+        }
+      },
+      "title": "CreateNotebookRsp",
+      "description": "创建notebook返回体"
+    },
+    "DevelopImageType": {
+      "type": "string",
+      "enum": [
+        "SYSTEM",
+        "CUSTOMER"
+      ],
+      "x-json-name": "image_type"
+    },
+    "FlavorInfo": {
+      "type": "object",
+      "required": [
+        "cpu",
+        "gpu",
+        "memory"
+      ],
+      "properties": {
+        "cpu_type": {
+          "type": "string",
+          "example": "X86",
+          "default": "X86",
+          "maxLength": 24,
+          "minLength": 0,
+          "pattern": "^$|^(X86|ARM)$",
+          "x-pattern-message": "The cpu_type format does not match.",
+          "description": "**参数解释**:\ncpu架构类型。\n**约束限制**:\n不涉及\n**取值范围**:\n* X86: X86架构\n* ARM:ARM架构\n**默认取值**:\nX86"
+        },
+        "cpu": {
+          "type": "number",
+          "format": "float",
+          "example": 1.0,
+          "description": "notebook占用的cpu,0.1核为100m,单位为\"C\"",
+          "minimum": 1,
+          "maximum": 128,
+          "default": 1.0,
+          "x-ut-exclude-equivalence": [
+            "NOT_NULL"
+          ]
+        },
+        "gpu": {
+          "type": "number",
+          "format": "float",
+          "example": 0.0,
+          "description": "notebook占用的gpu,0.1为使用单卡10%,1为占满单个显卡,1+为使用多个显卡",
+          "minimum": 0,
+          "maximum": 16,
+          "default": 0.0,
+          "x-ut-exclude-equivalence": [
+            "NOT_NULL"
+          ]
+        },
+        "gpu_type": {
+          "type": "string",
+          "example": "GPU",
+          "maxLength": 24,
+          "minLength": 0,
+          "pattern": "^$|^(GPU|Snt9)$",
+          "x-pattern-message": "The gpu_type format does not match.",
+          "description": "**参数解释**:\ngpu架构类型。\n**约束限制**:\n不涉及\n**取值范围**:\n* GPU:支持GPU\n* Snt9:支持Snt9\n**默认取值**:\n不涉及"
+        },
+        "memory": {
+          "type": "number",
+          "format": "float",
+          "example": 100.0,
+          "description": "notebook占用的内存,单位为\"G\"",
+          "minimum": 2,
+          "maximum": 512,
+          "default": 2.0,
+          "x-ut-exclude-equivalence": [
+            "NOT_NULL"
+          ]
+        }
+      },
+      "title": "FlavorInfo",
+      "description": "notebook规格信息"
+    },
+    "NotebookImage": {
+      "type": "object",
+      "required": [
+        "image_info",
+        "image_type"
+      ],
+      "properties": {
+        "image_type": {
+          "description": "镜像类型",
+          "$ref": "#/definitions/DevelopImageType"
+        },
+        "image_info": {
+          "description": "镜像信息",
+          "$ref": "#/definitions/ImageInfo"
+        }
+      },
+      "title": "NotebookImage",
+      "description": "notebook镜像",
+      "x-required-message": "image cannot be null"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,258 @@
+{
+  "name": "BatchCreateInstanceTag",
+  "summary": "操作堡垒机实例资源标签",
+  "tags": "标签管理",
+  "productshort": "CBH",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/cbs/instance/{resource_id}/tags/action": {
+      "post": {
+        "x-open-region-cloud": "hws,hws_hk,cmcc",
+        "tags": [
+          "标签管理"
+        ],
+        "operationId": "BatchCreateInstanceTag",
+        "summary": "操作堡垒机实例资源标签",
+        "description": "操作堡垒机实例资源标签。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/resource_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "in": "body",
+            "name": "BatchCreateInstanceTagRequestBody",
+            "description": "BatchCreateInstanceTagRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CbsGetResourceIdTags"
+            }
+          }
+        ],
+        "x-apigateway-ratelimit": "CBH_Server",
+        "responses": {
+          "204": {
+            "description": "No Content。"
+          },
+          "400": {
+            "description": "标签等参数非法"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp401"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp403"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            }
+          },
+          "500": {
+            "description": "系统异常"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CbsGetResourceIdTags": {
+      "description": "TMS查询当前project下所有标签的返回体。",
+      "required": [
+        "action",
+        "tags"
+      ],
+      "properties": {
+        "action": {
+          "description": "执行动作。\n- create,创建\n- delete,删除",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "tags": {
+          "description": "标签列表\n\n租户权限时该字段必选,op_service权限时和sys_tags二选一。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 36,
+          "items": {
+            "$ref": "#/definitions/ResourceTag"
+          }
+        },
+        "sys_tags": {
+          "description": "系统标签列表\n\nop_service权限可以访问,和tags二选一。\n\n目前TMS调用时只包含一个resource_tag结构体 ,key固定为:_sys_enterprise_project_id\n\nvalue是UUID或0,value为0表示默认企业项目。\n\n现在仅支持create操作。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 36,
+          "items": {
+            "$ref": "#/definitions/ResourceTag"
+          }
+        }
+      },
+      "example": {
+        "action": "create",
+        "tags": [
+          {
+            "key": "key1",
+            "value": "value1"
+          },
+          {
+            "key": "key",
+            "value": "value3"
+          }
+        ]
+      }
+    },
+    "ResourceTag": {
+      "required": [
+        "key",
+        "value"
+      ],
+      "description": "标签列表的结构体。",
+      "properties": {
+        "key": {
+          "description": "键。最大长度128个字符。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "pattern": "^((?!_sys_)[\\p{L}\\p{Z}\\p{N}_.:=+\\-@]*)$"
+        },
+        "value": {
+          "description": "值。每个值最大长度255个字符。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "pattern": "^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$"
+        }
+      }
+    },
+    "ErrorRsp401": {
+      "description": "校验TOKEN失败。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "校验TOKEN失败。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 401,
+        "description": "校验TOKEN失败"
+      }
+    },
+    "ErrorRsp404": {
+      "description": "没有找到CBH资源。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "没有找到CBH资源。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 404,
+        "description": "没有找到CBH资源"
+      }
+    },
+    "ErrorRsp403": {
+      "description": "租户无权限操作。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "租户无权限操作。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 403,
+        "description": "租户无权限操作"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "resource_id": {
+      "in": "path",
+      "name": "resource_id",
+      "description": "资源ID。(list接口获取)",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 64,
+      "required": true
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。\n\n获取方法详见API参考,附录\"获取项目ID\"",
+      "required": true,
+      "type": "string",
+      "x-example": "80baxxxxxxxxf9ad43xxxxxxxxx",
+      "minLength": 0,
+      "maxLength": 64
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n\n可参考\"IAM获取IAM用户Token\"获取",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIE5gYJKoZIhvcNAQcCoIIE1zCCXXXXXX...",
+      "minLength": 0,
+      "maxLength": 28000
+    }
+  },
+  "host": "cbh.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

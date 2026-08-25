@@ -1,0 +1,272 @@
+{
+  "name": "CreateDesktopUser",
+  "summary": "创建用户",
+  "tags": "用户",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/users": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "创建用户",
+        "description": "该接口用于创建桌面用户。",
+        "operationId": "CreateDesktopUser",
+        "schemes": [
+          "https"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "CreateDesktopUserRequestBody",
+            "description": "创建云桌面用户请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "创建云桌面用户响应。",
+            "examples": {
+              "application/json": {
+                "id": "8a2c3f9579d240820179d51e6caf0001"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateUserResponse"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "405": {
+            "description": "请求中指定的方法不被允许。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "503": {
+            "description": "服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-addValid": true,
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(operationType = OperationType.LIST, resourceType=ResourceType.USER)",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"workspace:users:create\",  needApigwJwtAuthCheck = false, authContextInitializerName = \"workspaceListAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"createDesktopUser\")"
+        ],
+        "x-request-examples-url-1": "POST /v2/0bec5db98280d2d02fd6c00c2de791ce/users",
+        "x-request-examples-1": {
+          "user_name": "api-test",
+          "user_email": "test@huawei.com"
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-support-hcs": "Y",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "public,internal_token"
+      }
+    }
+  },
+  "definitions": {
+    "CreateUserRequest": {
+      "required": [
+        "user_name"
+      ],
+      "properties": {
+        "user_name": {
+          "type": "string",
+          "description": "用户名称。",
+          "minLength": 0,
+          "maxLength": 32,
+          "pattern": "[a-zA-Z0-9]{1,32}|[a-zA-Z0-9][a-zA-Z0-9._-]{0,30}[a-zA-Z0-9-]$"
+        },
+        "user_email": {
+          "type": "string",
+          "description": "用户邮箱。",
+          "minLength": 0,
+          "maxLength": 64,
+          "x-isSensitive": true
+        },
+        "account_expires": {
+          "type": "string",
+          "description": "账户过期时间,0表示永远不过期。时间格式:yyyy-MM-ddTHH:mm:ssZ或yyyy-MM-ddTHH:mm:ss.SSSZ。",
+          "minLength": 0,
+          "maxLength": 55
+        },
+        "active_type": {
+          "type": "string",
+          "example": "ADMIN_ACTIVATE",
+          "description": "激活类型,默认为用户激活。\n* USER_ACTIVATE: 用户激活。创建后,用户自行激活。需填写用户名、邮箱或手机号,创建后将发送用户登录信息(接入地址、企业ID、用户名、密码)至邮箱或手机号短信。\n* ADMIN_ACTIVATE: 管理员激活。对接AD域场景,只需要配置用户名,用户名与AD服务器上已创建的用户名保持一致;未对接AD域场景,需填写用户名、密码,请妥善保管您为用户设置的密码。",
+          "minLength": 0,
+          "maxLength": 50,
+          "enum": [
+            "USER_ACTIVATE",
+            "ADMIN_ACTIVATE"
+          ]
+        },
+        "user_phone": {
+          "type": "string",
+          "description": "用户手机号。",
+          "minLength": 0,
+          "maxLength": 20,
+          "x-isSensitive": true
+        },
+        "password": {
+          "type": "string",
+          "description": "用户初始密码。管理员激活模式需要输入。",
+          "minLength": 8,
+          "maxLength": 32,
+          "x-isSensitive": true
+        },
+        "enable_change_password": {
+          "type": "boolean",
+          "description": "是否允许用户更改密码,缺省值为true。",
+          "default": true
+        },
+        "next_login_change_password": {
+          "type": "boolean",
+          "description": "下次登录是否必须更改密码,缺省值为true。该字段只在active_type为ADMIN_ACTIVATE时生效。",
+          "default": true
+        },
+        "group_ids": {
+          "type": "array",
+          "description": "用户组的专有ID列表。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 55
+          },
+          "maxItems": 5,
+          "minItems": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "用户描述,字符串长度区间[0, 255]。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "alias_name": {
+          "type": "string",
+          "description": "别名。",
+          "minLength": 0,
+          "maxLength": 55
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "user_info_map": {
+          "type": "string",
+          "description": "用户信息映射,包含用户的服务等级、操作模式和类型。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "domain": {
+          "type": "string",
+          "description": "用户所属域,domain为空时,默认主域。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "CreateUserResponse": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "用户id。",
+          "readOnly": true
+        }
+      }
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

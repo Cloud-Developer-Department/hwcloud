@@ -1,0 +1,208 @@
+{
+  "name": "ListRecycleInstances",
+  "summary": "查询回收站实例列表",
+  "tags": "实例管理",
+  "productshort": "DDS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/recycle-instances": {
+      "get": {
+        "tags": [
+          "实例管理"
+        ],
+        "operationId": "ListRecycleInstances",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-open-region-cloud": "hc,hk",
+        "summary": "查询回收站实例列表",
+        "description": "查询回收站实例列表",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。",
+            "required": false,
+            "type": "integer",
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的数量,默认是100。",
+            "required": false,
+            "type": "integer",
+            "x-example": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/GetRecycleInstancesResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "instances": [
+                  {
+                    "id": "07fc12a8e0e94df7a3fcf53d0b5e1605in02",
+                    "name": "test1",
+                    "mode": "ReplicaSet",
+                    "datastore": {
+                      "type": "DDS-Community",
+                      "version": "4.0"
+                    },
+                    "pay_mode": "0",
+                    "enterprise_project_id": "0",
+                    "backup_id": "bf9ee62a7f7044c583c6765c916c36edbr02",
+                    "created_at": "2022-01-01T10:00:00",
+                    "deleted_at": "2022-02-01T10:00:00",
+                    "retained_until": "2017-01-01T10:00:00"
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/619d3e78f61b4be68bc5aa0b59edcf7b/instances/recycle-instances?offset=0&limit=100"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "RecycleInstance": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "实例ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "实例名称"
+        },
+        "mode": {
+          "type": "string",
+          "description": "实例类型。支持集群、副本集、以及单节点。\n取值\n  - Sharding\n  - ReplicaSet\n  - Single"
+        },
+        "datastore": {
+          "type": "object",
+          "$ref": "#/definitions/RecycleDatastore",
+          "description": "数据库信息"
+        },
+        "pay_mode": {
+          "type": "string",
+          "description": "计费方式。\n- 取值为“0”,表示按需计费。\n- 取值为“1”,表示包年/包月计费。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID,取值为“0”,表示为default企业项目"
+        },
+        "backup_id": {
+          "type": "string",
+          "description": "备份ID"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "创建时间"
+        },
+        "deleted_at": {
+          "type": "string",
+          "description": "删除时间"
+        },
+        "retained_until": {
+          "type": "string",
+          "description": "保留截止时间"
+        }
+      }
+    },
+    "GetRecycleInstancesResponseBody": {
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "description": "总记录数"
+        },
+        "instances": {
+          "description": "实例信息",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RecycleInstance"
+          }
+        }
+      }
+    },
+    "RecycleDatastore": {
+      "required": [
+        "type",
+        "version"
+      ],
+      "description": "数据库信息。",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "数据库版本类型。取值“DDS-Community”。",
+          "enum": [
+            "DDS-Community"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "description": "数据库版本。支持3.4及以上版本。取值为“3.4”、“4.0”、“4.2”、“4.4”或“5.0”。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dds.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

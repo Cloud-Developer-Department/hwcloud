@@ -1,0 +1,187 @@
+{
+  "name": "BroadcastMessage",
+  "summary": "下发广播消息",
+  "tags": "广播消息",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/broadcast-messages": {
+      "post": {
+        "tags": [
+          "BroadcastManagement"
+        ],
+        "summary": "下发广播消息",
+        "description": "应用服务器可调用此接口向订阅了指定Topic的所有在线设备发布广播消息。应用将广播消息下发给平台后,平台会先返回应用响应结果,再将消息广播给设备。\n注意:\n- 此接口只适用于使用MQTT协议接入的设备。",
+        "operationId": "BroadcastMessage",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0121.html) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "body",
+            "name": "BroadcastMessageRequestBody",
+            "description": "请求结构体,见请求结构体说明",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceBroadcastRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "examples": {
+              "application/json": {
+                "app_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+                "topic_full_name": "$oc/broadcast/test",
+                "message_id": "b1224afb-e9f0-4916-8220-b6bab568e888",
+                "created_time": "20151212T121212Z"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DeviceBroadcastResponse"
+            },
+            "x-SuccessCode": true
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.000006",
+              "IOTDA.014112"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.000021",
+              "IOTDA.001006",
+              "IOTDA.000022",
+              "IOTDA.015002"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IOTDA.000001",
+              "IOTDA.000020"
+            ]
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-iftype": "OpenAPI_new",
+        "x-returnType": "ResponseEntity<DeviceBroadcastResponse>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/broadcast-messages",
+        "x-request-examples-description-1": "下发广播消息。",
+        "x-request-examples-1": {
+          "topic_full_name": "$oc/broadcast/test",
+          "message": "SGVsbG9Xb3JsZA=="
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DeviceBroadcastResponse": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "description": "**参数说明**:资源空间ID。"
+        },
+        "topic_full_name": {
+          "type": "string",
+          "example": "$oc/broadcast/test",
+          "description": "**参数说明**:接收广播消息的完整Topic名称",
+          "maxLength": 128
+        },
+        "message_id": {
+          "type": "string",
+          "example": "b1224afb-e9f0-4916-8220-b6bab568e888",
+          "description": "消息id,由物联网平台生成,用于标识该消息。"
+        },
+        "created_time": {
+          "type": "string",
+          "example": "20151212T121212Z\n",
+          "description": "消息的创建时间,\"yyyyMMdd'T'HHmmss'Z'\"格式的UTC字符串。"
+        }
+      },
+      "title": "DeviceBroadcastResponse 创建广播消息返回结构体V5"
+    },
+    "DeviceBroadcastRequest": {
+      "type": "object",
+      "required": [
+        "message",
+        "topic_full_name"
+      ],
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "description": "**参数说明**:资源空间ID。此参数为非必选参数,存在多资源空间的用户需要使用该接口时,建议携带该参数指定广播消息所属的资源空间,否则广播消息将会向[默认资源空间](https://support.huaweicloud.com/usermanual-iothub/iot_01_0006.html#section0)下订阅指定topic的设备发送。\n**取值范围**:长度不超过36,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        },
+        "topic_full_name": {
+          "type": "string",
+          "example": "$oc/broadcast/test",
+          "description": "**参数说明**:接收广播消息的完整Topic名称, 必选。用户需要发布广播消息给设备时,可以使用该参数指定完整的topic名称,物联网平台会向指定资源空间下订阅了该topic的所有在线设备发送消息。广播的topic无需控制台创建,但topic的前缀必须为$oc/broadcast/",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_?=$#:+/-]{0,128}$"
+        },
+        "message": {
+          "type": "string",
+          "example": "SGVsbG9Xb3JsZA==",
+          "description": "**参数说明**:广播消息的内容,用户需要将消息原文使用Base64编码,Base64编码后的长度不超过128KB。",
+          "maxLength": 131072,
+          "pattern": "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$"
+        },
+        "ttl": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1440,
+          "description": "**参数说明**:广播消息在平台缓存的老化时间,时间单位是分钟,默认值为0;ttl参数数值必须是5的倍数,即以5分钟为粒度;指定为0时表示不缓存消息,最大缓存时间1440分钟,即缓存一天;ttl>0时,一个topic订阅设备数限制为10,如果一个topic订阅设备数超过10,则接口返回错误。",
+          "minimum": 0,
+          "maximum": 10080,
+          "default": 0
+        },
+        "message_id": {
+          "type": "string",
+          "example": "99b32da9-cd17-4cdf-a286-f6e849cbc364",
+          "description": "**参数说明**:消息id,由用户生成(推荐使用UUID)。ttl> 0时,平台会缓存消息,需确保message_id是唯一的, 否则接口返回错误。\n**取值范围**:长度不超过100,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "maxLength": 128,
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_?'#()\\.,&%@!-]*$"
+        }
+      },
+      "title": "DeviceBroadcastRequest 创建广播消息的请求对象"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

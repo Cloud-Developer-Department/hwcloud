@@ -1,0 +1,241 @@
+{
+  "name": "ReportSystemVersionInfo",
+  "summary": "系统版本信息上报接口",
+  "tags": "资源管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/cmdb/v2/system-infos": {
+      "put": {
+        "summary": "系统版本信息上报接口",
+        "description": "系统版本信息上报北向接口。\n\n**接口SLA:**\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| ≥ 99.9%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量|10 tps|\n|TP50请求时延|1000 ms|\n|TP99.9请求时延|2000 ms|",
+        "x-precautions": "使用前请参考《资源北向模型》,获取系统支持的资源类型、关系类型、资源分类及属性列表。调用该接口需要“修改资源实例”权限,归属权限组:运维中心>资源实例管理。\n错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 资源管理特性”章节。\n",
+        "tags": [
+          "资源管理"
+        ],
+        "operationId": "ReportSystemVersionInfo",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "IAM_OP token、SSO token。"
+          },
+          {
+            "name": "systemVersionInfo",
+            "in": "body",
+            "required": true,
+            "description": "系统版本信息",
+            "schema": {
+              "$ref": "#/definitions/SystemVersionInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "系统版本信息上报成功",
+            "schema": {
+              "$ref": "#/definitions/MoResult"
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "PUT https://{endpoint}/rest/cmdb/v2/system-infos",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "system_infos": [
+            {
+              "name": "xxxxx",
+              "alias": "xxxxx",
+              "product_name": "FusionSphere OpenStack",
+              "product_version": "FusionSphere OpenStack 6.5.0",
+              "product_patch_version": [
+                "FusionSphere OpenStack 6.5.0.SPC100",
+                "6.5.1.SPC101"
+              ],
+              "ipaddress": "192.168.0.0",
+              "sub_system_infos": [
+                {
+                  "name": "subxxx",
+                  "alias": "subxxx",
+                  "product_name": "FCD",
+                  "product_version": "dadsadsadads",
+                  "product_patch_version": [
+                    "1515"
+                  ],
+                  "ipaddress": "192.168.0.0"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SystemVersionInfo": {
+      "description": "系统版本信息上报数据模型",
+      "required": [
+        "system_infos"
+      ],
+      "properties": {
+        "system_infos": {
+          "type": "array",
+          "description": "系统版本信息列表",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/definitions/SystemInfo"
+          }
+        }
+      }
+    },
+    "MoResult": {
+      "description": "接口上报响应体",
+      "properties": {
+        "resultCode": {
+          "type": "string",
+          "default": "00000000",
+          "description": "结果码。"
+        },
+        "resultData": {
+          "type": "string",
+          "default": "",
+          "description": "结果数据。"
+        }
+      }
+    },
+    "SubSystemInfo": {
+      "description": "子系统版本信息",
+      "required": [
+        "name",
+        "alias",
+        "product_name",
+        "product_version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "description": "下级网元标识。"
+        },
+        "alias": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "description": "下级网元名称。"
+        },
+        "product_name": {
+          "type": "string",
+          "description": "下级网元产品名称。"
+        },
+        "product_version": {
+          "type": "string",
+          "description": "下级软件版本。"
+        },
+        "product_patch_version": {
+          "type": "array",
+          "description": "下级网元补丁版本。",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "ipaddress": {
+          "type": "string",
+          "description": "下级IP地址。"
+        }
+      }
+    },
+    "SystemInfo": {
+      "description": "系统版本信息",
+      "required": [
+        "name",
+        "alias",
+        "product_name",
+        "product_version",
+        "ipaddress"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "description": "网元唯一标识。"
+        },
+        "alias": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "description": "网元名称。"
+        },
+        "product_name": {
+          "type": "string",
+          "description": "产品名称。"
+        },
+        "product_version": {
+          "type": "string",
+          "description": "软件版本。"
+        },
+        "product_patch_version": {
+          "type": "array",
+          "description": "补丁版本。",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "ipaddress": {
+          "type": "string",
+          "description": "IP地址。"
+        },
+        "sub_system_infos": {
+          "type": "array",
+          "description": "子系统信息。",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/SubSystemInfo"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

@@ -1,0 +1,217 @@
+{
+  "name": "CheckDesktopImages",
+  "summary": "检查桌面镜像是否存在",
+  "tags": "桌面",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktops/check-images": {
+      "post": {
+        "tags": [
+          "Checker"
+        ],
+        "summary": "检查桌面镜像是否存在",
+        "description": "用于校验指定桌面列表的桌面镜像,当前是否存在,如果存在返回对应的imageId,不存在就不返回。",
+        "operationId": "CheckDesktopImages",
+        "schemes": [
+          "https"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "CheckDesktopImagesRequestBody",
+            "description": "校验云桌面镜像的请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CheckDesktopImagesReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "检查云桌面响应。",
+            "examples": {
+              "application/json": {
+                "image_infos": [
+                  {
+                    "desktop_id": "0730042a-b9c7-4279-bb24-d3fd299a2efe",
+                    "image_id": "b669106a-1395-4f24-92af-d884c227e558",
+                    "image_type": "market",
+                    "os_type": "Windows"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CheckDesktopImagesRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "desktop_ids": [
+            "f77db5cd-c020-47d4-bbbe-9b979a38d18c",
+            "f77db5cd-c020-47d4-bbbe-9b979a38d18b"
+          ]
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT,  authContextInitializerName = \"workspaceCommonAuthContextInitializer\", abacAction = \"workspace:images:checkIfExist\",  needApigwJwtAuthCheck = false, needRbacCheck = false)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"checkDesktopImages\", traceNameCn = \"检查桌面镜像是否存在\")"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "public,internal_token"
+      }
+    }
+  },
+  "definitions": {
+    "CheckDesktopImagesRsp": {
+      "type": "object",
+      "properties": {
+        "image_infos": {
+          "type": "array",
+          "description": "桌面镜像信息。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/DesktopImageInfo"
+          }
+        }
+      },
+      "description": "检查桌面镜像信息响应。"
+    },
+    "CheckDesktopImagesReq": {
+      "properties": {
+        "desktop_ids": {
+          "type": "array",
+          "description": "操作的桌面ID列表。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 255
+          },
+          "maxItems": 500,
+          "minItems": 1,
+          "x-maxLength": 500,
+          "x-minLength": 1,
+          "x-type": "List<@Size(min=0, max=255) String>"
+        }
+      }
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    },
+    "DesktopImageInfo": {
+      "type": "object",
+      "properties": {
+        "desktop_id": {
+          "type": "string",
+          "description": "桌面id。",
+          "readOnly": true
+        },
+        "image_id": {
+          "type": "string",
+          "description": "镜像ID。",
+          "readOnly": true
+        },
+        "image_name": {
+          "type": "string",
+          "description": "镜像名称。",
+          "readOnly": true
+        },
+        "image_type": {
+          "type": "string",
+          "description": "镜像类型。",
+          "readOnly": true
+        },
+        "os_type": {
+          "type": "string",
+          "description": "镜像系统类型。",
+          "readOnly": true
+        }
+      },
+      "description": "桌面镜像信息响应。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

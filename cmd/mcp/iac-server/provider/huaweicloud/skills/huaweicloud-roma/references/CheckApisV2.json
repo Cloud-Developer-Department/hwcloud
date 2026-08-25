@@ -1,0 +1,242 @@
+{
+  "name": "CheckApisV2",
+  "summary": "校验API定义",
+  "tags": "API管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/apis/check": {
+      "post": {
+        "summary": "校验API定义",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "x-order": 14,
+        "description": "校验API定义。校验API的路径或名称是否已存在",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "API管理"
+        ],
+        "operationId": "CheckApisV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ApiCheckInfoV2"
+            },
+            "in": "body",
+            "name": "CheckApisV2RequestBody",
+            "description": "校验API定义的请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "校验指定API的名称是否已存在",
+        "x-request-examples-1": {
+          "type": "name",
+          "name": "api_demo"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3202",
+                "error_msg": "The API name already exists, api_name:api_demo"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3030",
+                "error_msg": "The instance does not exist;id:f0fa1789-3b76-433b-a787-9892951c620ec"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiCheckInfo": {
+      "properties": {
+        "name": {
+          "description": "API名称。\n\ntype = name时必填",
+          "type": "string"
+        },
+        "req_method": {
+          "description": "请求方式。\n\ntype = path时必填",
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "HEAD",
+            "PATCH",
+            "OPTIONS",
+            "ANY"
+          ],
+          "example": "GET"
+        },
+        "req_uri": {
+          "description": "API的访问地址。\n\ntype = path时必填",
+          "type": "string"
+        },
+        "match_mode": {
+          "description": "API的匹配方式\n- SWA:前缀匹配\n- NORMAL:正常匹配(绝对匹配)\n\ntype = path时必填",
+          "type": "string",
+          "enum": [
+            "SWA",
+            "NORMAL"
+          ],
+          "example": "NORMAL"
+        },
+        "group_id": {
+          "description": "分组ID。\n\n校验分组下API定义是否重复时必填",
+          "type": "string"
+        },
+        "roma_app_id": {
+          "description": "集成应用ID。\n\n校验应用下API定义是否重复时必填",
+          "type": "string"
+        },
+        "api_id": {
+          "description": "需要对比的API ID",
+          "type": "string"
+        }
+      }
+    },
+    "ApiCheckInfoV2": {
+      "required": [
+        "type"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ApiCheckInfo"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "description": "校验类型:\n  - path:路径类型\n  - name:名称类型",
+              "example": "path",
+              "type": "string",
+              "enum": [
+                "path",
+                "name"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

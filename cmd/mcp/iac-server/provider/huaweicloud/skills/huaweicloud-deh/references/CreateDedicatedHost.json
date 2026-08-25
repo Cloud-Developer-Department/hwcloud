@@ -1,0 +1,230 @@
+{
+  "name": "CreateDedicatedHost",
+  "summary": "分配专属主机",
+  "tags": "生命周期管理",
+  "productshort": "DeH",
+  "region_id": "cn-north-2",
+  "paths": {
+    "/v1.0/{project_id}/dedicated-hosts": {
+      "post": {
+        "tags": [
+          "生命周期管理"
+        ],
+        "summary": "分配专属主机",
+        "description": "分配一台或多台专属主机,需要设置实例规格、所属AZ、数量等参数。",
+        "operationId": "CreateDedicatedHost",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "in": "body",
+            "name": "ReqAllocateDeh",
+            "description": "创建专属主机消息体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReqAllocateDeh"
+            },
+            "x-order": 3
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created 请求成功并且服务器创建了新的资源。",
+            "examples": {
+              "application/json": {
+                "jobId": "ff80808294ede1ae0194ee0cfbe30004"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RespAllocateDeh"
+            }
+          },
+          "400": {
+            "description": "Bad Request 服务器未能处理请求。"
+          },
+          "401": {
+            "description": "Unauthorized 被请求的页面需要用户名和密码。"
+          },
+          "403": {
+            "description": "Forbidden 对被请求页面的访问被禁止。"
+          },
+          "404": {
+            "description": "Not Found 服务器无法找到被请求的页面。"
+          },
+          "500": {
+            "description": "Internal Server Error 请求未完成,服务异常。"
+          }
+        },
+        "deprecated": false,
+        "x-name": "分配专属主机",
+        "x-constraint": "可分配的专属主机数量依赖于租户的专属主机配额。",
+        "x-scope": "Commercial",
+        "x-order": 1,
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "POST /v1.0/9c53a566cb3443ab910cf0daebca90c4/dedicated-hosts",
+        "x-request-examples-1": {
+          "availability_zone": "dc1.az1",
+          "name": " high performance servers1",
+          "auto_placement": "off",
+          "host_type": "h1",
+          "quantity": 2,
+          "tags": [
+            {
+              "key": "key1",
+              "value": "value1"
+            }
+          ]
+        },
+        "x-request-examples-text-1": "{\n     \"availability_zone\": \"dc1.az1\",\n     \"name\": \" high performance servers1\",\n     \"auto_placement\": \"off\",\n     \"host_type\": \"h1\",\n     \"quantity\": 2,\n     \"tags\": [\n         {\n             \"key\": \"key1\",\n             \"value\": \"value1\"\n         }\n     ]\n}",
+        "x-hybridcloud": "false",
+        "x-source": "SelfDeveloped",
+        "x-first-open-time": "2017-03-30",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "false"
+      }
+    }
+  },
+  "definitions": {
+    "ResourceTag": {
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "键。\n长度不超过36个Unicode字符。\n不能为空。\n不能包含以下ASCII非打印字符:“=”,“*”,“<”,“>”,“\\”,“|”,“/”,“,”。",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "value": {
+          "type": "string",
+          "description": "值。\n长度不超过43个Unicode字符。\n不能包含以下ASCII非打印字符:“=”,“*”,“<”,“>”,“\\”,“|”,“/”,“,”。",
+          "minLength": 0,
+          "maxLength": 43
+        }
+      },
+      "description": "专属主机标签结构体"
+    },
+    "ReqAllocateDeh": {
+      "required": [
+        "availability_zone",
+        "host_type",
+        "name",
+        "quantity"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "专属主机名称。",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "[\\一-\\龥a-zA-Z0-9-_.]+$"
+        },
+        "auto_placement": {
+          "type": "string",
+          "description": "在创建云服务器时(未指定专属主机ID),是否允许云服务器自动分配在一台可用的专属主机上。\n取值范围:“on”或“off”。\n默认值:“on”。",
+          "enum": [
+            "off",
+            "on"
+          ],
+          "default": "on"
+        },
+        "availability_zone": {
+          "type": "string",
+          "description": "专属主机所属AZ。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "host_type": {
+          "type": "string",
+          "description": "专属主机类型。"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32",
+          "description": "待分配的专属主机数量。"
+        },
+        "tags": {
+          "type": "array",
+          "description": "专属主机标签列表。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/ResourceTag"
+          }
+        },
+        "extend_param": {
+          "description": "专属主机扩展属性。",
+          "properties": {
+            "charging_mode": {
+              "type": "string",
+              "description": "专属主机计费模式,不传该参数时默认为postPaid。\n- prePaid:包周期\n- postPaid:按需"
+            },
+            "period_type": {
+              "type": "string",
+              "description": "订购周期类型。\n- month:包月\n- year:包年"
+            },
+            "period_num": {
+              "type": "integer",
+              "description": "订购周期数,大于0的整数,当charging_mode为prePaid时生效,且该字段必选。"
+            },
+            "is_auto_pay": {
+              "type": "boolean",
+              "description": "是否自动支付。"
+            },
+            "is_auto_renew": {
+              "type": "boolean",
+              "description": "是否自动续费。"
+            },
+            "enterprise_project_id": {
+              "type": "string",
+              "description": "企业项目ID。"
+            }
+          }
+        }
+      },
+      "description": "创建专属主机消息体。"
+    },
+    "RespAllocateDeh": {
+      "required": [
+        "job_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "分配专属主机的Job ID。"
+        },
+        "order_id": {
+          "type": "string",
+          "description": "分配包周期专属主机的订单ID。"
+        }
+      },
+      "description": "创建专属主机返回消息体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "deh.cn-north-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

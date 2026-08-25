@@ -1,0 +1,247 @@
+{
+  "name": "CreateDatabaseWaterMark",
+  "summary": "嵌入数据水印",
+  "tags": "数据水印",
+  "productshort": "DSC",
+  "region_id": "la-south-2",
+  "paths": {
+    "/v1/{project_id}/sdg/database/watermark/embed": {
+      "post": {
+        "x-hybridcloud": "true",
+        "x-apiErrorCodes": [],
+        "x-request-examples-url-1": "POST https://{endpoit}/v1/{project_id}/sdg/database/watermark/embed",
+        "x-request-examples-text-1": {
+          "watermark_content": "test12345678test",
+          "watermark_key": "keyword",
+          "columns": [
+            {
+              "name": "item1",
+              "type": "INTEGER",
+              "primary_key": true
+            },
+            {
+              "name": "item2",
+              "type": "INTEGER",
+              "primary_key": false
+            }
+          ],
+          "data": [
+            {
+              "item1": 0,
+              "item2": 3
+            },
+            {
+              "item1": 1,
+              "item2": 4
+            }
+          ]
+        },
+        "tags": [
+          "数据水印"
+        ],
+        "summary": "嵌入数据水印",
+        "description": "对json体中数据动态添加水印",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "operationId": "CreateDatabaseWaterMark",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32
+          },
+          {
+            "name": "CreateDatabaseWaterMarkRequestBody",
+            "in": "body",
+            "description": "嵌入数据水印请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EmbeddedDatabaseWatermark"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。通过调用IAM服务“获取用户Token接口”获取(响应消息头中X-Subject-Token的值)",
+            "type": "string"
+          }
+        ],
+        "x-request-examples-1": {
+          "watermark_content": "test12345678test",
+          "watermark_key": "keyword",
+          "columns": [
+            {
+              "name": "item1",
+              "type": "INTEGER",
+              "primary_key": true
+            },
+            {
+              "name": "item2",
+              "type": "INTEGER",
+              "primary_key": false
+            }
+          ],
+          "data": [
+            {
+              "item1": 0,
+              "item2": 3
+            },
+            {
+              "item1": 1,
+              "item2": 4
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "examples": {
+              "application/json": {
+                "marked_data": [
+                  {
+                    "item2": 3,
+                    "item1": "test"
+                  },
+                  {
+                    "item2": 5,
+                    "item1": "test"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/EmbededMarkData"
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "examples": {
+              "application/json": {
+                "error_code": "DSC.00000004",
+                "error_msg": "Invalid parameter"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorReturnInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EmbededMarkData": {
+      "properties": {
+        "marked_data": {
+          "type": "array",
+          "description": "嵌入水印后的数据",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "description": "嵌入水印后的数据",
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "EmbeddedDatabaseWatermark": {
+      "example": "watermark_content:\"watermark\" watermark_key:\"key\" columns:{} data:{}",
+      "required": [
+        "watermark_content",
+        "watermark_key",
+        "columns",
+        "data"
+      ],
+      "properties": {
+        "watermark_content": {
+          "type": "string",
+          "description": "添加水印的内容"
+        },
+        "watermark_key": {
+          "type": "string",
+          "description": "水印密钥"
+        },
+        "columns": {
+          "type": "array",
+          "description": "字段类型列表,最大长度100。使用时,至少包含两个字段,一个“primary_key”为true表示主键,一个为false用来嵌入水印",
+          "items": {
+            "$ref": "#/definitions/Columns"
+          }
+        },
+        "data": {
+          "description": "嵌入可提取水印的行数限制1500-50000行。内容建议:数据具有随机性,内容重复率低",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "description": "待加水印的数据",
+              "type": "object"
+            }
+          },
+          "type": "array"
+        }
+      }
+    },
+    "Columns": {
+      "description": "字段类型列表,最大长度100",
+      "required": [
+        "name",
+        "type",
+        "primary_key"
+      ],
+      "example": "name:\"col1\" type:\"INTEGER\" primary_key:false",
+      "properties": {
+        "name": {
+          "description": "数据的字段名称,最大支持长度256",
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "type": {
+          "description": "数据的字段类型",
+          "type": "string",
+          "enum": [
+            "INTEGER",
+            "STRING",
+            "DOUBLE"
+          ]
+        },
+        "primary_key": {
+          "description": "标记该字段是否为主键。true为主键,表示用来定位水印位置;false为非主键,将在该列嵌入/提取水印内容。字段类型列表中可同时包含多个为true或为false的字段",
+          "type": "boolean"
+        }
+      }
+    },
+    "ErrorReturnInfo": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sdg.la-south-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

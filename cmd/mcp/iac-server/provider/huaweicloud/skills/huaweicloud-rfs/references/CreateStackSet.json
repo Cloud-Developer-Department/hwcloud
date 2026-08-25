@@ -1,0 +1,427 @@
+{
+  "name": "CreateStackSet",
+  "summary": "创建资源栈集",
+  "tags": "资源编排-资源栈集",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/stack-sets": {
+      "post": {
+        "tags": [
+          "StackSet"
+        ],
+        "summary": "创建资源栈集",
+        "description": "创建资源栈集(CreateStackSet)\n\n此API为同步API,用于生成一个空资源栈集,即不包含任何一个资源栈实例,并返回资源栈集ID(stack_set_id)",
+        "operationId": "CreateStackSet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "in": "body",
+            "name": "CreateStackSetRequestBody",
+            "description": "CreateStackSet API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateStackSetRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "examples": {
+              "x-response-examples-1": {
+                "stack_set_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateStackSetResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 用户无权限调用此API\n2. 资源栈集数量达到上限"
+          },
+          "409": {
+            "description": "创建冲突,同名的资源栈集已经存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "Y",
+        "x-rfs-external": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/stack-sets",
+        "x-request-examples-description-1": "通过OBS Signed URL传递模板和管理委托名称创建资源栈集",
+        "x-request-examples-1": {
+          "stack_set_name": "my_first_stack_set",
+          "template_uri": "https://my_hello_world_bucket.{region}.myhuaweicloud.com/vpc.tf",
+          "managed_agency_name": "my_managed_agency_name",
+          "administration_agency_name": "my_administration_agency_name"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/stack-sets",
+        "x-request-examples-description-2": "通过模板内容和管理委托URN创建资源栈集。RFS模板支持HCL语法,同时规定required_providers模块下用于声明provider路径的source字段,需按照huawei.com/provider/{provider_name}的形式拼接,例如huawei.com/provider/huaweicloud",
+        "x-request-examples-2": {
+          "stack_set_name": "my_second_stack_set",
+          "managed_agency_name": "my_managed_agency_name",
+          "administration_agency_urn": "iam::my-domain-id:agency:my-agency-name",
+          "template_body": "terraform {\n    required_providers {\n      huaweicloud = {\n        source = \"huawei.com/provider/huaweicloud\"\n        version = \"1.41.0\"\n        }\n    }\n}\nprovider \"huaweicloud\"{\n    insecure = true\n    cloud = \"{cloud_name}\"\n    region = \"{region}\"\n    endpoints = {\n        iam = \"{iam_endpoint}\"\n    }\n}\n\nresource \"huaweicloud_vpc\" \"vpc\" {\n  cidr = \"172.16.0.0/16\"\n  name = \"my_vpc\"\n}"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateStackSetResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StackSetIdPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PermissionModelPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "permission_model": {
+          "type": "string",
+          "example": "SELF_MANAGED",
+          "description": "权限模型,定义了RFS操作资源栈集时所需委托的创建方式,枚举值,默认为SELF_MANAGED。用户可以使用创建资源栈集(CreateStackSet)API 指定该参数。该参数暂不支持更新。用户如果想要更新权限模型,可以通过先删除再创建同名资源栈集实现。\n  * `SELF_MANAGED` - 自我管理,基于部署需求,用户需要提前手动创建委托,既包含管理账号授权给RFS的委托,也包含成员账号授权给管理账号的委托。如果委托不存在或权限不足,创建资源栈集不会失败,创建资源栈实例时才会报错。\n  * `SERVICE_MANAGED` - 服务管理,基于Organization服务,RFS会自动创建部署Organization 成员账号时所需的全部 IAM 委托。用户需要提前在Organization可信服务列表中将”资源编排资源栈集服务“启用,且只有Organization的管理账号或”资源编排资源栈集服务“的委托管理员,才允许指定SERVICE_MANAGED创建资源栈集,否则会报错。",
+          "default": "SELF_MANAGED",
+          "enum": [
+            "SELF_MANAGED",
+            "SERVICE_MANAGED"
+          ]
+        }
+      }
+    },
+    "StackSetIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_set_id": {
+          "type": "string",
+          "description": "资源栈集(stack_set)的唯一ID。\n\n此ID由资源编排服务在生成资源栈集的时候生成,为UUID。\n\n由于资源栈集名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈集,删除,再重新创建一个同名资源栈集。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈集就是我以为的那个,而不是被其他队友删除后创建的同名资源栈集。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈集所对应的ID都不相同,更新不会影响ID。如果给予的stack_set_id和当前资源栈集的ID不一致,则返回400",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "stack_set_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "VarsURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_uri": {
+          "type": "string",
+          "description": "HCL参数文件的OBS地址。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n请确保OBS地址所在局点与使用RFS服务局点一致。\n\n* vars_uri需要指向一个OBS的pre-signed URL地址,其他地址暂不支持\n\n* 资源编排服务支持vars_body和vars_uri,如果以上两种方式中声明了同一个变量,将报错400\n\n* vars_uri中的内容使用HCL的tfvars格式,用户可以将“.tfvars”中的内容保存到文件并上传到OBS中,并将OBS pre-signed URL传递给vars_uri\n\n* 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储vars_uri对应的参数文件内容",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.tfvars){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "vars_uri": "https://your-bucket.cn-north-7.myhuaweicloud.com/my-hello-world-vars.tfvars"
+      }
+    },
+    "StackSetDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_set_description": {
+          "type": "string",
+          "description": "资源栈集的描述。可用于客户识别自己的资源栈集。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "description": "My First Hello World Stack Set"
+      }
+    },
+    "ManagedOperationTypeHolder": {
+      "type": "object",
+      "properties": {
+        "managed_operation": {
+          "$ref": "#/definitions/managed_operation"
+        }
+      },
+      "example": {
+        "managed_operation": {
+          "enable_parallel_operation": false
+        }
+      }
+    },
+    "InitialStackDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "initial_stack_description": {
+          "type": "string",
+          "description": "初始化资源栈描述。可用于客户识别被资源栈集所管理的资源栈。\n\n资源栈集下的资源栈仅在创建时统一使用该描述。客户想要更新初始化资源栈描述,可以通过UpdateStackSet API。\n\n后续更新资源栈集描述将不会同步更新已管理的资源栈描述。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "StackSetNamePrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "stack_set_name"
+      ],
+      "properties": {
+        "stack_set_name": {
+          "type": "string",
+          "description": "资源栈集(stack_set)的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+        }
+      },
+      "example": {
+        "stack_set_name": "MyHelloWorldStackSetName"
+      }
+    },
+    "AdministrationAgencyNamePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "administration_agency_name": {
+          "type": "string",
+          "description": "管理委托名称\n\n资源编排服务使用该委托获取成员账号委托给管理账号的权限。该委托中必须含有iam:tokens:assume权限,用以后续获取被管理委托凭证。如果不包含,则会在新增或者部署实例时报错。\n\n当用户定义SELF_MANAGED权限类型时,administration_agency_name和administration_agency_urn 必须有且只有一个存在。\n\n推荐用户在使用信任委托时给予administration_agency_urn,administration_agency_name只支持接收委托名称,如果给予了信任委托名称,则会在部署模板时失败。\n\n当用户使用SERVICE_MANAGED权限类型时,指定该参数将报错400。\n\n[创建委托及授权方式](https://support.huaweicloud.com/usermanual-iam/iam_06_0002.html)",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "example": {
+        "administration_agency_name": "MyAdministrationAgencyName"
+      }
+    },
+    "TemplateBodyPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "template_body": {
+          "type": "string",
+          "description": "HCL模板,描述了资源的目标状态。资源编排服务将比较此模板与当前远程资源的状态之间的区别。\n\ntemplate_body和template_uri 必须有且只有一个存在\n\n**注意:**\n  * 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储对应的template_body",
+          "minLength": 0,
+          "maxLength": 51200
+        }
+      },
+      "example": {
+        "template_body": ""
+      }
+    },
+    "TemplateURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "template_uri": {
+          "type": "string",
+          "description": "HCL模板的OBS地址,该模板描述了资源的目标状态。资源编排服务将比较此模板与当前远程资源的状态之间的区别\n\n请确保OBS地址所在局点与使用RFS服务局点一致。\n\n对应的文件应该是纯tf文件或zip压缩包\n\n纯tf文件需要以“.tf”或者“.tf.json”结尾,并遵守HCL语法,且文件的编码格式须为UTF-8\n\n压缩包目前只支持zip格式,文件需要以\".zip\"结尾。解压后的文件不得包含\".tfvars\"文件。解压前最大支持1MB,解压后最大支持1MB。zip压缩包文件数量不能超过100个\n\ntemplate_body和template_uri 必须有且只有一个存在\n\n**注意:**\n  * 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储template_uri对应的模板文件内容。\n  * template_uri对应的模板文件如果为zip类型,则内部的文件或文件夹名称长度不得超过255个字节,最深路径长度不得超过2048字节,zip包大小不得超过1MB",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.tf|\\.tf.json|\\.zip){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "template_uri": "https://your-bucket.cn-north-7.myhuaweicloud.com/my-hello-world-template.tf"
+      }
+    },
+    "AdministrationAgencyUrnPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "administration_agency_urn": {
+          "type": "string",
+          "description": "管理委托URN\n\n资源编排服务使用该委托获取成员账号委托给管理账号的权限。该委托中必须含有sts:tokens:assume权限,用以后续获取被管理委托凭证。如果不包含,则会在新增或者部署实例时报错。\n\n当用户定义SELF_MANAGED权限类型时,administration_agency_name和administration_agency_urn 必须有且只有一个存在。\n\n推荐用户在使用信任委托时给予administration_agency_urn,administration_agency_name只支持接收委托名称,如果给予了信任委托名称,则会在部署模板时失败。\n\n当用户使用SERVICE_MANAGED权限类型时,指定该参数将报错400。",
+          "pattern": "^(iam:\\*?:[A-Za-z0-9-]{1,64}:agency:.{1,64})?$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "administration_agency_urn": "iam::my-domain-id:agency:my-agency-name"
+      }
+    },
+    "CreateStackSetRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StackSetNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackSetDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PermissionModelPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/AdministrationAgencyNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ManagedAgencyNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/TemplateBodyPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/TemplateURIPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsURIPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsBodyPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/InitialStackDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/AdministrationAgencyUrnPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ManagedOperationTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/CallIdentityPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "VarsBodyPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_body": {
+          "type": "string",
+          "description": "HCL参数文件的内容。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n* vars_body使用HCL的tfvars格式,用户可以将“.tfvars”中的内容提交到vars_body中\n\n* 资源编排服务支持vars_body和vars_uri,如果以上两种方式中声明了同一个变量,将报错400\n\n* 如果vars_body过大,可以使用vars_uri\n\n* 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储对应的vars_body。",
+          "minLength": 0,
+          "maxLength": 51200
+        }
+      },
+      "example": {
+        "vars_body": ""
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "ManagedAgencyNamePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "managed_agency_name": {
+          "type": "string",
+          "description": "被管理的委托名称。\n\n资源编排服务会使用该委托获取实际部署资源所需要的权限\n\n不同成员账号委托给管理账号的委托名称需要保持一致。暂不支持根据不同provider定义不同委托权限\n\n当用户定义SELF_MANAGED权限类型时,必须指定该参数。当用户使用SERVICE_MANAGED权限类型时,指定该参数将报错400\n\n[创建委托及授权方式](https://support.huaweicloud.com/usermanual-iam/iam_06_0002.html)",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "example": {
+        "managed_agency_name": "MyManagedAgencyName"
+      }
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "CallIdentityPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "call_identity": {
+          "type": "string",
+          "example": "SELF",
+          "description": "仅支持资源栈集权限模式为SERVICE_MANAGED时指定该参数。用于指定用户是以组织管理账号还是成员账号中的服务委托管理员身份调用资源栈集。默认为SELF。\n当资源栈集权限模式为SELF_MANAGED时,默认为SELF。\n\n无论指定何种用户身份,涉及操作的资源栈集始终在组织管理账号名下。\n  * `SELF` - 以组织管理账号身份调用。\n  * `DELEGATED_ADMIN` - 以服务委托管理员身份调用。用户的华为云账号必须在组织中已经被注册为”资源编排资源栈集服务“的委托管理员。",
+          "enum": [
+            "SELF",
+            "DELEGATED_ADMIN"
+          ],
+          "x-isnullable": true
+        }
+      }
+    },
+    "managed_operation": {
+      "type": "object",
+      "properties": {
+        "enable_parallel_operation": {
+          "type": "boolean",
+          "description": "资源栈集(stack_set)是否可以并发地创建多个资源栈集操作。该参数作为资源栈集属性,可以通过创建资源栈集API(CreateStackSet)指定,通过更新资源栈集API(UpdateStackSet)更新该参数。\n\n该参数默认为false,资源栈集只允许以串行的方式生成并执行资源栈集操作。同一时刻,资源栈集中只会存在一个处于运行态,即QUEUE_IN_PROGRESS或OPERATION_IN_PROGRESS状态的资源栈集操作,该操作执行完成后,下一个资源栈集操作才允许被创建。\n\n该参数如果设定为true,资源栈集允许并发地生成多个资源栈集操作,执行非冲突操作,并将冲突操作进行排队处理。当冲突操作执行完毕,资源栈集按请求顺序继续执行排队操作。当前同一资源栈集下最多允许创建10个并发的资源栈集操作。\n\n注:冲突操作指资源栈集允许多个操作同时执行的条件下,如果超过一个以上的操作包含了同一资源栈实例,此时在该资源栈实例上的多个操作被称为冲突操作。\n\n当资源栈集状态为OPERATION_IN_PROGRESS时,不允许用户通过更新资源栈集(UpdateStackSet)来更新该参数。\n\n* 当前,一个资源栈集下仅允许同时最多存在10个处于运行态的资源栈集操作*",
+          "x-omitempty": false
+        }
+      },
+      "description": "用于定义管理资源栈集操作的一系列属性。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

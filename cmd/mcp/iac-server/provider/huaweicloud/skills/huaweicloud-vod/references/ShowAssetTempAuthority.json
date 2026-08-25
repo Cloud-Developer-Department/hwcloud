@@ -1,0 +1,178 @@
+{
+  "name": "ShowAssetTempAuthority",
+  "summary": "获取分段上传授权",
+  "tags": "媒资上传",
+  "productshort": "VOD",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v1.1/{project_id}/asset/authority": {
+      "get": {
+        "x-publishpath": "vod_04_0197",
+        "x-request-examples-description-1": "初始化上传任务:",
+        "x-request-examples-description-2": "上传段:",
+        "x-request-examples-description-3": "合并段:",
+        "x-request-examples-description-4": "取消段:",
+        "x-request-examples-description-5": "列举已上传的段:",
+        "description": "客户端请求创建媒资时,如果媒资文件超过20MB,需采用分段的方式向OBS上传,在每次与OBS交互前,客户端需通过此接口获取到授权方可与OBS交互。\n\n该接口可以获取[初始化多段上传任务](https://support.huaweicloud.com/api-obs/obs_04_0098.html)、[上传段](https://support.huaweicloud.com/api-obs/obs_04_0099.html)、[合并段](https://support.huaweicloud.com/api-obs/obs_04_0102.html)、[列举已上传段](https://support.huaweicloud.com/api-obs/obs_04_0101.html)、[取消段合并](https://support.huaweicloud.com/api-obs/obs_04_0103.html)的带有临时授权的URL,用户需要根据OBS的接口文档配置相应请求的HTTP请求方法、请求头、请求体,然后请求对应的带有临时授权的URL。\n\n视频分段上传方式和OBS的接口文档保持一致,包括HTTP请求方法、请求头、请求体等各种入参,此接口的作用是为用户生成带有鉴权信息的URL(鉴权信息即query_str),用来替换OBS接口中对应的URL,临时给用户开通向点播服务的桶上传文件的权限。\n\n调用获取授权接口时需要传入bucket、object_key、http_verb,其中bucket和object_key是由[创建媒资:上传方式](https://support.huaweicloud.com/api-vod/vod_04_0196.html)接口中返回的响应体中的target字段获得的bucket和object,http_verb需要根据指定的操作选择。 此接口为v1.1版本,暂不支持前端跨域访问,可以后端访问。如需前端跨域访问,请使用v1.0版本接口,详见[获取分段上传授权](vod_04_0009.xml)。 v1.1版本的接口返回结果不需要拼接url,拿到结果中的sign_str,直接发送请求即可。",
+        "summary": "获取分段上传授权",
+        "operationId": "ShowAssetTempAuthority",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "媒资上传"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/usermanual-vod/vod_01_0058.html)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "http_verb",
+            "description": "分段上传时调用OBS接口的HTTP方法,具体操作需要的HTTP方法请参考OBS的接口文档。\n\n- 初始化上传任务:POST\n- 上传段:PUT\n- 合并段:POST\n- 取消段:DELETE\n- 列举已上传段:GET",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": true,
+            "description": "桶名。\n\n调用[创建媒资:上传方式](https://support.huaweicloud.com/api-vod/vod_04_0196.html)接口中返回的响应体中的target字段获得的bucket值。",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "object_key",
+            "required": true,
+            "description": "对象名。\n\n调用[创建媒资:上传方式](https://support.huaweicloud.com/api-vod/vod_04_0196.html)接口中返回的响应体中的target字段获得的object值。",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "content_type",
+            "description": "文件类型对应的content-type,如MP4对应video/mp4。",
+            "type": "string",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "content_md5",
+            "description": "上传段时每段的MD5。",
+            "type": "string",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "upload_id",
+            "description": "每一个上传任务的id,是OBS进行初始段后OBS返回的。",
+            "type": "string",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "part_number",
+            "description": "上传段时每一段的id。\n\n取值范围:[1,10000]。",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "schema": {
+              "$ref": "#/definitions/ShowAssetTempAuthorityRsp"
+            },
+            "examples": {
+              "application/json": {
+                "sign_str": "https://obs.cn-north-4.myhuaweicloud.com:443/obs-vod-1/%7Bproject_id%7D/f488337c31c8e4622f1590735b134c65/Avatar_480P.mp4?AWSAccessKeyId=CBN2JOVSQVVUREU0RCSN&Expires=1518147618&Signature=kZYh0hEos2VJhjjdHC2zVAHGyXA%3D"
+              }
+            }
+          },
+          "403": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10053",
+                "error_msg": "The request parameter is illegal, illegal field: {xx}."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET\nhttps://{endpoint}/v1.1/{project_id}/asset/authority?http_verb=POST&content_type={type}&bucket={bucket}&object_key={objectKey}",
+        "x-request-examples-url-2": "GET\nhttps://{endpoint}/v1.1/{project_id}/asset/authority?http_verb=PUT&content_md5={md5}&part_number={num}&upload_id={id}&bucket={bucket}&object_key={objectKey}",
+        "x-request-examples-url-3": "GET\nhttps://{endpoint}/v1.1/{project_id}/asset/authority?http_verb=POST&upload_id={id}&bucket={bucket}&object_key={objectKey}",
+        "x-request-examples-url-4": "GET\nhttps://{endpoint}/v1.1/{project_id}/asset/authority?http_verb=DELETE&bucket={bucket}&object_key={objectKey}&upload_id={uploadId}",
+        "x-request-examples-url-5": "GET\nhttps://{endpoint}/v1.1/{project_id}/asset/authority?http_verb=GET&bucket={bucket}&object_key={objectKey}&upload_id={uploadId}"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "ShowAssetTempAuthorityRsp": {
+      "properties": {
+        "sign_str": {
+          "type": "string",
+          "description": "带授权签名字符串的URL。具体调用示例请参见[示例2:媒资分段上传(20M以上)](https://support.huaweicloud.com/api-vod/vod_04_0216.html)。\n\n示例:https://{obs_domain}/{bucket}?AWSAccessKeyId={AccessKeyID}&Expires={ExpiresValue}&Signature={Signature}"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

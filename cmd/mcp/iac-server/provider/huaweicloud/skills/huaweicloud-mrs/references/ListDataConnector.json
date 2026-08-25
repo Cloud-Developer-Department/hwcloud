@@ -1,0 +1,258 @@
+{
+  "name": "ListDataConnector",
+  "summary": "查询数据连接列表",
+  "tags": "数据连接管理接口",
+  "productshort": "MRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/data-connectors": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "tags": [
+          "DataConnectorManagement"
+        ],
+        "summary": "查询数据连接列表",
+        "description": "查询数据连接列表",
+        "operationId": "ListDataConnector",
+        "x-pdp5-enable": "N",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "description": "项目id",
+            "type": "string"
+          },
+          {
+            "name": "connector_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "pattern": "^[a-z0-9A-Z_-]*$",
+            "description": "连接id"
+          },
+          {
+            "name": "source_type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "pattern": "^[a-z0-9A-Z_-]*$",
+            "description": "数据源类别"
+          },
+          {
+            "name": "connector_name",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "数据连接名称",
+            "pattern": "^[a-z0-9A-Z_-]*$"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "每页返回的资源个数",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "minimum": 0,
+            "format": "int32",
+            "description": "分页查询起始偏移量"
+          },
+          {
+            "name": "available",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "description": "数据连接是否有效"
+          }
+        ],
+        "x-method-annotations": [
+          "@ResponseStatus(value = HttpStatus.OK)"
+        ],
+        "responses": {
+          "200": {
+            "description": "查询数据连接列表成功",
+            "schema": {
+              "$ref": "#/definitions/ListDataConnectorRep"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "data_connectors": [
+                  {
+                    "connector_id": "7d169c6c-ab50-4a56-a5d2-240ca20aabda",
+                    "connector_name": "test",
+                    "create_time": 1681270961,
+                    "source_type": "RDS_MYSQL",
+                    "source_info": "{\"rds_instance_id\":\"3ce1ae8af8cd43b2bcbd18b7541bb8b0in01\",\"jdbc_url\":\"jdbc:mysql://192.XXX.XXX.XXX:3306/test?socketTimeout=60000\",\"db_name\":\"test\",\"user_name\":\"root\",\"driver_path\":\"mrs-public/dirvers/mysql-connector-java-5.1.47.jar\"}",
+                    "last_update_time": 1681270961,
+                    "create_by": "148c89d603e048b291f5940935b38f46",
+                    "create_user": "xxx",
+                    "tenant_id": "xxxxe662a7e24cc99bfc858c4558dbf6",
+                    "last_update_by": "148c89d603e048b291f5940935b38f46",
+                    "status": 0,
+                    "encrypt_type": 2
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListDataConnectorRep": {
+      "type": "object",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonAlias",
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "数据连接总数"
+        },
+        "data_connectors": {
+          "type": "array",
+          "description": "数据连接详情列表",
+          "items": {
+            "$ref": "#/definitions/DataConnectorDetail"
+          },
+          "x-annotations": "@JsonAlias(\"datasource_connectors\")"
+        }
+      }
+    },
+    "DataConnector": {
+      "type": "object",
+      "properties": {
+        "connector_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9A-Z_-]*$",
+          "description": "数据连接名称。"
+        },
+        "source_type": {
+          "type": "string",
+          "description": "数据连接类型。\n- RDS_POSTGRES:RDS服务PostgreSQL数据库\n- RDS_MYSQL:RDS服务MySQL数据库\n- gaussdb-mysql:云数据库GaussDB(for MySQL)",
+          "example": "RDS_MYSQL",
+          "enum": [
+            "RDS_MYSQL",
+            "RDS_POSTGRES",
+            "gaussdb-mysql"
+          ],
+          "x-annotations": "@EnumMatch(fieldName = \"source_type\", target = ExternalDataSourceType.class)"
+        },
+        "source_info": {
+          "type": "string",
+          "description": "数据源信息,为json格式,不同数据连接有不同的信息,各数据源的source_info请求内容可参见示例。",
+          "example": "{\"db_name\":\"default\",\"user_name\":\"mrs\",\"password\":\"******\",\"rds_instance_id\":\"3aa55f1cb4c3491686936130f21e9f16in01\"}"
+        }
+      },
+      "x-imports": [
+        "com.huawei.mrs.manager.annotation.EnumMatch",
+        "com.huawei.mrs.manager.model.externaldatasource.ExternalDataSourceType"
+      ],
+      "required": [
+        "connector_name",
+        "source_type",
+        "source_info"
+      ]
+    },
+    "DataConnectorDetail": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/DataConnector"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "connector_id": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 64,
+              "description": "数据连接ID"
+            },
+            "create_time": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0,
+              "description": "创建时间"
+            },
+            "last_update_time": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0,
+              "description": "最后更新时间"
+            },
+            "create_by": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 64,
+              "description": "创建时间"
+            },
+            "create_user": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 64,
+              "description": "创建用户"
+            },
+            "tenant_id": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 64,
+              "pattern": "^[a-z0-9A-Z_-]*$",
+              "description": "租户ID"
+            },
+            "last_update_by": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 64,
+              "description": "最后更新时间"
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "数据连接状态"
+            },
+            "used_clusters": {
+              "type": "string",
+              "description": "使用集群"
+            },
+            "encrypt_type": {
+              "type": "integer",
+              "format": "int32",
+              "description": "加密类型"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mrs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

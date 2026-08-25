@@ -1,0 +1,323 @@
+{
+  "name": "ListBackgroundTask",
+  "summary": "查询后台任务列表",
+  "tags": "后台任务管理",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/tasks": {
+      "get": {
+        "summary": "查询后台任务列表",
+        "x-constraint": "",
+        "x-name": "查询后台任务列表",
+        "x-scope": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-produc-type": "dcs",
+        "description": "查询后台任务列表",
+        "operationId": "ListBackgroundTask",
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/BackgroundTaskListResp"
+            },
+            "examples": {
+              "application/json": {
+                "task_count": 1,
+                "tasks": [
+                  {
+                    "id": "8abf6e1e72c12e7c0172c15b508500aa",
+                    "name": "EXTEND",
+                    "user_name": "dcs_000_02",
+                    "user_id": "d53977d1adfb49c5b025ba7d33a13fd7",
+                    "details": {
+                      "old_cache_mode": "single",
+                      "new_cache_mode": "single",
+                      "old_capacity": "0.125",
+                      "new_capacity": "0.25",
+                      "old_resource_spec_code": "redis.single.xu1.tiny.125",
+                      "new_resource_spec_code": "redis.single.xu1.tiny.256",
+                      "old_replica_num": 1,
+                      "new_replica_num": 1,
+                      "old_cache_type": "single",
+                      "new_cache_type": "single",
+                      "replica_ip": "192.192.0.1",
+                      "replica_az": "az01",
+                      "group_name": "group1",
+                      "old_port": 6379,
+                      "new_port": 6379,
+                      "is_only_adjust_charging": false,
+                      "account_name": "account1",
+                      "source_ip": "192.192.0.0",
+                      "target_ip": "192.192.0.1",
+                      "node_name": "node1",
+                      "rename_commands": [],
+                      "updated_config_length": 0
+                    },
+                    "enable_show": false,
+                    "status": "SUCCESS",
+                    "created_at": "2020-06-17T08:18:06.597Z",
+                    "updated_at": "2020-06-17T08:18:10.106Z"
+                  }
+                ]
+              }
+            },
+            "description": "查询后台任务列表成功。"
+          },
+          "400": {
+            "description": "非法请求。"
+          },
+          "401": {
+            "description": "认证信息非法"
+          },
+          "403": {
+            "description": "请求被拒绝访问。"
+          },
+          "404": {
+            "description": "所请求的资源不存在。"
+          },
+          "500": {
+            "description": "内部服务错误。"
+          }
+        },
+        "x-request-examples-url-1": "GET https://{dcs_endpoint}/v2/a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71/instances/5560df16-cebf-4473-95c4-d1b573c16e79/tasks?offset=0&limit=10&begin_time=20200609160000&end_time=20200617155959",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "x-example": "a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71",
+            "description": "项目ID。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "instance_id",
+            "x-example": "5560df16-cebf-4473-95c4-d1b573c16e79",
+            "description": "实例ID。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询, offset大于等于0",
+            "required": false,
+            "type": "integer",
+            "x-example": "0"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的条目数量。",
+            "required": false,
+            "type": "integer",
+            "x-example": "10"
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "x-example": 20200609160000,
+            "description": "查询开始时间,时间为UTC时间。格式:yyyyMMddHHmmss,如:20200609160000。",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "x-example": 20200617155959,
+            "description": "查询结束时间,时间为UTC时间。格式:yyyyMMddHHmmss,如:20200617155959。",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "后台任务管理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "BackgroundTaskListResp": {
+      "description": "查询后台任务列表返回体",
+      "properties": {
+        "task_count": {
+          "type": "string",
+          "description": "任务个数",
+          "example": 1
+        },
+        "tasks": {
+          "description": "任务详情数组",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/SingleBackgroundTask"
+          }
+        }
+      }
+    },
+    "SingleBackgroundTask": {
+      "description": "单个任务结构体",
+      "properties": {
+        "id": {
+          "description": "后台任务ID",
+          "type": "string"
+        },
+        "name": {
+          "description": "后台任务名,目前支持以下取值:\n\nChangeInstanceSpec:变更规格\n\nBindEip:开启公网访问\n\nUnBindEip:关闭公网访问\n\nAddReplica:添加副本\n\nDelReplica:删除副本\n\nAddWhitelist:设置IP白名单\n\nUpdatePort:修改端口\n\nRemoveIpFromDns:域名摘除IP",
+          "type": "string"
+        },
+        "details": {
+          "description": "详细信息",
+          "type": "object",
+          "$ref": "#/definitions/DetailsBody"
+        },
+        "user_name": {
+          "description": "用户名",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "用户ID",
+          "type": "string"
+        },
+        "params": {
+          "description": "任务相关参数",
+          "type": "string"
+        },
+        "status": {
+          "description": "任务状态",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "任务启动时间,格式为2020-06-17T07:38:42.503Z",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "任务结束时间,格式为2020-06-17T07:38:42.503Z",
+          "type": "string"
+        },
+        "enable_show": {
+          "description": "是否有详细任务进展,可以展开查看",
+          "type": "boolean"
+        }
+      }
+    },
+    "DetailsBody": {
+      "description": "详细信息结构体",
+      "properties": {
+        "old_capacity": {
+          "description": "变更前的容量,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "new_capacity": {
+          "description": "变更后的容量,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "enable_public_ip": {
+          "description": "是否开启公网访问,仅在开启公网访问时有值。",
+          "type": "boolean"
+        },
+        "public_ip_id": {
+          "description": "公网IP的ID,仅在开启公网访问时有值。",
+          "type": "string"
+        },
+        "public_ip_address": {
+          "description": "公网IP地址,仅在开启公网访问时有值。",
+          "type": "string"
+        },
+        "enable_ssl": {
+          "description": "是否开启SSL,仅在开启SSL时有值。",
+          "type": "boolean"
+        },
+        "old_cache_mode": {
+          "description": "变更前的缓存类型,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "new_cache_mode": {
+          "description": "变更后的缓存类型,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "old_resource_spec_code": {
+          "description": "变更前的规格参数,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "new_resource_spec_code": {
+          "description": "变更后的规格参数,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "old_replica_num": {
+          "description": "变更前的副本数量,仅在变更规格时有值。",
+          "type": "integer"
+        },
+        "new_replica_num": {
+          "description": "变更后的副本数量,仅在变更规格时有值。",
+          "type": "integer"
+        },
+        "old_cache_type": {
+          "description": "变更前的缓存类型,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "new_cache_type": {
+          "description": "变更后的规格类型,仅在变更规格时有值。",
+          "type": "string"
+        },
+        "replica_ip": {
+          "description": "副本IP。",
+          "type": "string"
+        },
+        "replica_az": {
+          "description": "副本所在可用区。",
+          "type": "string"
+        },
+        "group_name": {
+          "description": "组名。",
+          "type": "string"
+        },
+        "old_port": {
+          "description": "旧端口。",
+          "type": "integer"
+        },
+        "new_port": {
+          "description": "新端口。",
+          "type": "integer"
+        },
+        "is_only_adjust_charging": {
+          "description": "是否只是调整计费模式。",
+          "type": "boolean"
+        },
+        "account_name": {
+          "description": "账号名称。",
+          "type": "string"
+        },
+        "source_ip": {
+          "description": "源IP。",
+          "type": "string"
+        },
+        "target_ip": {
+          "description": "目标IP。",
+          "type": "string"
+        },
+        "node_name": {
+          "description": "节点信息。",
+          "type": "string"
+        },
+        "rename_commands": {
+          "description": "重命名的指令。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "updated_config_length": {
+          "description": "更新配置项的长度。",
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

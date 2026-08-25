@@ -1,0 +1,228 @@
+{
+  "name": "CreateConfToken",
+  "summary": "获取会控Token",
+  "tags": "会议控制",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/mmc/control/conferences/token": {
+      "get": {
+        "tags": [
+          "会议控制"
+        ],
+        "summary": "获取会控Token",
+        "description": "该接口用于获取正在召开会议的会控Token(未开始的会议调用该接口返回失败)。Token有效期是半个小时。",
+        "operationId": "CreateConfToken",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 1,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "conferenceID",
+            "in": "query",
+            "description": "会议ID。\n> 创建会议时返回的conferenceID。不是vmrConferenceID。",
+            "required": true,
+            "type": "string",
+            "x-example": "914067448"
+          },
+          {
+            "name": "X-Conference-Authorization",
+            "in": "header",
+            "description": "会控Token。\n> * 仅会控Token保活场景需要携带\n> * 如果会话已过期并且请求中携带了密码,则进行重新鉴权并回复新的会控Token",
+            "required": false,
+            "type": "string",
+            "x-example": "stb0442ae70a6e527de968a97be293bdc5a20a952fcc833bf17"
+          },
+          {
+            "name": "X-Password",
+            "in": "header",
+            "description": "会议的主持人密码。\n> 对于会控Token保活场景,不对主持人密码鉴权。",
+            "required": true,
+            "format": "password",
+            "type": "string",
+            "x-example": "156775"
+          },
+          {
+            "name": "X-Login-Type",
+            "in": "header",
+            "description": "请求类型。\n- 1: 业务固定为1。",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 1
+          },
+          {
+            "name": "X-Nonce",
+            "in": "header",
+            "description": "用户临时nonce token。",
+            "required": false,
+            "type": "string",
+            "x-example": "1579231481096J0Vy0tTOLqTAEg3TZKDxA8C3TpbOCYdrt"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "token": "7e4c72a1fb744b8bc15a4b29be0b585151e508225a33c219",
+                  "tmpWsToken": "1304f1e731510954c82c3af886a69f78ba0a7b8ade84d087",
+                  "wsURL": "wss://r1.meeting.huaweicloud.com",
+                  "expireTime": 1582189609629,
+                  "userID": "ff80808167ef1edf0167f339533d05a6",
+                  "orgID": "40454",
+                  "confTokenExpireTime": 1800,
+                  "vmrCurrentConfID": "914346822",
+                  "supportNotifyType": [
+                    "INCREMENT"
+                  ]
+                },
+                "addressToken": "cnrWgVRDFvdEi3VAUB5qFO5zmiNZiFCmnxQz",
+                "gloablPublicIP": "meeting.huaweicloud.com"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestLoginResponse"
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "MMC.111072065",
+                "error_msg": "CONF_NOT_FOUND_OR_AUTH_FAILED"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedRsp"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "获取会控Token",
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}//v1/mmc/control/conferences/token?conferenceID=914067448"
+      }
+    }
+  },
+  "definitions": {
+    "RestLoginResponse": {
+      "description": "会控Token信息。",
+      "properties": {
+        "data": {
+          "description": "会控Token信息。",
+          "$ref": "#/definitions/TokenInfo"
+        },
+        "addressToken": {
+          "type": "string",
+          "description": "企业通讯录查询临时Token。",
+          "example": "DGSpZJSCFDffAgREtZHpyXMtx6wXk9Zvq"
+        },
+        "gloablPublicIP": {
+          "type": "string",
+          "description": "华为云会议Portal地址。",
+          "example": "meeting.huaweicloud.com"
+        }
+      }
+    },
+    "RestFailedRsp": {
+      "description": "错误码信息。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "example": "MMC.111072065"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误码描述。",
+          "example": "CONF_NOT_FOUND_OR_AUTH_FAILED"
+        }
+      }
+    },
+    "TokenInfo": {
+      "description": "会控Token信息。",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "会控Token。有效期半个小时。",
+          "example": "46d048326d1d849cafe62289d5e0b86d21c135b033bb830b"
+        },
+        "tmpWsToken": {
+          "type": "string",
+          "description": "会控WebSocket建链鉴权Token。",
+          "example": "5a94449979487b20ccf4d49c4143732999aebbba9e53193a"
+        },
+        "wsURL": {
+          "type": "string",
+          "description": "会控WebSocket建链URL。",
+          "example": "wss://r1.meeting.huaweicloud.com"
+        },
+        "role": {
+          "type": "integer",
+          "description": "会议中的角色。\n* 0 :普通与会者\n* 1 :会议主持人",
+          "maximum": 1,
+          "minimum": 0,
+          "format": "int32",
+          "example": "1"
+        },
+        "expireTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "会控Token过期时间戳(单位:毫秒)。",
+          "example": "1579247189933"
+        },
+        "userID": {
+          "type": "string",
+          "description": "会议预定者的用户UUID。",
+          "example": "2b8a5f45123d459ebacb8ef8ea32ed66"
+        },
+        "orgID": {
+          "type": "string",
+          "description": "会议所属企业ID。",
+          "example": "40454"
+        },
+        "participantID": {
+          "type": "string",
+          "description": "终端请求时,返回终端入会后会场ID。\n> 该参数将废弃,请勿使用。",
+          "example": "af50e9e63b4111ea9668df997d1c89da"
+        },
+        "confTokenExpireTime": {
+          "type": "integer",
+          "format": "int32",
+          "description": "会控Token有效时长(单位秒)。",
+          "example": 1800
+        },
+        "vmrCurrentConfID": {
+          "type": "string",
+          "description": "云会议室会议的当前会议ID。",
+          "example": "914067448"
+        },
+        "supportNotifyType": {
+          "type": "array",
+          "description": "会控WebSocket消息推送支持类型。",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

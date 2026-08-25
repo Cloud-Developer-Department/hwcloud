@@ -1,0 +1,196 @@
+{
+  "name": "UpdateTenantUsages",
+  "summary": "更新资源空间使用量",
+  "tags": "VDC",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/vdc/v3.0/quotas/regions/{region_id}": {
+      "put": {
+        "summary": "更新资源空间使用量",
+        "x-resource": "配额管理",
+        "description": "更新资源空间使用量。最大支持修改1000个配额项。\n\ncurl命令调用示例:\n```\ncurl -i -H \"Accept: application/json\" -H \"x-auth-token: ******\" -X PUT -d \"{json}\" \"https://access{endpoint}/rest/vdc/v3.0/quotas/regions/{region_id}\"\n``` \n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| >=99.9%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量|600次/分钟|\n|吞吐量|10次/秒|\n|TP50请求时延|1500ms|\n|TP99.9请求时延|3000ms|",
+        "x-precautions": "错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > VDC特性”章节。",
+        "tags": [
+          "VDC"
+        ],
+        "operationId": "UpdateTenantUsages",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "接口支持的用户token。运营管理员,VDC管理员权限,vdc业务员权限,机机账号权限,代维管理员权限用户的token。"
+          },
+          {
+            "name": "region_id",
+            "type": "string",
+            "in": "path",
+            "required": true,
+            "description": "地域ID,长度在1-32位,包含数字字母中划线。"
+          },
+          {
+            "name": "quotas",
+            "in": "body",
+            "required": true,
+            "description": "使用配额。",
+            "schema": {
+              "$ref": "#/definitions/ModifyUsageQuotas"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "请求成功。"
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "接口认证失败。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "PUT: https://{endpoint}",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "quotas": {
+            "project_id": "17d8ec0d-ac99-4cc9-9a5c-8b1911eaffa9",
+            "enterprise_project_id": "0",
+            "usages": [
+              {
+                "available_zone": "az1.dc1",
+                "cloud_infra_id": "a1.d1",
+                "resources": [
+                  {
+                    "resource": "vpc",
+                    "reserved": 10,
+                    "used": 100
+                  }
+                ],
+                "service_id": "nfvivpc"
+              }
+            ],
+            "user_id": "da855c7f-6e9f-4301-bebb-6f54f8ce0206"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DictUsage": {
+      "required": [
+        "resource"
+      ],
+      "properties": {
+        "resource": {
+          "type": "string",
+          "description": "资源ID,长度在1-255之间。"
+        },
+        "used": {
+          "description": "使用配额,取值在-2147483647-2147483647之间。",
+          "type": "number",
+          "format": "double"
+        },
+        "reserved": {
+          "description": "预扣配额,取值在-2147483647-2147483647之间。",
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "ModifyUsages": {
+      "required": [
+        "project_id"
+      ],
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "description": "资源空间ID,长度在1-128位之间的数字字母。"
+        },
+        "user_id": {
+          "type": "string",
+          "description": "用户ID,长度在0-36位之间的数字字母。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID,长度在1-128位之间的数字字母。",
+          "default": 0
+        },
+        "usages": {
+          "description": "配额使用详情。",
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "$ref": "#/definitions/QuotaUsage"
+          }
+        }
+      }
+    },
+    "ModifyUsageQuotas": {
+      "required": [
+        "quotas"
+      ],
+      "properties": {
+        "quotas": {
+          "description": "使用配额。",
+          "$ref": "#/definitions/ModifyUsages"
+        }
+      }
+    },
+    "QuotaUsage": {
+      "required": [
+        "service_id"
+      ],
+      "properties": {
+        "available_zone": {
+          "type": "string",
+          "description": "可用分区ID,长度在0-128之间。"
+        },
+        "cloud_infra_id": {
+          "type": "string",
+          "description": "资源池ID,长度在0-128之间。"
+        },
+        "region_id": {
+          "type": "string",
+          "description": "区域ID,长度在0-128之间。"
+        },
+        "service_id": {
+          "type": "string",
+          "description": "配额服务ID,长度在1-255之间。"
+        },
+        "resources": {
+          "description": "资源使用量。",
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "$ref": "#/definitions/DictUsage"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

@@ -1,0 +1,341 @@
+{
+  "name": "ListSpecs",
+  "summary": null,
+  "tags": "规格管理",
+  "productshort": "LakeFormation",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/specs": {
+      "get": {
+        "tags": [
+          "Specification"
+        ],
+        "description": "查询规格列表",
+        "operationId": "ListSpecs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-zA-Z]{32}$",
+            "x-example": "41aaxxxxxxxxxxxxxxxxxxxxxxxcc046"
+          },
+          {
+            "name": "spec_code",
+            "in": "query",
+            "description": "规格编码",
+            "required": false,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "[a-z.]+",
+            "x-example": "lakeformation.unit.basic.qps"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 100,
+            "minimum": 0,
+            "format": "int32",
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "单次查询个数",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "format": "int32",
+            "x-example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "规格列表",
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "spec_codes": [
+                  {
+                    "spec_code": "hws.resource.type.lakeformation.qps",
+                    "resource_type": "hws.resource.type.lakeformation.metadata",
+                    "stride": 2000,
+                    "unit": "qps",
+                    "min_stride_num": 1,
+                    "max_stride_num": 100,
+                    "usage_measure_id": 6,
+                    "usage_factor": "Duration",
+                    "stride_num_whitelist": [
+                      1,
+                      2
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Specs"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/specs",
+        "x-iam-auth-meta-anno": {
+          "authLevel": "project",
+          "abacAction": "lakeformation:instance:describe",
+          "rbac": "te_admin"
+        },
+        "x-support-sdk": "Y",
+        "x-enable-auth-anno": {
+          "type": "iam-token"
+        },
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "Specs": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数"
+        },
+        "spec_codes": {
+          "type": "array",
+          "description": "规格编码列表",
+          "items": {
+            "$ref": "#/definitions/Spec"
+          }
+        }
+      },
+      "description": "规格编码信息"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "Spec": {
+      "type": "object",
+      "description": "规格信息",
+      "properties": {
+        "spec_code": {
+          "type": "string",
+          "description": "规格编码。lakeformation.unit.basic.qps:每秒查询率(QPS)产品",
+          "example": "lakeformation.unit.basic.qps",
+          "minLength": 0,
+          "maxLength": 65534
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "资源编码",
+          "example": "hws.resource.type.lakeformation.qps",
+          "minLength": 0,
+          "maxLength": 65534
+        },
+        "stride": {
+          "type": "integer",
+          "format": "int32",
+          "description": "步长",
+          "example": 2000,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "unit": {
+          "type": "string",
+          "description": "单位",
+          "example": "qps",
+          "minLength": 0,
+          "maxLength": 65534
+        },
+        "min_stride_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最小步数",
+          "example": 1,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "max_stride_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大步数",
+          "example": 200,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "usage_measure_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "使用量单位标识",
+          "example": 6,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "usage_factor": {
+          "type": "string",
+          "description": "使用量因子",
+          "example": "Duration",
+          "minLength": 0,
+          "maxLength": 65534
+        },
+        "usage_value": {
+          "type": "integer",
+          "format": "int32",
+          "description": "使用量,包含免费额度和单位额度,例如api调用次数,单位是次,前100万次调用免费,计费标准是5元每100万次,这里返回200万,元数据个数,单位是万个,前100万个免费,计费标准是5元每10万个,这里返回110",
+          "example": 1,
+          "minimum": 0,
+          "maximum": 10000000
+        },
+        "free_usage_value": {
+          "type": "integer",
+          "format": "int32",
+          "description": "免费使用额度,例如api调用次数,单位是次,前100万次调用免费,这里返回100万,元数据个数,单位是万个,前100万个免费,这里返回100",
+          "example": 1,
+          "minimum": 0,
+          "maximum": 5000000
+        },
+        "stride_num_whitelist": {
+          "type": "array",
+          "description": "步数白名单,返回时,步数必须是白名单中的值",
+          "items": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "example": [
+            1,
+            2,
+            3
+          ],
+          "minItems": 0,
+          "maxItems": 100000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

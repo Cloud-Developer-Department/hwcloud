@@ -1,0 +1,193 @@
+{
+  "name": "CreateGaussMySqlReadonlyNode",
+  "summary": "创建只读节点",
+  "tags": "实例管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/nodes/enlarge": {
+      "post": {
+        "tags": [
+          "实例管理"
+        ],
+        "operationId": "CreateGaussMySqlReadonlyNode",
+        "summary": "创建只读节点",
+        "description": "创建只读节点。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID,严格匹配UUID规则。",
+            "required": true,
+            "type": "string",
+            "x-example": "61a4ea66210545909d74a05c27a7179ein07"
+          },
+          {
+            "name": "MysqlCreateReadonlyNodeRequest",
+            "in": "body",
+            "description": "请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MysqlCreateReadonlyNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/MysqlCreateReadonlyNodeResponse"
+            },
+            "examples": {
+              "application/json": {
+                "instance_id": "ba62a0b83a1b42bfab275829d86ac0fdin07",
+                "node_names": [
+                  "gauss-ccf5_node03",
+                  "gauss-ccf5_node04"
+                ],
+                "job_id": "dff1d289-4d03-4942-8b9f-463ea07c000d"
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "为实例创建只读节点。",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/ba62a0b83a1b42bfab275829d86ac0fdin07/nodes/enlarge",
+        "x-request-examples-1": {
+          "priorities": [
+            1,
+            2
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MysqlCreateReadonlyNodeRequest": {
+      "description": "只读节点信息",
+      "required": [
+        "priorities"
+      ],
+      "properties": {
+        "priorities": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": "指定创建的只读节点故障倒换优先级。\n\n故障倒换优先级的取值范围为1~16,数字越小,优先级越大,即故障倒换时,主节点会优先倒换到优先级高的只读节点上,优先级相同的只读节点选为主节点的概率相同。最多支持9个只读节点设置故障倒换优先级,超过9个的只读节点优先级默认为-1,表示不会参与倒换。可通过修改节点的故障倒换优先级来进行调整。"
+        },
+        "is_auto_pay": {
+          "type": "string",
+          "description": "创建包周期时可指定,表示是否自动从客户的账户中支付,此字段不影响自动续订的支付方式。\n\n- true,为自动支付,默认该方式。\n- false,为手动支付。"
+        },
+        "charge_mode": {
+          "type": "string",
+          "description": "**参数解释**:   \n\n计费模式。\n\n**约束限制**:\n\n仅当实例为包年/包月实例时生效。\n\n**取值范围**:\n\n- prePaid:预付费,即包年/包月。\n- postPaid:后付费,即按需付费。\n\n**默认取值**:\n\nprePaid。",
+          "enum": [
+            "prePaid",
+            "postPaid"
+          ]
+        },
+        "availability_zones": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "可用区。可指定可用区创建只读节点,不传该参数时默认为自动选择可用区。\n\n调用[查询数据库规格](https://support.huaweicloud.com/api-taurusdb/ShowGaussMySqlFlavors.html)获取,其中az_status中的key为availability_zone。\n\n注:指定可用区创建只读节点,可能由于资源不足创建失败。"
+        }
+      }
+    },
+    "MysqlCreateReadonlyNodeResponse": {
+      "required": [
+        "instance_id",
+        "job_id",
+        "node_names"
+      ],
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID。"
+        },
+        "node_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "节点名称列表。"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "创建只读节点的任务ID。\n\n仅创建按需只读节点时会返回该参数。",
+          "example": "dff1d289-4d03-4942-8b9f-463ea07c000d"
+        },
+        "order_id": {
+          "type": "string",
+          "description": "订单号,创建包年包月只读节点时返回该参数。"
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

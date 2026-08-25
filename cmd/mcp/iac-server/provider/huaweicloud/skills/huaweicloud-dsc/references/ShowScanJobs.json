@@ -1,0 +1,237 @@
+{
+  "name": "ShowScanJobs",
+  "summary": "查询扫描任务列表",
+  "tags": "敏感数据发现",
+  "productshort": "DSC",
+  "region_id": "eu-west-101",
+  "paths": {
+    "/v1/{project_id}/sdg/scan/jobs": {
+      "get": {
+        "x-request-examples-description-1": "查询扫描任务列表",
+        "x-request-examples-url-1": "GET /v1/{project_id}/sdg/scan/jobs",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "敏感数据发现"
+        ],
+        "summary": "查询扫描任务列表",
+        "description": "查询扫描任务列表",
+        "operationId": "ShowScanJobs",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "integer",
+            "default": 100,
+            "format": "int32"
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "description": "内容",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "预留,待启用",
+            "required": false,
+            "type": "string",
+            "x-todo": true
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "预留,待启用",
+            "required": false,
+            "type": "string",
+            "x-todo": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ScanJobListResponse"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "tasks": [
+                  {
+                    "id": "xxxxxxx",
+                    "name": "ScanDemo",
+                    "cycle": "ONCE",
+                    "status": "FINISHED",
+                    "open": true,
+                    "rule_groups": [
+                      "PCI"
+                    ],
+                    "last_run_time": 1634612489173,
+                    "create_time": 1630982438506,
+                    "last_scan_risk": "HIGH",
+                    "use_nlp": false,
+                    "topic_urn": "",
+                    "start_time": 1630983532673
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "无效请求",
+            "examples": {
+              "application/json": {
+                "error_code": "dsc.40000011",
+                "error_msg": "Invalid parameter"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorReturnInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ScanJob": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "任务名称"
+        },
+        "rule_groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "任务使用的规则组"
+        },
+        "cycle": {
+          "type": "string",
+          "description": "任务执行方式",
+          "enum": [
+            "ONCE",
+            "DAY",
+            "WEEK",
+            "MONTH"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "任务当前状态",
+          "enum": [
+            "INIT",
+            "WAITING",
+            "RUNNING",
+            "FAILED",
+            "STOPPED",
+            "FINISHED",
+            "TERMINATED"
+          ]
+        },
+        "last_run_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "任务上一次执行时间"
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "任务创建时间"
+        },
+        "last_scan_risk": {
+          "type": "string",
+          "description": "任务上一次扫描风险等级结果"
+        },
+        "use_nlp": {
+          "type": "boolean",
+          "description": "是否使用了NLP进行扫描"
+        },
+        "open": {
+          "type": "boolean",
+          "description": "任务开启状态"
+        },
+        "topic_urn": {
+          "type": "string",
+          "description": "SMN服务通知主题"
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "任务启动时间"
+        }
+      }
+    },
+    "ErrorReturnInfo": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ]
+    },
+    "ScanJobListResponse": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScanJob"
+          },
+          "description": "本次返回的扫描任务列表"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "description": "任务总数"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sdg.eu-west-101.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

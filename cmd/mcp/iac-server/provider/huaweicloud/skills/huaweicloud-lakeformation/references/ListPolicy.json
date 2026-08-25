@@ -1,0 +1,791 @@
+{
+  "name": "ListPolicy",
+  "summary": "获取同步权限策略",
+  "tags": "接入管理",
+  "productshort": "LakeFormation",
+  "region_id": "ap-southeast-4",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/policies": {
+      "get": {
+        "tags": [
+          "Access"
+        ],
+        "summary": "获取同步权限策略",
+        "description": "分页获取同步权限策略",
+        "operationId": "ListPolicy",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+$"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "instance id",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9-]{36}$"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit",
+            "required": false,
+            "type": "integer",
+            "default": 5000,
+            "maximum": 10000,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "marker",
+            "required": false,
+            "type": "string",
+            "maxLength": 1024
+          },
+          {
+            "name": "reverse_page",
+            "in": "query",
+            "description": "是否查询上一页",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "x-annotations": [
+              "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+            ],
+            "x-imports": [
+              "com.huawei.us.validator.annotation.UsNoConstraint;"
+            ]
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": "/"
+            },
+            "schema": {
+              "$ref": "#/definitions/PagedListPolicy"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-request-examples-url-1": "/v1/{project_id}/instances/{instance_id}/policies",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "PolicyItem": {
+      "properties": {
+        "accesses": {
+          "type": "array",
+          "description": "访问控制数据",
+          "items": {
+            "$ref": "#/definitions/PolicyItemAccess"
+          }
+        },
+        "conditions": {
+          "type": "array",
+          "description": "条件",
+          "items": {
+            "$ref": "#/definitions/PolicyItemCondition"
+          }
+        },
+        "delegate_admin": {
+          "type": "boolean",
+          "description": "是否传递",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "groups": {
+          "type": "array",
+          "description": "组",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "description": "角色",
+          "items": {
+            "type": "string"
+          }
+        },
+        "users": {
+          "type": "array",
+          "description": "用户",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "PolicyItem"
+    },
+    "PolicyResource": {
+      "properties": {
+        "is_excludes": {
+          "type": "boolean",
+          "description": "是否排除",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "is_recursive": {
+          "type": "boolean",
+          "description": "是否递归",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "values": {
+          "type": "array",
+          "description": "值",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "PolicyResource"
+    },
+    "ValiditySchedule": {
+      "properties": {
+        "end_time": {
+          "type": "string",
+          "description": "end时间"
+        },
+        "recurrences": {
+          "type": "array",
+          "description": "策略递归",
+          "items": {
+            "$ref": "#/definitions/ValidityRecurrence"
+          }
+        },
+        "start_time": {
+          "type": "string",
+          "description": "开始时间"
+        },
+        "time_zone": {
+          "type": "string",
+          "description": "时间域"
+        }
+      },
+      "title": "ValiditySchedule"
+    },
+    "PolicyItemCondition": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "条件类型"
+        },
+        "values": {
+          "type": "array",
+          "description": "条件值",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "PolicyItemCondition"
+    },
+    "PagedInfo": {
+      "type": "object",
+      "required": [
+        "current_count",
+        "next_marker",
+        "previous_marker"
+      ],
+      "properties": {
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本次返回的对象个数",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "next_marker": {
+          "type": "string",
+          "example": "006f492b-xxxx",
+          "description": "下一页查询地址",
+          "maxLength": 32
+        },
+        "previous_marker": {
+          "type": "string",
+          "example": "003e6eba-xxxx",
+          "description": "上一页查询地址",
+          "maxLength": 32
+        }
+      },
+      "description": "分页返回信息"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "PagedListPolicy": {
+      "type": "object",
+      "properties": {
+        "page_info": {
+          "description": "policy列表",
+          "$ref": "#/definitions/PagedInfo"
+        },
+        "policies": {
+          "type": "array",
+          "description": "分页信息",
+          "items": {
+            "$ref": "#/definitions/Policy"
+          }
+        }
+      }
+    },
+    "ValidityRecurrence": {
+      "properties": {
+        "interval": {
+          "description": "时间间隔",
+          "$ref": "#/definitions/ValidityInterval"
+        },
+        "schedule": {
+          "description": "周期",
+          "$ref": "#/definitions/RecurrenceSchedule"
+        }
+      },
+      "title": "ValidityRecurrence"
+    },
+    "RecurrenceSchedule": {
+      "properties": {
+        "day_of_month": {
+          "type": "string",
+          "description": "日期按月"
+        },
+        "day_of_week": {
+          "type": "string",
+          "description": "日期按星期"
+        },
+        "hour": {
+          "type": "string",
+          "description": "时"
+        },
+        "minute": {
+          "type": "string",
+          "description": "分"
+        },
+        "month": {
+          "type": "string",
+          "description": "月"
+        },
+        "year": {
+          "type": "string",
+          "description": "年"
+        }
+      },
+      "title": "RecurrenceSchedule"
+    },
+    "RowFilterPolicyItem": {
+      "properties": {
+        "accesses": {
+          "type": "array",
+          "description": "权限",
+          "items": {
+            "$ref": "#/definitions/PolicyItemAccess"
+          }
+        },
+        "conditions": {
+          "type": "array",
+          "description": "条件",
+          "items": {
+            "$ref": "#/definitions/PolicyItemCondition"
+          }
+        },
+        "delegate_admin": {
+          "type": "boolean",
+          "description": "是否传递",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "groups": {
+          "type": "array",
+          "description": "组",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "description": "角色",
+          "items": {
+            "type": "string"
+          }
+        },
+        "row_filter_info": {
+          "description": "行过滤",
+          "$ref": "#/definitions/PolicyItemRowFilterInfo"
+        },
+        "users": {
+          "type": "array",
+          "description": "用户",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "RowFilterPolicyItem"
+    },
+    "ValidityInterval": {
+      "properties": {
+        "days": {
+          "type": "integer",
+          "format": "int32",
+          "description": "日",
+          "minimum": 1,
+          "maximum": 31
+        },
+        "hours": {
+          "type": "integer",
+          "format": "int32",
+          "description": "时",
+          "minimum": 0,
+          "maximum": 23
+        },
+        "minutes": {
+          "type": "integer",
+          "format": "int32",
+          "description": "分",
+          "minimum": 0,
+          "maximum": 59
+        }
+      },
+      "title": "ValidityInterval"
+    },
+    "DataMaskPolicyItem": {
+      "properties": {
+        "accesses": {
+          "type": "array",
+          "description": "访问数组",
+          "items": {
+            "$ref": "#/definitions/PolicyItemAccess"
+          }
+        },
+        "conditions": {
+          "type": "array",
+          "description": "条件数组",
+          "items": {
+            "$ref": "#/definitions/PolicyItemCondition"
+          }
+        },
+        "data_mask_info": {
+          "description": "列掩码策略信息",
+          "$ref": "#/definitions/PolicyItemDataMaskInfo"
+        },
+        "delegate_admin": {
+          "type": "boolean",
+          "description": "是否支持传递",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "groups": {
+          "type": "array",
+          "description": "用户组",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "description": "角色",
+          "items": {
+            "type": "string"
+          }
+        },
+        "users": {
+          "type": "array",
+          "description": "用户",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "DataMaskPolicyItem"
+    },
+    "PolicyItemDataMaskInfo": {
+      "properties": {
+        "condition_expr": {
+          "type": "string",
+          "description": "条件表达式"
+        },
+        "data_mask_type": {
+          "type": "string",
+          "description": "列掩码类型"
+        },
+        "value_expr": {
+          "type": "string",
+          "description": "列掩码表达式"
+        }
+      },
+      "title": "PolicyItemDataMaskInfo"
+    },
+    "Policy": {
+      "type": "object",
+      "properties": {
+        "allow_exceptions": {
+          "type": "array",
+          "description": "排除的允许策略",
+          "items": {
+            "$ref": "#/definitions/PolicyItem"
+          }
+        },
+        "conditions": {
+          "type": "array",
+          "description": "条件属性",
+          "items": {
+            "$ref": "#/definitions/PolicyItemCondition"
+          }
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "创建者"
+        },
+        "data_mask_policy_items": {
+          "type": "array",
+          "description": "类掩码策略条目",
+          "items": {
+            "$ref": "#/definitions/DataMaskPolicyItem"
+          }
+        },
+        "deny_exceptions": {
+          "type": "array",
+          "description": "拒绝排除策略",
+          "items": {
+            "$ref": "#/definitions/PolicyItem"
+          }
+        },
+        "deny_policy_items": {
+          "type": "array",
+          "description": "拒绝策略",
+          "items": {
+            "$ref": "#/definitions/PolicyItem"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "描述"
+        },
+        "guid": {
+          "type": "string",
+          "description": "唯一guid"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "主键"
+        },
+        "is_audit_enabled": {
+          "type": "boolean",
+          "description": "是否支持审计",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "is_default_policy": {
+          "type": "boolean",
+          "description": "是否默认策略",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "is_deny_all_else": {
+          "type": "boolean",
+          "description": "是否拒绝所有",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "is_enabled": {
+          "type": "boolean",
+          "description": "是否启动",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "名"
+        },
+        "options": {
+          "type": "object",
+          "description": "选项",
+          "properties": {}
+        },
+        "policy_items": {
+          "type": "array",
+          "description": "策略信息数组",
+          "items": {
+            "$ref": "#/definitions/PolicyItem"
+          }
+        },
+        "policy_labels": {
+          "type": "array",
+          "description": "策略便签",
+          "items": {
+            "type": "string"
+          }
+        },
+        "policy_priority": {
+          "type": "integer",
+          "format": "int32",
+          "description": "策略优先级"
+        },
+        "policy_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "策略类型"
+        },
+        "resource_signature": {
+          "type": "string",
+          "description": "资源签名"
+        },
+        "resources": {
+          "type": "object",
+          "description": "资源",
+          "additionalProperties": {
+            "$ref": "#/definitions/PolicyResource"
+          }
+        },
+        "row_filter_policy_items": {
+          "type": "array",
+          "description": "行过滤策略条目",
+          "items": {
+            "$ref": "#/definitions/RowFilterPolicyItem"
+          }
+        },
+        "service": {
+          "type": "string",
+          "description": "服务"
+        },
+        "service_type": {
+          "type": "string",
+          "description": "服务类型"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "更新时间"
+        },
+        "updated_by": {
+          "type": "string",
+          "description": "更新者"
+        },
+        "validity_schedules": {
+          "type": "array",
+          "description": "验证周期",
+          "items": {
+            "$ref": "#/definitions/ValiditySchedule"
+          }
+        },
+        "version": {
+          "type": "integer",
+          "format": "int64",
+          "description": "版本"
+        },
+        "zone_name": {
+          "type": "string",
+          "description": "域"
+        }
+      },
+      "title": "Policy"
+    },
+    "PolicyItemAccess": {
+      "properties": {
+        "is_allowed": {
+          "type": "boolean",
+          "description": "是否允许",
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "description": "类型"
+        }
+      },
+      "title": "PolicyItemAccess"
+    },
+    "PolicyItemRowFilterInfo": {
+      "properties": {
+        "filter_expr": {
+          "type": "string",
+          "description": "行过滤表达式"
+        }
+      },
+      "title": "PolicyItemRowFilterInfo"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.ap-southeast-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

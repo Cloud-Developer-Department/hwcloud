@@ -1,0 +1,254 @@
+{
+  "name": "BatchListJobStatus",
+  "summary": "批量查询任务状态",
+  "tags": "公共接口管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/jobs/batch-status": {
+      "post": {
+        "tags": [
+          "公共接口管理"
+        ],
+        "summary": "批量查询任务状态",
+        "description": "根据任务ID批量查询任务状态。",
+        "operationId": "BatchListJobStatus",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "请求语言类型",
+            "required": false,
+            "type": "string",
+            "default": "en-us",
+            "x-example": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "x-order": 3
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "指定类型为application/json",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "x-example": "application/json",
+            "x-order": 4
+          },
+          {
+            "in": "body",
+            "name": "BatchQueryJobReq",
+            "description": "批量查询任务状态请求体. 当前页参数cur_page,有效值为0-整数上限,但不可超过jobs最大分页。默认cur_page =1。如果为0,则获取全部任务信息。每页任务数per_page,有效值为0-100。默认值为per_page=5. 如果为0,则获取全部任务信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchQueryJobReqPage"
+            },
+            "x-order": 5,
+            "x-example": {
+              "jobs": [
+                "9a470239-2308-4bb5-a6bc-1040402fjb21",
+                "dc67695a-ee3e-49b8-a022-a099bd81jb21"
+              ],
+              "cur_page": 1,
+              "per_page": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "id": "9a470239-2308-4bb5-a6bc-1040402fjb21",
+                    "status": "INCRE_TRANSFER_STARTED"
+                  },
+                  {
+                    "id": "dc67695a-ee3e-49b8-a022-a099bd81jb21",
+                    "status": "INCRE_TRANSFER_FAILED"
+                  }
+                ],
+                "count": 2
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchGetJobStatusResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-name": "批量查询任务状态",
+        "x-constraint": "",
+        "x-version": "v3",
+        "x-scope": "Commercial",
+        "x-order": 21,
+        "x-request-examples-description-1": "批量查询任务状态示例\n",
+        "x-request-examples-url-1": "https://{endpoint}/v3/054ba152d480d55b2f5dc0069e7ddef0/jobs/batch-status",
+        "x-request-examples-1": {
+          "jobs": [
+            "9a470239-2308-4bb5-a6bc-1040402fjb21",
+            "dc67695a-ee3e-49b8-a022-a099bd81jb21"
+          ],
+          "pageReq": {
+            "cur_page": 1,
+            "per_page": 10
+          }
+        },
+        "x-request-examples-text-1": {
+          "jobs": [
+            "9a470239-2308-4bb5-a6bc-1040402fjb21",
+            "dc67695a-ee3e-49b8-a022-a099bd81jb21"
+          ],
+          "pageReq": {
+            "cur_page": 1,
+            "per_page": 10
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "BatchListJobStatus"
+      }
+    }
+  },
+  "definitions": {
+    "BatchQueryJobReqPage": {
+      "required": [
+        "jobs"
+      ],
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "description": "批量查询任务详情",
+          "items": {
+            "type": "string",
+            "description": ""
+          }
+        },
+        "page_req": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageReq"
+        }
+      },
+      "description": "带分页的批量查询任务详情请求体"
+    },
+    "QueryJobStatusResp": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态。\n- CREATING:创建中\n- CREATE_FAILED:创建失败\n- CONFIGURATION:配置中\n- STARTJOBING:启动中\n- WAITING_FOR_START:等待启动中\n- START_JOB_FAILED:启动失败\n- PAUSING:已暂停\n- FULL_TRANSFER_STARTED:全量开始,灾备场景下为初始化\n- FULL_TRANSFER_FAILED:全量失败,灾备场景下为初始化失败\n- FULL_TRANSFER_COMPLETE:全量完成,灾备场景下为初始化完成\n- INCRE_TRANSFER_STARTED:增量开始,灾备场景下为灾备中\n- INCRE_TRANSFER_FAILED:增量失败,灾备场景下为灾备异常\n- RELEASE_RESOURCE_STARTED:结束任务中\n- RELEASE_RESOURCE_FAILED:结束任务失败\n- RELEASE_RESOURCE_COMPLETE:已结束\n- REBUILD_NODE_STARTED:故障恢复中\n- REBUILD_NODE_FAILED:故障恢复失败\n- CHANGE_JOB_STARTED:任务变更中\n- CHANGE_JOB_FAILED:任务变更失败\n- DELETED:已删除\n- CHILD_TRANSFER_STARTING:再编辑子任务启动中\n- CHILD_TRANSFER_STARTED:再编辑子任务迁移中\n- CHILD_TRANSFER_COMPLETE:再编辑子任务迁移完成\n- CHILD_TRANSFER_FAILED:再编辑子任务迁移失败\n- RELEASE_CHILD_TRANSFER_STARTED:再编辑子任务结束中\n- RELEASE_CHILD_TRANSFER_COMPLETE:再编辑子任务已结束\n- NODE_UPGRADE_START:升级开始\n- NODE_UPGRADE_COMPLETE:升级完成\n- NODE_UPGRADE_FAILED:升级失败",
+          "enum": [
+            "CREATING",
+            "CREATE_FAILED",
+            "CONFIGURATION",
+            "STARTJOBING",
+            "WAITING_FOR_START",
+            "START_JOB_FAILED",
+            "PAUSING",
+            "FULL_TRANSFER_STARTED",
+            "FULL_TRANSFER_FAILED",
+            "FULL_TRANSFER_COMPLETE",
+            "INCRE_TRANSFER_STARTED",
+            "INCRE_TRANSFER_FAILED",
+            "RELEASE_RESOURCE_STARTED",
+            "RELEASE_RESOURCE_FAILED",
+            "RELEASE_RESOURCE_COMPLETE",
+            "REBUILD_NODE_STARTED",
+            "REBUILD_NODE_FAILED",
+            "CHANGE_JOB_STARTED",
+            "CHANGE_JOB_FAILED",
+            "DELETED",
+            "CHILD_TRANSFER_STARTING",
+            "CHILD_TRANSFER_STARTED",
+            "CHILD_TRANSFER_COMPLETE",
+            "CHILD_TRANSFER_FAILED",
+            "RELEASE_CHILD_TRANSFER_STARTED",
+            "RELEASE_CHILD_TRANSFER_COMPLETE",
+            "NODE_UPGRADE_START",
+            "NODE_UPGRADE_COMPLETE",
+            "NODE_UPGRADE_FAILED"
+          ]
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "description": "批量查询任务状态返回体",
+      "type": "object"
+    },
+    "BatchGetJobStatusResp": {
+      "properties": {
+        "results": {
+          "type": "array",
+          "description": "任务状态信息",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/QueryJobStatusResp"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "返回任务数量"
+        }
+      },
+      "description": "批量查询任务状态返回体"
+    },
+    "PageReq": {
+      "properties": {
+        "cur_page": {
+          "type": "integer",
+          "format": "int32",
+          "description": "当前页, 不能超过item除每页任务数量的最大页",
+          "default": 1
+        },
+        "per_page": {
+          "type": "integer",
+          "format": "int32",
+          "description": "每页item数量,填0获取全部item",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 5
+        }
+      },
+      "description": "分页请求体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

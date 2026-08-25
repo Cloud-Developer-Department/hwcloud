@@ -1,0 +1,217 @@
+{
+  "name": "ShowOpsAgentMetric",
+  "summary": "查询时间范围内智能体的总数 草稿数 发布态数",
+  "tags": "指标管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/ops/observation/agents/metric": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L1",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "tags": [
+          "metric"
+        ],
+        "operationId": "ShowOpsAgentMetric",
+        "summary": "查询时间范围内智能体的总数 草稿数 发布态数",
+        "description": "查询时间范围内智能体的总数 草稿数 发布态数",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "description": "时间戳",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 4110338427000
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "description": "时间戳",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 4110338427000
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应体",
+            "schema": {
+              "$ref": "#/definitions/ShowOpsAgentMetricResponseBody"
+            }
+          },
+          "400": {
+            "description": "无效的请求信息",
+            "schema": {
+              "$ref": "#/definitions/OpsObserverCommonError"
+            },
+            "x-response-examples-0": {
+              "error_code": "AgentArts.05001003",
+              "error_msg": "请求参数不正确"
+            }
+          },
+          "403": {
+            "description": "权限不足,拒绝访问",
+            "schema": {
+              "$ref": "#/definitions/OpsObserverAuthorizationError"
+            },
+            "x-response-examples-0": {
+              "error_code": "AgentArts.05004003",
+              "error_msg": "权限不足,拒绝访问",
+              "encode_authorization_message": "eyJIcnJvciI6ICJVbmF1dGhvcm16ZWQifQ==",
+              "details": [
+                {
+                  "error_code": "AgentArts.05001003"
+                },
+                {
+                  "error_msg": "请求参数不正确"
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/OpsObserverCommonError"
+            },
+            "x-response-examples-0": {
+              "error_code": "AgentArts.05005000",
+              "error_msg": "内部服务器错误"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MetricResponse": {
+      "type": "object",
+      "properties": {
+        "metric_name": {
+          "type": "string",
+          "description": "指标名",
+          "example": "agent",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "total": {
+          "type": "integer",
+          "description": "总数",
+          "format": "int32",
+          "example": 20,
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "draft_total": {
+          "type": "integer",
+          "description": "草稿类型的总数",
+          "format": "int32",
+          "example": 20,
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "release_total": {
+          "type": "integer",
+          "description": "已发布版本总数",
+          "format": "int32",
+          "example": 20,
+          "minimum": 0,
+          "maximum": 1000000
+        }
+      }
+    },
+    "ShowOpsAgentMetricResponseBody": {
+      "type": "object",
+      "properties": {
+        "metric_agent_list": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "description": "指标响应体信息",
+          "items": {
+            "$ref": "#/definitions/MetricResponse"
+          }
+        }
+      }
+    },
+    "OpsObserverCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "description": "错误响应信息",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 18,
+          "maxLength": 18,
+          "example": "AgentArts.05000001"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "OpsObserverAuthorizationError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 18,
+          "maxLength": 18,
+          "example": "AgentArts.05000001"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "编码后的授权失败信息,可通过STS5 Decode Authorization Message接口解码获取详细授权失败原因",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "details": {
+          "type": "array",
+          "description": "依赖的下游服务错误信息列表",
+          "items": {
+            "$ref": "#/definitions/OpsObserverCommonError"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

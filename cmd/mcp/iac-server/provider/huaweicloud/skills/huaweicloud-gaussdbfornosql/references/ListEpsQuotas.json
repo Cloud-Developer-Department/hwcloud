@@ -1,0 +1,235 @@
+{
+  "name": "ListEpsQuotas",
+  "summary": "查询企业项目配额",
+  "tags": "企业项目管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/enterprise-projects/quotas": {
+      "get": {
+        "tags": [
+          "企业项目管理"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "summary": "查询企业项目配额",
+        "description": "查询企业项目配额。",
+        "operationId": "ListEpsQuotas",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一region下的project ID。"
+          },
+          {
+            "name": "enterprise_project_name",
+            "in": "query",
+            "required": false,
+            "description": "企业项目名称。支持模糊搜索,若不指定则返回所有企业项目配额。",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "索引位置,偏移量。\n\n  - 从第一条数据偏移offset条数据后开始查询,默认为0。\n  - 取值必须为数字,且不能为负数。",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询个数上限值。\n\n- 取值范围:1~100。\n- 不传该参数时,默认查询前100条信息。",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/NoSqlEpsQuotaListResponse"
+            },
+            "examples": {
+              "application/json": {
+                "quotas": [
+                  {
+                    "enterprise_project_id": "c0348bb1-d09d-4ee2-8edd-53e496fe6b52",
+                    "enterprise_project_name": "test1",
+                    "quota": {
+                      "instance": 500,
+                      "vcpus": 1000,
+                      "ram": 2000
+                    },
+                    "used": {
+                      "instance": 15,
+                      "vcpus": 88,
+                      "ram": 256
+                    }
+                  },
+                  {
+                    "enterprise_project_id": "780a6b1f-58b8-4df6-a85e-326d052de704",
+                    "enterprise_project_name": "test2",
+                    "quota": {
+                      "instance": 500,
+                      "vcpus": 1000,
+                      "ram": 2000
+                    },
+                    "used": {
+                      "instance": 36,
+                      "vcpus": 64,
+                      "ram": 192
+                    }
+                  }
+                ],
+                "total_count": 2
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "URI样例",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/0549b4a43100d4f32f51c01c2fe4acdb/enterprise-projects/quotas?enterprise_project_name=test&offset=1&limit=10"
+      }
+    }
+  },
+  "definitions": {
+    "NoSqlEpsQuotaUsed": {
+      "type": "object",
+      "properties": {
+        "instance": {
+          "type": "integer",
+          "description": "已使用实例配额。"
+        },
+        "vcpus": {
+          "type": "integer",
+          "description": "已使用vcpus配额。"
+        },
+        "ram": {
+          "type": "integer",
+          "description": "已使用ram配额。"
+        }
+      },
+      "required": [
+        "instance",
+        "vcpus",
+        "ram"
+      ]
+    },
+    "NoSqlQueryEpsQuotaInfo": {
+      "type": "object",
+      "properties": {
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。"
+        },
+        "enterprise_project_name": {
+          "type": "string",
+          "description": "企业项目名称。"
+        },
+        "quota": {
+          "$ref": "#/definitions/NoSqlEpsQuotaTotal",
+          "description": "企业项目配额。"
+        },
+        "used": {
+          "$ref": "#/definitions/NoSqlEpsQuotaUsed",
+          "description": "企业项目已使用配额。"
+        }
+      },
+      "required": [
+        "enterprise_project_id",
+        "enterprise_project_name",
+        "quota",
+        "used"
+      ]
+    },
+    "NoSqlEpsQuotaListResponse": {
+      "type": "object",
+      "description": "企业项目配额信息。",
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "description": "总记录数。"
+        },
+        "quotas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NoSqlQueryEpsQuotaInfo"
+          },
+          "description": "企业项目配额信息列表。"
+        }
+      },
+      "required": [
+        "total_count",
+        "quotas"
+      ]
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "NoSqlEpsQuotaTotal": {
+      "type": "object",
+      "properties": {
+        "instance": {
+          "type": "integer",
+          "description": "实例配额。"
+        },
+        "vcpus": {
+          "type": "integer",
+          "description": "vcpus配额。"
+        },
+        "ram": {
+          "type": "integer",
+          "description": "ram配额。"
+        }
+      },
+      "required": [
+        "instance",
+        "vcpus",
+        "ram"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

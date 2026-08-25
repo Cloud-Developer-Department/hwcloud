@@ -1,0 +1,184 @@
+{
+  "name": "RunSqlConversion",
+  "summary": "SQL语句转换。",
+  "tags": "SQL语句转换",
+  "productshort": "UGO",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{project_id}/sql-conversion": {
+      "post": {
+        "x-request-examples-description-1": "SQL语句转换。",
+        "x-is-registered": "Y",
+        "x-request-examples-text-1": {
+          "source_db_type": "ORACLE",
+          "target_db_type": "RDS for PostgreSQL",
+          "sql_statement": "create table ugo(col1 int, col2 varchar2);",
+          "target_db_version": "11"
+        },
+        "x-request-examples-1": {
+          "source_db_type": "ORACLE",
+          "target_db_type": "RDS for PostgreSQL",
+          "sql_statement": "create table ugo(col1 int, col2 varchar2);",
+          "target_db_version": "11"
+        },
+        "x-request-examples-url-1": "POST https://{EndPoint}/v1/{project_id}/sql-conversion",
+        "x-support-sdk": "Y",
+        "tags": [
+          "SQL语句转换"
+        ],
+        "summary": "SQL语句转换。",
+        "description": "SQL语句转换。",
+        "operationId": "RunSqlConversion",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。"
+          },
+          {
+            "name": "sql_convert_req",
+            "in": "body",
+            "required": true,
+            "description": "SQL语句转换的请求体",
+            "schema": {
+              "$ref": "#/definitions/SqlConvertReq"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "schema": {
+              "$ref": "#/definitions/SqlConvertResp"
+            },
+            "examples": {
+              "application/json": {
+                "converted_sql_statement": "create table ugo(col1 NUMERIC(38), col2 VARCHAR);",
+                "is_support_conversion": true
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SqlConvertResp": {
+      "description": "SQL翻译接口的响应体。",
+      "properties": {
+        "is_support_conversion": {
+          "type": "boolean",
+          "description": "是否支持SQL语句转换。"
+        },
+        "converted_sql_statement": {
+          "type": "string",
+          "description": "转换后的SQL语句。"
+        },
+        "unsupported_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UnSupportedItem"
+          },
+          "description": "不支持SQL语句转换的详情。"
+        }
+      },
+      "required": [
+        "is_support_conversion",
+        "converted_sql_statement"
+      ]
+    },
+    "UnSupportedItem": {
+      "properties": {
+        "reason": {
+          "type": "string",
+          "description": "SQL语句不支持转换的原因。"
+        },
+        "suggestion": {
+          "type": "string",
+          "description": "SQL语句不支持转换的建议。"
+        },
+        "line_number": {
+          "type": "integer",
+          "format": "int32",
+          "description": "行号。"
+        },
+        "position": {
+          "type": "integer",
+          "format": "int32",
+          "description": "位置。"
+        }
+      },
+      "description": "SQL语句不支持转换的详情。"
+    },
+    "SqlConvertReq": {
+      "description": "SQL语句转换的请求体。",
+      "properties": {
+        "source_db_type": {
+          "type": "string",
+          "description": "源数据库类型。",
+          "example": "ORACLE",
+          "enum": [
+            "ORACLE"
+          ]
+        },
+        "target_db_type": {
+          "type": "string",
+          "description": "目标数据库类型。其中GaussDB Centralized已弃用。",
+          "enum": [
+            "RDS for MySQL",
+            "GaussDB(for MySQL)",
+            "RDS for PostgreSQL",
+            "GaussDB Primary/Standby",
+            "GaussDB Centralized"
+          ],
+          "example": "RDS for MySQL"
+        },
+        "target_db_version": {
+          "type": "string",
+          "description": "目标数据库版本。\n(注意:该字段需要与 target_db_type 字段组合成有效的目标数据库类型与版本,当前支持以下组合:\nGaussDB Centralized-2.0(已弃用);\nGaussDB Primary/Standby-2.0;\nRDS for PostgreSQL-11;\nRDS for PostgreSQL-Enhanced Edition;\nRDS for MySQL-5.7;\nGaussDB(for MySQL) 8.0。)",
+          "enum": [
+            "5.7",
+            "8.0",
+            "11",
+            "2.0",
+            "Enhanced Edition"
+          ],
+          "example": 5.7
+        },
+        "sql_statement": {
+          "type": "string",
+          "description": "需要转换的SQL语句。"
+        }
+      },
+      "required": [
+        "source_db_type",
+        "target_db_type",
+        "target_db_version",
+        "sql_statement"
+      ],
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ugo.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

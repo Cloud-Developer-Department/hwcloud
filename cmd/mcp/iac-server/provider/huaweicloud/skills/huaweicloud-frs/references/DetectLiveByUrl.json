@@ -1,0 +1,239 @@
+{
+  "name": "DetectLiveByUrl",
+  "summary": "动作活体检测",
+  "tags": "动作活体检测",
+  "productshort": "FRS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/live-detect": {
+      "post": {
+        "summary": "动作活体检测",
+        "x-name": "动作活体检测",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "description": "动作活体检测是通过判断视频中的人物动作与传入动作列表是否一致来识别视频中人物是否为活体。如果有多张人脸出现,则选取最大的人脸进行判定。",
+        "operationId": "DetectLiveByUrl",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc",
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/LiveDetectResp"
+            },
+            "examples": {
+              "application/json": {
+                "video-result": {
+                  "alive": true,
+                  "actions": [
+                    {
+                      "confidence": 0.823,
+                      "action": 1
+                    },
+                    {
+                      "confidence": 0.823,
+                      "action": 3
+                    },
+                    {
+                      "confidence": 0.823,
+                      "action": 2
+                    }
+                  ],
+                  "picture": "/9j/4AAQSkZJRgABAQEAYABgAAD/2w..."
+                },
+                "warning-list": []
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "失败响应样例",
+            "examples": {
+              "application/json": {
+                "error_code": "FRS.0701",
+                "error_msg": "Parse video data failed."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "video_url": "/BucketName/ObjectName",
+          "actions": "1,3,2",
+          "action_time": "1000-3000,4000-7000,9000-12000",
+          "nod_threshold": 10
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "description": "项目ID,获取方法请参见[获取项目ID/账号租户名/AK/SK](https://support.huaweicloud.com/api-face/face_02_0056.html)。",
+            "type": "string",
+            "required": true,
+            "x-order": 2
+          },
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "description": "X-Auth-Token值获取方法请参见[认证鉴权](https://support.huaweicloud.com/api-face/face_02_0004.html)。",
+            "type": "string",
+            "required": true,
+            "x-order": 1
+          },
+          {
+            "name": "Enterprise-Project-Id",
+            "in": "header",
+            "description": "企业项目ID。FRS支持通过企业项目管理(EPS)对不同用户组和用户的资源使用,进行分账。当前仅支持按需计费模式。\n\n获取方法:进入“[企业项目管理](https://console.huaweicloud.com/eps/?region=cn-north-4#/projects/list)”页面,单击企业项目名称,在企业项目详情页获取Enterprise-Project-Id(企业项目ID)。\n\n企业项目创建步骤请参见用户指南。\n> 说明:\n创建企业项目后,在传参时,有以下三类场景。\n- 携带正确的ID,正常使用FRS服务,账单的企业项目会被分类到企业ID对应的企业项目中。\n- 携带格式正确但不存在的ID,正常使用FRS服务,账单的企业项目会显示对应不存在的企业项目ID。\n- 不携带ID或格式错误ID(包含特殊字符等),正常使用FRS服务,账单的企业项目会被分类到\"default\"中。",
+            "required": false,
+            "type": "string",
+            "x-order": 3
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/LiveDetectUrlReq"
+            },
+            "in": "body",
+            "name": "LiveDetectUrlReq",
+            "description": "This is a auto create Body Object",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "动作活体检测"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/{project_id}/live-detect",
+        "x-cpp-exclude": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "LiveDetectUrlReq": {
+      "properties": {
+        "video_url": {
+          "description": "视频的URL路径,目前仅支持华为云上OBS的URL,且人脸识别服务有权限读取该OBS桶的数据。\n开通读取权限的操作请参见[服务授权](https://support.huaweicloud.com/api-face/face_02_0006.html)。视频要求:\n• 视频Base64编码后大小不超过8MB。\n• 限制视频时长1~15秒。\n• 建议帧率10fps~30fps。\n• 封装格式:mp4、avi、flv、webm、asf、mov。\n• 视频编码格式: h261、h263、h264、hevc、vc1、vp8、vp9、wmv3。",
+          "type": "string"
+        },
+        "actions": {
+          "description": "动作代码顺序列表,英文逗号(,)分隔。建议单动作,目前支持的动作有:\n• 1:左摇头\n• 2:右摇头\n• 3:点头\n• 4:嘴部动作\n• 5:眨眼",
+          "type": "string"
+        },
+        "action_time": {
+          "description": "该参数为动作时间数组拼接的字符串,数组的长度和actions的数量一致,每一项代表了对应次序动作的起始时间和结束时间,单位为距视频开始的毫秒数。",
+          "type": "string"
+        },
+        "nod_threshold": {
+          "description": "该参数为点头动作幅度的判断门限,取值范围:[1,90],默认为10,单位为度。该值设置越大,则越难判断为点头。",
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "required": [
+        "video_url",
+        "actions"
+      ]
+    },
+    "ActionsList": {
+      "properties": {
+        "confidence": {
+          "format": "double",
+          "description": "置信度,取值范围0~1。",
+          "type": "number"
+        },
+        "action": {
+          "description": "动作编号,取值范围:[1,2,3,4,5],其中:\n• 1:左摇头\n• 2:右摇头\n• 3:点头\n• 4:嘴部动作\n• 5:眨眼",
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "actions",
+        "confidence"
+      ]
+    },
+    "ErrorResp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "调用失败时的错误码,具体请参考[错误码](https://support.huaweicloud.com/api-face/face_02_0045.html)。调用成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败时的错误信息。\n调用成功时无此字段。"
+        }
+      }
+    },
+    "LiveDetectResp": {
+      "properties": {
+        "video-result": {
+          "description": "活体检测结果,VideoDetectResult结构见[VideoDetectResult](https://support.huaweicloud.com/api-face/face_02_0010.html)。调用失败时无此字段。",
+          "properties": {
+            "alive": {
+              "description": "是否是活体。",
+              "type": "boolean"
+            },
+            "actions": {
+              "description": "动作列表。",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ActionsList"
+              }
+            },
+            "picture": {
+              "description": "检测出最大人脸的图片base64。",
+              "type": "string"
+            }
+          }
+        },
+        "warning-list": {
+          "description": "警告信息列表,WarningList结构见[WarningList](https://support.huaweicloud.com/api-face/face_02_0077.html)。调用失败时无此字段",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WarningList"
+          }
+        }
+      },
+      "required": [
+        "video-result",
+        "warning-list"
+      ]
+    },
+    "WarningList": {
+      "properties": {
+        "warningCode": {
+          "description": "警告ID。",
+          "type": "integer",
+          "format": "int32"
+        },
+        "warningMsg": {
+          "description": "告警消息。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "face.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

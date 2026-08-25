@@ -1,0 +1,227 @@
+{
+  "name": "ShowMonthUsages",
+  "summary": "月用量统计",
+  "tags": "SIM卡管理",
+  "productshort": "GSL",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/sim-cards/month-usages": {
+      "post": {
+        "tags": [
+          "SimCards"
+        ],
+        "summary": "月用量统计",
+        "description": "设备月用量统计",
+        "operationId": "ShowMonthUsages",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "ShowMonthUsagesRequestBody",
+            "description": "历史月用量查询接口请求参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ShowMonthUsageReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json-1": {
+                "month_usages": [
+                  {
+                    "sim_card_id": 4710226018477568,
+                    "iccid": "A4710226018477568123",
+                    "flow_usages": [
+                      {
+                        "billing_cycle": "202207",
+                        "flow_used": 85.27
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowMonthUsageResp"
+            }
+          },
+          "400": {
+            "description": "Parameter Invalid",
+            "examples": {
+              "application/json-1": {
+                "error_code": "GSL.00010004",
+                "error_msg": "参数异常"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "GSL.00010004"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json-1": {
+                "error_code": "GSL.00010003",
+                "error_msg": "系统繁忙,请稍后重试。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "GSL.00010003"
+            ]
+          }
+        },
+        "x-returnType": "ResponseEntity<ShowMonthUsageResp>",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-iftype": "OpenAPI_new"
+      }
+    }
+  },
+  "definitions": {
+    "ShowMonthUsageReq": {
+      "type": "object",
+      "required": [
+        "billing_cycles"
+      ],
+      "properties": {
+        "sim_card_ids": {
+          "type": "array",
+          "example": "4700000000000000",
+          "description": "sim卡id列表,最多支持传入500个SIM卡id。sim_card_ids与iccids不能同时为空,sim_card_ids参数为空则根据iccids参数处理",
+          "items": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "maxItems": 500,
+          "minItems": 0
+        },
+        "iccids": {
+          "type": "array",
+          "example": [
+            "A4700000000000000123",
+            "A4700000000000000124"
+          ],
+          "description": "iccid列表,最多支持传入500个iccid。sim_card_ids与iccids不能同时为空,sim_card_ids参数为空则根据iccids参数处理",
+          "items": {
+            "type": "string",
+            "example": "A4700000000000000123",
+            "minLength": 19,
+            "maxLength": 20
+          },
+          "maxItems": 500,
+          "minItems": 0
+        },
+        "billing_cycles": {
+          "type": "array",
+          "example": "2022-02",
+          "description": "账期,最多支持传入本月在内的6个月账期,例如[2022-07, 2022-06],不支持传入未来账期。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 7,
+            "pattern": "^[一-龥a-zA-Z0-9_.-]{0,2000}$"
+          },
+          "maxItems": 6,
+          "minItems": 0
+        }
+      },
+      "example": {
+        "sim_card_ids": [
+          10000001,
+          10000002
+        ],
+        "iccids": [],
+        "billing_cycles": [
+          "2022-02",
+          "2022-03"
+        ]
+      },
+      "x-java-class": "com.huawei.m2m.cmp.global.simcard.rest.api.dto.request.ShowMonthUsageReq"
+    },
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "x-serialVersionUID": "4654150370649286615",
+      "x-ref-external": "com.huawei.m2m.cmp.base.api.ApiResponse"
+    },
+    "ShowMonthUsageResp": {
+      "type": "object",
+      "properties": {
+        "month_usages": {
+          "type": "array",
+          "description": "月用量列表",
+          "items": {
+            "$ref": "#/definitions/MonthUsageVo"
+          }
+        }
+      },
+      "x-java-class": "com.huawei.m2m.cmp.global.simcard.rest.api.dto.response.ShowMonthUsageResp"
+    },
+    "MonthUsageVo": {
+      "type": "object",
+      "properties": {
+        "sim_card_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "SIM卡ID",
+          "minimum": 0
+        },
+        "iccid": {
+          "type": "string",
+          "description": "iccid",
+          "minLength": 0
+        },
+        "flow_usages": {
+          "type": "array",
+          "description": "月用量",
+          "items": {
+            "$ref": "#/definitions/FlowUsageVo"
+          }
+        }
+      },
+      "x-java-class": "com.huawei.m2m.cmp.global.simcard.rest.api.model.MonthUsageVo"
+    },
+    "FlowUsageVo": {
+      "type": "object",
+      "properties": {
+        "billing_cycle": {
+          "type": "string",
+          "example": "202002",
+          "description": "账期"
+        },
+        "flow_used": {
+          "type": "number",
+          "format": "double",
+          "example": 2.0,
+          "description": "已用流量(MB)"
+        }
+      },
+      "x-java-class": "com.huawei.m2m.cmp.global.simcard.rest.api.model.FlowUsageVo"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gsl.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

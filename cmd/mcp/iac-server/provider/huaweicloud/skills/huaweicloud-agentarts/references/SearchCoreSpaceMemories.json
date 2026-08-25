@@ -1,0 +1,422 @@
+{
+  "name": "SearchCoreSpaceMemories",
+  "summary": "搜索记忆",
+  "tags": "记忆检索",
+  "productshort": "AgentArts",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/core/spaces/{space_id}/memories/search": {
+      "post": {
+        "tags": [
+          "记忆检索"
+        ],
+        "summary": "搜索记忆",
+        "description": "基于向量相似度搜索 Space 中的长期记忆。\n\n**调用链路**:\n1. 校验 IAM Token,获取 project_id\n2. 根据 space_id 查询 CtrlDB 获取 Space 记录(含 cell_id)\n3. 校验 Space 归属当前 project_id\n4. 根据 cell_id 查询 Cell 配置获取 Access 服务地址\n5. 携带 X-Internal-Token 调用 Access 内部搜索接口\n6. 透传响应",
+        "operationId": "SearchCoreSpaceMemories",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-protected-api",
+        "x-api-service-plane": "Data-plane",
+        "x-sec-data-level": "L2",
+        "x-request-examples-url-1": "/v1/core/spaces/123e4567-e89b-12d3-a456-426614174000/memories/search",
+        "x-request-examples-text-1": {
+          "query": "User's programming language preference",
+          "strategy_type": "user_preference",
+          "strategy_id": "123e4567-e89b-12d3-a456-426614174002",
+          "actor_id": "user-12345",
+          "assistant_id": "assistant-abc",
+          "session_id": "789e0123-e89b-12d3-a456-426614174000",
+          "memory_type": "memory",
+          "start_time": 1705312980000,
+          "end_time": 1705399380000,
+          "top_k": 10,
+          "min_score": 0.8
+        },
+        "x-request-examples-1": {
+          "query": "User's programming language preference",
+          "strategy_type": "user_preference",
+          "strategy_id": "123e4567-e89b-12d3-a456-426614174002",
+          "actor_id": "user-12345",
+          "assistant_id": "assistant-abc",
+          "session_id": "789e0123-e89b-12d3-a456-426614174000",
+          "memory_type": "memory",
+          "start_time": 1705312980000,
+          "end_time": 1705399380000,
+          "top_k": 10,
+          "min_score": 0.8
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/SpaceIdPath"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "**参数解释:** \n搜索记忆的请求体,包含查询文本、过滤条件和返回数量等参数。\n**约束限制:** \n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+            "schema": {
+              "$ref": "#/definitions/SearchCoreSpaceMemoriesRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "schema": {
+              "$ref": "#/definitions/SearchCoreSpaceMemoriesResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求参数错误。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "403": {
+            "description": "权限不足。",
+            "schema": {
+              "$ref": "#/definitions/AuthorizationError"
+            }
+          },
+          "404": {
+            "description": "记忆库未找到",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "429": {
+            "description": "请求频率超限。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MemoryRecord": {
+      "type": "object",
+      "required": [
+        "id",
+        "space_id",
+        "strategy_id",
+        "strategy_type",
+        "content",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "**参数解释:** \n记忆记录 ID,唯一标识一条记忆记录,创建记忆时由系统自动生成。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "space_id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "**参数解释:** \n所属 Space ID,标识该记录所属的记忆库。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "strategy_id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "**参数解释:** \n来源策略 ID,标识该记忆记录由哪个策略生成,可通过查询策略接口获取。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "strategy_type": {
+          "type": "string",
+          "enum": [
+            "semantic",
+            "summary",
+            "user_preference",
+            "episodic",
+            "event",
+            "custom"
+          ],
+          "description": "**参数解释:** \n策略类型,决定记忆的存储和使用方式。\n**取值范围:** \nsemantic(语义记忆)用于存储语义化的信息;summary(摘要记忆)用于对话总结;user_preference(用户偏好)用于存储用户偏好设置;episodic(事件记忆)用于存储特定事件;event(事件记忆)与episodic相同,用于存储特定事件;custom(自定义记忆)用于用户自定义的记忆类型。\n**默认取值:**\n不涉及。"
+        },
+        "actor_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "**参数解释:** \n归属 Actor ID,标识该记忆记录所属的 Actor,实现 Actor 级记忆隔离。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "assistant_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "**参数解释:** \n归属 Assistant ID,标识该记录所属的 AI 助手。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "**参数解释:** \n来源会话 ID,标识该记忆记录关联的会话,实现 Session 级记忆隔离。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000,
+          "pattern": "^[\\s\\S]*$",
+          "description": "**参数解释:** \n记忆内容,存储具体的记忆信息文本,如用户偏好、重要事实等。\n**取值范围:**\n1-10000 字符。\n**默认取值:**\n不涉及。"
+        },
+        "memory_type": {
+          "type": "string",
+          "enum": [
+            "memory",
+            "episode",
+            "reflection"
+          ],
+          "description": "**参数解释:** \n记忆类型,标识记忆的存储形式。\n**取值范围:**\nmemory(一般记忆)用于存储一般的记忆信息;episode(事件记忆)用于存储特定事件;reflection(反思记忆)用于存储反思和总结。"
+        },
+        "isolation_level": {
+          "type": "string",
+          "enum": [
+            "actor",
+            "session"
+          ],
+          "description": "**参数解释:** \n记忆隔离级别,控制记忆的可见范围。\n**取值范围:** \nactor(Actor 隔离)记忆只能在 Actor 内部共享;session(Session 隔离)记忆只能在 Session 内部共享。\n不涉及。"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释:** \n记录的创建时间,由系统自动生成,格式为 ISO 8601。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释:** \n记录的最近更新时间,由系统自动更新,格式为 ISO 8601。\n**取值范围:** \n不涉及。\n**默认取值:**\n不涉及。"
+        }
+      }
+    },
+    "SearchCoreSpaceMemoriesResponseBody": {
+      "type": "object",
+      "required": [
+        "results",
+        "total"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "**参数解释:**\n检索结果(按 Rerank 分数降序)。\n**约束限制:**\n不涉及。\n**取值范围:**\n0-100个。\n**默认取值:**\n不涉及。",
+          "items": {
+            "type": "object",
+            "required": [
+              "record",
+              "score"
+            ],
+            "properties": {
+              "record": {
+                "$ref": "#/definitions/MemoryRecord"
+              },
+              "score": {
+                "type": "number",
+                "format": "float",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "**参数解释:** \n相似度分数(0.0-1.0)。\n**约束限制:** \n不涉及。\n**取值范围:** \n0.0-1.0\n**默认取值:** \n0.0-1.0"
+              }
+            }
+          }
+        },
+        "query": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2000,
+          "pattern": "^[\\s\\S]*$",
+          "description": "**参数解释:** \n原始查询文本,与请求中的 query 参数一致。\n**约束限制:** \n不涉及。\n**取值范围:**\n长度0-2000字符。\n**默认取值:**\n0-2000 字符。"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "description": "**参数解释:** \n符合条件的搜索结果总数,用于计算总页数。\n**约束限制:** \n不涉及。\n**取值范围:** \n0-2147483647\n**默认取值:** \n0-2147483647"
+        }
+      }
+    },
+    "AuthorizationError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.XXXXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "**参数解释:**\n编码后的授权失败信息。\n**取值范围:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "details": {
+          "type": "array",
+          "description": "**参数解释:**\n依赖的下游服务错误信息列表,包含导致当前请求失败的下游服务错误详情。\n**取值范围:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceCommonError"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    },
+    "CoreSpaceCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.01XXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "SearchCoreSpaceMemoriesRequestBody": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "description": "**参数解释:**\n查询文本(可选,不传时仅按过滤条件检索)。\n**约束限制:**\n不涉及。\n**取值范围:**\n长度1-2000字符。\n**默认取值:**\n不涉及。"
+        },
+        "strategy_type": {
+          "type": "string",
+          "enum": [
+            "semantic",
+            "summary",
+            "user_preference",
+            "episodic",
+            "event",
+            "custom"
+          ],
+          "description": "**参数解释:**\n按策略类型过滤。semantic(语义记忆)用于存储语义化的信息;summary(摘要记忆)用于对话总结;user_preference(用户偏好)用于存储用户偏好设置;episodic(事件记忆)用于存储特定事件;event(事件记忆)与episodic相同,用于存储特定事件;custom(自定义记忆)用于用户自定义的记忆类型。\n**约束限制:**\n不涉及。\n**取值范围:**\n- semantic\n- summary\n- user_preference\n- episodic\n- event\n- custom\n**默认取值:**\n不涉及。"
+        },
+        "strategy_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "format": "uuid",
+          "description": "**参数解释:** \n按策略实例 ID 过滤,仅返回指定策略实例关联的记录。策略实例 ID 可通过查询策略接口获取。\n**约束限制:** \n不涉及。\n**取值范围:** \n长度36-36字符。\n**默认取值:** \n不涉及。"
+        },
+        "actor_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "**参数解释:** \n按 Actor ID 过滤,仅返回指定 Actor 关联的记录。Actor ID 用于标识对话参与者。\n**约束限制:** \n不涉及。\n**取值范围:**\n长度0-64字符。\n**默认取值:**\n不涉及。"
+        },
+        "assistant_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "**参数解释:** \n按 Assistant ID 过滤,仅返回指定 Assistant 关联的记录。Assistant ID 用于标识 AI 助手。\n**约束限制:** \n不涉及。\n**取值范围:**\n长度0-64字符。\n**默认取值:**\n不涉及。"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "format": "uuid",
+          "description": "**参数解释:** \n按 Session ID 过滤,仅返回指定 Session 关联的记录。\n**约束限制:** \n不涉及。\n**取值范围:** \n长度36-36字符。\n \n不涉及。"
+        },
+        "memory_type": {
+          "type": "string",
+          "enum": [
+            "memory",
+            "episode",
+            "reflection"
+          ],
+          "description": "**参数解释:** \n按记忆类型过滤。\n**约束限制:** \n不涉及。\n**取值范围:** \n- memory\n- episode\n- reflection\n**默认取值:** \nmemory(一般记忆)用于存储一般的记忆信息;episode(事件记忆)用于存储特定事件;reflection(反思记忆)用于存储反思和总结。"
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 253402300799999,
+          "description": "**参数解释:** \n按创建时间过滤的起始时间(毫秒时间戳,包含),仅返回创建时间大于等于此时间的记录。\n**约束限制:** \n不涉及。\n**取值范围:** \n0-253402300799999\n**默认取值:** \n0-253402300799999"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 253402300799999,
+          "description": "**参数解释:** \n按创建时间过滤的结束时间(毫秒时间戳,包含),仅返回创建时间小于等于此时间的记录。\n**约束限制:** \n不涉及。\n**取值范围:** \n0-253402300799999\n**默认取值:** \n0-253402300799999"
+        },
+        "top_k": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "**参数解释:**\n返回相似度最高的前 K 个结果,用于控制检索返回数量。\n**约束限制:**\n不涉及。\n**取值范围:**\n1-100\n**默认取值:**\n10",
+          "default": 10
+        },
+        "min_score": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "**参数解释:** \n最小向量相似度分数阈值(基于 OpenSearch 向量检索分数过滤,Rerank 前生效)。\n**约束限制:** \n不涉及。\n**取值范围:** \n0.0-1.0\n**默认取值:** \n不涉及。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "SpaceIdPath": {
+      "name": "space_id",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "format": "uuid",
+      "description": "**参数解释:** \n记忆库 ID,唯一标识一个记忆库,可以通过AgentArts智能体记忆库控制台或者记忆库查询接口获取。\n**约束限制:**\n仅支持字母、数字和中划线。\n**取值范围:**\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值:**\n不涉及。"
+    }
+  },
+  "host": "agentarts.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

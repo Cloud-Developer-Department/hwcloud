@@ -1,0 +1,484 @@
+{
+  "name": "ListMetricsData",
+  "summary": "查询云服务话单记录",
+  "tags": "计量计价",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/metering/v3.0/query-metrics-data": {
+      "post": {
+        "summary": "查询云服务话单记录",
+        "description": "查询云服务话单记录,用于将将计量数据同步到外部系统中,请勿并发调用该接口。\n按照云服务累计模式计费价格:\n1. DURATION:累计使用时长,费用 = 使用时长 * 使用量 * 单价\n2. USAGE:累计使用量,费用 = 使用量 * 单价",
+        "x-opseverity": "Minor",
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > 计量计价”章节。",
+        "tags": [
+          "计量计价"
+        ],
+        "operationId": "ListMetricsData",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "合法用户token,具有查看计量报表的权限或op_service,mo_bss_adm,vdc_adm的任一角色"
+          },
+          {
+            "name": "cdrRequest",
+            "in": "body",
+            "description": "查询对象",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CDRsRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询计量话单数据成功",
+            "schema": {
+              "$ref": "#/definitions/CDRsListResponse"
+            },
+            "examples": {
+              "application/json": {
+                "metrics": [
+                  {
+                    "id": "3777baf4-77be-44cc-b13a-a0c22bf087ce",
+                    "record_type": "20",
+                    "user_id": "8ae439ae90df4042944592840e1f005b",
+                    "region_code": "cn-global-1",
+                    "cloud_infra_id": "",
+                    "az_code": "fsp137.type1",
+                    "cloud_service_type_code": "hws.service.type.evs",
+                    "resource_type_code": "hws.resource.type.volume",
+                    "resource_spec_code": "IPSAN",
+                    "resource_id": "c2df0ff4-6a64-4a4d-8d1e-36bea6a54728",
+                    "resource_display_name": "volume-adb6",
+                    "bss_params": "::volume-adb6",
+                    "start_time": "2023-08-07 19:34:50",
+                    "end_time": "2023-08-07 20:00:00",
+                    "extend_params": "",
+                    "tag": "",
+                    "enterprise_project_id": "",
+                    "accumulate_mode": "DURATION",
+                    "usage_value": "10",
+                    "usage_duration": "1510",
+                    "price": "100",
+                    "price_unit": "GB",
+                    "spec_define_id": "52c29f30-3531-4b44-afc4-fb5eba696815",
+                    "spec_define_name": "IPSAN(IPSAN_SATA)",
+                    "vdc_id": "f3a44f11-b069-4385-8a27-022d6d48f93f",
+                    "upper_vdc_id": "66e351a6-e196-499c-8fd4-497be8046a0b",
+                    "meter_unit_id": "-1",
+                    "meter_unit_name": ""
+                  }
+                ],
+                "time_zone": "Asia/Shanghai",
+                "start_time": "2023-08-07 00:00:00",
+                "end_time": "2023-08-08 00:00:00",
+                "total": 1,
+                "marker": ""
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          },
+          "401": {
+            "description": "token鉴权失败"
+          },
+          "403": {
+            "description": "URL鉴权失败"
+          },
+          "404": {
+            "description": "rest接口未找到"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误"
+          }
+        },
+        "x-order": 0,
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/metering/v3.0/query-metrics-data",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "region_code": "cn-global-137",
+          "start_time": "2023-08-07 00:00:00",
+          "end_time": "2023-08-08 00:00:00",
+          "time_zone": "Asia/Shanghai",
+          "period": "hourly",
+          "locale": "zh_CN",
+          "domain_id": "66e351a6e196499c8fd4497be8046a0b",
+          "limit": 10
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CDRsRequestBody": {
+      "required": [
+        "period",
+        "region_code",
+        "start_time",
+        "end_time",
+        "domain_id",
+        "time_zone"
+      ],
+      "properties": {
+        "period": {
+          "description": "查询周期\n1. hourly:查询开始时间和结束时间的间隔不能超过一周,且时间截取到小时。举例说明:2023-01-10 10:00:00\n2. daily:查询开始时间和结束时间的间隔不能超过一月,且时间截取到自然天。举例说明:2023-01-10 00:00:00\n3. monthly:查询开始时间和结束时间的间隔不能超过一年,且时间截取到自然月。举例说明:2023-01-01 00:00:00",
+          "type": "string",
+          "enum": [
+            "hourly",
+            "daily",
+            "monthly"
+          ]
+        },
+        "region_code": {
+          "type": "string",
+          "description": "区域",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "start_time": {
+          "description": "开始时间,格式:yyyy-MM-dd HH:mm:ss,举例说明:2023-01-10 10:00:00",
+          "type": "string"
+        },
+        "end_time": {
+          "description": "结束时间,格式:yyyy-MM-dd HH:mm:ss,结束时间大于开始时间且满足查询周期时间间隔,举例说明:2023-01-17 10:00:00",
+          "type": "string"
+        },
+        "domain_id": {
+          "description": "租户ID,一级VDC用户可指定,查询该租户内计量数据",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "upper_vdc_id": {
+          "description": "一级VDC ID",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 0,
+          "x-jsonIgnore": true
+        },
+        "vdc_id": {
+          "description": "VDC ID,查询指定VDC计量数据,vdc_id和upper_vdc_id二选一",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "time_zone": {
+          "description": "查询时区,服务端不支持指定时区,默认返回服务端时区",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "cloud_service_type_code": {
+          "type": "string",
+          "description": "云服务类型编码",
+          "maxLength": 32,
+          "minLength": 1
+        },
+        "resource_type_code": {
+          "type": "string",
+          "description": "云资源类型编码",
+          "maxLength": 32,
+          "minLength": 1
+        },
+        "locale": {
+          "description": "查询语言,默认为en_US",
+          "type": "string",
+          "enum": [
+            "zh_CN",
+            "en_US"
+          ]
+        },
+        "marker": {
+          "type": "string",
+          "description": "分页查询的起始位置,空:表示从首页开始查询,连续翻页查询时提供前次响应中的marker",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "每页显示的条目数量,取值范围:0-1000",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 1000
+        },
+        "resource_id": {
+          "type": "array",
+          "description": "RESOURCE ID,资源ID",
+          "maxItems": 500,
+          "minItems": 0,
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "CDRsListResponse": {
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "description": "计费话单列表",
+          "items": {
+            "$ref": "#/definitions/CDRs"
+          }
+        },
+        "time_zone": {
+          "description": "时区,指定时区不存在时返回服务端时区",
+          "type": "string"
+        },
+        "start_time": {
+          "description": "查询开始时间,指定时区时间,格式:yyyy-MM-dd HH:mm:ss.",
+          "type": "string"
+        },
+        "end_time": {
+          "description": "查询结束时间,指定时区时间,格式:yyyy-MM-dd HH:mm:ss",
+          "type": "string"
+        },
+        "total": {
+          "description": "当页总数",
+          "type": "integer",
+          "format": "int32"
+        },
+        "marker": {
+          "type": "string",
+          "description": "下一页数据标记,空:查询结束;非空:有满足条件的数据"
+        }
+      }
+    },
+    "ResourceResponseBody": {
+      "required": [
+        "id",
+        "record_type",
+        "user_id",
+        "region_code",
+        "cloud_service_type_code",
+        "resource_type_code",
+        "start_time",
+        "end_time",
+        "upper_vdc_id",
+        "vdc_id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "record_type": {
+          "type": "string",
+          "description": "离线话单记录标记,正常的离线话单记录:20,纠正后错误的离线话单记录:30",
+          "minLength": 0,
+          "maxLength": 4
+        },
+        "user_id": {
+          "type": "string",
+          "description": "用户编码,比如填写租户ID(ProjectID)",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "region_code": {
+          "type": "string",
+          "description": "片区编码",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "cloud_infra_id": {
+          "type": "string",
+          "description": "资源池ID",
+          "maxLength": 128,
+          "minLength": 0
+        },
+        "az_code": {
+          "description": "AZ编码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "cloud_service_type_code": {
+          "type": "string",
+          "description": "云服务类型编码",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "resource_type_code": {
+          "type": "string",
+          "description": "云资源类型编码",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "resource_spec_code": {
+          "type": "string",
+          "description": "资源规格编码",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "resource_id": {
+          "type": "string",
+          "description": "资源实例ID",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "resource_display_name": {
+          "type": "string",
+          "description": "资源实例名称",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "bss_params": {
+          "type": "string",
+          "description": "运营参数",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "start_time": {
+          "type": "string",
+          "description": "资源开始时间,指定时区时间,格式为:yyyy-MM-dd HH:mm:ss",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "end_time": {
+          "type": "string",
+          "description": "资源结束时间,指定时区时间,格式为:yyyy-MM-dd HH:mm:ss",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "tag": {
+          "description": "资源tag",
+          "type": "string",
+          "maxLength": 1024,
+          "minLength": 0
+        },
+        "upper_vdc_id": {
+          "type": "string",
+          "description": "一级VDC ID",
+          "maxLength": 64,
+          "minLength": 0
+        },
+        "vdc_id": {
+          "type": "string",
+          "description": "VDC ID",
+          "maxLength": 64,
+          "minLength": 0
+        },
+        "enterprise_project_id": {
+          "description": "企业项目ID",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 0
+        },
+        "meter_unit_id": {
+          "description": "计量单元ID",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 0
+        },
+        "meter_unit_name": {
+          "type": "string",
+          "description": "计量单元名称",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "order_by": {
+          "description": "记录编号",
+          "type": "integer",
+          "format": "int32",
+          "x-jsonIgnore": true
+        }
+      }
+    },
+    "CDRs": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceResponseBody"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "extend_params": {
+              "description": "扩展字段",
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 1024
+            },
+            "accumulate_mode": {
+              "description": "累计模式\nDURATION: 累计使用时长,举例:申请100G云硬盘1天,累计使用时长为86400秒\nUSAGE: 累计使用量,使用时长固定1,举例:一天发送短信10条,累计使用量为10条",
+              "type": "string",
+              "enum": [
+                "DURATION",
+                "USAGE"
+              ],
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "usage_value": {
+              "description": "使用量,保留6位小数,在统计开始时间 ~ 统计结束时间期间对应的使用量累积值",
+              "type": "number"
+            },
+            "usage_duration": {
+              "description": "使用时长,单位:秒,在统计开始时间 ~ 统计结束时间期间对应的使用时长累积值",
+              "type": "integer",
+              "format": "int64"
+            },
+            "price": {
+              "description": "单价",
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 0
+            },
+            "price_unit": {
+              "description": "单价单位",
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 0
+            },
+            "meter_ways": {
+              "type": "string",
+              "description": "计费方式,默认为小时",
+              "maxLength": 32,
+              "minLength": 0
+            },
+            "spec_define_id": {
+              "description": "计费项标识",
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 36
+            },
+            "spec_define_name": {
+              "description": "计费项名称",
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 128
+            },
+            "express": {
+              "description": "单位转换表达式",
+              "type": "string",
+              "x-jsonIgnore": true
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

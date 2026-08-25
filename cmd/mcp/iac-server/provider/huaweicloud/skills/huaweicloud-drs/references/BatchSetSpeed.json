@@ -1,0 +1,251 @@
+{
+  "name": "BatchSetSpeed",
+  "summary": "批量设置任务限速",
+  "tags": "公共接口管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/jobs/batch-limit-speed": {
+      "put": {
+        "tags": [
+          "公共接口管理"
+        ],
+        "summary": "批量设置任务限速",
+        "description": "批量设置任务限速,任务创建成功后默认不限速。\n- 限速:自定义的最大迁移速度,迁移过程中的迁移速度将不会超过该速度。\n- 不限速:对迁移速度不进行限制,通常会最大化使用源数据库的出口带宽。该流速模式同时会对源数据库造成读消耗,消耗取决于源数据库的出口带宽。比如:源数据库的出口带宽为100MB/s,假设高速模式使用了80%带宽,则迁移对源数据库将造成80MB/s的读操作IO消耗。",
+        "operationId": "BatchSetSpeed",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token。",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "请求语言类型",
+            "required": false,
+            "type": "string",
+            "default": "en-us",
+            "x-example": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "x-order": 3
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "指定类型为application/json。",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "x-example": "application/json",
+            "x-order": 4
+          },
+          {
+            "in": "body",
+            "name": "requestBody",
+            "description": "容灾限速请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchLimitSpeedReq"
+            },
+            "x-order": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "id": "efa2bd29-8780-494f-a2ee-188b003ejb11",
+                    "status": "success"
+                  }
+                ],
+                "count": 1
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchModifyJobResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-name": "批量设置任务限速",
+        "x-constraint": "- 限速可以通过设定时间段来定时控制迁移速度。目前默认设定为全天,您也可以根据业务场景自定义限速时间段。\n- 自定义限速时间段支持最多设置10个定时任务,每个定时任务之间不能存在交叉的时间段,没有设定在限速时间段内的时间默认为不限速.\n- 开始限速时间不能与结束时间相同.\n- 开始时间为16:00且结束时间为15:59,为全天限速。\n- speed_limit参数设置为[]为不限速。\n- 开始时间忽略分钟,结束时间必须以59结尾例如03:59相当于4点(UTC时间),小时数为两位数字。\n- 同步不支持限速,MySQL迁移和灾备支持,双主灾备时父任务不支持。",
+        "x-version": "v3",
+        "x-scope": "Commercial",
+        "x-order": 6,
+        "x-request-examples-description-1": "批量设置灾备任务限速示例",
+        "x-request-examples-url-1": "https://{endpoint}/v3/054ba152d480d55b2f5dc0069e7ddef0/jobs/batch-limit-speed",
+        "x-request-examples-1": {
+          "speed_limits": [
+            {
+              "job_id": "7d0504f1-aba3-435f-914f-936b861jb502",
+              "speed_limit": [
+                {
+                  "begin": "16:00",
+                  "end": "15:59",
+                  "speed": "15"
+                }
+              ]
+            }
+          ]
+        },
+        "x-request-examples-text-1": {
+          "speed_limits": [
+            {
+              "job_id": "7d0504f1-aba3-435f-914f-936b861jb502",
+              "speed_limit": [
+                {
+                  "begin": "16:00",
+                  "end": "15:59",
+                  "speed": "15"
+                }
+              ]
+            }
+          ]
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "BatchSetSpeed"
+      }
+    }
+  },
+  "definitions": {
+    "BatchLimitSpeedReq": {
+      "required": [
+        "speed_limits"
+      ],
+      "properties": {
+        "speed_limits": {
+          "type": "array",
+          "description": "灾备限速设置信息",
+          "items": {
+            "description": "限制迁移速度请求体",
+            "$ref": "#/definitions/LimitSpeedReq"
+          }
+        }
+      },
+      "description": ""
+    },
+    "BatchModifyJobResp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数"
+        },
+        "results": {
+          "type": "array",
+          "description": "批量修改任务返回列表",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/ModifyJobResp"
+          }
+        }
+      },
+      "description": "批量修改任务返回体"
+    },
+    "SpeedLimitInfo": {
+      "properties": {
+        "begin": {
+          "type": "string",
+          "description": "开始限速时间, 此时间为UTC时间,开始时间为整时,若有分钟,则会忽略,格式为hh:mm,小时数为两位,例如:01:00。"
+        },
+        "end": {
+          "type": "string",
+          "description": "结束时间,此时间为UTC时间,输入必须为59分结尾,格式为hh:mm,小时数为两位,例如:05:59。"
+        },
+        "speed": {
+          "type": "string",
+          "description": "限速,取值范围为1~9999 ,单位为MB/s"
+        },
+        "is_utc": {
+          "type": "boolean",
+          "description": "是否为UTC时间"
+        }
+      },
+      "description": "限制迁移速度请求体",
+      "required": [
+        "begin",
+        "end",
+        "speed"
+      ]
+    },
+    "ModifyJobResp": {
+      "required": [
+        "id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "状态。\n- success 成功\n- failed 失败",
+          "enum": [
+            "success",
+            "failed"
+          ]
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "type": "object"
+    },
+    "LimitSpeedReq": {
+      "required": [
+        "job_id",
+        "speed_limit"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务id",
+          "pattern": "[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}"
+        },
+        "speed_limit": {
+          "type": "array",
+          "description": "限速信息请求体",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/SpeedLimitInfo"
+          }
+        }
+      },
+      "description": ""
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "put",
+  "uri": null
+}

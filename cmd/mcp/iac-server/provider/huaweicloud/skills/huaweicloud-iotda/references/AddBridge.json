@@ -1,0 +1,184 @@
+{
+  "name": "AddBridge",
+  "summary": "创建网桥",
+  "tags": "网桥管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/bridges": {
+      "post": {
+        "tags": [
+          "BridgeManagement"
+        ],
+        "summary": "创建网桥",
+        "description": "应用服务器可调用此接口在物联网平台创建一个网桥,仅在创建后的网桥才可以接入物联网平台。\n- 一个实例最多支持20个网桥。\n- 仅**标准版实例、企业版实例**支持该接口调用,基础版不支持。",
+        "operationId": "AddBridge",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0079.html#section1) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "body",
+            "name": "AddBridgeRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddBridge"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "examples": {
+              "application/json": {
+                "bridge_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+                "bridge_name": "dianabridge",
+                "auth_info": {
+                  "auth_type": "SECRET",
+                  "secret": "3b935a250c50dc2c6d481d048cefdc3c"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/QueryBridgeBase"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.019600",
+              "IOTDA.019603"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.019601"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IOTDA.000001"
+            ]
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<QueryBridgeBase>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/bridges",
+        "x-request-examples-text-1": {
+          "bridge_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "bridge_name": "dianabridge"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddBridge": {
+      "required": [
+        "bridge_name"
+      ],
+      "properties": {
+        "bridge_name": {
+          "type": "string",
+          "example": "dianabridge",
+          "description": "网桥名称。**取值范围**:长度不超过64,只允许中文、字母、数字、以及_?'#().,&%@!-等字符的组合。",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_?'#()\\.,&%@!-]*$"
+        },
+        "bridge_id": {
+          "type": "string",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "description": "网桥ID。**取值范围**:长度不超过36,只允许字母、数字、_-字符的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        }
+      },
+      "title": "添加网桥结构体",
+      "description": "添加网桥结构体。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;"
+    },
+    "BridgeAuthInfo": {
+      "type": "object",
+      "properties": {
+        "auth_type": {
+          "type": "string",
+          "example": "SECRET",
+          "description": "鉴权类型。当前支持密钥认证接入(SECRET)。使用密钥认证接入方式(SECRET)填写secret字段,不填写auth_type默认为密钥认证接入方式(SECRET)。",
+          "pattern": "(SECRET|CERTIFICATES)"
+        },
+        "secret": {
+          "type": "string",
+          "example": "3b935a250c50dc2c6d481d048cefdc3c",
+          "description": "网桥密钥,认证类型使用密钥认证接入(SECRET)可填写该字段。",
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "x-is-sensitive": true
+        }
+      },
+      "title": "网桥鉴权信息",
+      "description": "网桥鉴权信息",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;"
+    },
+    "QueryBridgeBase": {
+      "properties": {
+        "bridge_id": {
+          "type": "string",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "description": "网桥ID,用于唯一标识一个网桥。在注册网桥时直接指定,或者由物联网平台分配获得。",
+          "x-is-sensitive": true
+        },
+        "bridge_name": {
+          "type": "string",
+          "example": "dianabridge",
+          "description": "网桥名称。",
+          "x-is-sensitive": true
+        },
+        "auth_info": {
+          "$ref": "#/definitions/BridgeAuthInfo"
+        },
+        "create_time": {
+          "type": "string",
+          "example": "20190303T081011Z",
+          "description": "在物联网平台注册网桥的时间。格式:yyyyMMdd'T'HHmmss'Z',如20151212T121212Z。",
+          "x-is-sensitive": true
+        }
+      },
+      "title": "网桥信息结构体",
+      "description": "网桥信息结构体,返回基本信息。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

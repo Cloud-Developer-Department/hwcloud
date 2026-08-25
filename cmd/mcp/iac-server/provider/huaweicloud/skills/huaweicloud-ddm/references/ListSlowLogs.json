@@ -1,0 +1,229 @@
+{
+  "name": "ListSlowLogs",
+  "summary": "慢日志监控",
+  "tags": "DDM监控管理",
+  "productshort": "DDM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/slow-logs": {
+      "get": {
+        "tags": [
+          "DDM监控管理"
+        ],
+        "summary": "慢日志监控",
+        "description": "查询指定时间段内在DDM实例上执行过的慢sql相关信息。",
+        "operationId": "ListSlowLogs",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "DDM实例ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "e6b99563-xxxx-xxxx-xxxx-1820d4fd2a67",
+            "x-order": 3
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询,默认为0。取值必须为数字,且不能为负数。",
+            "required": false,
+            "type": "integer",
+            "x-example": 0,
+            "x-order": 4
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页参数:每页多少条。",
+            "required": false,
+            "type": "integer",
+            "x-example": 10,
+            "x-order": 5
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "开始时间,UTC time,精确到毫秒。",
+            "required": true,
+            "type": "string",
+            "x-example": "1602691200000",
+            "x-order": 6
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "结束时间,UTC time,精确到毫秒。结束时间与开始时间,间隔不能超过7天。",
+            "required": true,
+            "type": "string",
+            "x-example": "1602813800000",
+            "x-order": 7
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "total_record": 2,
+                "slow_log_list": [
+                  {
+                    "users": "testddm",
+                    "database": "test1",
+                    "query_sample": "select id, sleep(3) from test",
+                    "log_time": "2021-04-26T02:40:21",
+                    "time": "12002",
+                    "shards": "test1_0000",
+                    "rows_examined": "4",
+                    "node_id": "xxxxdf30140a4bc7b6ff1ad8ba37f0ceno09",
+                    "host": "192.168.16.18"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/QuerySlowLogsResponse"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "examples": {
+              "application/json": {
+                "externalMessage": "Parameter error.",
+                "errCode": "DBS.280001"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "server error",
+            "examples": {
+              "application/json": {
+                "externalMessage": "Parameter error.",
+                "errCode": "DBS.280001"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QuerySlowLogsResponse": {
+      "properties": {
+        "total_record": {
+          "type": "integer",
+          "example": 2,
+          "description": "DDM慢sql日志条数。"
+        },
+        "slow_log_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SlowLogs"
+          },
+          "description": "DDM慢sql日志信息列表的集合。"
+        }
+      }
+    },
+    "SlowLogs": {
+      "properties": {
+        "users": {
+          "type": "string",
+          "example": "testUser",
+          "description": "执行慢sql的DDM账号名称。"
+        },
+        "database": {
+          "type": "string",
+          "example": "testDatabase",
+          "description": "慢sql所属逻辑库的名称。"
+        },
+        "query_sample": {
+          "type": "string",
+          "example": "select id, sleep(3) from test",
+          "description": "慢sql执行语法。"
+        },
+        "log_time": {
+          "type": "string",
+          "example": "2021-04-26T02:40:21",
+          "description": "DDM慢sql开始执行时间。"
+        },
+        "time": {
+          "type": "string",
+          "example": "12002",
+          "description": "慢sql的执行时长,精确到毫秒。"
+        },
+        "shards": {
+          "type": "string",
+          "example": "testDatabase_0000",
+          "description": "逻辑库物理分片名称。"
+        },
+        "node_id": {
+          "type": "string",
+          "example": "xxxxdf30140a4bc7b6ff1ad8ba37f0ceno09",
+          "description": "节点ID。"
+        },
+        "rows_examined": {
+          "type": "string",
+          "example": "4",
+          "description": "慢sql影响行数。"
+        },
+        "host": {
+          "type": "string",
+          "example": "192.168.16.18",
+          "description": "客户端ip,该IP地址可能涉及个人数据,建议用户依据实际IP地址的敏感性做查询后脱敏处理。"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ddm.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,303 @@
+{
+  "name": "CreateAudioJob",
+  "summary": "创建作业",
+  "tags": "长语音内容审核",
+  "productshort": "VCM",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/services/audio-moderation/tasks": {
+      "post": {
+        "tags": [
+          "长语音内容审核"
+        ],
+        "operationId": "CreateAudioJob",
+        "summary": "创建作业",
+        "description": "该接口用于创建语音内容审核的作业。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户的project_id\n\n登录华为云 -> 用户中心 -> 我的凭证 -> api凭证\n即可查看对应区域的项目ID。\n",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 1
+          },
+          {
+            "in": "body",
+            "name": "CreateAudioJobRequestBody",
+            "description": "请求参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateAudioJobRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功返回示例",
+            "examples": {
+              "application/json": [
+                {
+                  "id": "f0262988822c4fb1ad48afce869f9d1f"
+                }
+              ]
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateAudioJobResponseBody"
+            }
+          },
+          "400": {
+            "description": "响应失败返回示例",
+            "examples": {
+              "application/json": {
+                "error_code": "IVA.0004",
+                "error_msg": "The request param is invalid.[service_version] is required and cannot be empty"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "POST /v2/{project_id}/services/audio-moderation/task",
+        "x-request-examples-1": {
+          "name": "task-test",
+          "description": "description",
+          "input": {
+            "type": "url",
+            "data": [
+              {
+                "url": "https://obs-audio-moderation/inut/audio.aac",
+                "index": 0
+              }
+            ]
+          },
+          "output": {
+            "hosting": ""
+          },
+          "service_config": {
+            "common": {
+              "categories": "porn,politics"
+            }
+          },
+          "service_version": "1.0"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AudioOutput": {
+      "type": "object",
+      "description": "音频数据的输出列表",
+      "properties": {
+        "obs": {
+          "description": "obs输出位置",
+          "type": "object",
+          "$ref": "#/definitions/AudioOutputObs"
+        },
+        "hosting": {
+          "description": "托管输出位置",
+          "type": "object",
+          "$ref": "#/definitions/AudioOutputHosting"
+        }
+      }
+    },
+    "AudioOutputHosting": {
+      "description": "托管输出位置",
+      "type": "object",
+      "properties": {
+        "obs": {
+          "$ref": "#/definitions/AudioOutputHostingObs"
+        },
+        "result_json_overdue_at": {
+          "type": "string",
+          "description": "托管文件result.json的过期日期,文件默认保存48小时。\n\nresult.json文件生成且未过期时,会有这个字段。\n"
+        },
+        "check_obs_after_end_state": {
+          "type": "boolean",
+          "description": "True表示校验obs。"
+        }
+      }
+    },
+    "CreateAudioJobResponseBody": {
+      "type": "array",
+      "description": "返回数据",
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "作业 ID。"
+          }
+        }
+      }
+    },
+    "AudioServiceConfig": {
+      "required": [
+        "common"
+      ],
+      "type": "object",
+      "description": "配置",
+      "properties": {
+        "common": {
+          "required": [
+            "categories"
+          ],
+          "type": "object",
+          "description": "检测场景",
+          "properties": {
+            "categories": {
+              "type": "string",
+              "description": "检测场景。\n- politics:政治人物的检测。\n- porn:涉黄内容元素的检测。\n可通过配置上述场景,来完成对应场景元素的检测。\n"
+            }
+          }
+        }
+      }
+    },
+    "AudioInputData": {
+      "type": "object",
+      "description": "音频数据输入列表",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "type为obs时输入参数\n\nOBS桶名称。\n"
+        },
+        "path": {
+          "type": "string",
+          "description": "type为obs时输入参数\n\nOBS桶内的路径,例如“output/c1.mp4”。\n"
+        },
+        "url": {
+          "type": "string",
+          "description": "type为url时输入参数\n\n视频数据的URL,目前支持OBS URL,且需要设置该URL对匿名用户可读权限。\n"
+        }
+      }
+    },
+    "AudioOutputObs": {
+      "type": "object",
+      "description": "音频数据的输出列表",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "example": "video-test",
+          "description": "存储结果文件的OBS桶名。"
+        },
+        "path": {
+          "type": "string",
+          "example": "output/",
+          "description": "结果文件的OBS桶内路径,例如“output/”。"
+        }
+      }
+    },
+    "CreateAudioJobRequestBody": {
+      "required": [
+        "name",
+        "input",
+        "output",
+        "service_version"
+      ],
+      "description": "请求体",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "作业名称,只能由字母(a~zA~Z)、数字(0~9)、中划线(-)、下划线(_)组成,长度范围为[1,100]。"
+        },
+        "description": {
+          "type": "string",
+          "description": "作业描述信息,最大长度为500字符长度。"
+        },
+        "input": {
+          "required": [
+            "type",
+            "data"
+          ],
+          "type": "object",
+          "description": "音频数据的输入列表",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "视频数据的输入类型:\n- obs:表示从华为云 OBS 中读取视频数据。\n- url:表示从指定的 URL 地址中读取视频数据。\n",
+              "enum": [
+                "obs",
+                "url"
+              ]
+            },
+            "data": {
+              "type": "array",
+              "description": "数据输入内容",
+              "items": {
+                "$ref": "#/definitions/AudioInputData"
+              }
+            }
+          }
+        },
+        "output": {
+          "$ref": "#/definitions/AudioOutput"
+        },
+        "service_config": {
+          "$ref": "#/definitions/AudioServiceConfig"
+        },
+        "service_version": {
+          "type": "string",
+          "description": "功能版本为“1.0”。"
+        }
+      }
+    },
+    "AudioOutputHostingObs": {
+      "type": "object",
+      "description": "结果文件result.json的OBS信息。",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "obs桶名称",
+          "example": "video-test"
+        },
+        "path": {
+          "type": "string",
+          "description": "输出obs路径",
+          "example": "output/"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iva.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

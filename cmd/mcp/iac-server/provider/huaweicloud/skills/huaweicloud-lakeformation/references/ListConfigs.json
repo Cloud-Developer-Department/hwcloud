@@ -1,0 +1,310 @@
+{
+  "name": "ListConfigs",
+  "summary": "获取所有用户可见的租户面配置",
+  "tags": "Configuration",
+  "productshort": "LakeFormation",
+  "region_id": "cn-north-9",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/configurations": {
+      "get": {
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/instances/{instance_id}/configurations",
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "获取所有用户可见的租户面配置",
+        "description": "获取所有用户可见的租户面配置",
+        "operationId": "ListConfigs",
+        "x-enable-auth-anno": {
+          "type": "iam-token"
+        },
+        "x-iam-auth-meta-anno": {
+          "authLevel": "instance",
+          "abacAction": "lakeformation:configuration:describe"
+        },
+        "x-method-annotations": [
+          "@ApiCount"
+        ],
+        "x-imports": [
+          "com.huawei.lakeformation.common.annotation.ApiCount;"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "租户token",
+            "required": true,
+            "x-example": "[MIIjxxxxxxxxxxxxxxxxxxxxxxxx4qA=, MIIjxxxxxxxxxxxxxxxxxxxxxxxx4qA=]",
+            "minItems": 1,
+            "maxItems": 100
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号。获取方法,请参见[获取项目ID](lakeformation_04_0026.xml)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+$",
+            "x-example": "41aaxxxxxxxxxxxxxxxxxxxxxxxcc046"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "LakeFormation实例ID。创建实例时自动生成。例如:2180518f-42b8-4947-b20b-adfc53981a25。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{36}$",
+            "minLength": 1,
+            "x-example": "41aaxxxxxxxxxxxxxxxxxxxxxxxcc046"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询返回条数。默认值为1000。最小值为0,最大值为1000。",
+            "type": "integer",
+            "default": 1000,
+            "minimum": 0,
+            "maximum": 1000,
+            "format": "int32",
+            "required": false
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "查询的起始记录ID。最小长度为0,最大长度为256。",
+            "minLength": 0,
+            "maxLength": 256,
+            "default": "",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedListLakeCatConfiguration"
+            },
+            "examples": {
+              "application/json": {
+                "configs": [
+                  {
+                    "key": "catalog.max.limit",
+                    "value": 1,
+                    "description": "catalog最大数量限制"
+                  }
+                ],
+                "page_info": {
+                  "current_count": 2000,
+                  "next_marker": "006f492b-xxxx",
+                  "previous_marker": "003e6eba-xxxx"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "error_code": null,
+                  "error_msg": null,
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LakeCatConfiguration": {
+      "type": "object",
+      "description": "租户面配置项",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "配置项的key",
+          "example": "catalog.max.limit",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "value": {
+          "type": "string",
+          "description": "配置项的值",
+          "example": 1,
+          "minLength": 0,
+          "maxLength": 8192
+        },
+        "description": {
+          "type": "string",
+          "description": "配置项描述",
+          "example": "catalog最大数量限制",
+          "minLength": 0,
+          "maxLength": 8192
+        }
+      }
+    },
+    "PagedInfo": {
+      "type": "object",
+      "required": [
+        "current_count",
+        "next_marker",
+        "previous_marker"
+      ],
+      "properties": {
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本次返回的对象个数",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "next_marker": {
+          "type": "string",
+          "example": "006f492b-xxxx",
+          "description": "下一页查询地址",
+          "maxLength": 32
+        },
+        "previous_marker": {
+          "type": "string",
+          "example": "003e6eba-xxxx",
+          "description": "上一页查询地址",
+          "maxLength": 32
+        }
+      },
+      "description": "分页返回信息"
+    },
+    "PagedListLakeCatConfiguration": {
+      "properties": {
+        "configs": {
+          "description": "配置项",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LakeCatConfiguration"
+          },
+          "minItems": 0,
+          "maxItems": 100000
+        },
+        "page_info": {
+          "$ref": "#/definitions/PagedInfo",
+          "description": "分页信息"
+        }
+      }
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.cn-north-9.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

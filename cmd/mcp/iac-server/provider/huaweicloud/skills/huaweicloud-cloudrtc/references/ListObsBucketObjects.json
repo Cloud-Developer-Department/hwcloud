@@ -1,0 +1,213 @@
+{
+  "name": "ListObsBucketObjects",
+  "summary": "查询OBS桶下对象列表",
+  "tags": "OBS桶管理",
+  "productshort": "CloudRTC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rtc-ops/buckets/objects": {
+      "get": {
+        "tags": [
+          "OBS桶管理"
+        ],
+        "summary": "查询OBS桶下对象列表",
+        "description": "查询OBS桶下对象列表",
+        "operationId": "ListObsBucketObjects",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "bucket",
+            "in": "query",
+            "description": "要查询的桶名",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "x-example": "butcket001"
+          },
+          {
+            "name": "prefix",
+            "in": "query",
+            "description": "对象名前缀,可以理解为文件夹路径",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 63,
+            "x-example": "/abc/def"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "查询类似,取值“folders”“objects”前者为查询目录,后者为查询对象",
+            "required": true,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 16,
+            "enum": [
+              "folders",
+              "objects"
+            ]
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "description": "查询bucket所在的region",
+            "required": true,
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 16,
+            "enum": [
+              "cn-north-4",
+              "cn-north-1",
+              "cn-north-5",
+              "cn-north-6",
+              "cn-south-1",
+              "cn-east-2"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询OBS桶下对象成功",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ObsObjects"
+            }
+          },
+          "401": {
+            "description": "请求失败,携带的X-Auth-Token错误",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CommonRsp"
+            }
+          },
+          "404": {
+            "description": "查询失败,任务编号不存在",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CommonRsp"
+            }
+          },
+          "500": {
+            "description": "查询失败,服务器端错误",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CommonRsp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CommonRsp": {
+      "description": "通用返回",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "ObsObjects": {
+      "required": [
+        "objects"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "对象的总数",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "objects": {
+          "type": "array",
+          "description": "obs文件",
+          "items": {
+            "$ref": "#/definitions/ObsObject"
+          },
+          "minItems": 0,
+          "maxItems": 65535
+        }
+      }
+    },
+    "ObsObject": {
+      "required": [
+        "file_name",
+        "size",
+        "last_modified"
+      ],
+      "properties": {
+        "file_name": {
+          "type": "string",
+          "description": "对象名",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "size": {
+          "type": "integer",
+          "description": "文件大小,单位KB",
+          "minimum": 0,
+          "maximum": 15728640
+        },
+        "last_modified": {
+          "type": "string",
+          "description": "上次修改时间,格式如:2020/07/16 15:11:55 GMT+08:00",
+          "minLength": 29,
+          "maxLength": 29
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rtc-api.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,245 @@
+{
+  "name": "ExportSlowQueryLogs",
+  "summary": "导出慢SQL数据",
+  "tags": "云DBA",
+  "productshort": "DAS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/slow-query-logs": {
+      "get": {
+        "x-das-is-publish": "#ExportSlowQueryLogs_Placeholder#",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "GET https://das.cn-north-1.myhuaweicloud.com/v3/054e292c9880d4992f02c0196d3ea468/instances/da304cd5bbb944de828759bc7be3d3fein01/slow-query-logs?start_at=1611975464337&end_at=1611979064337&limit=10&marker=DXF1ZXJ5QW5kRmV0Y2gBAAAAAAAQH8YWSEFfM3FyOXZRNzJQOTVLNHNBOTQ2UQ==&datastore_type=MySQL",
+        "tags": [
+          "云DBA"
+        ],
+        "summary": "导出慢SQL数据",
+        "description": "DAS收集慢SQL开关打开后,一次性导出指定时间范围内的慢SQL数据,支持分页滚动获取。免费实例仅支持查看最近一小时数据。",
+        "operationId": "ExportSlowQueryLogs",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "description": "项目ID。",
+            "type": "string"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "description": "实例ID。",
+            "type": "string"
+          },
+          {
+            "name": "datastore_type",
+            "in": "query",
+            "required": true,
+            "description": "数据库类型。支持MySQL、GaussDB(for MySQL)、PostgreSQL。",
+            "type": "string"
+          },
+          {
+            "name": "start_at",
+            "in": "query",
+            "required": true,
+            "description": "开始时间(Unix timestamp),单位:毫秒。",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "end_at",
+            "in": "query",
+            "required": true,
+            "description": "结束时间(Unix timestamp),单位:毫秒。",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "description": "每页记录数。最大为2000。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "required": false,
+            "description": "指定一个标识符。获取第一页时不用赋值,获取下一页时取上页查询结果的返回值。",
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ExportSlowLogsResp"
+            },
+            "examples": {
+              "application/json": {
+                "slow_logs": [
+                  {
+                    "execute_at": 1612343898000,
+                    "sql": "SELECT sleep(10)\nLIMIT 0, 50;",
+                    "sql_template_id": "AAD913807ECE9C66",
+                    "database": "123",
+                    "client": "[100.79.0.248]",
+                    "user": "root[root]",
+                    "query_time": 10.000158309936523,
+                    "lock_time": 0,
+                    "rows_examined": 0,
+                    "rows_sent": 1
+                  }
+                ],
+                "next_marker": "DXF1ZXJ5QW5kRmV0Y2gBAAAAAAAJr48WZERxYkx5Q2VRQS1LSXRrRWt0VEN1QQ=="
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-order": 15
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    },
+    "SlowLog": {
+      "required": [
+        "sql",
+        "sql_template_id",
+        "database",
+        "client",
+        "user",
+        "execute_at",
+        "query_time",
+        "lock_time",
+        "rows_examined",
+        "rows_sent"
+      ],
+      "properties": {
+        "sql": {
+          "type": "string",
+          "description": "SQL语句。"
+        },
+        "sql_template_id": {
+          "type": "string",
+          "description": "SQL模板ID。"
+        },
+        "database": {
+          "type": "string",
+          "description": "数据库名。"
+        },
+        "client": {
+          "type": "string",
+          "description": "客户端。"
+        },
+        "user": {
+          "type": "string",
+          "description": "用户。"
+        },
+        "execute_at": {
+          "type": "integer",
+          "description": "执行开始时间(Unix timestamp),单位:毫秒。",
+          "format": "int64"
+        },
+        "query_time": {
+          "type": "number",
+          "description": "执行耗时(秒)。",
+          "format": "double"
+        },
+        "lock_time": {
+          "type": "number",
+          "description": "锁等待耗时(秒)。",
+          "format": "double"
+        },
+        "rows_examined": {
+          "type": "integer",
+          "description": "扫描行数。",
+          "format": "int64"
+        },
+        "rows_sent": {
+          "type": "integer",
+          "description": "返回行数。",
+          "format": "int64"
+        }
+      }
+    },
+    "ExportSlowLogsResp": {
+      "required": [
+        "slow_logs",
+        "next_marker"
+      ],
+      "properties": {
+        "slow_logs": {
+          "type": "array",
+          "description": "慢SQL集合。当集合为空时,说明慢SQL已全部导出。",
+          "items": {
+            "$ref": "#/definitions/SlowLog"
+          }
+        },
+        "next_marker": {
+          "type": "string",
+          "description": "获取下一页所需的标识符。marker仅在3分钟内有效。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "das.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,201 @@
+{
+  "name": "ListRegionDevicesInstallMaterials",
+  "summary": "获取指定region指定设备安装MOOpsAgent所需物料",
+  "tags": "自动化运维",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/moautoops/v1/agents/regions/{regionId}/install/materials": {
+      "post": {
+        "summary": "获取指定region指定设备安装MOOpsAgent所需物料",
+        "description": "获取指定region指定设备安装MOOpsAgent所需物料。\n|SLA项|定义|\n|-----|-----|\n|请求成功率| ≥99.9%|\n|可用性|Tier 1|\n|数据一致性|最终一致,不一致时长<1min|\n|吞吐量|60次/分钟|\n|TP50请求时延|500 ms|\n|TP99.9请求时延|1000 ms|",
+        "tags": [
+          "自动化运维"
+        ],
+        "operationId": "ListRegionDevicesInstallMaterials",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "x-filter": "manageone,interservice,oc,cloudservice,openapi",
+        "x-plane": "OM",
+        "x-precautions": "1.权限码:(自动作业-配置-查询Agent) moocapp:moautoops-agent:view; \n2.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > ManageOne运维面错误码说明 > 自动化运维”章节。\n",
+        "parameters": [
+          {
+            "name": "regionId",
+            "in": "path",
+            "description": "区域Id。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "queryDeviceMaterialsList",
+            "in": "body",
+            "description": "设备列表。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QueryDeviceMaterials"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求处理成功。",
+            "schema": {
+              "$ref": "#/definitions/RegionDevicesInstallMaterialsRslt"
+            },
+            "examples": {
+              "application/json": {
+                "syndicIps": "192.168.23.56,192.168.23.57",
+                "syndicPorts": "9670,9671,9672,9673...",
+                "regionInstallScript": "#!bash ...",
+                "scriptSha256": "8a620616a106ba261c32713bc81ee208c71c40df3a4381d64ee563df04e90e2d",
+                "commandExample": "bash install.sh '8a620616a106ba261c32713bc81ee208c71c40df3a4381d64ee563df04e90e2d' '192.168.23.56,192.168.23.57'"
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "鉴权失败。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/moautoops/v1/agents/regions/cn-global-1/install/materials",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "deviceList": [
+            {
+              "osType": "posix",
+              "nativeId": "20c16226-1e91-497d-856a-f2cf89bf8e44"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QueryDeviceMaterials": {
+      "description": "查询安装MOOpsAgent物料设备列表。",
+      "properties": {
+        "deviceList": {
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "$ref": "#/definitions/DeviceMaterials"
+          }
+        }
+      }
+    },
+    "InstallMaterials": {
+      "properties": {
+        "nativeId": {
+          "description": "待安装MOOpsAgent的虚拟机的nativeId。",
+          "type": "string"
+        },
+        "syndicIps": {
+          "description": "待安装MOOpsAgent的虚拟机所在区域的中继节点IP。",
+          "type": "string"
+        },
+        "commandExample": {
+          "description": "待安装MOOpsAgent的虚拟机的安装脚本执行命令示例。",
+          "type": "string"
+        }
+      }
+    },
+    "RegionDevicesInstallMaterialsRslt": {
+      "description": "指定region安装MOOpsAgent所需物料。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/InstallBaseMaterials"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "deviceInfos": {
+              "description": "节点安装结果。",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/InstallMaterials"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "InstallBaseMaterials": {
+      "description": "安装MOOpsAgent所需物料。",
+      "properties": {
+        "syndicPorts": {
+          "description": "中继代理提供的服务端口(多个端口使用逗号分割)。",
+          "type": "string"
+        },
+        "posixScript": {
+          "description": "待安装MOOpsAgent的Linux虚拟机的安装脚本内容。",
+          "type": "string"
+        },
+        "posixScriptSha256": {
+          "description": "待安装MOOpsAgent的Linux虚拟机的安装脚本的sha256。",
+          "type": "string"
+        },
+        "ntScript": {
+          "description": "待安装MOOpsAgent的Windows虚拟机的安装脚本内容。",
+          "type": "string"
+        },
+        "ntScriptSha256": {
+          "description": "待安装MOOpsAgent的Windows虚拟机的安装脚本的sha256。",
+          "type": "string"
+        }
+      }
+    },
+    "DeviceMaterials": {
+      "description": "查询安装MOOpsAgent物料设备列表。",
+      "properties": {
+        "osType": {
+          "description": "待安装MOOpsAgent的虚拟机的操作系统类型。可取值为:\n* posix (Linux系统)\n* nt    (Windows系统)",
+          "type": "string"
+        },
+        "nativeId": {
+          "description": "待安装MOOpsAgent的虚拟机的nativeId。",
+          "type": "string"
+        },
+        "sn": {
+          "description": "字段已废弃,不建议使用。如需使用,请联系华为工程师确认。",
+          "type": "string"
+        }
+      },
+      "required": [
+        "osType",
+        "nativeId"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

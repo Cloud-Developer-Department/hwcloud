@@ -1,0 +1,695 @@
+{
+  "name": "ListTraces",
+  "summary": "查询事件列表",
+  "tags": "事件管理",
+  "productshort": "CTS",
+  "region_id": "eu-west-0",
+  "paths": {
+    "/v3/{project_id}/traces": {
+      "get": {
+        "tags": [
+          "事件管理"
+        ],
+        "summary": "查询事件列表",
+        "description": "通过事件列表查询接口,可以查出系统记录的7天内资源操作记录。",
+        "operationId": "ListTraces",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,参见《云审计服务API参考》“获取账号ID和项目ID”章节。",
+            "required": true,
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 15,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 1
+          },
+          {
+            "name": "trace_type",
+            "in": "query",
+            "description": "标识审计事件类型。\n目前支持管理类事件(system)和数据类事件(data)。\n默认值为\"system\"。",
+            "type": "string",
+            "required": true,
+            "maxLength": 32,
+            "minLength": 1,
+            "enum": [
+              "system",
+              "data"
+            ],
+            "x-example": "system",
+            "x-order": 3
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "标示查询事件列表中限定返回的事件条数。不传时默认10条,最大值200条。",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "maximum": 200,
+            "minimum": 0,
+            "x-example": 11,
+            "x-order": 4
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "标识查询事件列表的起始时间戳(timestamp,为标准UTC时间,毫秒级,13位数字,不包括传入时间)默认为上一小时的时间戳。查询条件from与to配套使用。",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "maximum": 4102416000000,
+            "minimum": 946656000000,
+            "x-example": 1478490478000,
+            "x-order": 5
+          },
+          {
+            "name": "next",
+            "in": "query",
+            "description": "取值为响应中中marker的值,用于标识查询事件的起始时间(自此条事件的记录时间起,向更早时间查询)。\n可以与“from”、“to”结合使用。\n最终的查询条件取两组时间条件的交集。",
+            "required": false,
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 10,
+            "x-example": "1478490478000",
+            "x-order": 6
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "标识查询事件列表的结束时间戳(timestamp,为标准UTC时间,毫秒级,13位数字,不包括传入时间)默认为当前时间戳。查询条件to与from配套使用。",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "maximum": 4102416000000,
+            "minimum": 946656000000,
+            "x-example": 1479095278000,
+            "x-order": 7
+          },
+          {
+            "name": "tracker_name",
+            "in": "query",
+            "description": "当\"trace_type\"字段值为\"system\"时,该字段值默认为\"system\"。\n当\"trace_type\"字段值为\"data\"时,该字段值可以传入数据类追踪器名称,达到筛选某个数据类追踪器下的数据事件目的。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "data-tracker-name",
+            "x-order": 8
+          },
+          {
+            "name": "service_type",
+            "in": "query",
+            "description": "标识查询事件列表对应的云服务类型。必须为已对接CTS的云服务的英文缩写,且服务类型一般为大写字母。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。\n已对接的云服务列表参见《云审计服务用户指南》“支持的服务”章节。",
+            "required": false,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": "CTS",
+            "x-order": 9
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "description": "标识特定用户名称,用以查询该用户下的所有事件。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。",
+            "required": false,
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1,
+            "x-example": {
+              "name": "xxx",
+              "id": "a2e899190fcd444084a68fc0ac2sc1e9",
+              "domain": {
+                "name": "xxx",
+                "id": "05b2598d69bc4a209f9ac5eeeb1f91ad"
+              }
+            },
+            "x-order": 10
+          },
+          {
+            "name": "resource_id",
+            "in": "query",
+            "description": "标示查询事件列表对应的云服务资源ID。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。",
+            "required": false,
+            "type": "string",
+            "maxLength": 350,
+            "minLength": 0,
+            "x-example": "d502809d-0d1d-41ce-9690-784282142ccc",
+            "x-order": 11
+          },
+          {
+            "name": "resource_name",
+            "in": "query",
+            "description": "标示查询事件列表对应的的资源名称。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。\n说明:该字段可能包含大写字母。",
+            "required": false,
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "x-example": "192.144.163.1",
+            "x-order": 12
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "description": "标示查询事件列表对应的资源类型。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。",
+            "required": false,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "x-example": "eip",
+            "x-order": 13
+          },
+          {
+            "name": "trace_id",
+            "in": "query",
+            "description": "标示某一条事件的事件ID。当传入这个查询条件时,其他查询条件自动不生效。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。",
+            "required": false,
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "x-example": "e001ccb9-bc09-11e6-b00b-4b2a61338db6",
+            "x-order": 14
+          },
+          {
+            "name": "trace_name",
+            "in": "query",
+            "description": "标示查询事件列表对应的事件名称。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。\n说明:该字段可能包含大写字母。",
+            "required": false,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "x-example": "createTracker",
+            "x-order": 15
+          },
+          {
+            "name": "trace_rating",
+            "in": "query",
+            "description": "标示查询事件列表对应的事件等级目前有三种:正常(normal), 警告(warning),事故(incident)。\n当\"trace_type\"字段值为\"system\"时,该字段筛选有效\"。",
+            "required": false,
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 5,
+            "enum": [
+              "normal",
+              "warning",
+              "incident"
+            ],
+            "x-example": "normal",
+            "x-order": 16
+          },
+          {
+            "name": "access_key_id",
+            "in": "query",
+            "required": false,
+            "description": "标示查询事件列表对应的访问密钥ID。包含临时访问凭证和永久访问密钥。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "required": false,
+            "description": "标示查询事件列表对应的企业项目ID。",
+            "type": "string",
+            "minLength": 15,
+            "maxLength": 40
+          }
+        ],
+        "x-request-examples-description-1": "查询管理类事件请求样例。",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/{project_id}/traces?limit=11&to=1479095278000&from=1478490478000&trace_name=createTracker&resource_type=tracker&service_type=CTS&trace_type=system",
+        "x-request-examples-description-2": "查询数据类事件请求样例。",
+        "x-request-examples-url-2": "GET https://{endpoint}/v3/{project_id}/traces?limit=11&to=1479095278000&from=1478490478000&trace_type=data",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "cts_api_0311",
+        "x-open-region-cloud": "hk,hc,hcso,g42",
+        "responses": {
+          "200": {
+            "description": "请求正常。",
+            "examples": {
+              "application/json": {
+                "meta_data": {
+                  "count": 2,
+                  "marker": "e001ccb8-bc09-11e6-b2cc-2640a43cc6e8"
+                },
+                "traces": [
+                  {
+                    "time": 1472148708232,
+                    "user": {
+                      "name": "xxx",
+                      "domain": {
+                        "name": "xxx",
+                        "id": "ded649d814464428ba89d04d7955c93e"
+                      }
+                    },
+                    "response": {
+                      "code": "VPC.0514",
+                      "message": "Update port fail."
+                    },
+                    "code": 200,
+                    "service_type": "VPC",
+                    "resource_type": "eip",
+                    "resource_name": "192.144.163.1",
+                    "resource_id": "d502809d-0d1d-41ce-9690-784282142ccc",
+                    "trace_name": "deleteEip",
+                    "trace_rating": "warning",
+                    "trace_type": "ConsoleAction",
+                    "api_version": "2.0",
+                    "record_time": 1481066128032,
+                    "trace_id": "e001ccb9-bc09-11e6-b00b-4b2a61338db6"
+                  },
+                  {
+                    "time": 1472148708232,
+                    "user": {
+                      "name": "xxx",
+                      "domain": {
+                        "name": "xxx",
+                        "id": "ded649d814464428ba89d04d7955c93e"
+                      }
+                    },
+                    "response": {
+                      "code": "VPC.0514",
+                      "message": "Update port fail."
+                    },
+                    "code": 200,
+                    "service_type": "VPC",
+                    "resource_type": "eip",
+                    "resource_name": "192.144.163.1",
+                    "resource_id": "d502809d-0d1d-41ce-9690-784282142ccc",
+                    "trace_name": "deleteEip",
+                    "trace_rating": "warning",
+                    "trace_type": "ConsoleAction",
+                    "api_version": "2.0",
+                    "record_time": 1481066128032,
+                    "trace_id": "e001ccb8-bc09-11e6-b2cc-2640a43cc6e8"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListTracesRsponse"
+            }
+          },
+          "400": {
+            "description": "查询参数异常,请求未完成。",
+            "schema": {
+              "$ref": "#/definitions/FailedRsp"
+            }
+          },
+          "401": {
+            "description": "请求鉴权校验失败,访问被拒绝。"
+          },
+          "403": {
+            "description": "请求权限校验失败,访问被禁止。"
+          },
+          "404": {
+            "description": "查询事件不存在,请求未完成。"
+          },
+          "500": {
+            "description": "服务内部异常,请求未完成。"
+          },
+          "503": {
+            "description": " 被请求的服务无效。建议直接修改该请求,不要重试该请求。"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "SessionContext": {
+      "type": "object",
+      "description": "临时安全凭据的属性。",
+      "properties": {
+        "attributes": {
+          "description": "临时安全凭据的属性。",
+          "$ref": "#/definitions/Attributes"
+        }
+      }
+    },
+    "Traces": {
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "description": "标识事件对应的云服务资源ID。",
+          "maxLength": 350,
+          "minLength": 0,
+          "example": "f3f18b9215014f0d9ded3045af020811"
+        },
+        "trace_name": {
+          "type": "string",
+          "description": "标识查询事件列表对应的事件名称。由0-9,a-z,A-Z,'-','.','_',组成,长度为1~64个字符,且以首字符必须为字母。",
+          "maxLength": 100,
+          "minLength": 1,
+          "example": "login"
+        },
+        "trace_rating": {
+          "type": "string",
+          "description": "标识事件等级,目前有三种:正常(normal),警告(warning),事故(incident)。",
+          "enum": [
+            "normal",
+            "warning",
+            "incident"
+          ],
+          "example": "normal"
+        },
+        "trace_type": {
+          "type": "string",
+          "description": "标识事件发生源头类型,管理类事件主要包括API调用(ApiCall),Console页面调用(ConsoleAction)和系统间调用(SystemAction)。\n数据类事件主要包括ObsSDK,ObsAPI。",
+          "maxLength": 20,
+          "minLength": 5,
+          "example": "ConsoleAction"
+        },
+        "request": {
+          "type": "string",
+          "description": "标识事件对应接口请求内容,即资源操作请求体。",
+          "maxLength": 5000,
+          "minLength": 0,
+          "example": "{xxx}"
+        },
+        "response": {
+          "type": "string",
+          "description": "记录用户请求的响应,标识事件对应接口响应内容,即资源操作结果返回体。",
+          "maxLength": 5000,
+          "minLength": 0,
+          "example": "{xxx}"
+        },
+        "code": {
+          "type": "string",
+          "description": "记录用户请求的响应,标识事件对应接口返回的HTTP状态码。",
+          "maxLength": 20,
+          "minLength": 0,
+          "example": "302"
+        },
+        "api_version": {
+          "type": "string",
+          "description": "标识事件对应的云服务接口版本。",
+          "maxLength": 10,
+          "minLength": 0,
+          "example": "2.0"
+        },
+        "message": {
+          "type": "string",
+          "description": "标识其他云服务为此条事件添加的备注信息。",
+          "maxLength": 5000,
+          "minLength": 0,
+          "example": "xxx"
+        },
+        "record_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "标识云审计服务记录本次事件的时间戳。",
+          "maximum": 4102416000000,
+          "minimum": 946656000000,
+          "example": "1567477476596"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "标识事件的ID,由系统生成的UUID。",
+          "maxLength": 200,
+          "minLength": 1,
+          "example": "e001ccb9-bc09-11e6-b00b-4b2a61338db6"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "标识事件产生的时间戳。",
+          "maximum": 4102416000000,
+          "minimum": 946656000000,
+          "example": "1567477476596"
+        },
+        "user": {
+          "description": "标识触发事件的用户信息。",
+          "$ref": "#/definitions/UserInfo"
+        },
+        "service_type": {
+          "type": "string",
+          "description": "标识查询事件列表对应的云服务类型。必须为已对接CTS的云服务的英文缩写,且服务类型一般为大写字母。",
+          "maxLength": 36,
+          "minLength": 0,
+          "example": "ECS"
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "查询事件列表对应的资源类型。",
+          "maxLength": 100,
+          "minLength": 0,
+          "example": "user"
+        },
+        "source_ip": {
+          "type": "string",
+          "description": "标识触发事件的租户IP。",
+          "maxLength": 256,
+          "minLength": 0,
+          "example": "xx.xx.xx.xx"
+        },
+        "resource_name": {
+          "type": "string",
+          "description": "标识事件对应的资源名称。",
+          "maxLength": 300,
+          "minLength": 0,
+          "example": "paas_cts"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "记录本次请求的request id",
+          "maxLength": 300,
+          "minLength": 0,
+          "example": "16xxf66e7xxxxx7acb99a463e610764"
+        },
+        "location_info": {
+          "type": "string",
+          "description": "记录本次请求出错后,问题定位所需要的辅助信息。",
+          "maxLength": 300,
+          "minLength": 1,
+          "example": "resource has been deleted"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "云资源的详情页面",
+          "maxLength": 500,
+          "minLength": 0,
+          "example": "https://*****/vpc?agencyId=***&region=***&locale=zh-cn#"
+        },
+        "resource_url": {
+          "type": "string",
+          "description": "云资源的详情页面的访问链接(不含endpoint)",
+          "maxLength": 300,
+          "minLength": 0,
+          "example": "/vpc/vpcmanager/vpcs?vpcid=*****"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "标识资源所在的企业项目ID。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "resource_account_id": {
+          "type": "string",
+          "description": "标识资源所在的账号ID。仅在跨租户操作资源时有值。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "read_only": {
+          "type": "boolean",
+          "description": "标识用户请求是不是只读。"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "记录事件对应的操作ID。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "Attributes": {
+      "type": "object",
+      "description": "临时安全凭据的属性。",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "description": "颁发临时安全凭证时的时间(timestamp,为标准UTC时间,毫秒级,13位数字)。",
+          "minLength": 1,
+          "maxLength": 13
+        },
+        "mfa_authenticated": {
+          "type": "string",
+          "description": "是否已经通过MFA身份认证。",
+          "minLength": 1,
+          "maxLength": 10
+        }
+      }
+    },
+    "UserInfo": {
+      "description": "用户信息。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "用户ID,参见《云审计服务API参考》“获取账号ID和项目ID”章节。",
+          "maxLength": 40,
+          "minLength": 15
+        },
+        "name": {
+          "type": "string",
+          "description": "用户名称。",
+          "maxLength": 300,
+          "minLength": 0
+        },
+        "user_name": {
+          "type": "string",
+          "description": "用户名称。",
+          "minLength": 0,
+          "maxLength": 300
+        },
+        "domain": {
+          "description": "标识触发事件的用户domain信息。",
+          "$ref": "#/definitions/BaseUser"
+        },
+        "account_id": {
+          "type": "string",
+          "description": "账号ID,参见《云审计服务API参考》“获取账号ID和项目ID”章节。",
+          "minLength": 15,
+          "maxLength": 40
+        },
+        "access_key_id": {
+          "type": "string",
+          "description": "访问密钥ID。",
+          "minLength": 15,
+          "maxLength": 40
+        },
+        "principal_urn": {
+          "type": "string",
+          "description": "操作用户身份的 URN。\n如果是 IAM 用户身份,格式如 iam::<account-id>:user:<user-name>。\n如果是 IAM 委托会话 身份,格式如 sts::<account-id>:assumed-agency:<agency-name>/<agency-session-name>。\n如果是 IAM 联邦身份,格式如 sts::<account-id>:external-user:<idp_id>/<user-session-name>。",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "principal_id": {
+          "type": "string",
+          "description": "操作用户身份Id。\n- 如果是 IAM 用户身份,格式为 <user-id>。\n- 如果是 IAM 委托会话身份,格式为 <agency-id>:<agency-session-name>。\n- 如果是 IAM 联邦身份,格式为 <idp_id>:<user-session-name>",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "principal_is_root_user": {
+          "type": "string",
+          "description": "是否是根用户。\n- 值为“true”时,表示操作者是根用户。\n- 值为“false”时,表示操作者是委托会话身份、联邦身份或非根用户的 IAM 用户。",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "type": {
+          "type": "string",
+          "description": "操作者身份类型。",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "invoked_by": {
+          "type": "array",
+          "description": "发出请求的服务的名称。控制台操作时为[\"service.console\" ]",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20
+          },
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "session_context": {
+          "description": "临时安全凭据属性。",
+          "$ref": "#/definitions/SessionContext"
+        }
+      },
+      "type": "object"
+    },
+    "MetaData": {
+      "description": "标识为扩展字段,包括count(当前响应中事件记录的个数)和marker(本次查询返回事件列表最后一个事件ID)。",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "标识本次查询事件列表返回的事件记录的总条数。",
+          "minimum": 0,
+          "maximum": 5000,
+          "example": 2
+        },
+        "marker": {
+          "type": "string",
+          "maxLength": 500,
+          "minLength": 0,
+          "description": "标识本次查询事件列表返回的最后一个事件ID。可以使用这个参数返回值作为分页请求参数next的值,如果marker返回为null,则表示当前请求条件下查询事件列表已经全部返回没有下一页。",
+          "example": "e001ccb8-bc09-11e6-b2cc-2640a43cc6e8"
+        }
+      }
+    },
+    "BaseUser": {
+      "description": "用户信息。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "账号ID,参见《云审计服务API参考》“获取账号ID和项目ID”章节。",
+          "maxLength": 40,
+          "minLength": 15
+        },
+        "name": {
+          "type": "string",
+          "description": "账号名称。",
+          "maxLength": 300,
+          "minLength": 0
+        }
+      }
+    },
+    "FailedRsp": {
+      "description": "失败时的返回对象。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码标识,CTS.XXX。",
+          "type": "string",
+          "minLength": 15,
+          "maxLength": 15,
+          "example": "CTS.0214"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2048,
+          "example": "The tracker does not exist."
+        }
+      }
+    },
+    "ListTracesRsponse": {
+      "properties": {
+        "traces": {
+          "maxItems": 5000,
+          "minItems": 0,
+          "type": "array",
+          "description": "本次查询事件列表返回事件数组。",
+          "items": {
+            "$ref": "#/definitions/Traces"
+          }
+        },
+        "meta_data": {
+          "description": "本次查询事件条数和标记位。",
+          "$ref": "#/definitions/MetaData"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cts.eu-west-0.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

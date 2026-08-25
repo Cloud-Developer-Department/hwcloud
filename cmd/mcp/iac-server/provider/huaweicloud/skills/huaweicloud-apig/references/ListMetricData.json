@@ -1,0 +1,293 @@
+{
+  "name": "ListMetricData",
+  "summary": "查询监控数据",
+  "tags": "专享版-监控信息查询",
+  "productshort": "APIG",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/{project_id}/apigw/instances/{instance_id}/metric-data": {
+      "get": {
+        "summary": "查询监控数据",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-produc-type": "apig",
+        "x-apigateway-request-type": "public",
+        "x-order": 1,
+        "description": "查询指定时间范围指定指标的指定粒度的监控数据,可以通过参数指定需要查询的数据维度。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "专享版-监控信息查询"
+        ],
+        "x-api-type": "open-api",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk,cmcc,ctc,dt,g42,hk_g42,hk_sbc,hk_tm,hws_eu,hws_ocb,ocb,sbc,tm,srg,ax",
+        "operationId": "ListMetricData",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "in": "query",
+            "name": "dim",
+            "x-example": "inbound_eip",
+            "description": "指标维度\n- inbound_eip:入口公网带宽,仅ELB类型实例支持\n- outbound_eip:出口公网带宽",
+            "enum": [
+              "inbound_eip",
+              "outbound_eip"
+            ],
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "metric_name",
+            "x-example": "upstream_bandwidth",
+            "description": "指标名称\n- upstream_bandwidth:出网带宽\n- downstream_bandwidth:入网带宽\n- upstream_bandwidth_usage:出网带宽使用率\n- downstream_bandwidth_usage:入网带宽使用率\n- up_stream:出网流量\n- down_stream:入网流量",
+            "enum": [
+              "upstream_bandwidth",
+              "downstream_bandwidth",
+              "upstream_bandwidth_usage",
+              "downstream_bandwidth_usage",
+              "up_stream",
+              "down_stream"
+            ],
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "x-example": "1665304841872",
+            "description": "查询数据起始时间,UNIX时间戳,单位毫秒。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "x-example": "1665308441872",
+            "description": "查询数据截止时间UNIX时间戳,单位毫秒。from必须小于to。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "period",
+            "x-example": 1,
+            "description": "监控数据粒度。\n- 1:实时数据\n- 300:5分钟粒度\n- 1200:20分钟粒度\n- 3600:1小时粒度\n- 14400:4小时粒度\n- 86400:1天粒度",
+            "enum": [
+              1,
+              300,
+              1200,
+              3600,
+              14400,
+              86400
+            ],
+            "type": "integer",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "x-example": 1,
+            "description": "数据聚合方式。\n- average:聚合周期内指标数据的平均值。\n- max:聚合周期内指标数据的最大值。\n- min:聚合周期内指标数据的最小值。\n- sum:聚合周期内指标数据的求和值。\n- variance:聚合周期内指标数据的方差。",
+            "enum": [
+              "average",
+              "max",
+              "min",
+              "sum",
+              "variance"
+            ],
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/MetricDataResp"
+            },
+            "examples": {
+              "application/json": {
+                "datapoints": [
+                  {
+                    "average": 5,
+                    "timestamp": 1665304920000,
+                    "unit": "Byte"
+                  }
+                ]
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:api_id. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3002",
+                "error_msg": "API 39bce6d25a3f470e8cf7b2c97174f7d9 does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MetricDataResp": {
+      "properties": {
+        "datapoints": {
+          "description": "指标数据列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetricData"
+          }
+        }
+      }
+    },
+    "ErrorMsg": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "MetricData": {
+      "properties": {
+        "average": {
+          "description": "聚合周期内指标数据的平均值,仅当请求参数filter字段值为average时支持。",
+          "type": "integer"
+        },
+        "max": {
+          "description": "聚合周期内指标数据的最大值,仅当请求参数filter字段值为max时支持。",
+          "type": "integer"
+        },
+        "min": {
+          "description": "聚合周期内指标数据的最小值,仅当请求参数filter字段值为min时支持。",
+          "type": "integer"
+        },
+        "sum": {
+          "description": "聚合周期内指标数据的求和值,仅当请求参数filter字段值为sum时支持。",
+          "type": "integer"
+        },
+        "variance": {
+          "description": "聚合周期内指标数据的方差,仅当请求参数filter字段值为variance时支持。",
+          "type": "integer"
+        },
+        "timestamp": {
+          "description": "指标采集时间,UNIX时间戳,单位毫秒。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "unit": {
+          "description": "指标单位。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID,在API网关控制台的“实例信息”中获取。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见[获取项目ID](apig-api-180713009.xml)。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "apig.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

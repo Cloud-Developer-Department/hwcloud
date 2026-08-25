@@ -1,0 +1,479 @@
+{
+  "name": "ListInstances",
+  "summary": "批量查询实例",
+  "tags": "裸机实例管理",
+  "productshort": "CloudDC",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/instances": {
+      "get": {
+        "tags": [
+          "裸机实例管理"
+        ],
+        "summary": "批量查询实例",
+        "description": "批量查询实例",
+        "operationId": "ListInstances",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页查询时每页行数。最大值为 1000。\n\n默认值:\n当不设置值或设置的值小于 10 时,默认值为 10。\n当设置的值大于 1000 时,默认值为 1000。",
+            "type": "string",
+            "default": "10",
+            "required": false
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页游标",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "instance_state",
+            "in": "query",
+            "type": "string",
+            "description": "实例状态",
+            "enum": [
+              "pending",
+              "running",
+              "stopping",
+              "stopped",
+              "reinstalling",
+              "shutting-down",
+              "terminated",
+              "failed"
+            ],
+            "minLength": 2,
+            "maxLength": 32,
+            "required": false
+          },
+          {
+            "name": "instance_id",
+            "in": "query",
+            "required": false,
+            "description": "实例 ID。取值可以由多个实例 ID 组成数组,最多支持 100 个 ID,ID 之间用半角逗号(,)隔开,示例:uuid1,uuid2,uuid3。",
+            "type": "string"
+          },
+          {
+            "name": "server_id",
+            "in": "query",
+            "required": false,
+            "description": "实例 ID。取值可以由多个服务器 ID 组成数组,最多支持 100 个 ID,ID 之间用半角逗号(,)隔开,示例:uuid1,uuid2,uuid3。与instance_id_set查询条件互斥。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实例列表分页",
+            "schema": {
+              "$ref": "#/definitions/PageInstances"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 2
+      }
+    }
+  },
+  "definitions": {
+    "Tag": {
+      "type": "object",
+      "description": "标签对象",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "键。最大长度128个字符。\nkey需要满足3.1 KEY字符集规范。",
+          "example": "tag key"
+        },
+        "value": {
+          "type": "string",
+          "description": "值,每个值最大长度255个字符。",
+          "example": "tag value"
+        }
+      }
+    },
+    "NetworkInterface": {
+      "type": "object",
+      "description": "弹性网卡",
+      "required": [
+        "subnet_id"
+      ],
+      "properties": {
+        "subnet_id": {
+          "type": "string",
+          "description": "subnet id",
+          "example": "696e4af7-e788-4dda-9866-61dcd30e0b88",
+          "maxLength": 255
+        },
+        "ipv4_address": {
+          "type": "string",
+          "description": "弹性网卡私有IPv4地址",
+          "example": "26.151.241.138",
+          "pattern": "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+          "minLength": 7,
+          "maxLength": 15
+        }
+      }
+    },
+    "InstanceState": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "stopped",
+        "shutting-down",
+        "terminated",
+        "error"
+      ],
+      "minLength": 2,
+      "maxLength": 32,
+      "description": "**参数解释**:\n实例状态\n**约束限制**:\n不涉及\n**取值范围**:\n- pending:实例正在启动(分配资源/启动操作系统)\n- running:实例正常运行(可接受SSH/RDP连接)\n- stopped: 实例已完全关闭(存储卷保留)\n- shutting-down:实例正在终止(删除流程中)\n- terminated:实例已终止(资源完全删除,不可恢复)\n- error:实例处于异常状态(资源未完全删除)\n\n```mermaid\nstateDiagram-v2\n    [*] --> pending: CreateInstance\n    pending --> running: CreateInstance Succeed\n    pending --> shutting_down: DeleteInstance\n    running --> stopped: PowerOff/PowerReboot\n    stopped --> running: PowerOn/Provision Succeed\n    stopped --> stopped: ChangePassword\n    pending --> error: CreateInstance Failed\n    stopped --> error: Provision Failed\n    error --> running: Retry Provision Succeed\n    stopped --> shutting_down: DeleteInstance\n    error --> shutting_down: Retry DeleteInstance\n    shutting_down --> error: DeleteInstance Failed\n    shutting_down --> terminated: DeleteInstance Succeed\n```\n\n**默认取值**:\n不涉及"
+    },
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "maximum": 10,
+      "description": "创建裸机实例的元数据。\n\n可以通过元数据自定义键值对。\n\n 说明:\n如果元数据中包含了敏感数据,您应当采取适当的措施来保护敏感数据,比如限制访问范围、加密等。\n最多可注入10对键值(Key/Value)。\n主键(Key)只能由大写字母(A-Z)、小写字母(a-z)、数字(0-9)、中划线(-)、下划线(_)、冒号(:)、空格( )和小数点(.)组成,长度为[1-255]个字符。\n    值(value)最大长度为255个字符。",
+      "example": [
+        {
+          "k1": "v1"
+        }
+      ]
+    },
+    "Image": {
+      "type": "object",
+      "description": "服务器镜像信息。",
+      "required": [
+        "id",
+        "name",
+        "os_type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "镜像ID,格式为UUID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "镜像名称"
+        },
+        "os_type": {
+          "type": "string",
+          "description": "镜像os类型",
+          "example": "Linux",
+          "enum": [
+            "Linux",
+            "Windows",
+            "Other"
+          ]
+        }
+      }
+    },
+    "InstanceOperationStatus": {
+      "type": "string",
+      "enum": [
+        "install-processing",
+        "install-succeed",
+        "install-failed",
+        "reinstall-processing",
+        "reinstall-succeed",
+        "reinstall-failed",
+        "switch-install-processing",
+        "switch-install-succeed",
+        "switch-install-failed",
+        "modify-ip-processing",
+        "modify-ip-succeed",
+        "modify-ip-failed",
+        "uninstall-processing",
+        "uninstall-succeed",
+        "uninstall-failed"
+      ],
+      "minLength": 2,
+      "maxLength": 32,
+      "description": "**参数解释**: \n操作状态\n**约束限制**: \n不涉及\n**取值范围**: \n- install-processing: 安装OS中\n- install-succeed: 安装OS成功\n- install-failed: 安装OS失败\n- reinstall-processing: 重装OS中\n- reinstall-succeed: 重装OS成功\n- reinstall-failed: 重装OS失败\n- switch-install-processing: 切换OS中\n- switch-install-succeed: 切换OS成功\n- switch-install-failed: 切换OS失败\n- modify-ip-processing: 修改IP地址中\n- modify-ip-succeed: 修改IP地址成功\n- modify-ip-failed: 修改IP地址失败\n- uninstall-processing: 卸载OS中\n- uninstall-succeed: 卸载OS成功\n- uninstall-failed: 卸载OS失败\n\n**默认取值**: \n不涉及"
+    },
+    "QueryInstanceResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Instance"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "$ref": "#/definitions/InstanceState",
+              "description": "实例状态"
+            },
+            "operation_state": {
+              "$ref": "#/definitions/InstanceOperationStatus"
+            },
+            "metadata": {
+              "$ref": "#/definitions/Metadata",
+              "description": "cloudinit metadata"
+            },
+            "user_data": {
+              "description": "创建弹性云服务器时指定的user_data(编码过后的信息)。",
+              "$ref": "#/definitions/UserData"
+            },
+            "server_id": {
+              "description": "服务器ID",
+              "$ref": "#/definitions/ResourceUuid"
+            },
+            "created_at": {
+              "type": "string",
+              "description": "创建时间"
+            },
+            "updated_at": {
+              "type": "string",
+              "description": "更新时间"
+            },
+            "launched_at": {
+              "type": "string",
+              "description": "启动时间"
+            },
+            "error": {
+              "$ref": "#/definitions/ErrorStatus"
+            }
+          },
+          "required": [
+            "state",
+            "server_id",
+            "created_at",
+            "updated_at",
+            "launched_at"
+          ]
+        }
+      ],
+      "description": "查询实例应答"
+    },
+    "PageInfo": {
+      "description": "分页信息",
+      "properties": {
+        "next_marker": {
+          "type": "string",
+          "description": "下一页查询地址",
+          "example": "01939592-e8fe-7d9b-9332-d58948637755"
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "上一页查询地址",
+          "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+        },
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本页返回条目数量",
+          "example": 1
+        }
+      },
+      "type": "object"
+    },
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "PageInstances": {
+      "type": "object",
+      "description": "查询实例分页",
+      "required": [
+        "instances",
+        "page_info"
+      ],
+      "properties": {
+        "instances": {
+          "items": {
+            "$ref": "#/definitions/QueryInstanceResponseBody"
+          },
+          "description": "实例列表",
+          "type": "array"
+        },
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageInfo"
+        },
+        "count": {
+          "type": "integer",
+          "description": "实例总数"
+        }
+      }
+    },
+    "ResourceUuid": {
+      "type": "string",
+      "description": "UUID(Universally Unique Identifier)是一个 128 位的数字,通常以 32 个十六进制数字的形式表示,分为 5 组,用连字符分隔。具体格式如下:\n\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n其中:\n\n每个 x 是一个十六进制数字(0-9 或 a-f)。\n5 组的长度分别是:8 位、4 位、4 位、4 位 和 12 位。\n为了匹配这种格式的 UUID,可以使用以下正则表达式:\n\nregex\n^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+    },
+    "ErrorStatus": {
+      "description": "失败时返回的错误对象\n\ncreate_instance_error:创建实例失败\t \ndelete_instance_error:删除实例失败\nreinstall_error:重新安装OS失败\nmodify_ip_error:修改ip失败\t\nverify_server_error:验证服务器失败\t\ndelete_server_error:删除服务器失败",
+      "required": [
+        "error_code",
+        "error_msg",
+        "error_type"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        },
+        "error_type": {
+          "type": "string",
+          "description": "错误类型",
+          "enum": [
+            "create_instance_error",
+            "delete_instance_error",
+            "reinstall_error",
+            "modify_ip_error",
+            "verify_server_error",
+            "delete_server_error"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Instance": {
+      "description": "裸机实例",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "vpc_id",
+        "tags",
+        "image"
+      ],
+      "properties": {
+        "id": {
+          "description": "instance id",
+          "$ref": "#/definitions/ResourceUuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "instance name"
+        },
+        "vpc_id": {
+          "description": "VPC ID",
+          "type": "string"
+        },
+        "network_interfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NetworkInterface"
+          },
+          "description": "指定裸机实例的网卡信息。\n\n约束:\n\n一个裸机实例最多挂载2个网卡,参数中第一个网卡会作为裸机实例的主网卡。若用户指定了多组网卡参数,需保证各组参数都属于同一VPC。"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          },
+          "description": "标签"
+        },
+        "image": {
+          "description": "镜像信息",
+          "$ref": "#/definitions/Image"
+        },
+        "description": {
+          "type": "string",
+          "description": "云服务器描述信息,默认为空字符串。"
+        }
+      }
+    },
+    "UserData": {
+      "type": "string",
+      "description": "创建实例过程中待注入实例自定义数据。支持注入文本、文本文件。\n\n 说明:\nuser_data的值为base64编码之后的内容。\n注入内容(编码之前的内容)最大长度为32K。",
+      "example": "IyEvYmluL2Jhc2gKZWNobyAncm9vdDokNiQ1bFdCTlZzWCQvaHBDTlJ2YzVhalJ0Um9ZdmdDODIyVmFlOEEuVGtiLkhUNEFJMFNBUGVRZHVtbU1PcENUWTRSZ21lbGx3YWJnc0Q1di9kcWJhRWFRTHdpQmdveTRvLycgfCBjaHBhc3N3ZCAtZTs="
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

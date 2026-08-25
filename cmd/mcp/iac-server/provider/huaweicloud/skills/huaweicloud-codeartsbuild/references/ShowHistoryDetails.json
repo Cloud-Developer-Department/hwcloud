@@ -1,0 +1,218 @@
+{
+  "name": "ShowHistoryDetails",
+  "summary": "获取构建历史详情信息接口",
+  "tags": "编译构建(旧)",
+  "productshort": "CodeArtsBuild",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v3/jobs/{job_id}/{build_number}/history-details": {
+      "get": {
+        "tags": [
+          "CodeArtsBuild"
+        ],
+        "summary": "获取构建历史详情信息接口",
+        "description": "获取构建历史详情信息接口",
+        "operationId": "ShowHistoryDetails",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Job_Id"
+          },
+          {
+            "$ref": "#/parameters/Build_number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/HistoryDetail"
+            },
+            "examples": {
+              "application/json": {
+                "job_name": "测试任务01",
+                "build_number": 5,
+                "project_id": "6ecbc5bac7c8442fb3d2563d53c13582",
+                "project_name": "test-project",
+                "parameters": {
+                  "static_limit_param_name": "static_limit_param_value_1",
+                  "sentive_param_name": "******",
+                  "no_static_param_name": "no_static_param_value",
+                  "static_param_name": "static_param_value",
+                  "no_static_limit_param_name": "no_static_limit_param_value_1"
+                },
+                "build_steps": [
+                  {
+                    "name": "代码检出",
+                    "status": "success",
+                    "build_time": 8366
+                  },
+                  {
+                    "name": "上传软件包到软件发布库",
+                    "status": "",
+                    "build_time": 0
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/jobs/901878212b1a49be9c1a1054c272762a/1/history-details",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-internel": "false",
+        "x-apigateway-ratelimit": "cloudbuild_ext",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "HistoryDetail": {
+      "title": "HistoryDetail",
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string",
+          "description": "构建任务名称"
+        },
+        "build_number": {
+          "type": "integer",
+          "description": "构建编号",
+          "format": "int32"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "构建任务所在项目的ID"
+        },
+        "project_name": {
+          "type": "string",
+          "description": "构建任务所在项目的名称"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "本次构建的参数,Map类型,敏感参数值返回*号",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "build_steps": {
+          "type": "array",
+          "description": "本次任务的构建步骤详情,返回的步骤为页面可见步骤",
+          "items": {
+            "title": "BuildStep",
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "步骤名称"
+              },
+              "status": {
+                "type": "string",
+                "description": "步骤状态,可选值(running运行中,success成功,error失败,未运行为空字符串)"
+              },
+              "build_time": {
+                "type": "integer",
+                "description": "步骤执行时长,单位ms"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "CB.00060200"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "Invalid param"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Build_number": {
+      "name": "build_number",
+      "in": "path",
+      "description": "构建任务的构建编号,从1开始,每次构建递增1",
+      "required": true,
+      "type": "integer",
+      "default": 1,
+      "format": "int32",
+      "minimum": 1,
+      "maximum": 2147483647,
+      "x-example": 1
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n通过调用IAM服务接口获取\n(响应消息头中X-Subject-Token的值)。\n不支持租户全局token,请使用scope为project的region级token。",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100000,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+    },
+    "Job_Id": {
+      "name": "job_id",
+      "in": "path",
+      "description": "构建的任务ID;\n编辑构建任务时,浏览器URL末尾的32位数字、字母组合的字符串。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[0-9a-z]{32}$",
+      "x-example": "901878212b1a49be9c1a1054c272762a"
+    }
+  },
+  "host": "cloudbuild-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

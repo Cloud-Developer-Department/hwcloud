@@ -1,0 +1,272 @@
+{
+  "name": "ListPublicScripts",
+  "summary": "获取公共脚本列表",
+  "tags": "ScriptPublicManagement",
+  "productshort": "COC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/job/public-scripts": {
+      "get": {
+        "tags": [
+          "ScriptPublicManagement"
+        ],
+        "summary": "获取公共脚本列表",
+        "description": "获取公共脚本列表,分页逻辑:采用limit+marker方式,提高分页效率。用自增id作为marker参数",
+        "operationId": "ListPublicScripts",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页参数:每页返回记录个数限制",
+            "required": true,
+            "type": "integer",
+            "maximum": 100,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页参数:上一页最后一个记录id",
+            "required": false,
+            "type": "integer",
+            "maximum": 2147483647,
+            "minimum": 1,
+            "format": "int64"
+          },
+          {
+            "name": "name_like",
+            "in": "query",
+            "description": "脚本名(只支持右模糊搜索)",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "脚本名(精确搜索)",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "risk_level",
+            "in": "query",
+            "description": "风险等级\nLOW:低风险\nMEDIUM:中风险\nHIGH:高风险",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "脚本类型\nSHELL:shell脚本\nPYTHON:python脚本\nBAT:bat脚本",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SHELL",
+              "PYTHON",
+              "BAT"
+            ]
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "国际化标记,zh-cn表示中文,en-us或不传表示英文",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-project-id",
+            "in": "header",
+            "description": "项目ID,一个项目对应一个region",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-user-profile",
+            "in": "header",
+            "description": "IAM5.0用户信息",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "公共脚本分页数据",
+            "schema": {
+              "$ref": "#/definitions/ListPublicScriptsRes"
+            }
+          }
+        },
+        "x-apiexplorer-hide": false,
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ListPublicScriptsRes": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "description": "获取公共脚本列表返回结果",
+          "$ref": "#/definitions/PublicScriptListPage"
+        }
+      },
+      "description": "获取公共脚本列表返回体"
+    },
+    "PublicScriptListModel": {
+      "type": "object",
+      "required": [
+        "description",
+        "gmt_created",
+        "id",
+        "name",
+        "properties",
+        "script_uuid",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "example": 12,
+          "description": "脚本自增id",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "script_uuid": {
+          "type": "string",
+          "example": "SC2023082920065102fc49ec0",
+          "description": "脚本uuid",
+          "minLength": 1,
+          "maxLength": 25
+        },
+        "name": {
+          "type": "string",
+          "example": "echotest",
+          "description": "脚本名称",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "type": {
+          "type": "string",
+          "description": "脚本类型\nSHELL:shell脚本\nPYTHON:python脚本\nBAT:bat脚本",
+          "enum": [
+            "SHELL",
+            "PYTHON",
+            "BAT"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "脚本状态",
+          "enum": [
+            "PENDING_APPROVE",
+            "APPROVED",
+            "REJECTED"
+          ],
+          "example": "APPROVED"
+        },
+        "gmt_created": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1691750512367,
+          "description": "创建时间",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "description": {
+          "type": "string",
+          "example": "Public scripts: Script for changing the password of the ECS administrator account. (Linux shell version)",
+          "description": "脚本描述:\n根据X-Language(X-Language)\t进行国际化",
+          "minLength": 0,
+          "maxLength": 20
+        },
+        "properties": {
+          "description": "脚本附加属性",
+          "$ref": "#/definitions/PublicScriptPropertiesModel"
+        }
+      },
+      "description": "公共脚本列表对象"
+    },
+    "PublicScriptPropertiesModel": {
+      "type": "object",
+      "required": [
+        "risk_level",
+        "version"
+      ],
+      "properties": {
+        "risk_level": {
+          "type": "string",
+          "example": "LOW",
+          "description": "风险等级\nLOW:低风险\nMEDIUM:中风险\nHIGH:高风险",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "example": "v1.0.0",
+          "description": "脚本版本号",
+          "minLength": 1,
+          "maxLength": 10
+        }
+      },
+      "description": "公共脚本附加属性"
+    },
+    "PublicScriptListPage": {
+      "type": "object",
+      "required": [
+        "data",
+        "total"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "example": 37,
+          "description": "总条数",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "data": {
+          "type": "array",
+          "description": "单页数据列表",
+          "items": {
+            "$ref": "#/definitions/PublicScriptListModel"
+          },
+          "maxItems": 100,
+          "minItems": 1
+        }
+      },
+      "description": "公共脚本列表分页数据"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc-intl.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

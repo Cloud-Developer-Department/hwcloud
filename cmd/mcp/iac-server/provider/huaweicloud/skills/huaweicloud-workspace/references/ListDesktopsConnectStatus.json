@@ -1,0 +1,265 @@
+{
+  "name": "ListDesktopsConnectStatus",
+  "summary": "查询桌面连接状态列表",
+  "tags": "桌面",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/connect-desktops": {
+      "get": {
+        "tags": [
+          "Desktop"
+        ],
+        "summary": "查询桌面连接状态列表",
+        "description": "查询桌面连接状态列表。",
+        "operationId": "ListDesktopsConnectStatus",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "user_names",
+            "in": "query",
+            "description": "桌面所属用户,批量筛选,最多不超过100个用户。",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 36
+            },
+            "maxItems": 100,
+            "minItems": 0
+          },
+          {
+            "name": "connect_status",
+            "in": "query",
+            "description": "桌面的连接状态。\n\n- UNREGISTER:表示桌面未注册时的状态(桌面启动后,会自动注册)。关机后也会出现未注册的状态。\n- REGISTERED:表示桌面注册以后,等待用户连接的状态。\n- CONNECTED:表示用户已经成功连接,正在使用桌面。\n- DISCONNECTED:表示桌面与客户端断开会话后显示的状态,可能为关闭客户端窗口,或客户端与桌面网络断开引起。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "从查询结果中的第几条数据开始返回,用于分页查询,取值范围0-2000,默认从0开始。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 100000,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询结果中想要返回的信息条目数量,用于分页查询,取值范围0-2000,默认值100。",
+            "required": false,
+            "type": "integer",
+            "default": 100,
+            "maximum": 1000,
+            "minimum": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询云桌面详情列表响应。",
+            "examples": {
+              "application/json": {
+                "desktops": [
+                  {
+                    "desktop_id": "string",
+                    "desktop_name": "string",
+                    "connect_status": "string",
+                    "attach_users": [
+                      {
+                        "id": "string",
+                        "name": "string",
+                        "user_group": "string",
+                        "type": "USER"
+                      }
+                    ]
+                  }
+                ],
+                "total_count": 0
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DescribeConnectDesktopsResponse"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET /v2/0bec5db98280d2d02fd6c00c2de791ce/connect-desktops",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-support-hcs": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "public,internal_token",
+        "x-api-type": "open-api",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT,  authContextInitializerName = \"workspaceCommonAuthContextInitializer\", abacAction = \"workspace:desktops:listWithConnectStatus\",  needApigwJwtAuthCheck = false, needRbacCheck = false)"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "AttachUsersInfo": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "当type字段为USER时,填写用户id;当type字段为GROUP时,填写用户组id,后端服务会校验组id是否存在;",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "name": {
+          "type": "string",
+          "description": "桌面分配对象的名称,当type类型USER时填写用户名字;当type类型GROUP时填写用户组名称。\n- 当type类型USER时:桌面所属的用户,当桌面分配成功后此用户可以登录该桌面。只允许输入大写字母、小写字母、数字、中划线(-)和下划线(_)。域类型为LITE_AD时,使用小写字母或者大写字母开头,长度范围为[1-20]。当域类型为LOCAL_AD时,用户名可以使用小写字母或者大写字母或者数字开头,长度范围为[1-64]。Windows桌面用户最长支持20个字符,Linux桌面用户最长支持64个字符。后端服务会校验用户名是否存在,并且用户名不能与机器名重复。\n- 当type类型GROUP时:只能为中文、字母、数字及特殊符号-_。",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-isSensitive": true
+        },
+        "user_group": {
+          "type": "string",
+          "description": "桌面用户所属的用户组。\n- sudo:Linux管理员组。\n- default:Linux默认用户组。\n- administrators:Windows管理员组。管理员拥有对该桌面的完全访问权,可以做任何需要的更改(禁用操作除外)。\n- users:Windows标准用户组。标准用户可以使用大多数软件,并可以更改不影响其他用户的系统设置。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "type": {
+          "type": "string",
+          "description": "对象类型,可选值为:\n- USER:用户。\n- GROUP:用户组。",
+          "readOnly": true,
+          "default": "USER"
+        }
+      },
+      "description": "桌面分配用户信息。"
+    },
+    "DescribeConnectDesktopsResponse": {
+      "properties": {
+        "desktops": {
+          "type": "array",
+          "description": "桌面连接信息列表。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/ConnectDesktopsInfo"
+          }
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "桌面总数。",
+          "readOnly": true
+        }
+      },
+      "description": "查询桌面连接信息响应。"
+    },
+    "ConnectDesktopsInfo": {
+      "properties": {
+        "desktop_id": {
+          "type": "string",
+          "description": "桌面id。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        },
+        "desktop_name": {
+          "type": "string",
+          "description": "桌面名称。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        },
+        "connect_status": {
+          "type": "string",
+          "description": "桌面的连接状态。\n\n- UNREGISTER:表示桌面未注册时的状态(桌面启动后,会自动注册)。关机后也会出现未注册的状态。\n- REGISTERED:表示桌面注册以后,等待用户连接的状态。\n- CONNECTED:表示用户已经成功连接,正在使用桌面。\n- DISCONNECTED:表示桌面与客户端断开会话后显示的状态,可能为关闭客户端窗口,或客户端与桌面网络断开引起。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "attach_users": {
+          "type": "array",
+          "description": "桌面已分配的用户或用户组信息列表。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/AttachUsersInfo"
+          }
+        }
+      },
+      "description": "桌面连接状态信息。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,280 @@
+{
+  "name": "ListExportTasks",
+  "summary": "查询导出任务列表",
+  "tags": "导出任务",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/export-tasks": {
+      "get": {
+        "operationId": "ListExportTasks",
+        "x-imports": [
+          "org.springframework.web.bind.annotation.ModelAttribute",
+          "jakarta.validation.Valid",
+          "org.springframework.http.ResponseEntity"
+        ],
+        "tags": [
+          "ExportTasks"
+        ],
+        "summary": "查询导出任务列表",
+        "description": "应用服务器可调用此接口查询已创建的导出任务列表。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-externalAPI": true,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0079.html#section1) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10,
+            "description": "分页查询时每页显示的记录数,默认值为10,取值范围为1-50的整数。"
+          },
+          {
+            "in": "query",
+            "name": "marker",
+            "required": false,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "default": "ffffffffffffffffffffffff",
+            "description": "上一次分页查询结果中最后一条记录的ID,在上一次分页查询时由物联网平台返回获得。分页查询时物联网平台是按marker也就是记录ID降序查询的,越新的数据记录ID也会越大。若填写marker,则本次只查询记录ID小于marker的数据记录。若不填写,则从记录ID最大也就是最新的一条数据开始查询。如果需要依次查询所有数据,则每次查询时必须填写上一次查询响应中的marker值。"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "description": "表示从marker后偏移offset条记录开始查询。默认为0,取值范围为0-500的整数。当offset为0时,表示从marker后第一条记录开始输出。限制offset最大值是出于API性能考虑,您可以搭配marker使用该参数实现翻页,例如每页50条记录,1-11页内都可以直接使用offset跳转到指定页,但到11页后,由于offset限制为500,您需要使用第11页返回的marker作为下次查询的marker,以实现翻页到12-22页。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 500,
+            "default": 0
+          },
+          {
+            "in": "query",
+            "name": "resource_type",
+            "type": "string",
+            "required": true,
+            "description": "导出源资源类型,支持批量任务导出类型BatchTask。",
+            "pattern": "(BatchTask|Device|DevicePropertyHistory|MessageTraceData)"
+          },
+          {
+            "in": "query",
+            "name": "resource_condition",
+            "required": false,
+            "type": "string",
+            "description": "资源过滤条件,Json格式,里面是(K,V)键值对,当resource_type为BatchTasks时填写填写key为task_id,value为BatchTask的task_id(task_id从批量任务接口获得)。当app_type为APP时,导出的结果也会在该app范围内,否则为租户级别筛选。"
+          },
+          {
+            "in": "query",
+            "name": "app_type",
+            "type": "string",
+            "required": false,
+            "description": "租户规则的生效范围,默认GLOBAL,rule_id不携带的时候,该参数生效,取值如下:\n- GLOBAL:生效范围为租户级\n- APP:生效范围为应用级,如果类型为APP,需要携带app_id,如果不带,生效范围为defaultApp。",
+            "pattern": "(GLOBAL|APP)",
+            "default": "GLOBAL"
+          },
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": false,
+            "type": "string",
+            "description": "应用ID。此参数为非必选参数,rule_id不携带切app_type为APP时,该参数生效,用于兼容平台老用户存在多应用的场景。存在多应用的用户需要使用该接口时,必须携带该参数指定查询哪个应用下的消息订阅,否则接口会提示错误。如果用户存在多应用,同时又不想携带该参数,可以联系华为技术支持对用户数据做应用合并。",
+            "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+          }
+        ],
+        "x-returnType": "ResponseEntity<ExportTaskList>",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "x-SuccessCode": true,
+            "schema": {
+              "$ref": "#/definitions/ExportTaskList"
+            },
+            "examples": {
+              "application/json": {
+                "export_tasks": [
+                  {
+                    "export_task_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+                    "resource_type": "BatchTask",
+                    "resource_condition": {
+                      "task_id": "32822e5744a45ede319d2c50"
+                    },
+                    "export_format": "xls",
+                    "status": "Processing",
+                    "export_count": 10000,
+                    "progress": 98,
+                    "create_time": "2020-08-12T12:12:12.333Z",
+                    "end_time": "2020-08-12T12:12:12.333Z",
+                    "app_type": "string",
+                    "app_id": "string"
+                  }
+                ],
+                "page": {
+                  "count": 10,
+                  "marker": "5c90fa7d3c4e4405e8525079"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "x-Error": [
+              "IOTDA.001006",
+              "IOTDA.001007",
+              "IOTDA.000022"
+            ]
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.014800"
+            ]
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v5/iot/{project_id}/export-tasks",
+        "x-request-examples-description-1": "列表查询出所有导出任务。"
+      }
+    }
+  },
+  "definitions": {
+    "ExportTaskList": {
+      "type": "object",
+      "title": "导出任务列表",
+      "description": "导出任务概要列表。",
+      "properties": {
+        "export_tasks": {
+          "x-isSensitive": true,
+          "type": "array",
+          "description": "导出任务列表。",
+          "items": {
+            "$ref": "#/definitions/ExportTask"
+          }
+        },
+        "page": {
+          "$ref": "#/definitions/Page",
+          "description": "查询结果的分页信息。"
+        }
+      }
+    },
+    "ExportTask": {
+      "title": "导出任务信息",
+      "type": "object",
+      "description": "导出任务信息。",
+      "properties": {
+        "export_task_id": {
+          "type": "string",
+          "description": "导出任务唯一id。",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka"
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "导出源资源类型,支持批量任务导出类型BatchTask。",
+          "pattern": "(BatchTask|Device|DevicePropertyHistory|MessageTraceData)",
+          "example": "BatchTask"
+        },
+        "resource_condition": {
+          "description": "资源过滤条件,Json格式,里面是(K,V)键值对,当resource_type为BatchTask时填写填写key为task_id,value为BatchTask的task_id(task_id从批量任务接口获得)。",
+          "type": "object",
+          "example": {
+            "task_id": "32822e5744a45ede319d2c50"
+          }
+        },
+        "export_format": {
+          "type": "string",
+          "description": "导出格式,目前xls格式。",
+          "pattern": "(xls)",
+          "example": "xls"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态,状态分别有:Processing:执行中,Success:成功,Failed:失败。",
+          "example": "Processing"
+        },
+        "export_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "已导出的资源数量。",
+          "example": 10000
+        },
+        "progress": {
+          "type": "integer",
+          "description": "导出任务的执行进度,取值范围为1-100,当100表示进度为100%,任务完成。",
+          "example": 98
+        },
+        "create_time": {
+          "x-isSensitive": true,
+          "description": "在物联网平台创建产品的时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',如2020-08-12T12:12:12.333Z。",
+          "type": "string",
+          "example": "2020-08-12T12:12:12.333Z"
+        },
+        "end_time": {
+          "x-isSensitive": true,
+          "description": "导出任务的执行结束时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',如2020-08-12T12:12:12.333Z。",
+          "type": "string",
+          "example": "2020-08-12T12:12:12.333Z"
+        },
+        "app_type": {
+          "type": "string",
+          "description": "租户规则的生效范围,默认GLOBAL,取值如下:\n- GLOBAL:生效范围为租户级\n- APP:生效范围为应用级,如果类型为APP,需要携带app_id,如果不带,生效范围为defaultApp。",
+          "pattern": "(GLOBAL|APP)"
+        },
+        "app_id": {
+          "type": "string",
+          "description": "应用ID。此参数为非必选参数,用于兼容平台老用户存在多应用的场景。存在多应用的用户需要使用该接口时,必须携带该参数指定创建的规则归属到哪个应用下,否则接口会提示错误。如果用户存在多应用,同时又不想携带该参数,可以联系华为技术支持对用户数据做应用合并。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        }
+      }
+    },
+    "Page": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "example": 100,
+          "description": "满足查询条件的记录总数。"
+        },
+        "marker": {
+          "type": "string",
+          "example": "5c8f3d2d3df1f10d803adbda",
+          "description": "本次分页查询结果中最后一条记录的ID,可在下一次分页查询时使用。"
+        }
+      },
+      "title": "查询批量响应的分页结构体",
+      "description": "查询批量分页结构体,定义了分页页码、每页记录数、记录总数、该页记录的最大Id。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

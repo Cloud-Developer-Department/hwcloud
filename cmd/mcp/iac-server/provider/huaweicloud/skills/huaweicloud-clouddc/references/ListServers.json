@@ -1,0 +1,465 @@
+{
+  "name": "ListServers",
+  "summary": "批量查询物理服务器",
+  "tags": "物理服务器管理",
+  "productshort": "CloudDC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{project_id}/physicalservers": {
+      "get": {
+        "tags": [
+          "物理服务器管理"
+        ],
+        "summary": "批量查询物理服务器",
+        "operationId": "ListServers",
+        "description": "List imetal servers",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/ManageState"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "上一页数据的最后一条记录的id",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页查询时每页行数。最大值为 1000。\n\n默认值:\n当不设置值或设置的值小于 10 时,默认值为 10。\n当设置的值大于 1000 时,默认值为 1000。",
+            "type": "integer",
+            "format": "int32",
+            "default": "10",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "物理服务器查询分页",
+            "schema": {
+              "$ref": "#/definitions/PagePhysicalServers"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "Tag": {
+      "type": "object",
+      "description": "标签对象",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "键。最大长度128个字符。\nkey需要满足3.1 KEY字符集规范。",
+          "example": "tag key"
+        },
+        "value": {
+          "type": "string",
+          "description": "值,每个值最大长度255个字符。",
+          "example": "tag value"
+        }
+      }
+    },
+    "PagePhysicalServers": {
+      "type": "object",
+      "properties": {
+        "servers": {
+          "type": "array",
+          "description": "物理服务器列表分页",
+          "items": {
+            "$ref": "#/definitions/PhysicalServer"
+          }
+        },
+        "page_info": {
+          "$ref": "#/definitions/PageInfo"
+        },
+        "count": {
+          "type": "integer",
+          "description": "物理服务器总数"
+        }
+      },
+      "description": "服务器列表分页"
+    },
+    "ManageState": {
+      "type": "string",
+      "enum": [
+        "onboard",
+        "os-ready",
+        "ready",
+        "in-use",
+        "maintain",
+        "offboarding"
+      ],
+      "minLength": 2,
+      "maxLength": 32,
+      "description": "**参数解释**:\n服务器管理状态\n**约束限制**:\n不涉及\n**取值范围**\n- onboard:上架中,用户下单,完成LLD设计。\n- os-ready: 软调完成 服务器完成软调,即将进行转维。\n- ready:交付完成,完成硬装、网调、服务器初始化、软调及转维验收。\n- in-use:使用中,用户发放裸机。\n- maintain:维护中 服务器故障,进入维修\n- offboarding:下架中。\n\n```mermaid\nstateDiagram-v2\n\n  [*] --> onboard : 完成LLD设计\n  onboard --> ready : 完成网调、服务器初始化、软调及转维验收\n  ready --> in_use : 发放裸机实例\n  ready --> offboarding : 请求下架  \n\n  in_use --> ready : 删除裸机实例\n  in_use --> offboarding : 请求下架\n  offboarding --> [*] : 完成下架\n  state \"in-use\" as in_use\n```\n**默认取值**:\n不涉及"
+    },
+    "HardwareSummary": {
+      "type": "object",
+      "description": "硬件总览信息,包括服务器的制造商、型号、序列号等",
+      "required": [
+        "sn",
+        "manufacturer",
+        "model"
+      ],
+      "properties": {
+        "sn": {
+          "type": "string",
+          "description": "serial number"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "制造商"
+        },
+        "model": {
+          "type": "string",
+          "description": "型号"
+        },
+        "main_board_manufacturer": {
+          "type": "string",
+          "description": "主板厂商"
+        },
+        "main_board_serial_number": {
+          "type": "string",
+          "description": "主板序列号"
+        }
+      }
+    },
+    "PowerState": {
+      "type": "string",
+      "description": "**参数解释**:\n电源状态\npower_state 会根据不同的操作和事件发生转换,常见的状态转换流程如下:\n  - 开机流程:off -> on\n  - 关机流程:on -> off\n  - 重启流程:on -> off -> on\n\n**约束限制**:\n不涉及\n**取值范围**:\n- on:表示节点的电源已开启,硬件处于通电状态,操作系统正在运行或者可以正常启动。这意味着节点能够执行计算任务,为上层应用提供服务。\n- off:表明节点的电源已关闭,硬件停止供电,所有组件处于非工作状态,无法执行任何计算任务。\n\n**默认取值**:\n不涉及\n",
+      "enum": [
+        "on",
+        "off"
+      ],
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "PhysicalServerOperationStatus": {
+      "type": "string",
+      "description": "**约束限制**:\n不涉及\n**取值范围**:\n- power-on-processing: 节点正在开启电源的过程中,此时硬件开始通电,但操作系统可能还未完全启动。\n- power-on-succeed: 开启电源成功。\n- power-on-failed: 开启电源失败。\n- power-off-processing: 节点正在关闭电源的过程中,操作系统会进行一些清理工作,如保存数据、关闭服务等,然后切断硬件的电源供应。\n- power-off-succeed: 关闭电源成功。\n- power-off-failed: 关闭电源失败。\n- reboot-processing: 节点正在进行重启操作,即先关闭电源,然后再重新开启。在这个过程中,节点会经历硬件初始化和操作系统启动等步骤。\n- reboot-succeed: 重启操作成功。\n- reboot-failed: 重启操作失败。\n\n**默认取值**:\n不涉及\n",
+      "enum": [
+        "power-on-processing",
+        "power-on-succeed",
+        "power-on-failed",
+        "power-off-processing",
+        "power-off-succeed",
+        "power-off-failed",
+        "reboot-processing",
+        "reboot-succeed",
+        "reboot-failed"
+      ],
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "PhysicalServer": {
+      "description": "物理服务器信息",
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "project_id",
+        "domain_id",
+        "manage_state",
+        "onboard_time",
+        "location",
+        "hardware_attributes"
+      ],
+      "properties": {
+        "id": {
+          "description": "imetal server id",
+          "$ref": "#/definitions/ResourceUuid"
+        },
+        "name": {
+          "description": "物理服务器名称,在创建实例时作为hostname",
+          "$ref": "#/definitions/ResourceName"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "project id",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "this is a demo"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "domain id",
+          "minLength": 2,
+          "maxLength": 512
+        },
+        "manage_state": {
+          "description": "管理状态",
+          "$ref": "#/definitions/ManageState"
+        },
+        "frozen_state": {
+          "$ref": "#/definitions/FrozenState"
+        },
+        "power_state": {
+          "description": "电源状态",
+          "$ref": "#/definitions/PowerState"
+        },
+        "operation_state": {
+          "$ref": "#/definitions/PhysicalServerOperationStatus"
+        },
+        "health_state": {
+          "description": "硬件健康状态",
+          "$ref": "#/definitions/Health"
+        },
+        "onboard_time": {
+          "type": "string",
+          "description": "上架时间"
+        },
+        "location": {
+          "description": "物理服务器物理位置",
+          "$ref": "#/definitions/Location"
+        },
+        "hardware_attributes": {
+          "description": "硬件信息",
+          "$ref": "#/definitions/HardwareSummary"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          },
+          "minItems": 0,
+          "maxItems": 512,
+          "description": "标签"
+        },
+        "error": {
+          "$ref": "#/definitions/ErrorStatus"
+        }
+      }
+    },
+    "FrozenState": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "minLength": 1,
+      "maxLength": 32,
+      "description": "**参数解释**:\n服务器冻结状态\n**约束限制**:\n不涉及\n**取值范围**\n- 0:未冻结。\n- 1: 公安冻结。\n- 2:违规冻结。\n- 3:违规冻结+公安冻结。\n- 4:欠费冻结。\n- 5:欠费冻结+公安冻结。\n- 6:欠费冻结+违规冻结。\n- 7:欠费冻结+公安冻结+违规冻结。\n```\n**默认取值**:\n不涉及"
+    },
+    "PageInfo": {
+      "description": "分页信息",
+      "properties": {
+        "next_marker": {
+          "type": "string",
+          "description": "下一页查询地址",
+          "example": "01939592-e8fe-7d9b-9332-d58948637755"
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "上一页查询地址",
+          "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+        },
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本页返回条目数量",
+          "example": 1
+        }
+      },
+      "type": "object"
+    },
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "Health": {
+      "type": "string",
+      "description": "硬件健康状态:\nOK:健康\nWarning:警告\nCritical:严重\nUnknown:未知",
+      "readOnly": true,
+      "enum": [
+        "OK",
+        "Warning",
+        "Critical",
+        "Unknown"
+      ]
+    },
+    "ResourceUuid": {
+      "type": "string",
+      "description": "UUID(Universally Unique Identifier)是一个 128 位的数字,通常以 32 个十六进制数字的形式表示,分为 5 组,用连字符分隔。具体格式如下:\n\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n其中:\n\n每个 x 是一个十六进制数字(0-9 或 a-f)。\n5 组的长度分别是:8 位、4 位、4 位、4 位 和 12 位。\n为了匹配这种格式的 UUID,可以使用以下正则表达式:\n\nregex\n^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+    },
+    "Location": {
+      "type": "object",
+      "description": "物理服务器部署位置信息",
+      "properties": {
+        "dc": {
+          "type": "string",
+          "description": "服务器所在的机房名称",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "rack": {
+          "type": "string",
+          "description": "服务器所在的iRack名称",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "unit": {
+          "type": "string",
+          "description": "服务器所在的U位",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "ErrorStatus": {
+      "description": "失败时返回的错误对象\n\ncreate_instance_error:创建实例失败\t \ndelete_instance_error:删除实例失败\nreinstall_error:重新安装OS失败\nmodify_ip_error:修改ip失败\t\nverify_server_error:验证服务器失败\t\ndelete_server_error:删除服务器失败",
+      "required": [
+        "error_code",
+        "error_msg",
+        "error_type"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        },
+        "error_type": {
+          "type": "string",
+          "description": "错误类型",
+          "enum": [
+            "create_instance_error",
+            "delete_instance_error",
+            "reinstall_error",
+            "modify_ip_error",
+            "verify_server_error",
+            "delete_server_error"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ResourceName": {
+      "type": "string",
+      "description": "Resource Name Type",
+      "minLength": 2,
+      "maxLength": 64
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "ManageState": {
+      "name": "manage_state",
+      "in": "query",
+      "type": "string",
+      "description": "**参数解释**:\n服务器管理状态\n**约束限制**:\n不涉及\n**取值范围**:\n- onboard:上架中,用户下单,完成LLD设计。\n- os-ready: 软调完成 服务器完成软调,即将进行转维。\n- ready:交付完成,完成硬装、网调、服务器初始化、软调及转维验收。\n- in-use:使用中,用户发放裸机。\n- maintain:维护中 服务器故障,进入维修\n- offboarding:下架中。\n\n**默认取值**:\n不涉及",
+      "enum": [
+        "onboard",
+        "os-ready",
+        "ready",
+        "in-use",
+        "maintain",
+        "offboarding"
+      ],
+      "minLength": 2,
+      "maxLength": 32,
+      "required": false
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

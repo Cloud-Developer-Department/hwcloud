@@ -1,0 +1,297 @@
+{
+  "name": "CreateDwsTransferTask",
+  "summary": "添加DWS转储任务",
+  "tags": "转储任务管理",
+  "productshort": "DIS",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v2/{project_id}/streams/{stream_name}/transfer-tasks": {
+      "post": {
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "添加DWS转储任务",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v2/{project_id}/streams/{stream_name}/transfer-tasks",
+        "x-request-examples-1": {
+          "destination_type": "DWS",
+          "dws_destination_descriptor": {
+            "task_name": "dwstask",
+            "consumer_strategy": "LATEST",
+            "agency_name": "dis_admin_agency",
+            "dws_cluster_name": "dwscluster",
+            "dws_cluster_id": "f82dc227-3691-47eb-bca7-e7851f509b2a",
+            "dws_database_name": "postgres",
+            "dws_schema": "dbadmin",
+            "dws_table_name": "dwstablename",
+            "dws_delimiter": "",
+            "user_name": "dbadmin",
+            "user_password": "userpassword",
+            "kms_user_key_name": "kmskey",
+            "kms_user_key_id": "1e759f06-9188-4d21-afab-a75e57c04d2b",
+            "obs_bucket_path": "obsbucket",
+            "file_prefix": "",
+            "deliver_time_interval": 60,
+            "retry_duration": 1800,
+            "options": {
+              "fill_missing_fields": "false",
+              "ignore_extra_data": "false",
+              "compatible_illegal_chars": "false"
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "tags": [
+          "转储任务管理"
+        ],
+        "description": "本接口用于添加DWS转储任务。",
+        "operationId": "CreateDwsTransferTask",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "添加DWS转储任务",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "x-example": "new-stream",
+            "description": "已创建的通道名称。",
+            "required": true,
+            "type": "string",
+            "maxLength": 60
+          },
+          {
+            "name": "CreateDwsTransferTaskRequestBody",
+            "in": "body",
+            "description": "CreateDwsTransferTaskRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateDwsTransferTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "正常返回"
+          }
+        },
+        "security": [
+          {
+            "aksk": []
+          }
+        ],
+        "x-version": "v2"
+      }
+    }
+  },
+  "definitions": {
+    "CommonDestinationDescriptor": {
+      "description": "转储任务请求体公共部分。",
+      "required": [
+        "task_name",
+        "agency_name",
+        "deliver_time_interval"
+      ],
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "description": "转储任务的名称。  任务名称由英文字母、数字、中划线和下划线组成。长度为1~64个字符。",
+          "x-example": "new-task"
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "在统一身份认证服务(IAM)中创建委托的名称,DIS需要获取IAM委托信息去访问您指定的资源。创建委托的参数设置如下:\n- 委托类型:云服务\n- 云服务:DIS\n- 持续时间:永久\n- “所属区域”为“全局服务”,“项目”为“对象存储服务”对应的“策略”包含“Tenant Administrator”。\n如果已经创建过委托,可以使用IAM服务提供的查询委托列表接口,获取有效可用的委托名称。\n取值范围:长度不超过64位,且不可配置为空。\n\n如果有在Console控制台使用转储任务,会提示自动创建委托,自动创建的委托名称为:dis_admin_agency",
+          "maxLength": 64,
+          "x-example": "dis_admin_agency"
+        },
+        "deliver_time_interval": {
+          "type": "integer",
+          "default": 300,
+          "description": "根据用户配置的时间,周期性的将数据导入OBS,若某个时间段内无数据,则此时间段不会生成打包文件。\n\n单位:秒",
+          "maximum": 900,
+          "minimum": 30,
+          "format": "int32"
+        },
+        "consumer_strategy": {
+          "type": "string",
+          "default": "LATEST",
+          "description": "偏移量。\n\n- LATEST:最大偏移量,即获取最新的数据。\n- TRIM_HORIZON:最小偏移量,即读取最早的数据。",
+          "enum": [
+            "LATEST",
+            "TRIM_HORIZON"
+          ]
+        }
+      }
+    },
+    "Options": {
+      "properties": {
+        "fill_missing_fields": {
+          "type": "string",
+          "description": "数据入库时,数据源文件中某行的最后一个字段缺失时,请选择是直接将字段设为Null,还是在错误表中报错提示。\n\n取值范围:\n\n\n- true/on\n- false/off\n\n缺省值:false/off",
+          "enum": [
+            "true/on",
+            "false/off"
+          ]
+        },
+        "ignore_extra_data": {
+          "type": "string",
+          "description": "数据源文件中的字段比外表定义列数多时,是否忽略多出的列。该参数只在数据导入过程中使用。\n\n取值范围:\n\n- true/on\n- false/off\n\n缺省值:false/off",
+          "enum": [
+            "true/on",
+            "false/off"
+          ]
+        },
+        "compatible_illegal_chars": {
+          "type": "string",
+          "description": "导入非法字符容错参数。是将非法字符按照转换规则转换后入库,还是报错中止导入。\n\n取值范围:\n\n- true/on\n- false/off\n\n缺省值:false/off",
+          "enum": [
+            "true/on",
+            "false/off"
+          ]
+        },
+        "reject_limit": {
+          "type": "string",
+          "description": "指定本次数据导入允许出现的数据格式错误个数,当导入过程中出现的数据格式错误未达到限定值时,本次数据导入可以成功。\n\n取值范围:\n\n- 整型值\n- unlimited(无限制)\n\n缺省值为0,有错误信息立即返回。"
+        },
+        "error_table_name": {
+          "type": "string",
+          "description": "用于记录数据格式错误信息的错误表表名。并行导入结束后查询此错误信息表,能够获取详细的错误信息。"
+        }
+      },
+      "xml": {
+        "name": "Options"
+      },
+      "description": "DWS容错性选项(用于指定外表数据的各类参数)。"
+    },
+    "CreateDwsTransferTaskReq": {
+      "required": [
+        "destination_type"
+      ],
+      "properties": {
+        "destination_type": {
+          "type": "string",
+          "example": "OBS",
+          "description": "转储任务类型。\n\n- OBS:转储到OBS\n- MRS:转储到MRS\n- DLI:转储到DLI\n- CLOUDTABLE:转储到CloudTable\n- DWS:转储到DWS",
+          "default": "NOWHERE",
+          "enum": [
+            "DWS"
+          ]
+        },
+        "dws_destination_descriptor": {
+          "$ref": "#/definitions/DWSDestinationDescriptorRequest"
+        }
+      }
+    },
+    "DWSDestinationDescriptorRequest": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "dws_cluster_name",
+            "dws_cluster_id",
+            "dws_database_name",
+            "dws_schema",
+            "dws_table_name",
+            "dws_delimiter",
+            "user_name",
+            "user_password",
+            "kms_user_key_name",
+            "kms_user_key_id",
+            "obs_bucket_path"
+          ],
+          "properties": {
+            "dws_cluster_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS集群名称。"
+            },
+            "dws_cluster_id": {
+              "type": "string",
+              "description": "存储该通道数据的DWS集群ID。"
+            },
+            "dws_database_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库名称。"
+            },
+            "dws_schema": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库模式。"
+            },
+            "dws_table_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库模式下的数据表。"
+            },
+            "dws_delimiter": {
+              "type": "string",
+              "description": "用户数据的字段分隔符,根据此分隔符分隔用户数据插入DWS数据表的相应列。\n\n取值范围:“,”、“;”和“|”三种字符中的一个。"
+            },
+            "user_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库的用户名。"
+            },
+            "user_password": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库的密码。"
+            },
+            "kms_user_key_name": {
+              "type": "string",
+              "description": "用户在密钥管理服务(简称KMS)创建的用户主密钥名称,用于加密存储DWS数据库的密码。"
+            },
+            "kms_user_key_id": {
+              "type": "string",
+              "description": "用户在密钥管理服务(简称KMS)创建的用户主密钥ID,用于加密存储DWS数据库的密码。"
+            },
+            "obs_bucket_path": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶名称。"
+            },
+            "file_prefix": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶下的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字、下划线和斜杠,最大长度为50个字符。\n\n默认配置为空。"
+            },
+            "retry_duration": {
+              "type": "string",
+              "description": "用户数据导入DWS集群失败的重试失效时间。超出此配置项配置的时间,转储DWS失败的数据将备份至“OBS桶/ file_prefix/dws_error”目录下。\n\n取值范围: 0~7200。\n\n单位:秒。\n\n默认配置为1800。"
+            },
+            "dws_table_columns": {
+              "type": "string",
+              "description": "指定要转储到DWS表中的列,为null或者为空则默认全列。比如“c1,c2”表示将Schema中c1和c2这两列转储到DWS。\n\n默认为空。",
+              "example": "c1,c2,c3"
+            },
+            "options": {
+              "$ref": "#/definitions/Options"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为DWS的参数列表。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dis.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

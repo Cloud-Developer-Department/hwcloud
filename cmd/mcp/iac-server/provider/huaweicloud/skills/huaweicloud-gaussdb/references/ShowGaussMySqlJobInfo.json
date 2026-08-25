@@ -1,0 +1,217 @@
+{
+  "name": "ShowGaussMySqlJobInfo",
+  "summary": "获取指定ID的任务信息",
+  "tags": "任务中心",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/jobs": {
+      "get": {
+        "tags": [
+          "任务中心"
+        ],
+        "operationId": "ShowGaussMySqlJobInfo",
+        "summary": "获取指定ID的任务信息",
+        "description": "获取TaurusDB任务中心指定ID的任务信息。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-constraint": "- 该接口只可查询任务中心一个月内的异步任务。\n- job生成后,通常需要数秒之后才能查询到job ID。",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "x-example": "******",
+            "required": true
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn",
+            "required": false
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "任务ID。",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/GetJobInfoResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "job": {
+                  "id": "31b8ae23-c687-4d80-b7b4-42a66c9bb886",
+                  "name": "CreateGaussDBforMySQLInstance",
+                  "status": "Completed",
+                  "created": "2018-08-06T10:41:14+0800",
+                  "ended": "2018-08-06T16:41:14+0000",
+                  "process": "",
+                  "instance": {
+                    "id": "a48e43ff268f4c0e879652d65e63d0fbin07",
+                    "name": "DO-NOT-TOUCH-mgr2-mysql-single"
+                  },
+                  "entities": {
+                    "instance": {
+                      "endpoint": "192.168.1.203:3306",
+                      "type": "Cluster",
+                      "datastore": {
+                        "type": "gaussdb-mysql",
+                        "version": "8.0"
+                      }
+                    },
+                    "resource_ids": [
+                      "a48e43ff268f4c0e879652d65e63d0fbin07.vm",
+                      "a48e43ff268f4c0e879652d65e63d0fbin07.volume"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "获取指定ID的任务信息。",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/jobs?id=a9767ede-fe0f-4888-9003-e843a4c90514"
+      }
+    }
+  },
+  "definitions": {
+    "GetJobEntitiesInfoDetail": {
+      "description": "根据不同的任务,显示不同的内容。",
+      "type": "object"
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    },
+    "GetJobInfoResponseBody": {
+      "required": [
+        "job"
+      ],
+      "properties": {
+        "job": {
+          "$ref": "#/definitions/GetJobInfoDetail"
+        }
+      }
+    },
+    "GetJobInfoDetail": {
+      "description": "任务信息。",
+      "required": [
+        "id",
+        "name",
+        "status",
+        "created",
+        "instance"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "任务名称。"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务执行状态。\n\n取值:\n- 值为“Pending”,表示延时任务,未执行。\n- 值为“Running”,表示任务正在执行。\n- 值为“Completed”,表示任务执行成功。\n- 值为“Failed”,表示任务执行失败。",
+          "enum": [
+            "Pending",
+            "Running",
+            "Completed",
+            "Failed"
+          ]
+        },
+        "created": {
+          "type": "string",
+          "description": "创建时间,格式为\"yyyy-mm-ddThh:mm:ssZ\"。\n其中,T指某个时间的开始;Z指时区偏移量,例如偏移1个小时显示为+0100。\n\n说明:创建时返回值为空,数据库实例创建成功后该值不为空。"
+        },
+        "ended": {
+          "type": "string",
+          "description": "结束时间,格式为\"yyyy-mm-ddThh:mm:ssZ\"。\n其中,T指某个时间的开始;Z指时区偏移量,例如偏移1个小时显示为+0100。\n\n说明:创建时返回值为空,数据库实例创建成功后该值不为空。"
+        },
+        "process": {
+          "type": "string",
+          "description": "任务执行进度。执行中状态才返回执行进度,例如60%,否则返回\"\"。"
+        },
+        "instance": {
+          "$ref": "#/definitions/GetJobInstanceInfoDetail"
+        },
+        "entities": {
+          "$ref": "#/definitions/GetJobEntitiesInfoDetail"
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "任务执行失败时的错误信息。"
+        }
+      }
+    },
+    "GetJobInstanceInfoDetail": {
+      "description": "指定ID任务的实例信息。",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "实例ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "实例名称。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,212 @@
+{
+  "name": "CreateDrugDatabase",
+  "summary": "创建数据库",
+  "tags": "药物数据库管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/drug/databases": {
+      "post": {
+        "x-ut-partial": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-interface-name": "IDrugDatabaseController",
+        "tags": [
+          "药物数据库管理"
+        ],
+        "summary": "创建数据库",
+        "description": "创建数据库",
+        "operationId": "CreateDrugDatabase",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreateDrugDatabaseRequestBody",
+            "description": "CreateDatabaseRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateDatabaseReq2"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "schema": {
+              "$ref": "#/definitions/DrugDatabaseIdRsp"
+            },
+            "examples": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/drug/drug-database",
+        "x-request-examples-description-1": "创建数据库,数据库名称为database_name,选择css集群,上传项目桶中file/test.csv的数据库数据,设置列名为SMILES和NAME,打开共享开关。",
+        "x-request-examples-1": {
+          "name": "database_name",
+          "css_id": "2f042ad4-6aca-11ed-b7f6-fa163e504fdd",
+          "description": "simple database",
+          "file": {
+            "source": "PRIVATE",
+            "url": "project:/file/test.csv",
+            "eihealth_project_id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1"
+          },
+          "columns": [
+            "SMILES",
+            "NAME"
+          ],
+          "shareable": true
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "DatabaseFile": {
+      "description": "数据库数据文件",
+      "type": "object",
+      "required": [
+        "source",
+        "url"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DatabaseFileSource"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "project:/test/url.csv",
+          "x-example": "https://fake.obs.cn-north-7.ulanqab.huawei.com/create_database.csv",
+          "pattern": ".*\\.(csv)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "eihealth_project_id": {
+          "description": "数据库文件所在项目id,仅文件为数据中心时填写",
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]*$"
+        }
+      }
+    },
+    "DrugDatabaseIdRsp": {
+      "description": "创建药物数据库返回id对象",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "数据库id",
+          "example": "abd6f316-94d8-4930-a1be-d6f50cfc5c01"
+        }
+      }
+    },
+    "CreateDatabaseReq2": {
+      "description": "创建药物数据库请求体",
+      "required": [
+        "name",
+        "file",
+        "columns"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "数据库名称,长度为5-32个字符,首位需以小写英文字母开头,仅可以使用小写字母、数字、下划线“_”和中划线“-”",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 5,
+          "maxLength": 32,
+          "example": "database_name"
+        },
+        "description": {
+          "type": "string",
+          "description": "数据库描述",
+          "minLength": 0,
+          "maxLength": 1024,
+          "example": "database description"
+        },
+        "css_id": {
+          "type": "string",
+          "description": "css集群id",
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "x-ut-exclude-equivalence": [
+            "LOWER_BOUND",
+            "UPPER_BOUND"
+          ]
+        },
+        "file": {
+          "$ref": "#/definitions/DatabaseFile",
+          "description": "数据库文件"
+        },
+        "columns": {
+          "description": "数据文件列名",
+          "minItems": 2,
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "example": [
+            "SMILES",
+            "NAME"
+          ],
+          "x-ut-exclude-equivalence": [
+            "LOWER_BOUND"
+          ]
+        },
+        "shareable": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否打开组织共享"
+        }
+      }
+    },
+    "DatabaseFileSource": {
+      "description": "数据库文件来源",
+      "type": "string",
+      "enum": [
+        "public",
+        "private"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

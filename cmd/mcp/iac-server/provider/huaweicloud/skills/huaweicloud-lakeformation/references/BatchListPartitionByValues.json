@@ -1,0 +1,536 @@
+{
+  "name": "BatchListPartitionByValues",
+  "summary": "批量获取分区信息",
+  "tags": "分区管理",
+  "productshort": "LakeFormation",
+  "region_id": "ap-southeast-4",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/catalogs/{catalog_name}/databases/{database_name}/tables/{table_name}/partitions/batch-get": {
+      "post": {
+        "tags": [
+          "Partition"
+        ],
+        "summary": "批量获取分区信息",
+        "description": "批量获取分区信息",
+        "operationId": "BatchListPartitionByValues",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+$"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{36}$"
+          },
+          {
+            "name": "catalog_name",
+            "in": "path",
+            "description": "catalog名字",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "[a-zA-Z0-9_]+"
+          },
+          {
+            "name": "database_name",
+            "in": "path",
+            "description": "数据库名字",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$"
+          },
+          {
+            "name": "table_name",
+            "in": "path",
+            "description": "表名称",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$"
+          },
+          {
+            "in": "body",
+            "name": "values_input",
+            "description": "获取的分区列表每个分区值列表代表一个分区",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GetPartitionsByValuesInput"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "存在的partition列表",
+            "examples": {
+              "application/json": "/"
+            },
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Partition"
+              }
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-request-examples-url-1": "/v1/{project_id}/instances/{instance_id}/catalogs/{catalog_name}/databases/{database_name}/tables/{table_name}/partitions/batch-get",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "StorageDescriptor": {
+      "type": "object",
+      "required": [
+        "columns",
+        "compressed",
+        "parameters",
+        "serde_info"
+      ],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "description": "分区列以外的所有字段",
+          "items": {
+            "$ref": "#/definitions/Column"
+          },
+          "maxItems": 10000
+        },
+        "location": {
+          "type": "string",
+          "description": "存储路径",
+          "maxLength": 4000,
+          "pattern": "^(obs|har)://.+/.+$"
+        },
+        "compressed": {
+          "type": "boolean",
+          "description": "是否启用数据压缩",
+          "default": false,
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "input_format": {
+          "type": "string",
+          "description": "输入格式",
+          "maxLength": 128
+        },
+        "output_format": {
+          "type": "string",
+          "description": "输出格式",
+          "maxLength": 128
+        },
+        "number_of_buckets": {
+          "type": "integer",
+          "format": "int32",
+          "description": "分桶的桶数量",
+          "default": 0
+        },
+        "bucket_columns": {
+          "type": "array",
+          "description": "分桶字段",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "maxItems": 200,
+          "minItems": 0
+        },
+        "sort_columns": {
+          "type": "array",
+          "description": "指定表中的每个存储桶的排序顺序的列表",
+          "items": {
+            "$ref": "#/definitions/Order"
+          }
+        },
+        "serde_info": {
+          "description": "序列化/反序列化信息",
+          "$ref": "#/definitions/SerDeInfo"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "存储描述符的参数。\nkey最小长度为1,最大长度为255.\nvalue最大长度为4000",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        },
+        "skewed_info": {
+          "description": "有关在列中经常出现的值(偏斜值)的信息",
+          "$ref": "#/definitions/SkewedInfo"
+        },
+        "stored_as_sub_directories": {
+          "type": "boolean",
+          "description": "数据是否会存放在子目录中",
+          "default": false,
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        }
+      },
+      "title": "StorageDescriptor"
+    },
+    "GetPartitionsByValuesInput": {
+      "type": "object",
+      "required": [
+        "values"
+      ],
+      "properties": {
+        "values": {
+          "type": "array",
+          "description": "获取的分区列表每个分区值列表代表一个分区",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "[a-zA-Z0-9_]+"
+            }
+          },
+          "minItems": 0
+        }
+      },
+      "title": "GetPartitionsByValuesInput"
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "column": {
+          "type": "string",
+          "description": "列的名称",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[a-zA-Z0-9_\\-\\+*\\\\(), \\一-\\龥]+$"
+        },
+        "sort_order": {
+          "type": "integer",
+          "format": "int32",
+          "description": "指示是按升序 (== 1) 还是降序 (==0) 对列进行排序",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "title": "Order",
+      "description": "排列顺序"
+    },
+    "SerDeInfo": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "名字信息",
+          "maxLength": 256
+        },
+        "serialization_library": {
+          "type": "string",
+          "description": "实现序列化/反序列化的类",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "parameters": {
+          "type": "object",
+          "description": "参数数组。\nkey最小值1,最大值255\nvalue最大值4000",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        }
+      },
+      "title": "SerDeInfo",
+      "description": "序列化/反序列化的信息"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "Partition": {
+      "type": "object",
+      "required": [
+        "catalog_name",
+        "create_time",
+        "database_name",
+        "last_access_time",
+        "parameters",
+        "partition_values",
+        "storage_descriptor",
+        "table_name"
+      ],
+      "properties": {
+        "catalog_name": {
+          "type": "string",
+          "example": "catalog1",
+          "description": "catalog名字",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "[a-zA-Z0-9_]+"
+        },
+        "database_name": {
+          "type": "string",
+          "example": "database1",
+          "description": "数据库名字",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$"
+        },
+        "table_name": {
+          "type": "string",
+          "example": "table1",
+          "description": "表名字",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$"
+        },
+        "partition_values": {
+          "type": "array",
+          "description": "分区值的列表",
+          "items": {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": ".*"
+          }
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "last_access_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最后访问时间"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "参数表",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "storage_descriptor": {
+          "description": "storage descriptor",
+          "$ref": "#/definitions/StorageDescriptor"
+        }
+      },
+      "title": "Partition",
+      "description": "分区信息"
+    },
+    "Column": {
+      "type": "object",
+      "required": [
+        "column_name",
+        "column_type"
+      ],
+      "properties": {
+        "column_type": {
+          "type": "string",
+          "description": "列类型,包括array bigint binary boolean char date decimal double float int interval map set smallint string struct timestamp tinyint union varchar",
+          "minLength": 1,
+          "maxLength": 65535
+        },
+        "column_name": {
+          "type": "string",
+          "example": "c1",
+          "description": "列名",
+          "minLength": 1,
+          "maxLength": 767,
+          "pattern": "^[a-zA-Z0-9_\\-\\+*\\\\(), \\一-\\龥]+$"
+        },
+        "comment": {
+          "type": "string",
+          "description": "列描述信息",
+          "maxLength": 4000,
+          "pattern": ".*"
+        }
+      },
+      "description": "列信息"
+    },
+    "SkewedInfo": {
+      "required": [
+        "skewed_column_names",
+        "skewed_column_value_location_maps",
+        "skewed_column_values"
+      ],
+      "properties": {
+        "skewed_column_names": {
+          "type": "array",
+          "description": "数据偏移列的列表",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[a-zA-Z0-9_\\-\\+*\\\\(), \\一-\\龥]+$"
+          }
+        },
+        "skewed_column_value_location_maps": {
+          "type": "object",
+          "description": "偏斜值和地址的映射关系.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "skewed_column_values": {
+          "type": "array",
+          "description": "偏斜值的列表.",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 255
+          }
+        }
+      },
+      "title": "SkewedInfo"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.ap-southeast-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

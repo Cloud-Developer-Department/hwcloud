@@ -1,0 +1,347 @@
+{
+  "name": "ShowDeviceAuthenticationTemplate",
+  "summary": "查询设备鉴权模板详情",
+  "tags": "设备鉴权模板管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/device-authentication-templates/{template_id}": {
+      "get": {
+        "tags": [
+          "DeviceAuthenticationTemplateManagement"
+        ],
+        "summary": "查询设备鉴权模板详情",
+        "description": "应用服务器可调用此接口在物联网平台查询指定设备鉴权模板ID的详细信息。",
+        "operationId": "ShowDeviceAuthenticationTemplate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数说明**:用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+            "required": false,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-effective-scene": "huaweicloud"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,一般华为云租户无需携带该参数,仅在物理多租场景下从管理面访问API时需要携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "name": "template_id",
+            "in": "path",
+            "description": "鉴权模板ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "template_id": "5c90fa7d3c4e4405e8525079",
+                "template_name": "myTemplate",
+                "description": "myTemplate",
+                "status": "ACTIVE",
+                "template_body": {
+                  "parameters": {
+                    "iotda::mqtt::client_id": {
+                      "type": "String"
+                    },
+                    "iotda::mqtt::username": {
+                      "type": "String"
+                    },
+                    "iotda::device::secret": {
+                      "type": "String"
+                    }
+                  },
+                  "resources": {
+                    "device_id": {
+                      "Fn::SplitSelect": [
+                        "${iotda::mqtt::username}",
+                        "&",
+                        0
+                      ]
+                    },
+                    "timestamp": {
+                      "type": "UNIX",
+                      "value": {
+                        "Fn::MathDiv": [
+                          {
+                            "Fn::ParseLong": {
+                              "Fn::SplitSelect": [
+                                {
+                                  "Fn::SplitSelect": [
+                                    "${iotda::mqtt::client_id}",
+                                    "|",
+                                    2
+                                  ]
+                                },
+                                "=",
+                                1
+                              ]
+                            }
+                          },
+                          1000
+                        ]
+                      }
+                    },
+                    "password": {
+                      "Fn::HmacSHA256": [
+                        {
+                          "Fn::Sub": [
+                            "clientId${clientId}deviceName${deviceName}productKey${productKey}timestamp${timestamp}",
+                            {
+                              "clientId": {
+                                "Fn::SplitSelect": [
+                                  "${iotda::mqtt::client_id}",
+                                  "|",
+                                  0
+                                ]
+                              },
+                              "deviceName": {
+                                "Fn::SplitSelect": [
+                                  "${iotda::mqtt::username}",
+                                  "&",
+                                  0
+                                ]
+                              },
+                              "productKey": {
+                                "Fn::SplitSelect": [
+                                  "${iotda::mqtt::username}",
+                                  "&",
+                                  1
+                                ]
+                              },
+                              "timestamp": {
+                                "Fn::SplitSelect": [
+                                  {
+                                    "Fn::SplitSelect": [
+                                      "${iotda::mqtt::client_id}",
+                                      "|",
+                                      2
+                                    ]
+                                  },
+                                  "=",
+                                  1
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "${iotda::device::secret}"
+                      ]
+                    }
+                  }
+                },
+                "create_time": "20230810T070547Z",
+                "update_time": "20230810T070547Z"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/AuthenticationTemplateBase"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IOTDA.015401"
+            ]
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-apig-name": "IoTDA_API",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<AuthenticationTemplateBase>",
+        "x-request-examples-url-1": "GET https://{endpoint}/v5/iot/{project_id}/device-authentication-templates/{template_id}",
+        "x-request-examples-description-1": "查询指定id的鉴权模板详情"
+      }
+    }
+  },
+  "definitions": {
+    "AuthenticationTemplateResource": {
+      "type": "object",
+      "required": [
+        "device_id"
+      ],
+      "properties": {
+        "device_id": {
+          "type": "object",
+          "example": {
+            "Fn::SplitSelect": [
+              "$iotda::mqtt::username",
+              "&",
+              0
+            ]
+          },
+          "description": "设备ID,json对象只能使用FunctionDefinition下的函数从parameters中获取设备ID的取值。",
+          "properties": {}
+        },
+        "timestamp": {
+          "$ref": "#/definitions/TimestampResource"
+        },
+        "password": {
+          "type": "object",
+          "example": {
+            "Fn::HmacSHA256": [
+              {
+                "Fn::Sub": [
+                  "clientId${clientId}deviceName${deviceName}productKey${productKey}timestamp${timestamp}",
+                  {
+                    "clientId": {
+                      "Ref": "iotda::mqtt::client_id"
+                    },
+                    "deviceName": {
+                      "Fn::Split": [
+                        "$iotda::mqtt::username",
+                        "&",
+                        0
+                      ]
+                    },
+                    "productKey": {
+                      "Fn::Split": [
+                        "$iotda::mqtt::username",
+                        "&",
+                        1
+                      ]
+                    },
+                    "timestamp": {
+                      "Fn::Split": [
+                        "$iotda::mqtt::client_id",
+                        "timestamp=",
+                        1
+                      ]
+                    }
+                  }
+                ]
+              },
+              "${iotda::device::secret}"
+            ]
+          },
+          "description": "mqtt认证密码,该字段只在设备认证方式为密码认证时生效,证书认证时无效,只能使用FunctionDefinition下的函数从parameters中编程密码的生成方式,平台比较函数解析结果与设备mqtt连接时携带的password是否相等,相等则认证通过。函数中必须包含设备原始秘钥参数${iotda::device::secret},且只能在hash函数中使用。",
+          "properties": {}
+        }
+      },
+      "title": "鉴权模板设备资源详情结构体。",
+      "description": "鉴权模板设备资源详情结构体。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;"
+    },
+    "AuthenticationTemplateBase": {
+      "type": "object",
+      "properties": {
+        "template_id": {
+          "type": "string",
+          "example": "62048ba85a180d53fd39416c",
+          "description": "鉴权模板id"
+        },
+        "template_name": {
+          "type": "string",
+          "example": "myTemplate",
+          "description": "鉴权模板名称"
+        },
+        "create_time": {
+          "type": "string",
+          "example": "20231031T081011Z",
+          "description": "鉴权模板创建的时间。格式:yyyyMMdd'T'HHmmss'Z',如:20151212T121212Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "example": "20231031T081011Z",
+          "description": "鉴权模板最后一次修改的时间。格式:yyyyMMdd'T'HHmmss'Z',如:20151212T121212Z。"
+        },
+        "description": {
+          "type": "string",
+          "example": "myTemplate",
+          "description": "鉴权模板的描述信息"
+        },
+        "status": {
+          "type": "string",
+          "example": "ACTIVE",
+          "description": "**参数说明**:鉴权模板状态\n- ACTIVE:该鉴权模板为激活状态。\n- INACTIVE:该鉴权模板为停用状态。"
+        },
+        "template_body": {
+          "description": "**参数说明**:预调配模板详细内容,json格式。",
+          "$ref": "#/definitions/AuthenticationTemplateBody"
+        }
+      },
+      "title": "创建鉴权模板结构体",
+      "description": "鉴权模板信息。"
+    },
+    "AuthenticationTemplateBody": {
+      "type": "object",
+      "required": [
+        "parameters",
+        "resources"
+      ],
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "example": "{\"iotda::mqtt::client_id\":{\"type\":\"String\"},\"iotda::mqtt::username\":{\"type\":\"String\"},\"iotda::device::secret\":{\"type\":\"String\"}}",
+          "description": "**参数说明**:鉴权模板参数,目前平台预制了mqtt协议连接参数中的clientId,username与设备证书中的属性,参数名定义如下:\n- iotda::mqtt::client_id :mqtt连接参数三元组中的Client Id\n- iotda::mqtt::username :mqtt连接参数三元组中的User Name\n- iotda::certificate::country (国家/地区,C )\n- iotda::certificate::organization (组织,O)\n- iotda::certificate::organizational_unit (组织单位,OU)\n- iotda::certificate::distinguished_name_qualifier (可辨别名称限定符,dnQualifier)\n- iotda::certificate::state_name (省市,ST)\n- iotda::certificate::common_name (公用名,CN)\n- iotda::certificate::serial_number (序列号,serialNumber)\n- iotda::device::secret :表示设备原始秘钥",
+          "properties": {}
+        },
+        "resources": {
+          "$ref": "#/definitions/AuthenticationTemplateResource"
+        }
+      },
+      "title": "鉴权模板详细内容。",
+      "description": "鉴权模板详细内容。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;"
+    },
+    "TimestampResource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "UNIX",
+          "description": "UNIX:表示为Unix时间戳秒级别长整数,FORMAT:表示为特定时间格式,需要在format字段中指定具体格式。",
+          "pattern": "(UNIX|FORMAT)",
+          "default": "UNIX"
+        },
+        "pattern": {
+          "type": "string",
+          "example": "yyyyMMddHH",
+          "description": "时间日期格式。",
+          "pattern": "^[yMdHmsST '/:-]{0,30}$"
+        },
+        "value": {
+          "type": "object",
+          "description": "设备连接时具体时间戳值,可使用FunctionDefinition下的函数编程时间戳的取值,若想关闭时间戳校验则该字段值设置为空json:{}。",
+          "properties": {}
+        }
+      },
+      "title": "时间戳参数体",
+      "description": "是否校验设备时间戳,若不为空则表示校验,如果设备连接参数(clientId、username)中包含时间戳建议开启校验。开启校验平台会对比设备携带时间戳与平台系统时间,若设备时间戳加一小时小于平台系统时间则校验失败。若想关闭校验则把value属性的值设置为空json:{}"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

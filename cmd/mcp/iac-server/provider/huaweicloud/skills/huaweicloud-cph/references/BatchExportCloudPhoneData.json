@@ -1,0 +1,252 @@
+{
+  "name": "BatchExportCloudPhoneData",
+  "summary": "导出云手机数据",
+  "tags": "手机实例管理",
+  "productshort": "CPH",
+  "region_id": "cn-north-9",
+  "paths": {
+    "/v1/{project_id}/cloud-phone/phones/batch-storage": {
+      "post": {
+        "x-order": 10,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk,cmcc,fcs,ctc",
+        "x-apiexplorer-hide": false,
+        "x-source": "SelfDeveloped",
+        "x-is-registered": "Y",
+        "x-first-open-time": "2019-3-30",
+        "x-publishpath": "cph_api_0538",
+        "x-hybridcloud": false,
+        "x-request-examples-url-1": "POST https://{CPH Endpoint}/v1/{project_id}/cloud-phone/phones/batch-storage",
+        "x-request-examples-description-1": "将手机数据导出到obs桶",
+        "x-request-examples-text-1": {
+          "storage_infos": [
+            {
+              "phone_id": "1234567b8bab40ffb711234cb80d0234",
+              "include_files": [
+                "/data/app",
+                "/data/local",
+                "/data/media"
+              ],
+              "exclude_files": [
+                "/data/app/com.xx.xx-*"
+              ],
+              "bucket_name": "mybucket",
+              "object_path": "myimage/v1/xxxxx.tar"
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "storage_infos": [
+            {
+              "phone_id": "1234567b8bab40ffb711234cb80d0234",
+              "include_files": [
+                "/data/app",
+                "/data/local",
+                "/data/media"
+              ],
+              "exclude_files": [
+                "/data/app/com.xx.xx-*"
+              ],
+              "bucket_name": "mybucket",
+              "object_path": "myimage/v1/xxxxx.tar"
+            }
+          ]
+        },
+        "operationId": "BatchExportCloudPhoneData",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BatchExportCloudPhoneDataResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "request_id": "6837531fd3f54550927b930180a706bf",
+                "jobs": [
+                  {
+                    "phone_id": "1234567b8bab40ffb711234cb80d0234",
+                    "job_id": "1564567b8bab40f34711234cb80d0123"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "BatchExportCloudPhoneDataRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "导出手机数据请求体",
+            "schema": {
+              "$ref": "#/definitions/BatchExportCloudPhoneDataRequestBody"
+            }
+          }
+        ],
+        "tags": [
+          "手机实例管理"
+        ],
+        "summary": "导出云手机数据",
+        "description": "批量导出云手机中的数据。该接口为异步接口。接口调用前请先确保已完成CPH服务操作OBS桶的委托授权。委托CPH操作OBS桶请参见[委托CPH操作OBS桶](https://support.huaweicloud.com/bestpractice-cph/cph_bp_0050.html)。"
+      }
+    }
+  },
+  "definitions": {
+    "PhoneJob": {
+      "type": "object",
+      "description": "云手机任务。",
+      "properties": {
+        "phone_id": {
+          "type": "string",
+          "description": "云手机的唯一标识ID,云手机相关任务包含此字段。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务的唯一标识。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误说明。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "StorageInfo": {
+      "type": "object",
+      "description": "待导出数据的云手机信息。",
+      "required": [
+        "phone_id",
+        "include_files",
+        "bucket_name",
+        "object_path"
+      ],
+      "properties": {
+        "phone_id": {
+          "type": "string",
+          "description": "云手机ID。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "include_files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096
+          },
+          "description": "需要导出数据的存储路径,绝对路径,最大长度4096字节。仅支持导出/data和、cache目录下的数据。目前只支持大小写字母、数字、小数点(.)、斜线(/)、中划线(-)、下划线(_)、加号(+)、井号(#)、星号(*)、波浪号(~)、等号这些字符,星号只能在文件路径末尾。文件导出打包时仅保留路径最后一级的文件权限、属主、标签等元数据,如对文件的上层目录权限有要求,建议参考[云手机数据备份与恢复](https://support.huaweicloud.com/api-cph/cph_api_0801.html)。",
+          "minItems": 0,
+          "maxItems": 8096
+        },
+        "exclude_files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096
+          },
+          "description": "不能导出数据的存储路径。exclude_files优先级比include_files高,如果冲突,exclude_files生效。\n路径要求同include_files。",
+          "minItems": 0,
+          "maxItems": 8096
+        },
+        "bucket_name": {
+          "type": "string",
+          "description": "导出数据存储的OBS桶名。\n合法的OBS桶名,3-63个字符,只能由小写字母、数字、中划线(-)和小数点(.)组成。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "object_path": {
+          "type": "string",
+          "description": "导出数据存储的OBS路径名。\n符合OBS的路径名规范,最大长度1024字符。目前只支持大小写字母、数字、小数点(.)、斜线(/)、中划线(-)、下划线(_)、加号(+)、井号(#)、等号这些字符。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "BatchExportCloudPhoneDataRequestBody": {
+      "required": [
+        "storage_infos"
+      ],
+      "properties": {
+        "storage_infos": {
+          "items": {
+            "$ref": "#/definitions/StorageInfo"
+          },
+          "description": "待导出数据的云手机信息。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 8096
+        }
+      },
+      "type": "object",
+      "description": "导出云手机数据请求体。"
+    },
+    "BatchExportCloudPhoneDataResponseBody": {
+      "type": "object",
+      "description": "批量导出云手机数据响应体。",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "description": "请求的唯一标识ID。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "jobs": {
+          "items": {
+            "$ref": "#/definitions/PhoneJob"
+          },
+          "description": "任务信息。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 8096
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目id。",
+      "type": "string",
+      "minLength": 32,
+      "maxLength": 32
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 8096
+    }
+  },
+  "host": "cph.cn-north-9.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

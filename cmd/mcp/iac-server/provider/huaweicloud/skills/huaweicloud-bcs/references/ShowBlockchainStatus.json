@@ -1,0 +1,247 @@
+{
+  "name": "ShowBlockchainStatus",
+  "summary": "查询创建状态",
+  "tags": "BCS管理",
+  "productshort": "BCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v2/{project_id}/blockchains/{blockchain_id}/status": {
+      "get": {
+        "x-secnario": "hws",
+        "x-api-type": "open",
+        "tags": [
+          "BCS管理"
+        ],
+        "summary": "查询创建状态",
+        "description": "查询指定服务实例创建状态",
+        "operationId": "ShowBlockchainStatus",
+        "x-order": 2,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的项目ID,一般为32位字符串",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "blockchain_id",
+            "in": "path",
+            "description": "blockchainID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "bcs": {
+                  "start_time": "2020-10-15T18:24:48.658236618+08:00",
+                  "end_time": "2020-10-15T18:25:53.552512674+08:00",
+                  "status": "finished",
+                  "detail": ""
+                },
+                "eip": {
+                  "start_time": "2020-10-15T18:24:31.957780831+08:00",
+                  "end_time": "2020-10-15T18:24:33.810699517+08:00",
+                  "status": "finished",
+                  "detail": ""
+                },
+                "sfs": {
+                  "start_time": "2020-10-15T18:24:31.957781285+08:00",
+                  "end_time": "2020-10-15T18:24:48.611812564+08:00",
+                  "status": "finished",
+                  "detail": ""
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/StatusRes"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4006005",
+                "error_msg": "keyType error, keyType: blok not supported"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4010401",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4030403",
+                "error_msg": "No permissions to request this method"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4040404",
+                "error_msg": "Not Found:the url is not found"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.5000500",
+                "error_msg": "Internal Server Error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误"
+    },
+    "ComCCE": {
+      "type": "object",
+      "properties": {
+        "cluster": {
+          "description": "云容器引擎集群创建状态",
+          "$ref": "#/definitions/Detail"
+        },
+        "network": {
+          "description": "云容器引擎网络创建状态",
+          "$ref": "#/definitions/Detail"
+        },
+        "security_group": {
+          "description": "云容器引擎安全组创建状态",
+          "$ref": "#/definitions/Detail"
+        }
+      },
+      "description": "CCE组件"
+    },
+    "StatusRes": {
+      "type": "object",
+      "properties": {
+        "bcs": {
+          "description": "区块链实例创建状态",
+          "$ref": "#/definitions/Detail"
+        },
+        "eip": {
+          "description": "弹性IP创建状态",
+          "$ref": "#/definitions/Detail"
+        },
+        "sfs": {
+          "description": "弹性文件存储创建状态",
+          "$ref": "#/definitions/Detail"
+        },
+        "obs": {
+          "description": "OBS实例创建状态",
+          "$ref": "#/definitions/Detail"
+        },
+        "kafka": {
+          "description": "kafka实例创建状态",
+          "$ref": "#/definitions/Detail"
+        },
+        "cce": {
+          "description": "云容器引擎创建状态",
+          "$ref": "#/definitions/ComCCE"
+        }
+      }
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "description": "开始时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间"
+        },
+        "status": {
+          "type": "string",
+          "description": "状态",
+          "enum": [
+            "waiting",
+            "deploying",
+            "finished",
+            "failed"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "description": "细节描述"
+        }
+      },
+      "description": "组件创建信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

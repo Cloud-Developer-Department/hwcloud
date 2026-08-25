@@ -1,0 +1,214 @@
+{
+  "name": "RunShellCommand",
+  "summary": "异步执行adb命令",
+  "tags": "ADB命令",
+  "productshort": "CPH",
+  "region_id": "ru-northwest-2",
+  "paths": {
+    "/v1/{project_id}/cloud-phone/phones/commands": {
+      "post": {
+        "x-order": 4,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk,cmcc,fcs,ctc",
+        "x-apiexplorer-hide": false,
+        "x-source": "SelfDeveloped",
+        "x-is-registered": "Y",
+        "x-first-open-time": "2019-3-30",
+        "x-publishpath": "cph_api_0532",
+        "x-hybridcloud": false,
+        "x-request-examples-url-1": "POST https://{CPH Endpoint}/v1/{project_id}/cloud-phone/phones/commands",
+        "x-request-examples-description-1": "向手机列表中的手机异步执行shell命令,命令为ls -l /system",
+        "x-request-examples-text-1": {
+          "command": "shell",
+          "content": "ls -l /system",
+          "phone_ids": [
+            "1234567b8bab40ffb711234cb80d0234",
+            "1678567b8bab40f93711234cb80d0764"
+          ]
+        },
+        "x-request-examples-1": {
+          "command": "shell",
+          "content": "ls -l /system",
+          "phone_ids": [
+            "1234567b8bab40ffb711234cb80d0234",
+            "1678567b8bab40f93711234cb80d0764"
+          ]
+        },
+        "operationId": "RunShellCommand",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "request_id": "6837531fd3f54550927b930180a706bf",
+                "jobs": [
+                  {
+                    "phone_id": "1234567b8bab40ffb711234cb80d0234",
+                    "job_id": "1564567b8bab40f34711234cb80d0123"
+                  },
+                  {
+                    "phone_id": "1678567b8bab40f93711234cb80d0764",
+                    "job_id": "1564567b8bab40f34711234cb80d5678"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RunShellCommandResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "in": "body",
+            "name": "RunShellCommandRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RunShellCommandRequestBody"
+            },
+            "description": "Shell命令请求体"
+          }
+        ],
+        "tags": [
+          "ADB命令"
+        ],
+        "summary": "异步执行adb命令",
+        "description": "在云手机中执行shell命令。该接口为异步接口。\n- 管理面性能有限,对相同服务器批量执行的ADB命令,将会阻塞云手机其他任务执行。"
+      }
+    }
+  },
+  "definitions": {
+    "RunShellCommandRequestBody": {
+      "type": "object",
+      "description": "执行shell命令请求体。",
+      "required": [
+        "command",
+        "content"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "ADB命令,固定填写shell。",
+          "default": "shell",
+          "minLength": 5,
+          "maxLength": 5
+        },
+        "content": {
+          "type": "string",
+          "description": "待执行的命令。\n\n最大长度为1024字节,只支持大小写字母、数字、下划线(_)、点(.)、斜线(/)、冒号(:)、中划线(-)。",
+          "example": "ls -l /system",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "phone_ids": {
+          "type": "array",
+          "description": "云手机ID列表。\nserver_ids参数不存在时必选,同时存在只处理phone_ids。",
+          "items": {
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32
+          },
+          "minItems": 0,
+          "maxItems": 8096
+        },
+        "server_ids": {
+          "type": "array",
+          "description": "云手机服务器ID列表。\nphone_ids参数不存在时必选,同时存在只处理phone_ids。",
+          "items": {
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32
+          },
+          "minItems": 8096,
+          "maxItems": 8096
+        }
+      }
+    },
+    "PhoneJob": {
+      "type": "object",
+      "description": "云手机任务。",
+      "properties": {
+        "phone_id": {
+          "type": "string",
+          "description": "云手机的唯一标识ID,云手机相关任务包含此字段。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务的唯一标识。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误说明。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "RunShellCommandResponseBody": {
+      "type": "object",
+      "description": "执行shell命令响应体。",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "description": "请求的唯一标识ID。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PhoneJob"
+          },
+          "description": "任务列表。",
+          "minItems": 0,
+          "maxItems": 8096
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目id。",
+      "type": "string",
+      "minLength": 32,
+      "maxLength": 32
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 8096
+    }
+  },
+  "host": "cph.ru-northwest-2.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

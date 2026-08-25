@@ -1,0 +1,493 @@
+{
+  "name": "ShowDiagnosisTaskDetails",
+  "summary": "查询指定诊断报告",
+  "tags": "实例诊断",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/diagnosis/{report_id}": {
+      "get": {
+        "x-name": "查询指定诊断报告",
+        "x-produc-type": "dcs",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "实例诊断"
+        ],
+        "summary": "查询指定诊断报告",
+        "description": "通过报告ID查询诊断报告的详细信息。",
+        "operationId": "ShowDiagnosisTaskDetails",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "description": "项目ID",
+            "type": "string"
+          },
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "description": "诊断报告ID",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询指定报告成功。",
+            "schema": {
+              "$ref": "#/definitions/DiagnosisReportResp"
+            }
+          },
+          "400": {
+            "description": "非法请求。"
+          },
+          "500": {
+            "description": "内部服务错误。"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DiagnosisDimension": {
+      "description": "诊断维度",
+      "required": [
+        "name",
+        "abnormal_num",
+        "failed_num",
+        "diagnosis_item_list"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "诊断维度名称",
+          "enum": [
+            "network",
+            "storage",
+            "load"
+          ]
+        },
+        "abnormal_num": {
+          "type": "integer",
+          "description": "诊断结果为异常的诊断项总数",
+          "format": "int32"
+        },
+        "failed_num": {
+          "type": "integer",
+          "description": "诊断失败的诊断项总数",
+          "format": "int32"
+        },
+        "diagnosis_item_list": {
+          "type": "array",
+          "description": "诊断项列表",
+          "items": {
+            "$ref": "#/definitions/DiagnosisItem"
+          }
+        }
+      }
+    },
+    "ConclusionItem": {
+      "description": "诊断结论",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "结论id",
+          "format": "int32"
+        },
+        "params": {
+          "type": "object",
+          "description": "结论参数",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DiagnosisItem": {
+      "description": "诊断项",
+      "required": [
+        "name",
+        "result"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "诊断项名称",
+          "enum": [
+            "connection_num",
+            "rx_controlled",
+            "persistence",
+            "centralized_expiration",
+            "inner_memory_fragmentation",
+            "time_consuming_commands",
+            "hit_ratio",
+            "memory_usage",
+            "cpu_usage"
+          ]
+        },
+        "cause_ids": {
+          "type": "array",
+          "description": "原因ID列表",
+          "items": {
+            "$ref": "#/definitions/ConclusionItem"
+          }
+        },
+        "impact_ids": {
+          "type": "array",
+          "description": "影响ID列表",
+          "items": {
+            "$ref": "#/definitions/ConclusionItem"
+          }
+        },
+        "advice_ids": {
+          "type": "array",
+          "description": "建议ID列表",
+          "items": {
+            "$ref": "#/definitions/ConclusionItem"
+          }
+        },
+        "result": {
+          "type": "string",
+          "description": "诊断结果",
+          "enum": [
+            "failed",
+            "abnormal",
+            "normal"
+          ]
+        }
+      }
+    },
+    "CommandTimeTaken": {
+      "description": "命令耗时统计",
+      "required": [
+        "calls_sum",
+        "usec_sum",
+        "command_name",
+        "per_usec",
+        "average_usec"
+      ],
+      "properties": {
+        "calls_sum": {
+          "type": "integer",
+          "description": "调用次数",
+          "format": "int32"
+        },
+        "usec_sum": {
+          "type": "number",
+          "description": "耗时总数",
+          "format": "double"
+        },
+        "command_name": {
+          "type": "string",
+          "description": "命令名称"
+        },
+        "per_usec": {
+          "type": "string",
+          "description": "耗时占比"
+        },
+        "average_usec": {
+          "type": "number",
+          "description": "每次调用平均耗时",
+          "format": "double"
+        }
+      }
+    },
+    "CommandTimeTakenList": {
+      "description": "命令耗时统计列表",
+      "required": [
+        "total_num",
+        "total_usec_sum",
+        "result",
+        "command_list"
+      ],
+      "properties": {
+        "total_num": {
+          "type": "integer",
+          "description": "执行命令的总次数",
+          "format": "int32"
+        },
+        "total_usec_sum": {
+          "type": "number",
+          "description": "执行命令的总耗时",
+          "format": "double"
+        },
+        "result": {
+          "type": "string",
+          "description": "命令耗时统计结果",
+          "enum": [
+            "succeed",
+            "failed"
+          ]
+        },
+        "command_list": {
+          "type": "array",
+          "description": "命令耗时统计",
+          "items": {
+            "$ref": "#/definitions/CommandTimeTaken"
+          }
+        }
+      }
+    },
+    "DiagnosisReportResp": {
+      "description": "查询诊断报告返回体",
+      "required": [
+        "abnormal_item_sum",
+        "failed_item_sum",
+        "diagnosis_node_report_list"
+      ],
+      "properties": {
+        "abnormal_item_sum": {
+          "type": "integer",
+          "description": "诊断结果为异常的诊断项总数",
+          "format": "int32",
+          "example": 1
+        },
+        "failed_item_sum": {
+          "type": "integer",
+          "description": "诊断失败的诊断项总数",
+          "format": "int32",
+          "example": 0
+        },
+        "diagnosis_node_report_list": {
+          "type": "array",
+          "description": "节点诊断报告列表",
+          "items": {
+            "$ref": "#/definitions/DiagnosisNodeReport"
+          },
+          "example": [
+            {
+              "group_name": "group-0",
+              "az_code": "cn-north-4a",
+              "node_ip": "192.168.0.170:6379",
+              "abnormal_sum": 1,
+              "failed_sum": 0,
+              "role": "master",
+              "diagnosis_dimension_list": [
+                {
+                  "name": "load",
+                  "abnormal_num": 0,
+                  "failed_num": 0,
+                  "diagnosis_item_list": [
+                    {
+                      "name": "cpu_usage",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    },
+                    {
+                      "name": "time_consuming_commands",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    }
+                  ]
+                },
+                {
+                  "name": "storage",
+                  "abnormal_num": 1,
+                  "failed_num": 0,
+                  "diagnosis_item_list": [
+                    {
+                      "name": "inner_memory_fragmentation",
+                      "result": "abnormal",
+                      "cause_ids": [
+                        {
+                          "id": 7,
+                          "params": null
+                        }
+                      ],
+                      "impact_ids": [
+                        {
+                          "id": 3,
+                          "params": null
+                        }
+                      ],
+                      "advice_ids": [
+                        {
+                          "id": 4,
+                          "params": null
+                        }
+                      ],
+                      "error_code": null
+                    },
+                    {
+                      "name": "persistence",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    },
+                    {
+                      "name": "memory_usage",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    },
+                    {
+                      "name": "centralized_expiration",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    },
+                    {
+                      "name": "hit_ratio",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    }
+                  ]
+                },
+                {
+                  "name": "network",
+                  "abnormal_num": 0,
+                  "failed_num": 0,
+                  "diagnosis_item_list": [
+                    {
+                      "name": "connection_num",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    },
+                    {
+                      "name": "rx_controlled",
+                      "result": "normal",
+                      "cause_ids": null,
+                      "impact_ids": null,
+                      "advice_ids": null,
+                      "error_code": null
+                    }
+                  ]
+                }
+              ],
+              "command_time_taken_list": {
+                "command_list": [
+                  {
+                    "calls_sum": 329,
+                    "usec_sum": 20.732,
+                    "command_name": "info",
+                    "per_usec": "68.61%",
+                    "average_usec": 0.063
+                  },
+                  {
+                    "calls_sum": 1788,
+                    "usec_sum": 1.787,
+                    "command_name": "ping",
+                    "per_usec": "5.91%",
+                    "average_usec": 0.001
+                  },
+                  {
+                    "calls_sum": 2,
+                    "usec_sum": 0.025,
+                    "command_name": "config",
+                    "per_usec": "0.08%",
+                    "average_usec": 0.013
+                  },
+                  {
+                    "calls_sum": 60,
+                    "usec_sum": 0.186,
+                    "command_name": "slowlog",
+                    "per_usec": "0.62%",
+                    "average_usec": 0.003
+                  },
+                  {
+                    "calls_sum": 1764,
+                    "usec_sum": 7.485,
+                    "command_name": "publish",
+                    "per_usec": "24.77%",
+                    "average_usec": 0.004
+                  }
+                ],
+                "total_num": 5,
+                "result": "succeed",
+                "error_code": null,
+                "total_usec_sum": 30.215
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DiagnosisNodeReport": {
+      "description": "节点诊断报告",
+      "required": [
+        "node_ip",
+        "az_code",
+        "group_name",
+        "abnormal_sum",
+        "failed_sum",
+        "role",
+        "diagnosis_dimension_list",
+        "command_time_taken_list"
+      ],
+      "properties": {
+        "node_ip": {
+          "type": "string",
+          "description": "节点IP。例如:192.168.0.234:6379"
+        },
+        "az_code": {
+          "type": "string",
+          "description": "节点所在可用区Code"
+        },
+        "group_name": {
+          "type": "string",
+          "description": "节点所在分片的名称"
+        },
+        "abnormal_sum": {
+          "type": "integer",
+          "description": "诊断结果为异常的诊断项总数",
+          "format": "int32"
+        },
+        "failed_sum": {
+          "type": "integer",
+          "description": "诊断失败的诊断项总数",
+          "format": "int32"
+        },
+        "role": {
+          "type": "string",
+          "description": "节点角色",
+          "enum": [
+            "master",
+            "slave"
+          ]
+        },
+        "diagnosis_dimension_list": {
+          "type": "array",
+          "description": "诊断维度列表",
+          "items": {
+            "$ref": "#/definitions/DiagnosisDimension"
+          }
+        },
+        "command_time_taken_list": {
+          "type": "object",
+          "description": "命令耗时统计列表",
+          "$ref": "#/definitions/CommandTimeTakenList"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,273 @@
+{
+  "name": "CreateDevicePolicy",
+  "summary": "创建设备策略",
+  "tags": "设备策略管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/device-policies": {
+      "post": {
+        "tags": [
+          "PolicyManagement"
+        ],
+        "summary": "创建设备策略",
+        "description": "应用服务器可调用此接口在物联网平台创建一个策略,该策略需要绑定到设备和产品下才能生效。\n- 一个实例最多能创建50个设备策略。\n- 仅**标准版实例、企业版实例**支持该接口调用,基础版不支持。",
+        "operationId": "CreateDevicePolicy",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0079.html#section1) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "body",
+            "name": "CreateDevicePolicyRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateDevicePolicy"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "examples": {
+              "application/json": {
+                "app_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+                "policy_id": "5c90fa7d3c4e4405e8525079",
+                "policy_name": "testPolicy",
+                "statement": [
+                  {
+                    "effect": "ALLOW",
+                    "actions": [
+                      "iotda:devices:publish",
+                      "iotda:devices:subscribe"
+                    ],
+                    "resources": [
+                      "topic:/v1/${devices.deviceId}/test/hello",
+                      "topic:/v1/${devices.productId}/test/hello"
+                    ]
+                  }
+                ],
+                "create_time": "20230810T070547Z",
+                "update_time": "20230810T070547Z"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/QueryDevicePolicyBase"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.015200"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.015201"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-apig-name": "IoTDA_API",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<QueryDevicePolicyBase>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/device-policies",
+        "x-request-examples-description-1": "创建设备策略-允许设备订阅与发布指定topic",
+        "x-request-examples-text-1": {
+          "policy_name": "myPolicyAllow",
+          "app_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "statement": [
+            {
+              "effect": "ALLOW",
+              "actions": [
+                "iotda:devices:publish iotda:devices:subscribe"
+              ],
+              "resources": [
+                "topic:/v1/${devices.deviceId}/test/allow"
+              ]
+            }
+          ]
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v5/iot/{project_id}/device-policies",
+        "x-request-examples-description-2": "创建设备策略-不允许设备订阅与发布指定topic",
+        "x-request-examples-text-2": {
+          "policy_name": "myPolicyDeny",
+          "app_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "statement": [
+            {
+              "effect": "DENY",
+              "actions": [
+                "iotda:devices:publish iotda:devices:subscribe"
+              ],
+              "resources": [
+                "topic:/v1/${devices.deviceId}/test/deny"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateDevicePolicy": {
+      "type": "object",
+      "required": [
+        "policy_name",
+        "statement"
+      ],
+      "properties": {
+        "policy_name": {
+          "type": "string",
+          "example": "myPolicy",
+          "description": "**参数说明**:策略名称。\n**取值范围**:长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "app_id": {
+          "type": "string",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "description": "**参数说明**:资源空间ID。此参数为非必选参数,存在多资源空间的用户需要使用该接口时,建议携带该参数指定创建的设备归属到哪个资源空间下,否则创建的设备将会归属到[默认资源空间](https://support.huaweicloud.com/usermanual-iothub/iot_01_0006.html#section0)下。\n**取值范围**:长度不超过36,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        },
+        "statement": {
+          "type": "array",
+          "description": "**参数说明**:策略文档。",
+          "items": {
+            "$ref": "#/definitions/Statement"
+          },
+          "x-maxLength": 10,
+          "x-minLength": 1
+        }
+      },
+      "title": "添加策略结构体",
+      "description": "添加策略请求体。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;"
+    },
+    "Statement": {
+      "type": "object",
+      "required": [
+        "actions",
+        "effect",
+        "resources"
+      ],
+      "properties": {
+        "effect": {
+          "type": "string",
+          "example": "ALLOW",
+          "description": "指定是允许还是拒绝该操作。既有允许(ALLOW)又有拒绝(DENY)的授权语句时,遵循拒绝(DENY)优先的原则。\n- ALLOW:允许。\n- DENY:拒绝。",
+          "pattern": "(ALLOW|DENY)"
+        },
+        "actions": {
+          "type": "array",
+          "example": [
+            "iotda:devices:publish",
+            "iotda:devices:subscribe"
+          ],
+          "description": "用于指定策略允许或拒绝的操作。格式为:服务名:资源:操作。当前支持的操作类型如下:\n- iotda:devices:publish:设备使用MQTT协议发布消息。\n- iotda:devices:subscribe:设备使用MQTT协议订阅消息。",
+          "items": {
+            "type": "string"
+          },
+          "x-maxLength": 2,
+          "x-minLength": 1,
+          "x-annotations": [
+            "@PatternInList(regexp = \"(iotda:devices:publish|iotda:devices:subscribe)\")"
+          ]
+        },
+        "resources": {
+          "type": "array",
+          "example": [
+            "topic:/v1/${devices.deviceId}/test/hello"
+          ],
+          "description": "用于指定允许或拒绝对其执行操作的资源。格式为:资源类型:资源名称。如设备订阅的资源为:topic:/v1/${devices.deviceId}/test/hello。\n\n**取值范围**:资源列表长度最小为1,最大为10,列表中的资源取值范围:仅支持字母,数字,以及/{}$=+#?*:._-组合。",
+          "items": {
+            "type": "string"
+          },
+          "x-maxLength": 10,
+          "x-minLength": 1,
+          "x-annotations": [
+            "@PatternInList(regexp = \"^[a-zA-Z0-9/{}$=+#?*:._-]{1,128}$\")"
+          ]
+        }
+      },
+      "title": "策略文档结构",
+      "description": "策略文档结构。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;com.huawei.m2m.validator.PatternInList;"
+    },
+    "QueryDevicePolicyBase": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "description": "**参数说明**:资源空间ID。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        },
+        "policy_id": {
+          "type": "string",
+          "example": "5c90fa7d3c4e4405e8525079",
+          "description": "策略ID。"
+        },
+        "policy_name": {
+          "type": "string",
+          "example": "myPolicy",
+          "description": "策略名称。"
+        },
+        "statement": {
+          "type": "array",
+          "description": "策略文档。",
+          "items": {
+            "$ref": "#/definitions/Statement"
+          }
+        },
+        "create_time": {
+          "type": "string",
+          "example": "20190303T081011Z",
+          "description": "在物联网平台创建策略的时间。格式:yyyyMMdd'T'HHmmss'Z',如20151212T121212Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "example": "20190303T081011Z",
+          "description": "在物联网平台更新策略的时间。格式:yyyyMMdd'T'HHmmss'Z',如20151212T121212Z。"
+        }
+      },
+      "title": "设备策略详情结构体",
+      "description": "设备策略详情返回结构体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

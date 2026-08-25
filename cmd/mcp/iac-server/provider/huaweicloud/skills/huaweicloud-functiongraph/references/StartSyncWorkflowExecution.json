@@ -1,0 +1,282 @@
+{
+  "name": "StartSyncWorkflowExecution",
+  "summary": "同步执行函数流",
+  "tags": "函数流",
+  "productshort": "FunctionGraph",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/fgs/workflows/{workflow_id}/sync-executions": {
+      "post": {
+        "tags": [
+          "函数流"
+        ],
+        "summary": "同步执行函数流",
+        "description": "以同步执行方式启动函数流(仅快速模式函数流支持)",
+        "operationId": "StartSyncWorkflowExecution",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "c53626012ba84727b938ca8bf03108ef"
+          },
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "description": "函数流定义ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "x-example": "48aff955-ea10-4ffd-b426-190bc192dc14"
+          },
+          {
+            "in": "body",
+            "name": "StartSyncWorkflowExecutionRequestBody",
+            "description": "函数流执行body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FlowExecuteBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SyncExecuteResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "404": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp500"
+            }
+          }
+        },
+        "x-request-examples-description-1": "同步执行函数流。",
+        "x-request-examples-url-1": "POST /{project_id}/fgs/workflows/{workflow_id}/sync-executions",
+        "x-support-sdk": "Y",
+        "x-produc-type": "functiongraph"
+      }
+    }
+  },
+  "definitions": {
+    "SyncExecutionNodeErrorDetail": {
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "example": "48aff955-ea10-4ffd-b426-190bc192dc14",
+          "description": "流程节点ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_message": {
+          "type": "string",
+          "example": "Exception happened",
+          "description": "错误详细信息",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "begin_time": {
+          "type": "string",
+          "example": "2021-01-01T00:00:00Z",
+          "description": "流程实例创建时间,格式:yyyy-MM-ddTHH:mm:ssZ,UTC时间",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "end_time": {
+          "type": "string",
+          "example": "2021-01-01T00:00:00Z",
+          "description": "流程实例结束时间,格式:yyyy-MM-ddTHH:mm:ssZ,UTC时间",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "description": "函数流节点错误信息"
+    },
+    "SyncExecuteResponse": {
+      "required": [
+        "begin_time",
+        "end_time",
+        "errors",
+        "execution_id",
+        "output",
+        "status"
+      ],
+      "properties": {
+        "execution_id": {
+          "type": "string",
+          "example": "48aff955-ea10-4ffd-b426-190bc192dc14",
+          "description": "流程实例ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "example": "success",
+          "description": "流程执行最终状态",
+          "minLength": 1,
+          "maxLength": 64,
+          "enum": [
+            "success",
+            "fail",
+            "timeout"
+          ]
+        },
+        "output": {
+          "type": "object",
+          "example": {
+            "result": 200,
+            "message": "success"
+          },
+          "description": "函数流的执行结果,JSON格式,仅在status为success时有值",
+          "properties": {}
+        },
+        "errors": {
+          "type": "array",
+          "description": "流程执行错误信息,仅在status为fail时有值",
+          "items": {
+            "$ref": "#/definitions/SyncExecutionNodeErrorDetail"
+          },
+          "maxItems": 200,
+          "minItems": 0
+        },
+        "begin_time": {
+          "type": "string",
+          "example": "2021-01-01T00:00:00Z",
+          "description": "流程实例创建时间,格式:yyyy-MM-ddTHH:mm:ssZ,UTC时间",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "end_time": {
+          "type": "string",
+          "example": "2021-01-01T00:00:00Z",
+          "description": "流程实例结束时间,格式:yyyy-MM-ddTHH:mm:ssZ,UTC时间",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "description": "函数流同步执行请求Response结构体"
+    },
+    "FlowExecuteBody": {
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "headers": {
+          "type": "object",
+          "example": {
+            "tenantId": "user1"
+          },
+          "description": "函数执行时需要的Header",
+          "properties": {}
+        },
+        "input": {
+          "type": "object",
+          "example": {
+            "arg1": "argument_1",
+            "arg2": "argument_2"
+          },
+          "description": "定义函数执行时的入参,支持使用JSONPATH进行映射,以及指定默认值",
+          "properties": {}
+        }
+      },
+      "description": "函数流执行请求body体"
+    },
+    "ErrorRsp400": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "FGS.3002",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Invalid parameters.",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "example": "Req1",
+          "description": "请求ID",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    },
+    "ErrorRsp500": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "FGS.3002",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Internal Error.",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "example": "Req1",
+          "description": "请求ID",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    },
+    "ErrorRsp404": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "FGS.5002",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Function flow not found.",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "functiongraph.ae-ad-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

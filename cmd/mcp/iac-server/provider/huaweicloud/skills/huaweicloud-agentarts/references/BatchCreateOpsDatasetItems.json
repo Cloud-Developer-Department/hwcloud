@@ -1,0 +1,247 @@
+{
+  "name": "BatchCreateOpsDatasetItems",
+  "summary": "批量添加评测集条目",
+  "tags": "评测集管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/ops/datasets/{dataset_id}/items": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "批量添加评测集条目",
+        "description": "该接口用于向指定评测集的草稿态批量注入数据行,支持增量添加、覆盖更新或基于历史版本还原数据,并强制校验数据与Schema的符合性。\n适用场景:\n- 数据初始化:在创建评测集后,通过API批量导入首批业务数据或基准测试集。\n- 版本回滚:当前草稿数据出现异常时,通过指定源版本ID将评测集内容恢复至特定历史快照。",
+        "operationId": "BatchCreateOpsDatasetItems",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "description": "**参数解释:**\n评测集的唯一标识符(ID)\n**约束限制:**\n由英文、数字、“-”、“_”组成,长度为1到64个字符。\n**取值范围:**\n由英文、数字、连字符(-)、下划线(_)组成的1-64位字符串。\n**默认取值:**\n无。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "source_version_id",
+            "in": "query",
+            "description": "**参数解释:**\n源版本ID。在执行版本还原或基于特定版本批量添加数据的场景下,指定作为数据来源的历史版本标识。\n**约束限制:**\n长度为0到100个字符。\n**取值范围:**\n有效的版本ID字符串。\n**默认取值:**\n不涉及。",
+            "required": false,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          {
+            "name": "overwrite",
+            "in": "query",
+            "description": "**参数解释:**\n覆盖模式开关。用于控制在批量添加新条目之前,是否清空目标评测集(通常为草稿版)中的现有数据。\n**约束限制:**\n不涉及。\n**取值范围:**\n- `true`: 覆盖模式,先清空后添加。\n- `false`: 追加模式,在现有数据基础上新增。\n**默认取值:**\nfalse。",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "in": "body",
+            "name": "BatchCreateOpsDatasetItemsRequestBody",
+            "description": "**参数解释:**\n批量创建评测集条目的请求主体。包含待插入的多个数据项详情,如文本内容、标签信息或其他元数据。\n**约束限制:**\n数据项必须符合评测集定义的 Schema。\n**取值范围:**\n符合批量创建规范的JSON对象。\n**默认取值:**\n不涉及。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchCreateOpsDatasetItemsRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "添加成功",
+            "examples": {
+              "application/json": {
+                "item_ids": [
+                  "550e8400-e29b-41d4-a716-446655440021",
+                  "550e8400-e29b-41d4-a716-446655440022"
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchCreateOpsDatasetItemsResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://*.com/agentarts/v1/ops/datasets/ds_7590068991923321856/items?overwrite=false",
+        "x-request-examples-description-1": "向评测集批量添加评测数据条目。此示例采用追加模式(overwrite=false),并根据Schema定义上传了两条数据。",
+        "x-request-examples-text-1": "{\n  \"items\": [\n    {\n      \"turns\": [\n        {\n          \"fields\": [\n            {\n              \"key\": \"question\",\n              \"type\": \"string\",\n              \"content_type\": \"text\",\n              \"value\": \"如何更换汽车机油?\"\n            },\n            {\n              \"key\": \"expected_answer\",\n              \"type\": \"string\",\n              \"content_type\": \"text\",\n              \"value\": \"1. 准备工具;2. 排出旧油;3. 更换滤清器;4. 加入新油。\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"turns\": [\n        {\n          \"fields\": [\n            {\n              \"key\": \"question\",\n              \"type\": \"string\",\n              \"content_type\": \"text\",\n              \"value\": \"北京的天气怎么样?\"\n            },\n            {\n              \"key\": \"expected_answer\",\n              \"type\": \"string\",\n              \"content_type\": \"text\",\n              \"value\": \"北京今日晴,气温 15°C 到 22°C。\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+        "x-request-examples-1": {
+          "items": [
+            {
+              "turns": [
+                {
+                  "fields": [
+                    {
+                      "key": "question",
+                      "type": "string",
+                      "content_type": "text",
+                      "value": "如何更换汽车机油?"
+                    },
+                    {
+                      "key": "expected_answer",
+                      "type": "string",
+                      "content_type": "text",
+                      "value": "1. 准备工具;2. 排出旧油;3. 更换滤清器;4. 加入新油。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "turns": [
+                {
+                  "fields": [
+                    {
+                      "key": "question",
+                      "type": "string",
+                      "content_type": "text",
+                      "value": "北京的天气怎么样?"
+                    },
+                    {
+                      "key": "expected_answer",
+                      "type": "string",
+                      "content_type": "text",
+                      "value": "北京今日晴,气温 15°C 到 22°C。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-open-api": true,
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L4"
+      }
+    }
+  },
+  "definitions": {
+    "OpsAddItemRequest": {
+      "type": "object",
+      "required": [
+        "turns"
+      ],
+      "properties": {
+        "turns": {
+          "type": "array",
+          "description": "**参数解释:**\n构成该数据条目的交互轮次列表。对于单轮问答长度为1,多轮对话包含多个轮次。\n**约束限制:**\n包含1到10000个轮次项。\n**取值范围:**\n参考OpsTurnInput定义。\n**默认取值:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/OpsTurnInput"
+          },
+          "maxItems": 10000,
+          "minItems": 1
+        }
+      },
+      "description": "**参数解释:**\n新增单个数据条目的具体内容请求。\n**约束限制:**\nturns 列表不能为空。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+    },
+    "OpsTurnInput": {
+      "type": "object",
+      "required": [
+        "fields"
+      ],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "description": "**参数解释:**\n当前轮次中包含的具体数据字段(如Input、Output、Rationale 等)集合。\n**约束限制:**\n包含0到10000个字段项。\n**取值范围:**\n参考OpsFieldValueInput定义。\n**默认取值:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/OpsFieldValueInput"
+          },
+          "maxItems": 10000,
+          "minItems": 0
+        }
+      },
+      "description": "**参数解释:**\n定义对话或记录中的一个具体轮次数据。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+    },
+    "OpsFieldValueInput": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "input",
+          "description": "**参数解释:**\n字段的键名,需与评测集Schema中定义的字段名保持一致。\n**约束限制:**\n字符串长度为0到10000个字符。\n**取值范围:**\n符合Schema定义的Key字符串。\n**默认取值:**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 10000
+        },
+        "type": {
+          "type": "string",
+          "example": "string",
+          "description": "**参数解释:**\n字段的数据存储类型,决定系统底层解析逻辑。\n**约束限制:**\n长度0到10000字符。\n**取值范围:**\n常见值如 string, integer, float, boolean, object 等。\n**默认取值:**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 10000
+        },
+        "content_type": {
+          "type": "string",
+          "example": "text",
+          "description": "**参数解释:**\n字段的内容表现形式,用于前端渲染或后端逻辑识别。\n**约束限制:**\n长度0到10000字符。\n**取值范围:**\n常见值如 text, markdown, image_url, file_path 等。\n**默认取值:**\ntext。",
+          "minLength": 0,
+          "maxLength": 10000
+        },
+        "value": {
+          "type": "string",
+          "example": "这是用户的输入内容",
+          "description": "**参数解释:**\n字段承载的实际业务数据值。\n**约束限制:**\n长度0到10000字符。\n**取值范围:**\n根据type定义,需符合对应的解析要求。\n**默认取值:**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 10000
+        }
+      },
+      "description": "**参数解释:**\n单个字段的具体键值对及元信息。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+    },
+    "BatchCreateOpsDatasetItemsRequestBody": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "**参数解释:**\n待添加到评测集中的数据条目列表。\n**约束限制:**\n必填参数;数组长度限制为1到1000个条目。\n**取值范围:**\n符合OpsAddItemRequest结构的对象数组。\n**默认取值:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/OpsAddItemRequest"
+          },
+          "maxItems": 1000,
+          "minItems": 1
+        }
+      },
+      "description": "**参数解释:**\n向评测集中批量添加多个数据记录的请求体。\n**约束限制:**\nitems 列表不能为空。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+    },
+    "BatchCreateOpsDatasetItemsResponseBody": {
+      "type": "object",
+      "properties": {
+        "item_ids": {
+          "type": "array",
+          "description": "**参数解释:**\n系统为新创建的数据条目生成的唯一标识符列表。\n**取值范围:**\n符合数据库标识符规范的字符串列表。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 100
+          },
+          "maxItems": 10000,
+          "minItems": 0
+        }
+      },
+      "description": "**参数解释:**\n批量添加条目成功后的响应信息。\n**取值范围:**\n不涉及。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

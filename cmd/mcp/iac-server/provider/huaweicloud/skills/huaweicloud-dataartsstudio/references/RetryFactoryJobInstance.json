@@ -1,0 +1,300 @@
+{
+  "name": "RetryFactoryJobInstance",
+  "summary": "重跑作业实例",
+  "tags": "作业开发接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/factory/jobs/{job_name}/instances/retry": {
+      "post": {
+        "x-request-examples-url-1": "POST /v2/62099355b894428e8916573ae635f1f9/factory/jobs/test_job_name/instances/retry",
+        "x-request-examples-description-1": "重跑作业为test_job_name的当前实例。",
+        "x-request-examples-text-1": {
+          "retry_location": "errorNode",
+          "retry_task_version": "original_version",
+          "ignore_obs_monitor": true,
+          "task_retrys": [
+            {
+              "job_id": 917567,
+              "plan_time": 1732601580000,
+              "submit_time": 1732239754684
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "retry_location": "errorNode",
+          "retry_task_version": "original_version",
+          "ignore_obs_monitor": true,
+          "task_retrys": [
+            {
+              "job_id": 917567,
+              "plan_time": 1732601580000,
+              "submit_time": 1732239754684
+            }
+          ]
+        },
+        "x-request-examples-url-2": "POST /v2/62099355b894428e8916573ae635f1f9/factory/jobs/test_job_name/instances/retry-task",
+        "x-request-examples-description-2": "重跑作业为test_job_name的当前作业及其上下游作业实例。",
+        "x-request-examples-text-2": {
+          "retry_location": "errorNode",
+          "retry_task_version": "current_version",
+          "ignore_obs_monitor": true,
+          "begin_time": 1732608520000,
+          "end_time": 1732612120000,
+          "jobs": [
+            {
+              "job_name": "job_test_smn2",
+              "workspace_id": "62fbba734e634c5087656fc3ff7adf34"
+            }
+          ],
+          "concurrent": 2
+        },
+        "x-request-examples-2": {
+          "retry_location": "errorNode",
+          "retry_task_version": "current_version",
+          "ignore_obs_monitor": true,
+          "begin_time": 1732608520000,
+          "end_time": 1732612120000,
+          "jobs": [
+            {
+              "job_name": "job_test_smn2",
+              "workspace_id": "62fbba734e634c5087656fc3ff7adf34"
+            }
+          ],
+          "concurrent": 2
+        },
+        "tags": [
+          "作业开发接口"
+        ],
+        "operationId": "RetryFactoryJobInstance",
+        "summary": "重跑作业实例",
+        "description": "支持重跑作业实例以及上下游的作业实例。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "当前作业名称"
+          },
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/contextTypeParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "name": "RetryFactoryJobInstanceRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "作业实例参数重跑请求体。",
+            "schema": {
+              "$ref": "#/definitions/RetryFactoryJobInstanceBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "作业重跑成功,无响应信息"
+          },
+          "400": {
+            "description": "作业重跑失败的响应信息。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DLF.1000",
+                "error_msg": "Failed to find the job."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RetryFactoryJobInstanceBody": {
+      "type": "object",
+      "properties": {
+        "retry_location": {
+          "type": "string",
+          "example": "errorNode",
+          "description": "重跑开始位置,取值有firstNode、errorNode和specifiedNode。"
+        },
+        "node_name": {
+          "type": "string",
+          "description": "节点名称。"
+        },
+        "retry_task_version": {
+          "type": "string",
+          "example": "original_version",
+          "description": "使用的作业参数,取值有original_version和current_version。"
+        },
+        "ignore_obs_monitor": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否忽略obs监听,默认为true。"
+        },
+        "task_retrys": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "job_id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 917567,
+                "description": "作业id,当前重跑实例的作业id。"
+              },
+              "plan_time": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1732601580000,
+                "description": "实例计划时间,13位时间戳,可通过查询作业实例列表接口获取。"
+              },
+              "submit_time": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1732239754684,
+                "description": "实例提交时间,13位时间戳,可通过查询作业实例列表接口获取。"
+              }
+            },
+            "required": [
+              "job_id",
+              "plan_time",
+              "submit_time"
+            ]
+          },
+          "description": "作业实例重跑参数,当重跑当前实例类型时,需要指定该参数的重跑信息,重跑当前作业及其上下游作业实例类型不需要指定该参数。"
+        },
+        "begin_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "实例开始时间,当重跑当前作业及其上下游作业实例类型时,该参数有效。"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "实例结束时间,当重跑当前作业及其上下游作业实例类型时,该参数有效。"
+        },
+        "jobs": {
+          "items": {
+            "properties": {
+              "job_name": {
+                "type": "string",
+                "description": "重跑的作业名称。"
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "工作空间id"
+              }
+            },
+            "required": [
+              "job_name",
+              "workspace_id"
+            ]
+          },
+          "description": "作业实例重跑参数,当重跑当前作业及其上下游作业实例类型时,需要指定该参数的重跑信息,重跑当前实例类型不需要指定该参数。",
+          "type": "array"
+        },
+        "concurrent": {
+          "type": "integer",
+          "format": "int32",
+          "description": "并行度,当重跑当前作业及其上下游作业实例类型时,该参数有效,默认值为1,取值范围为1到128。"
+        }
+      },
+      "required": [
+        "retry_location",
+        "retry_task_version"
+      ]
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "contextTypeParam": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "默认值:application/json;charset=UTF-8\n可选,有Body体的情况下必选,没有Body体则无需填写和校验。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

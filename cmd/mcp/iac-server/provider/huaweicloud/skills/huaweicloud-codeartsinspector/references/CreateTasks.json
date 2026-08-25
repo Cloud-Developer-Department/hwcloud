@@ -1,0 +1,309 @@
+{
+  "name": "CreateTasks",
+  "summary": "创建网站扫描任务并启动",
+  "tags": "网站任务管理",
+  "productshort": "CodeArtsInspector",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/{project_id}/webscan/tasks": {
+      "post": {
+        "tags": [
+          "web_tasks"
+        ],
+        "summary": "创建网站扫描任务并启动",
+        "description": "创建网站漏洞扫描任务并启动",
+        "operationId": "CreateTasks",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 102400
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户的project_id,获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-vss/vss_api_04_019.html)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32
+          },
+          {
+            "name": "upgrade",
+            "in": "query",
+            "description": "是否将本次扫描升级为专业版规格(¥99.00/次)",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "x-example": true
+          },
+          {
+            "name": "CreateTasksRequestBody",
+            "in": "body",
+            "description": "创建网站漏洞扫描任务请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTasksRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-1": {
+          "task_name": "测试任务1",
+          "url": "https://127.0.0.1:8080",
+          "task_type": "normal",
+          "task_config": {
+            "scan_mode": "normal",
+            "port_scan": false,
+            "weak_pwd_scan": false,
+            "cve_check": false,
+            "text_check": false,
+            "picture_check": false,
+            "malicious_code": false,
+            "malicious_link": false
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CreateTasksResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "info_code": "success",
+                "info_description": "Operation succeeded",
+                "task_id": "017281b97c9845b08174895992ba179643028",
+                "task_status": "running"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "418": {
+            "description": "I'm a teapot",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/{project_id}/webscan/tasks"
+      }
+    }
+  },
+  "definitions": {
+    "TaskSettings": {
+      "properties": {
+        "timer": {
+          "type": "string",
+          "description": "普通任务的定时启动时间",
+          "minLength": 0,
+          "maxLength": 19,
+          "example": "2021-09-18 16:26:24"
+        },
+        "trigger_time": {
+          "type": "string",
+          "description": "监测任务的定时触发时间",
+          "minLength": 0,
+          "maxLength": 19,
+          "example": "2021-09-18 16:26:24"
+        },
+        "task_period": {
+          "type": "string",
+          "description": "监测任务的定时触发周期:\n  * everyday - 每日\n  * threedays - 每三天\n  * everyweek - 每星期\n  * everymonth - 每月\n",
+          "enum": [
+            "everyday",
+            "threedays",
+            "everyweek",
+            "everymonth"
+          ]
+        },
+        "task_config": {
+          "type": "object",
+          "description": "扫描任务配置",
+          "properties": {
+            "scan_mode": {
+              "type": "string",
+              "description": "扫描模式:\n  * fast - 快速扫描\n  * normal - 标准扫描\n  * deep - 深度扫描\n",
+              "enum": [
+                "fast",
+                "normal",
+                "deep"
+              ],
+              "default": "normal"
+            },
+            "port_scan": {
+              "type": "boolean",
+              "description": "是否进行端口扫描",
+              "default": true
+            },
+            "weak_pwd_scan": {
+              "type": "boolean",
+              "description": "是否进行弱密码扫描",
+              "default": true
+            },
+            "cve_check": {
+              "type": "boolean",
+              "description": "是否进行CVE漏洞扫描",
+              "default": true
+            },
+            "text_check": {
+              "type": "boolean",
+              "description": "是否进行网站内容合规文字检测",
+              "default": true
+            },
+            "picture_check": {
+              "type": "boolean",
+              "description": "是否进行网站内容合规图片检测",
+              "default": false
+            },
+            "malicious_code": {
+              "type": "boolean",
+              "description": "是否进行网站挂马检测",
+              "default": false
+            },
+            "malicious_link": {
+              "type": "boolean",
+              "description": "是否进行链接健康检测(死链、暗链、恶意外链)",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    "CreateTasksResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OperateInfoResponseBody"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "description": "任务ID",
+              "minLength": 32,
+              "maxLength": 50,
+              "example": "017281b97c9845b08174895992ba179643028"
+            },
+            "task_status": {
+              "type": "string",
+              "description": "任务状态:\n  * running - 正在运行\n  * success - 成功\n  * canceled - 已取消\n  * waiting - 正在等待\n  * ready - 已就绪,排队中\n  * failure - 失败\n",
+              "enum": [
+                "running",
+                "success",
+                "canceled",
+                "waiting",
+                "ready",
+                "failure"
+              ],
+              "example": "waiting"
+            }
+          }
+        }
+      ]
+    },
+    "OperateInfoResponseBody": {
+      "properties": {
+        "info_code": {
+          "type": "string",
+          "description": "状态码:\n  * success - 成功\n  * failure - 失败\n",
+          "enum": [
+            "success",
+            "failure"
+          ],
+          "example": "success"
+        },
+        "info_description": {
+          "type": "string",
+          "description": "返回的提示信息",
+          "minLength": 0,
+          "maxLength": 64,
+          "example": "Operation succeeded"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 0,
+          "maxLength": 50,
+          "example": "VSS.00006016"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 0,
+          "maxLength": 256,
+          "example": "Invalid domain parameter."
+        }
+      }
+    },
+    "CreateTasksRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/TaskInfos"
+        },
+        {
+          "$ref": "#/definitions/TaskSettings"
+        }
+      ]
+    },
+    "TaskInfos": {
+      "required": [
+        "task_name",
+        "url"
+      ],
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "description": "任务名称",
+          "minLength": 1,
+          "maxLength": 16,
+          "example": "测试任务1"
+        },
+        "url": {
+          "type": "string",
+          "description": "待扫描的目标网址",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "https://127.0.0.1:8080"
+        },
+        "task_type": {
+          "type": "string",
+          "description": "扫描任务类型:\n  * normal - 普通任务\n  * monitor - 监测任务\n",
+          "enum": [
+            "normal",
+            "monitor"
+          ],
+          "default": "normal"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "vss.myhuaweicloud.com",
+  "base_path": "/v3",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

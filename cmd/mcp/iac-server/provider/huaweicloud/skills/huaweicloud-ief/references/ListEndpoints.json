@@ -1,0 +1,261 @@
+{
+  "name": "ListEndpoints",
+  "summary": "查询端点列表",
+  "tags": "端点管理",
+  "productshort": "IEF",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v2/{project_id}/routemgr/endpoints": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "tags": [
+          "端点管理"
+        ],
+        "summary": "查询端点列表",
+        "description": "获取所有的端点详情。\n如果不携带任何检索参数,将返回该租户的所有端点信息和系统中所有的共享端点。\n如果同时指定is_shared=true和其他参数,同样还会对name、type进行过滤。",
+        "operationId": "ListEndpoints",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Content-Type"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/IEF-Instance-Id"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "description": "端点名称",
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "端点类型\n枚举值:\n- dis\n- servicebus\n- apigw",
+            "type": "string"
+          },
+          {
+            "name": "is_shared",
+            "in": "query",
+            "required": false,
+            "description": "端点是否共享",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询返回记录的数量限制",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "偏移量,表示查询该偏移量后面的记录",
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "schema": {
+              "$ref": "#/definitions/EndpointListResp"
+            },
+            "examples": {
+              "application/json": {
+                "endpoints": [
+                  {
+                    "name": "SystemREST",
+                    "description": "",
+                    "type": "rest",
+                    "properties": {
+                      "public": "stargate-elb.ief-system.svc.cluster.local"
+                    },
+                    "ief_instance_id": "38898a99-d67c-41f8-a8cb-8c53d6d297ba",
+                    "is_shared": true,
+                    "id": "94150bf3-457e-4c93-8cd1-7cd3b203634b",
+                    "project_id": "ed202955e111444e8ced21a1bd75fc59",
+                    "created_at": "2022-04-29T18:27:28.048855+08:00",
+                    "updated_at": "2022-04-29T18:27:28.048855+08:00"
+                  },
+                  {
+                    "name": "SystemEventBus",
+                    "description": "",
+                    "type": "eventbus",
+                    "properties": {},
+                    "ief_instance_id": "default",
+                    "is_shared": true,
+                    "id": "383b985e-402b-4ed0-924c-911a787ff9b7",
+                    "project_id": "op_svc_ief_container1",
+                    "created_at": "2021-05-12T20:39:34.553763+08:00",
+                    "updated_at": "2022-09-02T17:11:55.792879+08:00"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponseBody": {
+      "description": "响应Body参数",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息"
+        }
+      }
+    },
+    "EndpointListResp": {
+      "description": "端点详情",
+      "properties": {
+        "endpoints": {
+          "items": {
+            "$ref": "#/definitions/EndpointObjResp"
+          },
+          "description": "端点详情",
+          "type": "array"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "满足条件的端点个数"
+        }
+      },
+      "required": [
+        "endpoints",
+        "count"
+      ]
+    },
+    "EndpointObjResp": {
+      "description": "端点详情",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "description": "创建时间"
+        },
+        "description": {
+          "type": "string",
+          "description": "端点描述,最大长度255,不允许^~#$%&*<>()[]{}'\"\\"
+        },
+        "id": {
+          "type": "string",
+          "description": "端点ID"
+        },
+        "ief_instance_id": {
+          "type": "string",
+          "description": "铂金版实例ID,如果为空则表示是专业版实例。"
+        },
+        "is_shared": {
+          "type": "boolean",
+          "description": "是否共享"
+        },
+        "name": {
+          "type": "string",
+          "description": "端点名称,只允许中文字符、英文字符、数字、下划线、中划线,最大长度64\n同一个账号中创建的端点名唯一"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "项目ID"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          },
+          "description": "端点的属性,端点需要对外展示的属性,示例:\n- dis:\n{\"domain_id\":\"user's domain id\"}\n- servicebus:\n{\"service_port\":8080}\n- apigw:\n{\"domain_id\":\"user's domain id\"}"
+        },
+        "type": {
+          "type": "string",
+          "description": "端点类型。枚举值:\n- dis\n- servicebus\n- apigw"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "更新时间"
+        }
+      },
+      "required": [
+        "created_at",
+        "description",
+        "id",
+        "ief_instance_id",
+        "is_shared",
+        "name",
+        "project_id",
+        "properties",
+        "type",
+        "updated_at"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Content-Type": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": true,
+      "description": "消息体的类型(格式),默认取值为“application/json”",
+      "type": "string"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "IEF-Instance-Id": {
+      "in": "header",
+      "required": false,
+      "description": "铂金版实例ID,专业版实例为空值",
+      "type": "string",
+      "name": "ief-instance-id"
+    }
+  },
+  "host": "ief.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

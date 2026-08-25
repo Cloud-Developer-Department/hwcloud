@@ -1,0 +1,252 @@
+{
+  "name": "ListAgentDimensionInfo",
+  "summary": "查询主机监控原始维度值",
+  "tags": "指标管理",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/agent-dimensions": {
+      "get": {
+        "tags": [
+          "指标管理"
+        ],
+        "summary": "查询主机监控原始维度值",
+        "description": "根据ECS/BMS资源ID及特殊维度值(仅支持磁盘、挂载点、进程、显卡、RAID控制器)查询该特殊维度对应的原始维度值;其他维度无需调用该接口",
+        "operationId": "ListAgentDimensionInfo",
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-version": "v2",
+        "x-request-examples-url-1": "/v2/{project_id}/instances/4270ff17-aba3-4138-89fa-820594c39755/agent-dimensions?offset=0&limit=10",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ContentType"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "**参数解释**:\n资源ID,如:4270ff17-aba3-4138-89fa-820594c39755。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符串长度为36。\n**默认取值**:\n不涉及。",
+            "required": true,
+            "type": "string",
+            "x-order": 4,
+            "minLength": 36,
+            "maxLength": 36,
+            "pattern": "^([a-z]|[A-Z]|[0-9]|/|#|\\(|\\)){1}([a-z]|[A-Z]|[0-9]|_|-|\\.|/|#|\\(|\\))*$"
+          },
+          {
+            "name": "dim_name",
+            "in": "query",
+            "description": "**参数解释**:\n维度名称。\n**约束限制**:\n不涉及。\n**取值范围**:\n枚举类型,mount_point:挂载点,disk:磁盘,proc:进程,gpu:显卡,raid:RAID控制器。\n**默认取值**:\n不涉及。",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "mount_point",
+              "disk",
+              "proc",
+              "gpu",
+              "raid"
+            ],
+            "x-order": 5
+          },
+          {
+            "name": "dim_value",
+            "in": "query",
+            "description": "**参数解释**:\n维度值(建议:同一个instance_id下相同dim_value对应的原始维度值origin_value是一样的,无需多次调用,建议根据instance_id + dim_value作为key进行缓存重复使用)。\n**约束限制**:\n不涉及。 \n**取值范围**:\n32位字符串,如:2e84018fc8b4484b94e89aae212fe615。\n**默认取值**:\n不涉及。",
+            "required": false,
+            "type": "string",
+            "x-order": 6,
+            "minLength": 32,
+            "maxLength": 32,
+            "pattern": "([a-f\\d]{32}|[A-F\\d]{32})"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "**参数解释**:\n分页偏移量。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小值为0,最大值为2147483647。\n**默认取值**:\n0",
+            "type": "integer",
+            "default": 0,
+            "required": false,
+            "x-order": 7,
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "**参数解释**:\n分页大小。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小值为1,最大值为1000。\n**默认取值**:\n1000",
+            "type": "integer",
+            "default": 1000,
+            "required": false,
+            "x-order": 8,
+            "minimum": 1,
+            "maximum": 1000
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "schema": {
+              "$ref": "#/definitions/ListAgentDimensionsResponse"
+            },
+            "examples": {
+              "application/json": {
+                "dimensions": [
+                  {
+                    "name": "disk",
+                    "value": "2e84018fc8b4484b94e89aae212fe615",
+                    "origin_value": "vda"
+                  },
+                  {
+                    "name": "disk",
+                    "value": "6a1b2de69eeb9a037ea23de6b529394d",
+                    "origin_value": "vdc"
+                  }
+                ],
+                "count": 10
+              }
+            }
+          },
+          "400": {
+            "description": "参数校验失败",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "404": {
+            "description": "资源不存在",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "500": {
+            "description": "系统内部错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AgentDimension": {
+      "properties": {
+        "name": {
+          "description": "**参数解释**:\n维度名称。\n**取值范围**:\n枚举类型,mount_point:挂载点,disk:磁盘,proc:进程,gpu:显卡,raid:RAID控制器。",
+          "type": "string",
+          "example": "disk",
+          "enum": [
+            "mount_point",
+            "disk",
+            "proc",
+            "gpu",
+            "raid"
+          ]
+        },
+        "value": {
+          "description": "**参数解释**:\n维度值。\n**取值范围**:\n字符串长度为32。",
+          "type": "string",
+          "example": "2e84018fc8b4484b94e89aae212fe615",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "origin_value": {
+          "description": "**参数解释**:\n实际维度信息。\n**取值范围**\n字符串长度在 1 到 1024 之间。",
+          "type": "string",
+          "example": "vda",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "ListAgentDimensionsResponse": {
+      "properties": {
+        "dimensions": {
+          "description": "**参数解释**:\n维度信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AgentDimension"
+          },
+          "minItems": 0,
+          "maxItems": 2147483647
+        },
+        "count": {
+          "description": "**参数解释**:\n维度信息总数。\n**取值范围**:\n整数,最小值为0,最大值为2147483647。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      }
+    },
+    "GoAPIErrorResponseV2": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "ces.0001",
+          "description": "请求异常内部业务状态码",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "the request format is invalid",
+          "description": "请求异常信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "request_id": {
+          "type": "string",
+          "example": "txnEntry-DESKTOP-4LPFH08.txnId-466541d0-f1a6-429b-b747-98d4991671c1.ts-1637909316688.c-95",
+          "description": "请求ID",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符串的长度必须在 1 到 64个字符之间。\n**默认取值**:\n不涉及。",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ContentType": {
+      "name": "Content-Type",
+      "in": "header",
+      "description": "**参数解释**:\n发送的实体的MIME类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为64。\n**默认取值**:\n默认使用application/json; charset=UTF-8。",
+      "required": false,
+      "type": "string",
+      "default": "application/json; charset=UTF-8",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-order": 1
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户Token。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为16384。\n**默认取值**:\n不涉及。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "x-order": 2
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

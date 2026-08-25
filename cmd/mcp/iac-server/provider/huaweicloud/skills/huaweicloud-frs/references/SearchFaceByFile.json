@@ -1,0 +1,275 @@
+{
+  "name": "SearchFaceByFile",
+  "summary": "人脸搜索",
+  "tags": "人脸搜索",
+  "productshort": "FRS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/face-sets/{face_set_name}/search": {
+      "post": {
+        "summary": "人脸搜索",
+        "x-name": "人脸搜索",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "description": "人脸搜索是指在已有的人脸库中,查询与目标人脸相似的一张或者多张人脸,并返回相应的置信度。\n支持传入图片或者faceID进行人脸搜索,如果传入的是多张人脸图片,选取图片中检测到的最大尺寸人脸作为检索的输入。",
+        "operationId": "SearchFaceByFile",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/FaceSearchResp"
+            },
+            "examples": {
+              "application/json": {
+                "faces": [
+                  {
+                    "bounding_box": {
+                      "width": 170,
+                      "top_left_y": 37,
+                      "top_left_x": 20,
+                      "height": 170
+                    },
+                    "similarity": 0.996146,
+                    "external_fields": {
+                      "id": "home",
+                      "timestamp": 12
+                    },
+                    "external_image_id": "123",
+                    "face_id": "6KLB1Ktu"
+                  },
+                  {
+                    "bounding_box": {
+                      "width": 170,
+                      "top_left_y": 37,
+                      "top_left_x": 20,
+                      "height": 170
+                    },
+                    "similarity": 0.996146,
+                    "external_fields": {
+                      "id": "home1",
+                      "timestamp": 12
+                    },
+                    "external_image_id": "12",
+                    "face_id": "PexOpqRj"
+                  }
+                ]
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "失败响应样例",
+            "examples": {
+              "application/json": {
+                "error_code": "FRS.0021",
+                "error_msg": "The URL is invalid."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "filter": "timestamp:12",
+          "return_fields": [
+            "timestamp",
+            "id"
+          ],
+          "image_file": "File(图片文件)"
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "description": "项目ID,获取方法请参见[获取项目ID/账号租户名/AK/SK](https://support.huaweicloud.com/api-face/face_02_0056.html)。",
+            "type": "string",
+            "required": true,
+            "x-order": 2
+          },
+          {
+            "in": "path",
+            "name": "face_set_name",
+            "x-example": "showFaceSet",
+            "description": "人脸库名称。",
+            "type": "string",
+            "required": true,
+            "x-order": 3
+          },
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "description": "X-Auth-Token值获取方法请参见[认证鉴权](https://support.huaweicloud.com/api-face/face_02_0004.html)。",
+            "type": "string",
+            "required": true,
+            "x-order": 1
+          },
+          {
+            "name": "Enterprise-Project-Id",
+            "in": "header",
+            "description": "企业项目ID。FRS支持通过企业项目管理(EPS)对不同用户组和用户的资源使用,进行分账。当前仅支持按需计费模式。\n\n获取方法:进入“[企业项目管理](https://console.huaweicloud.com/eps/?region=cn-north-4#/projects/list)”页面,单击企业项目名称,在企业项目详情页获取Enterprise-Project-Id(企业项目ID)。\n\n企业项目创建步骤请参见用户指南。\n> 说明:\n创建企业项目后,在传参时,有以下三类场景。\n- 携带正确的ID,正常使用FRS服务,账单的企业项目会被分类到企业ID对应的企业项目中。\n- 携带格式正确但不存在的ID,正常使用FRS服务,账单的企业项目会显示对应不存在的企业项目ID。\n- 不携带ID或格式错误ID(包含特殊字符等),正常使用FRS服务,账单的企业项目会被分类到\"default\"中。",
+            "required": false,
+            "type": "string",
+            "x-order": 4
+          },
+          {
+            "in": "formData",
+            "name": "image_file",
+            "description": "本地图片文件,图片不能超过8MB,建议小于1MB。上传文件时,请求格式为multipart。\n\n必选,与image_url、image_base64、face_id四选一。",
+            "type": "file",
+            "required": true
+          },
+          {
+            "default": 10,
+            "in": "formData",
+            "name": "top_n",
+            "description": "返回查询到的最相似的N张人脸,N默认为10。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "default": 0,
+            "in": "formData",
+            "format": "double",
+            "name": "threshold",
+            "description": "人脸相似度阈值,低于这个阈值则不返回,取值范围0~1,一般情况下建议取值0.93,默认为0。",
+            "type": "number"
+          },
+          {
+            "in": "formData",
+            "name": "sort",
+            "description": "支持字段排序,参考[sort语法](https://support.huaweicloud.com/api-face/face_02_0013.html)。",
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "filter",
+            "description": "过滤条件,参考[filter语法](https://support.huaweicloud.com/api-face/face_02_0014.html)。",
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "return_fields",
+            "description": "指定返回的自定义字段。",
+            "type": "string"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "人脸搜索"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/face-sets/{face_set_name}/search",
+        "x-cpp-exclude": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "调用失败时的错误码,具体请参考[错误码](https://support.huaweicloud.com/api-face/face_02_0045.html)。调用成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败时的错误信息。\n调用成功时无此字段。"
+        }
+      }
+    },
+    "BoundingBox": {
+      "properties": {
+        "width": {
+          "description": "矩形框宽度。",
+          "type": "integer",
+          "format": "int32"
+        },
+        "top_left_y": {
+          "description": "矩形框左上角纵坐标。",
+          "type": "integer",
+          "format": "int32"
+        },
+        "top_left_x": {
+          "description": "矩形框左上角横坐标。",
+          "type": "integer",
+          "format": "int32"
+        },
+        "height": {
+          "description": "矩形框高度。",
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "top_left_x",
+        "top_left_y",
+        "width",
+        "height"
+      ]
+    },
+    "FaceSearchResp": {
+      "properties": {
+        "faces": {
+          "description": "查找的人脸集合,详见[SearchFace](https://support.huaweicloud.com/api-face/face_02_0019.html)。调用失败时无此字段。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SearchFace",
+            "type": "object"
+          }
+        }
+      },
+      "required": [
+        "faces"
+      ]
+    },
+    "SearchFace": {
+      "properties": {
+        "bounding_box": {
+          "description": "人脸在图像中的位置。",
+          "$ref": "#/definitions/BoundingBox",
+          "type": "object"
+        },
+        "similarity": {
+          "format": "double",
+          "description": "人脸搜索时用于被检索的相似度。",
+          "type": "number"
+        },
+        "external_fields": {
+          "description": "用户添加的额外自定义字段。",
+          "type": "object"
+        },
+        "external_image_id": {
+          "description": "人脸所在的外部图片ID。",
+          "type": "string"
+        },
+        "face_id": {
+          "description": "人脸ID,由系统内部生成的唯一ID。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "face.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

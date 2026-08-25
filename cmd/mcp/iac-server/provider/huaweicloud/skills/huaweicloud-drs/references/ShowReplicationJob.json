@@ -1,0 +1,461 @@
+{
+  "name": "ShowReplicationJob",
+  "summary": "查询备份迁移任务详细信息",
+  "tags": "备份迁移",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v5/{project_id}/backup-migration-jobs/{job_id}": {
+      "get": {
+        "x-request-examples-url-1": "https://{endpoint}/v5/054ba152d480d55b2f5dc0069e7ddef0/backup-migration-jobs/341de3a3-c58a-445d-82e3-8e062b6jb703",
+        "x-request-examples-description-1": "查询备份迁移任务详情。\n",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "备份迁移"
+        ],
+        "summary": "查询备份迁移任务详细信息",
+        "description": "获取指定备份迁移任务详细信息。",
+        "operationId": "ShowReplicationJob",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。 获取方法请参见[获取项目ID。](https://support.huaweicloud.com/api-drs/drs_api_0106.html)",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "备份迁移任务ID。",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "description": "发送的实体的MIME类型。推荐用户默认使用application/json,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+            "type": "string",
+            "default": "application/json",
+            "minLength": 0,
+            "maxLength": 128
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。\n用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 50000
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。\nen-us:英文\nzh-cn:中文",
+            "type": "string",
+            "default": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "minLength": 0,
+            "maxLength": 128
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/QueryOfflineTaskResp"
+            },
+            "examples": {
+              "application/json": {
+                "id": "0667845a-6291-4e2a-95b0-190c0abjb703",
+                "status": "SUCCESS",
+                "create_time": "2024-08-19T02:27:15Z",
+                "finish_time": "2024-08-19T02:29:03Z",
+                "backup_info": {
+                  "file_source": "OBS",
+                  "bucket_name": "zyy-obs",
+                  "file_info": [
+                    {
+                      "file_name": "1706510914000_1_Test_Database.bak",
+                      "file_size": "704KB",
+                      "file_last_modify": "1706511360000"
+                    }
+                  ]
+                },
+                "base_info": {
+                  "name": "DRS-6813",
+                  "engine_type": "sqlserver",
+                  "enterprise_project_id": "0",
+                  "description": "目标RDS实例名称:rds-sqlserver2022-stand"
+                },
+                "target_db_info": {
+                  "target_instance_id": "0a3182607bc549bcb46cc9a8755761a6in04"
+                },
+                "options": {
+                  "is_cover": true,
+                  "is_default_restore": true,
+                  "is_last_backup": false,
+                  "is_precheck": true,
+                  "is_delete_backup_file": false,
+                  "recovery_mode": "full",
+                  "db_names": []
+                },
+                "new_db_names": "[]",
+                "instance_name": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DRS.10000010",
+                "error_msg": "Job does not exist, please check job ID."
+              }
+            }
+          }
+        },
+        "x-order": 2
+      }
+    }
+  },
+  "definitions": {
+    "BackupInfoResp": {
+      "type": "object",
+      "description": "备份文件信息",
+      "properties": {
+        "file_source": {
+          "type": "string",
+          "description": "备份文件来源,包括OBS和RDS两种。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "bucket_name": {
+          "type": "string",
+          "description": "OBS桶名称。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "file_info": {
+          "type": "array",
+          "description": "备份文件列表。",
+          "minItems": 0,
+          "maxItems": 999,
+          "items": {
+            "$ref": "#/definitions/BackupFileResp"
+          }
+        }
+      }
+    },
+    "BackupRestoreOptionInfo": {
+      "type": "object",
+      "description": "备份迁移参数。",
+      "required": [
+        "is_last_backup",
+        "is_precheck",
+        "recovery_mode"
+      ],
+      "properties": {
+        "is_cover": {
+          "type": "boolean",
+          "description": "是否覆盖目标数据库,不填默认为false。\n\t值为“true”表示覆盖。\n\t值为“false”表示不覆盖。",
+          "enum": [
+            true,
+            false
+          ]
+        },
+        "is_default_restore": {
+          "type": "boolean",
+          "description": "是否默认恢复,默认恢复所有数据库。\n\t“true”是代表默认恢复还原备份文件中的全部数据库。\n\t“false”代表需要在db_names这个字段中指定需要恢复的数据库名。",
+          "enum": [
+            true,
+            false
+          ]
+        },
+        "is_last_backup": {
+          "type": "boolean",
+          "description": "一次典型的增量恢复过程,会涉及多次恢复增量备份。每个增量备份恢复均会使目标数据库保持还原中状态,此时数据库不可读写,直至最后一个增量备份恢复完成后,数据库才能变成可用状态。此后数据库将无法继续进行增量恢复,所以确定为最后一个备份的场景有:\n\t一次性全量迁移,后续将不再进行增量恢复时,设置该字段值为“true”。\n\t增量恢复流程中,确定为最后割接阶段的最后一个增量备份时,设置该字段值为“false”。",
+          "enum": [
+            true,
+            false
+          ]
+        },
+        "is_precheck": {
+          "type": "boolean",
+          "description": "是否执行预校验。\ntrue:执行。\nfalse:不执行。",
+          "enum": [
+            true,
+            false
+          ]
+        },
+        "recovery_mode": {
+          "type": "string",
+          "description": "恢复模式:\n\t“full”表示全量迁移。\n\t“incre”表示增量迁移 。",
+          "minLength": 0,
+          "maxLength": 128,
+          "enum": [
+            "full",
+            "incre"
+          ]
+        },
+        "db_names": {
+          "type": "array",
+          "description": "数据库名称。",
+          "minItems": 0,
+          "maxItems": 512,
+          "items": {
+            "minLength": 0,
+            "maxLength": 128,
+            "type": "string"
+          }
+        },
+        "reset_db_name_map": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 256
+          },
+          "description": "该字段为一个map,目前使用格式key是\"\",value是新数据库名字。\n该功能将忽略备份文件中原有的数据库名,通过DRS将其恢复为指定的新数据库名。\n使用条件:\n- 备份文件中只有一个数据库。\n- 备份文件是全量备份类型(待恢复备份类型选择:全量备份),且是一次性恢复(最后一个备份选择:是)。"
+        },
+        "is_delete_backup_file": {
+          "type": "boolean",
+          "description": "该参数控制使用OBS桶中备份文件恢复时,当任务结束时是否删除下载到RDS for SQL server磁盘中的OBS备份文件,默认删除。\n- true 删除\n- false 不删除"
+        }
+      }
+    },
+    "QueryOfflineTaskResp": {
+      "type": "object",
+      "description": "获取备份迁移任务详情返回体。",
+      "required": [
+        "id",
+        "status",
+        "backup_info",
+        "base_info",
+        "target_db_info",
+        "options"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态。取值:success,failed",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "create_time": {
+          "type": "string",
+          "description": "任务创建时间。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "finish_time": {
+          "type": "string",
+          "description": "任务完成时间。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "backup_info": {
+          "description": "备份文件信息。",
+          "$ref": "#/definitions/BackupInfoResp"
+        },
+        "base_info": {
+          "description": "创建备份迁移任务基本信息体。",
+          "$ref": "#/definitions/BackupJobBaseInfo"
+        },
+        "target_db_info": {
+          "description": "备份迁移任务恢复目标RDS for SQL Server实例信息。",
+          "$ref": "#/definitions/BackupJobEndpointInfo"
+        },
+        "options": {
+          "description": "备份迁移相关配置参数。",
+          "$ref": "#/definitions/BackupRestoreOptionInfo"
+        },
+        "new_db_names": {
+          "type": "string",
+          "description": "备份恢复数据库映射新名称。",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "RDS实例名称。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "error_log": {
+          "type": "string",
+          "description": "迁移过程中失败原因。",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      }
+    },
+    "ErrorResp": {
+      "description": "请求失败时返回的错误对象响应体。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12,
+          "example": "DRS.00000000"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "Success"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object"
+    },
+    "ResourceTag": {
+      "description": "标签信息体。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "标签键。\n约束:最大长度36,只能包含字母、数字、下划线、中划线和中文。",
+          "maxLength": 36,
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "description": "标签值。标签的值可以包含任意语种字母、数字、空格和_ . : / = + - @。",
+          "maxLength": 43,
+          "minLength": 1
+        }
+      },
+      "type": "object"
+    },
+    "BackupJobBaseInfo": {
+      "type": "object",
+      "description": "创建备份迁移任务基本信息体。",
+      "required": [
+        "name",
+        "engine_type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "任务名称。 约束:任务名称在4位到50位之间,不区分大小写,可以包含字母、数字、中划线或下划线,不能包括其他特殊字符。 \n\t- 最小长度:4\n    - 最大长度:50",
+          "example": "DRS-0001",
+          "minLength": 4,
+          "maxLength": 128
+        },
+        "engine_type": {
+          "type": "string",
+          "description": "数据库引擎。\n\t- sqlserver:RDS for SQL Server引擎",
+          "minLength": 1,
+          "maxLength": 128,
+          "enum": [
+            "sqlserver"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "任务描述。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "tags": {
+          "type": "array",
+          "description": "标签信息。\n标签的值可以包含任意语种字母、数字、空格和_ . : / = + - @。",
+          "minItems": 0,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/ResourceTag"
+          }
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。",
+          "minLength": 0,
+          "maxLength": 128
+        }
+      }
+    },
+    "BackupJobEndpointInfo": {
+      "type": "object",
+      "description": "备份迁移任务恢复目标RDS for SQL Server实例信息。",
+      "required": [
+        "target_instance_id"
+      ],
+      "properties": {
+        "target_instance_id": {
+          "type": "string",
+          "description": "备份迁移任务恢复目标RDS for SQL Server实例ID。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "ms_file_stream_status": {
+          "type": "string",
+          "description": "目标实例是否开启FileStream模式。可通过RDS for SQL Server详情接口获取。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "file_id": {
+          "type": "string",
+          "description": "RDS for SQL Server备份文件的文件ID,通过RDS全量恢复时必填。可通过云数据库RDS备份管理页面获取。",
+          "minLength": 0,
+          "maxLength": 128
+        }
+      }
+    },
+    "BackupFileResp": {
+      "type": "object",
+      "description": "备份文件信息体。",
+      "properties": {
+        "file_name": {
+          "type": "string",
+          "description": "文件名称。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "file_size": {
+          "type": "string",
+          "description": "备份文件大小。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "file_last_modify": {
+          "type": "string",
+          "description": "备份文件最近修改时间。",
+          "minLength": 0,
+          "maxLength": 128
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

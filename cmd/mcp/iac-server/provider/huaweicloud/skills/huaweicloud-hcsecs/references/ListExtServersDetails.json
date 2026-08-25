@@ -1,0 +1,926 @@
+{
+  "name": "ListExtServersDetails",
+  "summary": "查询云服务器详情列表",
+  "tags": "生命周期管理",
+  "productshort": "HCSECS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{tenant_id}/cloudservers/detail": {
+      "get": {
+        "tags": [
+          "生命周期管理"
+        ],
+        "summary": "查询云服务器详情列表",
+        "description": "根据用户请求条件从数据库筛选、查询所有的弹性云服务器,并关联相关表获取到弹性云服务器的详细信息。\n\n该接口支持查询弹性云服务器计费方式,以及是否被冻结。",
+        "operationId": "ListExtServersDetails",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "发送的实体的MIME类型,媒体类型可按照流类型的不同进行确定。",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "enum": [
+              "application/json"
+            ]
+          },
+          {
+            "name": "Content-Length",
+            "in": "header",
+            "description": "请求body长度,单位为Byte。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "project id,项目编号。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,请参考《华为云Stack 8.6.1 API参考》的“ManageOne 8.6.1 API参考 >  ManageOne xxx OTenantSecurity服务API参考 > API参考 > Token > 获取用户Token”章节。",
+            "required": true,
+            "type": "string",
+            "pattern": "[\\\\w\\\\-\\\\+=]*",
+            "x-order": 1
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "页码。\n取值大于等于0,0为特殊情况,取值为0或1时返回第1页。\n不传offset时,只返回count值。",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 1,
+            "x-order": 2
+          },
+          {
+            "name": "flavor",
+            "in": "query",
+            "description": "云服务器规格ID。",
+            "required": false,
+            "type": "string",
+            "x-example": "c1.medium",
+            "x-order": 3
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "云服务器名称,匹配规则为模糊匹配。",
+            "required": false,
+            "type": "string",
+            "x-example": "test",
+            "x-order": 4
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "云服务器状态。\n\n取值范围:\n\nACTIVE, BUILD,DELETED,ERROR,HARD_REBOOT,MIGRATING,REBOOT,RESIZE,REVERT_RESIZE,SHELVED,SHELVED_OFFLOADED,SHUTOFF,UNKNOWN,VERIFY_RESIZE\n\n只有管理员可以使用“deleted”状态过滤查询已经删除的弹性云服务器。",
+            "required": false,
+            "type": "string",
+            "x-example": "ACTIVE",
+            "x-order": 5
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询返回云服务器当前页面的大小。每页最多返回1000台云服务器的信息。",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "maximum": 1000,
+            "minimum": 1,
+            "format": "int32",
+            "x-example": 100,
+            "x-order": 6
+          },
+          {
+            "name": "reservation_id",
+            "in": "query",
+            "description": "批量创建弹性云服务器时,指定返回的ID,用于查询本次批量创建的弹性云服务器。",
+            "required": false,
+            "type": "string",
+            "x-example": "r-l0i0clt2",
+            "x-order": 7
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "查询绑定某个企业项目的弹性云服务器。\n\n若需要查询当前用户所有企业项目绑定的弹性云服务,请传参all_granted_eps。",
+            "required": false,
+            "type": "string",
+            "x-example": "441d5677-b76a-4dd4-a97a-ef7fd6336666",
+            "x-order": 8
+          },
+          {
+            "name": "not-tags",
+            "in": "query",
+            "description": "查询tag字段中不包含该值的云服务器。",
+            "required": false,
+            "type": "string",
+            "x-example": "test",
+            "x-order": 9
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "查询tag字段中包含该值的云服务器。",
+            "required": false,
+            "type": "string",
+            "x-order": 10
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "description": "IPv4地址过滤结果。",
+            "required": false,
+            "type": "string",
+            "x-order": 11
+          },
+          {
+            "name": "detail",
+            "in": "query",
+            "description": "一系列expect_fields的组合,取值范围:1,2,3,4,5。不传expect_fields或expect_fields值为空的情况下,默认值为4。",
+            "required": false,
+            "type": "string",
+            "x-order": 12
+          },
+          {
+            "name": "expect_fields",
+            "in": "query",
+            "description": "期望返回的信息,多个则用英文逗号隔开。\n取值范围:basic,volume,volume_detail,block_device,device_limit,scheduler_hints,addresses,flavor,flavor_detail,metadata,host_status,virtual_cipher_card_device",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "basic",
+              "volume",
+              "volume_detail",
+              "block_device",
+              "device_limit",
+              "scheduler_hints",
+              "addresses",
+              "flavor",
+              "flavor_detail",
+              "metadata",
+              "host_status"
+            ],
+            "x-order": 13
+          },
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "pattern": "[0-9a-f]{32}",
+            "x-order": 14
+          },
+          {
+            "name": "regex-tag",
+            "in": "query",
+            "description": "通过正则匹配服务器的标签来过滤服务器列表。",
+            "required": false,
+            "type": "string",
+            "x-example": ".*tagxxx.*",
+            "x-order": 15
+          },
+          {
+            "name": "system_serial_number",
+            "in": "query",
+            "description": "通过system_serial_number查找云服务器列表",
+            "required": false,
+            "type": "string",
+            "x-order": 16
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "examples": {
+              "application/json": {
+                "count": 2,
+                "servers": [
+                  {
+                    "id": "fa722985-6112-4a88-b625-bd9e8fe158fb",
+                    "name": "ecs-cddf",
+                    "addresses": {
+                      "subnet-bde3": [
+                        {
+                          "version": "4",
+                          "addr": "192.168.0.189",
+                          "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:da:e6:92",
+                          "OS-EXT-IPS:port_id": "7d3f3e51-0a68-4775-985b-907f5c29c5ec",
+                          "network_tags": [],
+                          "OS-EXT-IPS:type": "fixed"
+                        }
+                      ]
+                    },
+                    "flavor": {
+                      "disk": "1",
+                      "vcpus": "1",
+                      "ram": "1024",
+                      "id": "26c991b8-b67f-427d-b256-036af1ed6e3e",
+                      "name": "local"
+                    },
+                    "accessIPv4": "",
+                    "accessIPv6": "",
+                    "status": "ACTIVE",
+                    "hostId": "c6156552bdce2188861f45488008f7fe4faa22c1b6cb89250c80bbbc",
+                    "updated": "2020-08-14T06:37:09Z",
+                    "created": "2020-08-14T06:36:43Z",
+                    "metadata": {
+                      "_ha_policy_type": "remote_rebuild",
+                      "hw_watchdog_action": "disabled",
+                      "metering.resourcespeccode": "local.linux",
+                      "metering.image_id": "1e8b1d53-8206-4587-831f-f67c6a66a928",
+                      "server_expiry": "0",
+                      "metering.imagetype": "gold",
+                      "image_name": "cirros",
+                      "cascaded.instance_extrainfo": "system_serial_number:fa722985-6112-4a88-b625-bd9e8fe158fb,max_mem:4194304,max_cpu:1,current_mem:1024,cpu_num_for_one_plug:1,org_cpu:1,xml_support_live_resize:False,org_mem:1024,iohang_timeout:720,current_cpu:1,num_of_mem_plug:0",
+                      "metering.resourcetype": "1",
+                      "vpc_id": "37493ff3-878b-4afc-8c3c-4f58790a16bc",
+                      "os_type": "Linux",
+                      "os_bit": "64",
+                      "charging_mode": "0",
+                      "productId": "c51a839143d3416c82936037c1461ab4"
+                    },
+                    "locked": false,
+                    "config_drive": "",
+                    "tenant_id": "6ecae565acca407bba90a330f485b6ad",
+                    "user_id": "cb5e642d14d547d79e2f058b31e94ac3",
+                    "os-extended-volumes:volumes_attached": [],
+                    "OS-EXT-STS:power_state": 1,
+                    "OS-EXT-STS:vm_state": "active",
+                    "OS-EXT-SRV-ATTR:host": "5362A74D-0044-CF94-E911-2FC764B3849A",
+                    "OS-EXT-SRV-ATTR:instance_name": "instance-000000d7",
+                    "OS-EXT-SRV-ATTR:hypervisor_hostname": "5362A74D-0044-CF94-E911-2FC764B3849A",
+                    "OS-DCF:diskConfig": "MANUAL",
+                    "OS-EXT-AZ:availability_zone": "az1.dc1",
+                    "os:scheduler_hints": {},
+                    "OS-EXT-SRV-ATTR:root_device_name": "/dev/vda",
+                    "OS-EXT-SRV-ATTR:ramdisk_id": "",
+                    "OS-SRV-USG:launched_at": "2020-08-14T06:37:00.000000",
+                    "OS-EXT-SRV-ATTR:kernel_id": "",
+                    "OS-EXT-SRV-ATTR:launch_index": 0,
+                    "host_status": "UP",
+                    "OS-EXT-SRV-ATTR:reservation_id": "r-ktlpkf0t",
+                    "OS-EXT-SRV-ATTR:hostname": "ecs-cddf",
+                    "image": {
+                      "id": "1e8b1d53-8206-4587-831f-f67c6a66a928"
+                    },
+                    "block_device": [
+                      {
+                        "bootIndex": "",
+                        "device": "/dev/hdb",
+                        "diskBus": "ide",
+                        "id": "",
+                        "pciAddress": "",
+                        "serverId": "fa722985-6112-4a88-b625-bd9e8fe158fb",
+                        "size": "",
+                        "type": "cdrom",
+                        "device_name": ""
+                      },
+                      {
+                        "bootIndex": "0",
+                        "device": "/dev/vda",
+                        "diskBus": "virtio",
+                        "pciAddress": "0000:04:00.0",
+                        "serverId": "fa722985-6112-4a88-b625-bd9e8fe158fb",
+                        "size": "1",
+                        "type": "local",
+                        "device_name": ""
+                      }
+                    ]
+                  },
+                  {
+                    "id": "feff5947-6fcd-4cd7-b9c0-c6d5c4e3d370",
+                    "name": "ecs-5743",
+                    "addresses": {
+                      "subnet-bde3": [
+                        {
+                          "version": "4",
+                          "addr": "192.168.0.38",
+                          "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:6a:92:4e",
+                          "OS-EXT-IPS:port_id": "9e477eb8-e36c-4d39-bc83-f433322218ca",
+                          "network_tags": [],
+                          "OS-EXT-IPS:type": "fixed"
+                        }
+                      ]
+                    },
+                    "flavor": {
+                      "disk": "1",
+                      "vcpus": "1",
+                      "ram": "1024",
+                      "id": "26c991b8-b67f-427d-b256-036af1ed6e3e",
+                      "name": "local"
+                    },
+                    "accessIPv4": "",
+                    "accessIPv6": "",
+                    "status": "ACTIVE",
+                    "hostId": "0f61e4316666f337cbdfeab8224678e4a7d193b69c46a69bbcd24a74",
+                    "updated": "2020-08-14T03:39:18Z",
+                    "created": "2020-08-13T02:15:24Z",
+                    "metadata": {
+                      "_ha_policy_type": "remote_rebuild",
+                      "hw_watchdog_action": "disabled",
+                      "metering.resourcespeccode": "local.linux",
+                      "metering.image_id": "1e8b1d53-8206-4587-831f-f67c6a66a928",
+                      "server_expiry": "0",
+                      "metering.imagetype": "gold",
+                      "image_name": "cirros",
+                      "cascaded.instance_extrainfo": "system_serial_number:feff5947-6fcd-4cd7-b9c0-c6d5c4e3d370,max_mem:4194304,max_cpu:1,current_mem:1024,cpu_num_for_one_plug:1,org_cpu:1,xml_support_live_resize:False,org_mem:1024,iohang_timeout:720,current_cpu:1,num_of_mem_plug:0",
+                      "metering.resourcetype": "1",
+                      "vpc_id": "37493ff3-878b-4afc-8c3c-4f58790a16bc",
+                      "os_type": "Linux",
+                      "os_bit": "64",
+                      "charging_mode": "0",
+                      "productId": "c51a839143d3416c82936037c1461ab4"
+                    },
+                    "locked": false,
+                    "config_drive": "",
+                    "tenant_id": "6ecae565acca407bba90a330f485b6ad",
+                    "user_id": "cb5e642d14d547d79e2f058b31e94ac3",
+                    "os-extended-volumes:volumes_attached": [
+                      {
+                        "hw:passthrough": "false",
+                        "id": "bb6bb0b7-c65c-45fd-bfb7-5a9ebe57b8ad",
+                        "multiattach": "False",
+                        "delete_on_termination": "false"
+                      },
+                      {
+                        "hw:passthrough": "true",
+                        "id": "76f0697d-d4dc-46ee-b446-d32a634aba53",
+                        "multiattach": "False",
+                        "delete_on_termination": "false"
+                      }
+                    ],
+                    "OS-EXT-STS:power_state": 1,
+                    "OS-EXT-STS:vm_state": "active",
+                    "OS-EXT-SRV-ATTR:host": "6762A74D-0044-9091-E911-33C754B98306",
+                    "OS-EXT-SRV-ATTR:instance_name": "instance-0000005d",
+                    "OS-EXT-SRV-ATTR:hypervisor_hostname": "6762A74D-0044-9091-E911-33C754B98306",
+                    "OS-DCF:diskConfig": "MANUAL",
+                    "OS-EXT-AZ:availability_zone": "az1.dc1",
+                    "os:scheduler_hints": {},
+                    "OS-EXT-SRV-ATTR:root_device_name": "/dev/vda",
+                    "OS-EXT-SRV-ATTR:ramdisk_id": "",
+                    "OS-SRV-USG:launched_at": "2020-08-13T02:15:39.000000",
+                    "OS-EXT-SRV-ATTR:kernel_id": "",
+                    "OS-EXT-SRV-ATTR:launch_index": 0,
+                    "host_status": "UP",
+                    "OS-EXT-SRV-ATTR:reservation_id": "r-2e1qpnim",
+                    "OS-EXT-SRV-ATTR:hostname": "ecs-5743",
+                    "image": {
+                      "id": "1e8b1d53-8206-4587-831f-f67c6a66a928"
+                    },
+                    "block_device": [
+                      {
+                        "bootIndex": "",
+                        "device": "/dev/hdb",
+                        "diskBus": "ide",
+                        "id": "",
+                        "pciAddress": "",
+                        "serverId": "feff5947-6fcd-4cd7-b9c0-c6d5c4e3d370",
+                        "size": "",
+                        "type": "cdrom",
+                        "device_name": ""
+                      },
+                      {
+                        "bootIndex": "0",
+                        "device": "/dev/vda",
+                        "diskBus": "virtio",
+                        "pciAddress": "0000:04:00.0",
+                        "serverId": "feff5947-6fcd-4cd7-b9c0-c6d5c4e3d370",
+                        "size": "1",
+                        "type": "local",
+                        "device_name": ""
+                      },
+                      {
+                        "device": "/dev/vdb",
+                        "diskBus": "virtio",
+                        "id": "bb6bb0b7-c65c-45fd-bfb7-5a9ebe57b8ad",
+                        "pciAddress": "0000:05:00.0",
+                        "serverId": "feff5947-6fcd-4cd7-b9c0-c6d5c4e3d370",
+                        "size": "1",
+                        "type": "volume",
+                        "device_name": ""
+                      },
+                      {
+                        "device": "/dev/sdb",
+                        "diskBus": "scsi",
+                        "id": "76f0697d-d4dc-46ee-b446-d32a634aba53",
+                        "pciAddress": "1-0:1:0",
+                        "serverId": "feff5947-6fcd-4cd7-b9c0-c6d5c4e3d370",
+                        "size": "10",
+                        "type": "volume",
+                        "device_name": ""
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListServersDetailsResp"
+            }
+          },
+          "400": {
+            "description": "服务器未能处理请求。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "对被请求页面的访问被禁止。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "服务器无法找到被请求的页面。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "请求未完成。服务异常。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "503": {
+            "description": "请求未完成。系统暂时异常。",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-order": 5,
+        "x-request-examples-1": "GET https://{endpoint}/v1/{tenant_id}/cloudservers/detail?offset=1&limit=10",
+        "x-request-examples-text-1": "GET https://{endpoint}/v1/{tenant_id}/cloudservers/detail?offset=1&limit=10",
+        "x-registered_to": "apicom"
+      }
+    }
+  },
+  "definitions": {
+    "ListServersDetailsResp": {
+      "required": [
+        "count",
+        "servers"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "example": 2,
+          "description": "弹性云服务器的总数。"
+        },
+        "servers": {
+          "type": "array",
+          "description": "弹性云服务器详情列表,具体参照-查询云服务器详情接口。查询级别不同,返回的详情不同。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/servers_detail_v1"
+          }
+        }
+      },
+      "description": "This is a auto create Response Object"
+    },
+    "image": {
+      "required": [
+        "id",
+        "links"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "镜像ID。"
+        },
+        "links": {
+          "type": "array",
+          "description": "镜像相关标记快捷链接信息。",
+          "items": {
+            "$ref": "#/definitions/links"
+          }
+        }
+      },
+      "description": "云服务器镜像信息。"
+    },
+    "flavor_basic": {
+      "type": "object",
+      "required": [
+        "disk",
+        "id",
+        "name",
+        "ram",
+        "vcpus"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "云服务器规格ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "云服务器规格的名称。"
+        },
+        "vcpus": {
+          "type": "string",
+          "description": "该云服务器规格对应的CPU核数。"
+        },
+        "ram": {
+          "type": "string",
+          "description": "该云服务器规格对应的内存大小,单位为MB。"
+        },
+        "disk": {
+          "type": "string",
+          "description": "该云服务器规格对应要求系统盘大小,0为不限制。"
+        }
+      },
+      "description": "云服务器对应云服务器规格信息。"
+    },
+    "links": {
+      "required": [
+        "href",
+        "rel"
+      ],
+      "properties": {
+        "href": {
+          "type": "string",
+          "description": "对应快捷链接。"
+        },
+        "rel": {
+          "type": "string",
+          "description": "快捷链接标记名称。",
+          "enum": [
+            "self",
+            "bookmark",
+            "alternate"
+          ]
+        }
+      },
+      "description": "相关快捷链接信息。"
+    },
+    "security_groups_1": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "安全组名称。"
+        }
+      },
+      "description": "云服务器所属安全组列表。\n定弹性云服务器的安全组,默认为default。 指定network创建弹性云服务器时该字段有效。对于已存在端口,安全组请求无效。"
+    },
+    "os-extended_volumes_attached": {
+      "required": [
+        "delete_on_termination",
+        "hw:passthrough",
+        "id",
+        "multiattach"
+      ],
+      "properties": {
+        "hw:passthrough": {
+          "type": "string",
+          "description": "磁盘模式,后台根据元数据中是否包含hw:passthrough字段判断,云硬盘默认为VBD类型。\n1、false或者没有返回,表示VBD虚拟块存储设置;\n2、true 表示SCSI小型计算机系统接口。"
+        },
+        "id": {
+          "type": "string",
+          "description": "磁盘ID。"
+        },
+        "multiattach": {
+          "type": "string",
+          "description": "是否为共享磁盘。"
+        },
+        "delete_on_termination": {
+          "type": "string",
+          "description": "删除云服务器时是否将云服务器挂载的磁盘一起删掉。"
+        }
+      },
+      "description": "查询虚拟机(列表)详情扩展接口卷挂载详情"
+    },
+    "servers_detail_v1": {
+      "type": "object",
+      "required": [
+        "OS-DCF:diskConfig",
+        "OS-EXT-AZ:availability_zone",
+        "OS-EXT-SRV-ATTR:host",
+        "OS-EXT-SRV-ATTR:hostname",
+        "OS-EXT-SRV-ATTR:hypervisor_hostname",
+        "OS-EXT-SRV-ATTR:instance_name",
+        "OS-EXT-STS:power_state",
+        "OS-EXT-STS:task_state",
+        "OS-EXT-STS:vm_state",
+        "OS-SRV-USG:launched_at",
+        "OS-SRV-USG:terminated_at",
+        "accessIPv4",
+        "accessIPv6",
+        "addresses",
+        "config_drive",
+        "created",
+        "flavor",
+        "hostId",
+        "host_status",
+        "id",
+        "image",
+        "key_name",
+        "links",
+        "metadata",
+        "name",
+        "os-extended-volumes:volumes_attached",
+        "progress",
+        "security_groups",
+        "status",
+        "tenant_id",
+        "updated",
+        "user_id"
+      ],
+      "properties": {
+        "OS-DCF:diskConfig": {
+          "type": "string",
+          "description": "扩展属性,磁盘配置方式。对镜像启动云服务器生效。 取值范围:AUTO:API使用单个分区构建目标磁盘大小的云服务器。 API会自动调整文件系统以适应整个分区。MANUAL:API使用源映像中的分区方案和文件系统构建服务器。如果目标磁盘较大,则API不分区剩余的磁盘空间。",
+          "enum": [
+            "AUTO",
+            "MANUAL"
+          ]
+        },
+        "OS-EXT-AZ:availability_zone": {
+          "type": "string",
+          "description": "扩展属性,可用分区编码。"
+        },
+        "OS-EXT-SRV-ATTR:host": {
+          "type": "string",
+          "description": "扩展属性,云服务器宿主名称。"
+        },
+        "OS-EXT-SRV-ATTR:hostname": {
+          "type": "string",
+          "description": "云服务器hostname"
+        },
+        "OS-EXT-SRV-ATTR:hypervisor_hostname": {
+          "type": "string",
+          "description": "hypervisor主机名。"
+        },
+        "OS-EXT-SRV-ATTR:instance_name": {
+          "type": "string",
+          "description": "云服务器实例ID。"
+        },
+        "OS-EXT-SRV-ATTR:root_device_name": {
+          "type": "string",
+          "description": "云服务器系统盘盘符。"
+        },
+        "OS-EXT-SRV-ATTR:user_data": {
+          "type": "string",
+          "description": "云服务器用户数据信息。"
+        },
+        "OS-EXT-STS:power_state": {
+          "type": "integer",
+          "format": "int32",
+          "description": "云服务器电源状态。"
+        },
+        "OS-EXT-STS:task_state": {
+          "type": "string",
+          "description": "云服务器任务状态。"
+        },
+        "OS-EXT-STS:vm_state": {
+          "type": "string",
+          "description": "云服务器状态。"
+        },
+        "OS-SRV-USG:launched_at": {
+          "type": "string",
+          "description": "云服务器启动时间。"
+        },
+        "accessIPv4": {
+          "type": "string",
+          "description": "预留属性。"
+        },
+        "accessIPv6": {
+          "type": "string",
+          "description": "预留属性。"
+        },
+        "addresses": {
+          "description": "云服务器对应的网络地址信息。",
+          "$ref": "#/definitions/addresses"
+        },
+        "config_drive": {
+          "type": "string",
+          "description": "云服务器是否使用配置磁盘。"
+        },
+        "created": {
+          "type": "string",
+          "description": "云服务器创建时间。"
+        },
+        "description": {
+          "type": "string",
+          "description": "云服务器描述信息"
+        },
+        "flavor": {
+          "description": "云服务器对应云服务器规格信息。",
+          "$ref": "#/definitions/flavor_basic"
+        },
+        "hostId": {
+          "type": "string",
+          "description": "云服务器对应的主机ID。"
+        },
+        "host_status": {
+          "type": "string",
+          "description": "云服务器宿主机状态。"
+        },
+        "id": {
+          "type": "string",
+          "description": "云服务器唯一标识ID。"
+        },
+        "image": {
+          "description": "云服务器镜像信息。 对于镜像创建的弹性云服务器属性通常返回镜像ID和链接,对于卷创建的弹性云服务器,该属性为空字符串。 要获取镜像信息,请使用metadata中相关属性。",
+          "$ref": "#/definitions/image"
+        },
+        "key_name": {
+          "type": "string",
+          "description": "SSH密钥名称。"
+        },
+        "links": {
+          "type": "array",
+          "description": "云服务器相关快捷链接信息。",
+          "items": {
+            "$ref": "#/definitions/links"
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "description": "云服务器元数据。",
+          "properties": {}
+        },
+        "name": {
+          "type": "string",
+          "description": "云服务器名称。"
+        },
+        "progress": {
+          "type": "integer",
+          "format": "int32",
+          "description": "操作云服务器时的进度百分比。"
+        },
+        "security_groups": {
+          "type": "array",
+          "description": "云服务器所属安全组列表。",
+          "items": {
+            "$ref": "#/definitions/security_groups_1"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "云服务器当前状态信息。 取值范围: ACTIVE, BUILD,DELETED,ERROR,HARD_REBOOT,MIGRATING,REBOOT,RESIZE,REVERT_RESIZE,SHELVED,SHELVED_OFFLOADED,SHUTOFF,UNKNOWN,VERIFY_RESIZE",
+          "enum": [
+            "ACTIVE",
+            "BUILD",
+            "DELETED",
+            "ERROR",
+            "HARD_REBOOT",
+            "MIGRATING",
+            "REBOOT",
+            "RESIZE",
+            "REVERT_RESIZE",
+            "SHELVED",
+            "SHELVED_OFFLOADED",
+            "SHUTOFF",
+            "UNKNOWN",
+            "VERIFY_RESIZE"
+          ]
+        },
+        "tenant_id": {
+          "type": "string",
+          "description": "云服务器所属租户ID。"
+        },
+        "updated": {
+          "type": "string",
+          "description": "云服务器上一次更新时间。"
+        },
+        "user_id": {
+          "type": "string",
+          "description": "云服务器所属用户ID。"
+        },
+        "tags": {
+          "type": "array",
+          "description": "云服务器的标签ID列表。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "os-extended-volumes:volumes_attached": {
+          "type": "array",
+          "description": "云服务器挂载的云磁盘信息。",
+          "items": {
+            "$ref": "#/definitions/os-extended_volumes_attached"
+          }
+        },
+        "OS-SRV-USG:terminated_at": {
+          "type": "string",
+          "description": "虚拟机删除时间。"
+        },
+        "OS-EXT-SRV-ATTR:reservation_id": {
+          "type": "string",
+          "description": "虚拟机预留ID,批量创建虚拟机时可以用来识别虚拟机。"
+        },
+        "OS-EXT-SRV-ATTR:launch_index": {
+          "type": "string",
+          "description": "批量创建虚拟机时,虚拟机的创建顺序。"
+        },
+        "system_serial_number": {
+          "type": "string",
+          "description": "云服务器serial number"
+        },
+        "virtual_cipher_card_device": {
+          "type": "array",
+          "description": "expected_fields里包含virtual_cipher_card时,虚拟机的虚拟密码卡设备信息。",
+          "items": {
+            "$ref": "#/definitions/virtual_cipher_card"
+          }
+        }
+      },
+      "description": "查询云服务器信息列表。"
+    },
+    "virtual_cipher_card": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "mac": {
+          "type": "string"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "required": [
+        "OS-EXT-IPS-MAC:mac_addr",
+        "OS-EXT-IPS:port_id",
+        "OS-EXT-IPS:type",
+        "addr",
+        "network_tags",
+        "version"
+      ],
+      "properties": {
+        "addr": {
+          "type": "string",
+          "description": "IP地址信息。"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int32",
+          "description": "IP地址类型,值为4或6。"
+        },
+        "OS-EXT-IPS-MAC:mac_addr": {
+          "type": "string",
+          "description": "MAC地址。"
+        },
+        "OS-EXT-IPS:type": {
+          "type": "string",
+          "description": "分配IP地址方式。"
+        },
+        "OS-EXT-IPS:port_id": {
+          "type": "string",
+          "description": "IP地址对应的端口ID。"
+        },
+        "network_tags": {
+          "type": "array",
+          "description": "网络标签。",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "网卡信息。"
+    },
+    "addresses": {
+      "type": "object",
+      "properties": {
+        "network_name": {
+          "type": "array",
+          "description": "虚拟机所有网卡信息。key为网卡名字,value为网卡信息(包含version、addr、OS-EXT-IPS:port_id、OS-EXT-IPS:type、OS-EXT-IPS-MAC:mac_addr、network_tags)。在detail>1或者addresses存在于expect_fields中时返回。",
+          "items": {
+            "$ref": "#/definitions/network"
+          }
+        }
+      },
+      "description": "云服务器对应的网络地址信息。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

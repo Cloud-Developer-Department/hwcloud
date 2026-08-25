@@ -1,0 +1,388 @@
+{
+  "name": "CreateCertificateAuthority",
+  "summary": "创建CA",
+  "tags": "私有CA管理",
+  "productshort": "CCM",
+  "region_id": "ru-moscow-1",
+  "paths": {
+    "/v1/private-certificate-authorities": {
+      "post": {
+        "tags": [
+          "私有CA管理"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "创建CA",
+        "description": "创建CA,分以下三种情况:\n- 创建根CA,根据参数介绍中,填写必选值;\n- 创建从属CA,并需要直接激活该证书,根据参数介绍中,填写必选值;\n- 创建从属CA,不需要直接激活该证书,请求body中只需要缺少此三个参数之一即可:issuer_id、signature_algorithm、validity。",
+        "operationId": "CreateCertificateAuthority",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户token,参见:[IAM token获取方法](https://support.huaweicloud.com/api-iam/iam_30_0001.html)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIePgYJKoZIhvcNAQcCoIIeLzCCHisCAQExDTALBglghkgBZQMEAgEwghxOBgkqhkiG9w0BBwGgghw..."
+          },
+          {
+            "in": "body",
+            "name": "CreateCertificateAuthorityRequestBody",
+            "description": "CreateCertificateAuthorityRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCertificateAuthorityRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "创建CA证书,请求头中的**X-Auth-Token**字段需要填写token,且该token需要具有本API的访问权限。",
+        "x-request-examples-url-1": "POST https://ccm.cn-north-4.myhuaweicloud.com/v1/private-certificate-authorities",
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/CreateCertificateAuthorityResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "ca_id": "66504812-fedc-414a-9b7c-4c1836398524"
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要鉴权。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "403": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在或资源未找到。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "500": {
+            "description": "服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "PCA.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-1": {
+          "type": "ROOT",
+          "key_algorithm": "RSA4096",
+          "signature_algorithm": "SHA512",
+          "distinguished_name": {
+            "common_name": "demoRootRSA",
+            "country": "CN",
+            "locality": "chengdu",
+            "organization": "HW",
+            "organizational_unit": "dew",
+            "state": "sichuan"
+          },
+          "validity": {
+            "type": "YEAR",
+            "value": 3
+          },
+          "crl_configuration": {
+            "enabled": false,
+            "obs_bucket_name": "demoBucket",
+            "valid_days": 8
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "HsmClusterInfo": {
+      "type": "object",
+      "required": [
+        "hsm_project",
+        "hsm_cluster_id",
+        "hsm_ca_cert"
+      ],
+      "properties": {
+        "hsm_project": {
+          "type": "string",
+          "description": "项目信息",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "hsm_cluster_id": {
+          "type": "string",
+          "description": "加密机集群标识符",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "hsm_ca_cert": {
+          "type": "string",
+          "description": "pem格式证书base64之后的字符串",
+          "minLength": 1,
+          "maxLength": 32768
+        }
+      }
+    },
+    "DistinguishedName": {
+      "type": "object",
+      "required": [
+        "common_name",
+        "country",
+        "state",
+        "locality",
+        "organization",
+        "organizational_unit"
+      ],
+      "properties": {
+        "common_name": {
+          "type": "string",
+          "description": "证书通用名称(CN),名称只能由\"-\"、\"_\"、\" \"、\".\"、\",\"、\"*\"、字母、数字、汉字组成,长度不能超过64位字符。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "country": {
+          "type": "string",
+          "description": "国家编码,只能由英文组成,长度为2位字符。",
+          "minLength": 2,
+          "maxLength": 2
+        },
+        "state": {
+          "type": "string",
+          "description": "省市名称,名称只能由\"-\"、\"_\"、\" \"、\".\"、\",\"、字母、数字、汉字组成,长度不能超过128位字符。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "locality": {
+          "type": "string",
+          "description": "地区名称,名称只能由\"-\"、\"_\"、\" \"、\".\"、\",\"、字母、数字、汉字组成,长度不能超过128位字符。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "organization": {
+          "type": "string",
+          "description": "组织名称,名称只能由\"-\"、\"_\"、\" \"、\".\"、\",\"、字母、数字、汉字组成,长度不能超过64位字符。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "organizational_unit": {
+          "type": "string",
+          "description": "组织单元名称,名称只能由\"-\"、\"_\"、\" \"、\".\"、\",\"、字母、数字、汉字组成,长度不能超过64位字符。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "title": "DistinguishedName"
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息。"
+        }
+      },
+      "title": "Error"
+    },
+    "CrlConfiguration": {
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用CRL发布功能。\n- **true**\n- **false**"
+        },
+        "crl_name": {
+          "type": "string",
+          "description": "吊销列表文件名称。\n> 若用户不指定,系统将默认采用当前证书的父CA ID。"
+        },
+        "obs_bucket_name": {
+          "type": "string",
+          "description": "OBS桶名称。\n> 当需要启用CRL发布功能:\n> - 此参数为必填项,且用户必须已创建委托授权,授予PCA服务对OBS的相关权限,具体参见本文档:**证书吊销处理>查看是否具有委托权限**、**证书吊销处理>创建委托**;\n> - 指定的OBS桶必须存在,否则将报错。"
+        },
+        "valid_days": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 7,
+          "maximum": 30,
+          "description": "CRL更新周期,单位为\"天\"。当启用CRL发布功能,为必填项。"
+        }
+      },
+      "title": "CrlConfiguration"
+    },
+    "CreateCertificateAuthorityResponseBody": {
+      "required": [
+        "ca_id"
+      ],
+      "properties": {
+        "ca_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "当前签发的CA证书ID。"
+        }
+      },
+      "title": "CreateCertificateAuthorityResponseBody"
+    },
+    "Validity": {
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "有效期类型,为必填值:\n  - **YEAR** : 年(12个月)\n  - **MONTH** : 月(统一按31天)\n  - **DAY** : 日\n  - **HOUR** : 小时"
+        },
+        "value": {
+          "type": "integer",
+          "format": "int32",
+          "description": "证书有效期值,与type对应的类型值,换算成年需满足以下规则:\n  - 根CA,有效期小于等于30年;\n  - 从属CA与私有证书,有效期小于等于20年。"
+        },
+        "start_from": {
+          "type": "integer",
+          "format": "int32",
+          "description": "起始时间,为可选值:\n  - 格式为时间戳(毫秒级),如1645146939688代表2022-02-18 09:15:39;\n  - 不早于当前时间5分钟,即start_from > (current_time - 5min)。"
+        }
+      },
+      "title": "Validity"
+    },
+    "CreateCertificateAuthorityRequestBody": {
+      "type": "object",
+      "required": [
+        "type",
+        "key_algorithm",
+        "distinguished_name"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "创建的CA类型。\n- **ROOT** : 根CA\n- **SUBORDINATE** : 从属CA"
+        },
+        "distinguished_name": {
+          "description": "证书名称配置,详情请参见**DistinguishedName**字段数据结构说明。",
+          "$ref": "#/definitions/DistinguishedName"
+        },
+        "key_algorithm": {
+          "type": "string",
+          "description": "密钥算法,可选值如下:\n  - **RSA2048** : RSA算法,密钥长度2048位;\n  - **RSA4096** : RSA算法,密钥长度4096位;\n  - **EC256** : 椭圆曲线算法(Elliptic Curve Digital Signature Algorithm (ECDSA)),密钥长度256位;\n  - **EC384** : 椭圆曲线算法(Elliptic Curve Digital Signature Algorithm (ECDSA)),密钥长度384位;\n  - **SM2** : 国家密码管理局颁发的椭圆曲线算法(签名哈希算法SM3),密钥长度256位。(中国站)"
+        },
+        "validity": {
+          "description": "证书有效期,分以下三种情况:\n- 创建根CA,为必填值;\n- 创建从属CA,并需要直接激活该证书,为必填值;\n- 创建从属CA,不需要直接激活该证书,本参数值将被忽略,激活证书时需要再次传入。\n> 详情请参见**Validity**字段数据结构说明。",
+          "$ref": "#/definitions/Validity"
+        },
+        "issuer_id": {
+          "type": "string",
+          "description": "父CA证书ID,分以下三种情况:\n  - 创建根CA,根CA为自签名证书,无父CA,将忽略该参数;\n  - 创建从属CA,并需要直接激活该证书,为必填值;\n  - 创建从属CA,不需要直接激活该证书,本参数值将被忽略,激活证书时需要再次传入。",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "path_length": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 6,
+          "description": "CA证书路径长度,分以下三种情况:\n  - 创建根CA,为便于后期对证书层级的扩展,根CA默认不对路径长度做限制,故将忽略该参数。证书层级规划可由从属CA做限制;\n  - 创建从属CA,并需要直接激活该证书,用户可自定义。缺省值为0;\n  - 创建从属CA,不需要直接激活该证书,本参数值将被忽略。激活证书时若要自定义,需要再次传入;"
+        },
+        "signature_algorithm": {
+          "type": "string",
+          "description": "签名哈希算法。\n- 分以下三种情况:\n  - 创建根CA,为必填值;\n  - 创建从属CA,并需要直接激活该证书,为必填值;\n  - 创建从属CA,不需要直接激活该证书,本参数值将被忽略,激活证书时需要再次传入。\n- 可选值如下:\n  - **SHA256**\n  - **SHA384**\n  - **SHA512**\n  - **SM3**(中国站,密钥算法SM2)"
+        },
+        "key_usages": {
+          "type": "array",
+          "description": "密钥用法,具体标准参见RFC 5280中:[4.2.1.3节](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.3)。\n  - **digitalSignature** : 数字签名;\n  - **nonRepudiation** : 不可抵赖;\n  - **keyEncipherment** : 密钥用于加密密钥数据;\n  - **dataEncipherment** : 用于加密数据;\n  - **keyAgreement** : 密钥协商;\n  - **keyCertSign** : 签发证书;\n  - **cRLSign** : 签发吊销列表;\n  - **encipherOnly** : 仅用于加密;\n  - **decipherOnly** : 仅用于解密。\n> 缺省值如下:\n> - 根CA证书:默认为**[digitalSignature,keyCertSign,cRLSign]**,忽略用户传入值;\n> - 从属CA证书:默认为**[digitalSignature,keyCertSign,cRLSign]**,支持用户自定义。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "crl_configuration": {
+          "$ref": "#/definitions/CrlConfiguration",
+          "description": "证书CRL配置,详情请参见**CrlConfiguration**字段数据结构说明。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业多项目ID。用户未开通企业多项目时,不需要输入该字段。 用户开通企业多项目时,查询资源可以输入该字段。 若用户不输入该字段,默认查询租户所有有权限的企业多项目下的资源。 此时“enterprise_project_id”取值为“all”。 若用户输入该字段,取值满足以下任一条件.\n  取值为“all”\n  取值为“0”\n  满足正则匹配:“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”"
+        },
+        "ca_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "CA证书ID。如果为空,则创建按需CA;如果不为空,则保存包周期CA信息。"
+        },
+        "hsm_cluster_info": {
+          "$ref": "#/definitions/HsmClusterInfo",
+          "description": "加密机集群信息,详情请参见**HsmClusterInfo**字段数据结构说明:\n- 白名单内用户才可以选择此方式对ca进行加密"
+        }
+      },
+      "title": "CreateCertificateAuthorityRequestBody"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ccm.ru-moscow-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

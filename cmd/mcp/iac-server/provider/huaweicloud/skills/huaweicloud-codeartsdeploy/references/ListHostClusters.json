@@ -1,0 +1,295 @@
+{
+  "name": "ListHostClusters",
+  "summary": "查询主机集群列表",
+  "tags": "主机集群管理",
+  "productshort": "CodeArtsDeploy",
+  "region_id": "la-north-2",
+  "paths": {
+    "/v1/resources/host-groups": {
+      "get": {
+        "x-request-examples-url-1": "https://{endpoint}/v1/resources/host-groups?project_id=5d091b14d7f54a139db644092fdc415c&page_index=1&page_size=10&sort_field=name&sort_type=ASC",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "hosts-group-controller-v2"
+        ],
+        "summary": "查询主机集群列表",
+        "description": "按条件查询主机集群列表。",
+        "operationId": "ListHostClusters",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "description": "项目id",
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "主机集群模糊查询信息",
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1
+          },
+          {
+            "name": "os",
+            "in": "query",
+            "required": false,
+            "description": "操作系统:windows|linux",
+            "type": "string",
+            "enum": [
+              "windows",
+              "linux"
+            ]
+          },
+          {
+            "name": "page_index",
+            "in": "query",
+            "required": false,
+            "description": "页码数",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "description": "每页显示的条目数量,默认为10",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          {
+            "name": "sort_field",
+            "in": "query",
+            "required": false,
+            "description": "排序字段:nick_name|name|owner_name|create_time,不传使用默认排序",
+            "type": "string",
+            "pattern": "^(nick_name|name|owner_name|create_time)$"
+          },
+          {
+            "name": "sort_type",
+            "in": "query",
+            "required": false,
+            "description": "排序方式:DESC、ASC,默认为DESC",
+            "type": "string",
+            "enum": [
+              "DESC",
+              "ASC"
+            ]
+          },
+          {
+            "name": "is_proxy_mode",
+            "in": "query",
+            "required": false,
+            "description": "是否为代理机",
+            "type": "integer"
+          },
+          {
+            "name": "slave_cluster_id",
+            "in": "query",
+            "required": false,
+            "description": "自定义资源池id",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK 请求响应成功",
+            "schema": {
+              "$ref": "#/definitions/HostClusterListResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "status": "success",
+                "total": 1,
+                "result": [
+                  {
+                    "name": "testwyk",
+                    "description": "11122211",
+                    "os": "linux",
+                    "nick_name": "AB边账号",
+                    "id": "ab7647b0863c4e969c8949d38d591339",
+                    "project_id": "6039d4480efc4dddb178abff98719913",
+                    "permission": {
+                      "can_view": true,
+                      "can_edit": true,
+                      "can_delete": true,
+                      "can_add_host": true,
+                      "can_manage": true,
+                      "can_copy": true
+                    },
+                    "host_count": 1,
+                    "env_count": 1,
+                    "is_proxy_mode": 1,
+                    "slave_cluster_id": ""
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "HostClusterListResponseBody": {
+      "description": "主机集群列表响应body体",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "请求成功失败状态"
+        },
+        "total": {
+          "type": "integer",
+          "description": "主机集群个数",
+          "format": "int32",
+          "maximum": 1000,
+          "minimum": 0
+        },
+        "result": {
+          "description": "主机集群详情响应体",
+          "items": {
+            "$ref": "#/definitions/HostClusterInfo"
+          },
+          "type": "array",
+          "maxItems": 1000,
+          "minItems": 0
+        }
+      }
+    },
+    "HostClusterInfo": {
+      "description": "主机集群信息",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "主机集群id",
+          "example": "ab7647b0863c4e969c8949d38d591339",
+          "maxLength": 32,
+          "minLength": 32,
+          "pattern": "^[0-9A-Za-z]{32}$"
+        },
+        "host_count": {
+          "type": "integer",
+          "description": "集群内主机数量,一个主机集群内最多可添加200台主机",
+          "format": "int32",
+          "maximum": 200,
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "description": "主机集群名"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "项目id"
+        },
+        "os": {
+          "type": "string",
+          "description": "操作系统:windows|linux"
+        },
+        "slave_cluster_id": {
+          "type": "string",
+          "description": "slave集群id,默认为null时使用默认slave集群,用户自定义slave时为slave集群id"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述",
+          "minLength": 0,
+          "maxLength": 500
+        },
+        "permission": {
+          "$ref": "#/definitions/PermissionClusterDetail"
+        },
+        "nick_name": {
+          "type": "string",
+          "description": "创建人名称"
+        },
+        "env_count": {
+          "type": "integer",
+          "description": "环境数量"
+        },
+        "is_proxy_mode": {
+          "type": "integer",
+          "description": "主机集群是否为代理机接入模式, 1:是 0:否",
+          "example": 1,
+          "enum": [
+            0,
+            1
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "PermissionClusterDetail": {
+      "description": "主机集群相关权限详情类",
+      "properties": {
+        "can_view": {
+          "type": "boolean",
+          "description": "是否有查看权限"
+        },
+        "can_edit": {
+          "type": "boolean",
+          "description": "是否有编辑权限"
+        },
+        "can_delete": {
+          "type": "boolean",
+          "description": "是否有删除权限"
+        },
+        "can_add_host": {
+          "type": "boolean",
+          "description": "是否有添加主机权限"
+        },
+        "can_manage": {
+          "type": "boolean",
+          "description": "是否有编辑主机集群权限矩阵的权限"
+        },
+        "can_copy": {
+          "type": "boolean",
+          "description": "是否有复制主机权限"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+      "maxLength": 20000,
+      "minLength": 0,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "codearts-deploy.la-north-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

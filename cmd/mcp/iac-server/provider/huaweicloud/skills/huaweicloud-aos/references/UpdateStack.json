@@ -1,0 +1,313 @@
+{
+  "name": "UpdateStack",
+  "summary": "更新资源栈",
+  "tags": "资源编排-资源栈",
+  "productshort": "AOS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}": {
+      "patch": {
+        "tags": [
+          "Stack"
+        ],
+        "summary": "更新资源栈",
+        "description": "更新资源栈(UpdateStack)\n\n更新资源栈的属性,该API可以根据用户给予的信息对资源栈的属性进行更新,可以更新资源栈的“description”、“enable_deletion_protection”、\"enable_auto_rollback\"、\"agencies\"四个属性中的一个或多个\n\n该API只会更新用户给予的信息中所涉及的字段;如果某字段未给予,则不会对该资源栈属性进行更新\n\n注:所有属性的更新都是覆盖式更新。即,所给予的参数将被完全覆盖至资源栈已有的属性上\n\n例如,如果要新增agencies,请通过GetStackMetadata获取该资源栈原有的agencies信息,将新旧agencies信息进行整合后再调用UpdateStack\n\n* 如果资源栈状态处于非终态(状态以`IN_PROGRESS`结尾)状态时,则不允许更新。包括但不限于以下状态:\n  * 正在部署(DEPLOYMENT_IN_PROGRESS)\n  * 正在删除(DELETION_IN_PROGRESS)\n  * 正在回滚(ROLLBACK_IN_PROGRESS)\n\n* 对于“enable_auto_rollback”属性从false到true的更新操作,资源栈状态判定将更加严格,在失败(状态以`_FAILED`结尾)状态时也不允许更新,包括但不限于以下状态:\n  * 部署失败(DEPLOYMENT_FAILED)\n  * 回滚失败(ROLLBACK_FAILED)\n  * 删除失败(DELETION_FAILED)",
+        "operationId": "UpdateStack",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "in": "body",
+            "name": "UpdateStackRequestBody",
+            "description": "UpdateStack API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateStackRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "更新成功"
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 资源栈状态非法,不允许更新\n2. 用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源栈不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "更新冲突,另一个请求正在操作此资源栈",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "PATCH https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack",
+        "x-request-examples-description-1": "更新资源栈的描述信息",
+        "x-request-examples-1": {
+          "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+          "description": "my hello world stack"
+        },
+        "x-request-examples-url-2": "PATCH https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack",
+        "x-request-examples-description-2": "关闭资源栈的删除保护和自动回滚",
+        "x-request-examples-2": {
+          "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+          "enable_deletion_protection": false,
+          "enable_auto_rollback": false
+        },
+        "x-request-examples-url-3": "PATCH https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack",
+        "x-request-examples-description-3": "更新资源栈中的委托信息",
+        "x-request-examples-3": {
+          "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+          "agencies": {
+            "provider_name": "my_hello_world_provider",
+            "agency_name": "my_agency"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StackIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_id": {
+          "type": "string",
+          "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400"
+        }
+      },
+      "example": {
+        "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "UpdateStackRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StackDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/EnableDeletionProtectionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/EnableAutoRollbackPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/AgenciesPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "EnableDeletionProtectionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "enable_deletion_protection": {
+          "type": "boolean",
+          "description": "删除保护的标识位,如果不传默认为false,即默认不开启资源栈删除保护(删除保护开启后资源栈不允许被删除)\n\n在UpdateStack API中,如果该参数未在RequestBody中给予,则不会对资源栈的删除保护属性进行更新",
+          "x-omitempty": false,
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "enable_deletion_protection": false
+      }
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "EnableAutoRollbackPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "enable_auto_rollback": {
+          "type": "boolean",
+          "description": "自动回滚的标识位,如果不传默认为false,即默认不开启资源栈自动回滚(自动回滚开启后,如果部署失败,则会自动回滚,并返回上一个稳定状态)\n\n在UpdateStack API中,如果该参数未在RequestBody中给予,则不会对资源栈的自动回滚属性进行更新\n该属性与使用模板导入资源功能互斥,如果资源栈的自动回滚设置为true,则不允许部署包含导入资源的模板",
+          "x-omitempty": false,
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "enable_auto_rollback": false
+      }
+    },
+    "AgenciesPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "agencies": {
+          "type": "array",
+          "description": "委托授权的信息。\n\nRFS仅在创建资源栈(触发部署)、创建执行计划、部署资源栈、删除资源栈等涉及资源操作的请求中使用委托,且该委托仅作用于与之绑定的Provider对资源的操作中。如果委托中提供的权限不足,有可能导致相关资源操作失败。\n\n[创建委托及授权方式](https://support.huaweicloud.com/usermanual-iam/iam_06_0002.html)",
+          "items": {
+            "$ref": "#/definitions/Agency"
+          },
+          "maxItems": 10,
+          "minItems": 0,
+          "x-omitempty": true
+        }
+      },
+      "example": {
+        "agencies": [
+          {
+            "provider_name": "huaweicloud",
+            "agency_name": "my_agency"
+          }
+        ]
+      }
+    },
+    "StackDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "资源栈的描述。可用于客户识别自己的资源栈。",
+          "minLength": 0,
+          "maxLength": 1024,
+          "x-omitempty": true
+        }
+      },
+      "example": {
+        "description": "My First Hello World Stack"
+      }
+    },
+    "Agency": {
+      "type": "object",
+      "required": [
+        "provider_name"
+      ],
+      "properties": {
+        "provider_name": {
+          "type": "string",
+          "description": "用户使用的provider的名字。如果用户给予的provider_name含有重复的值,则返回400",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "对应provider所使用的IAM委托名称,资源编排服务会使用此委托的权限去访问、创建对应provider的资源。agency_name和agency_urn必须有且只有一个存在",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-omitempty": true,
+          "x-isnullable": true
+        },
+        "agency_urn": {
+          "type": "string",
+          "description": "委托URN\n\n当用户定义Agency时,agency_name和agency_urn 必须有且只有一个存在。\n\n推荐用户在使用信任委托时给予agency_urn。",
+          "pattern": "^(iam:\\*?:[A-Za-z0-9-]{1,64}:agency:.{1,64})?$",
+          "x-omitempty": true,
+          "x-isnullable": true
+        }
+      },
+      "description": "委托授权的信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "patch",
+  "uri": null
+}

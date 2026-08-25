@@ -1,0 +1,340 @@
+{
+  "name": "GetScript",
+  "summary": "获取自定义脚本详情",
+  "tags": "ScriptManagement",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/job/scripts/{script_uuid}": {
+      "get": {
+        "tags": [
+          "ScriptManagement"
+        ],
+        "summary": "获取自定义脚本详情",
+        "description": "获取脚本详情\n约束条件:\n只能查询自定义脚本详情",
+        "operationId": "GetScript",
+        "parameters": [
+          {
+            "name": "script_uuid",
+            "in": "path",
+            "description": "脚本UUID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "国际化标记,zh-cn表示中文,en-us或不传表示英文",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-project-id",
+            "in": "header",
+            "description": "项目ID,一个项目对应一个region",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-user-profile",
+            "in": "header",
+            "description": "IAM5.0用户信息",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "脚本详情",
+            "schema": {
+              "$ref": "#/definitions/ShowScriptDetailRes"
+            }
+          }
+        },
+        "x-apiexplorer-hide": false,
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-order": 5
+      }
+    }
+  },
+  "definitions": {
+    "ShowScriptDetailRes": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "description": "自定义脚本的详细数据",
+          "$ref": "#/definitions/ScriptDetailModel"
+        }
+      },
+      "description": "查看自定义脚本详情的返回体"
+    },
+    "ScriptPropertiesModel": {
+      "type": "object",
+      "required": [
+        "risk_level",
+        "version"
+      ],
+      "properties": {
+        "risk_level": {
+          "type": "string",
+          "example": "LOW",
+          "description": "风险等级\nLOW:低风险\nMEDIUM:中风险\nHIGH:高风险",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "example": "v1.0.0",
+          "description": "脚本版本号",
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "reviewers": {
+          "type": "array",
+          "description": "审批人,不填写不需要审批",
+          "items": {
+            "$ref": "#/definitions/ReviewerInfo"
+          },
+          "maxItems": 5,
+          "minItems": 0,
+          "x-internal": "false"
+        },
+        "protocol": {
+          "type": "string",
+          "example": "WECHAT",
+          "description": "审批消息通知协议,用于通知审批人\nDEFAULT:默认\nSMS:短信\nEMAIL:邮件\nDING_TALK:钉钉\nWE_LINK:welink\nWECHAT:微信\nCALLNOTIFY:语言\nNOT_TO_NOTIFY:不通知",
+          "enum": [
+            "DEFAULT",
+            "SMS",
+            "EMAIL",
+            "DING_TALK",
+            "WE_LINK",
+            "WECHAT",
+            "CALLNOTIFY",
+            "NOT_TO_NOTIFY"
+          ],
+          "x-internal": false
+        }
+      },
+      "description": "脚本标签:风险等级risk_level(取值范围:LOW/MEDIUM/HIGH)、审批人reviewer、脚本解释器interpreter等"
+    },
+    "ReviewerInfo": {
+      "type": "object",
+      "required": [
+        "reviewer_id",
+        "reviewer_name"
+      ],
+      "properties": {
+        "reviewer_name": {
+          "type": "string",
+          "example": "test",
+          "description": "审批人名称(IAM用户名)",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "reviewer_id": {
+          "type": "string",
+          "example": "e99a6f27cfe7497084ac9c07bfa573d7",
+          "description": "审批人ID(IAM用户Id)",
+          "minLength": 0,
+          "maxLength": 32
+        }
+      },
+      "description": "审批人信息"
+    },
+    "ScriptParamDefine": {
+      "type": "object",
+      "required": [
+        "param_description",
+        "param_name",
+        "param_value",
+        "param_order",
+        "sensitive"
+      ],
+      "properties": {
+        "param_name": {
+          "type": "string",
+          "example": "value",
+          "description": "参数名仅支持字母、数字以及下划线",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "param_value": {
+          "type": "string",
+          "example": "test",
+          "description": "1.参数长度为1-4096位\n2.可以包含大写字母、小写字母、数字及特殊字符(_-/.* ?:\",=+@#\\[{]})\n3.禁止出现连续'.'",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "param_description": {
+          "type": "string",
+          "example": "测试参数",
+          "description": "参数描述",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "param_order": {
+          "type": "integer",
+          "format": "int32",
+          "description": "该参数已废弃,传入该参数不会生效。"
+        },
+        "sensitive": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否是敏感参数"
+        }
+      },
+      "description": "顺序参数,没有参数名字段\n参数顺序,从1开始,不连续会报错\n\napi层用不同的vo对象接收,管理面没有order字段。service层统一处理差异\n\n拼接:sh xxx.sh  'aaa' 'a' 'b'\n执行时值为空:sh xxx.sh  '' 'a' 'b'"
+    },
+    "ScriptDetailModel": {
+      "type": "object",
+      "required": [
+        "content",
+        "creator",
+        "creator_id",
+        "description",
+        "gmt_created",
+        "name",
+        "properties",
+        "script_uuid",
+        "status",
+        "type"
+      ],
+      "properties": {
+        "script_uuid": {
+          "type": "string",
+          "example": "SC2023083111030804153ddb7",
+          "description": "脚本uuid",
+          "minLength": 1,
+          "maxLength": 25
+        },
+        "name": {
+          "type": "string",
+          "example": "testEcho",
+          "description": "脚本名称",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "version": {
+          "type": "string",
+          "example": "v1.0.1",
+          "description": "脚本版本号\n约束条件 \n后期废除,不建议使用",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "description": {
+          "type": "string",
+          "example": "测试echo",
+          "description": "脚本描述",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "type": {
+          "type": "string",
+          "example": "SHELL",
+          "description": "脚本类型\nSHELL:shell脚本,\nPYTHON:Python脚本,\nBAT:Bat脚本,",
+          "enum": [
+            "SHELL",
+            "PYTHON",
+            "BAT"
+          ]
+        },
+        "content": {
+          "type": "string",
+          "example": "echo \"aaa\"",
+          "description": "脚本内容",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "script_params": {
+          "type": "array",
+          "description": "脚本入参",
+          "items": {
+            "$ref": "#/definitions/ScriptParamDefine"
+          },
+          "maxItems": 20,
+          "minItems": 0
+        },
+        "status": {
+          "type": "string",
+          "example": "APPROVED",
+          "description": "脚本状态\nPENDING_APPROVE:待审批\nAPPROVED:正常(审批通过)\nREJECTED:驳回(审批人,驳回该脚本)",
+          "enum": [
+            "PENDING_APPROVE",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "gmt_created": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1686059454716,
+          "description": "创建时间",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "gmt_modified": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1686059454716,
+          "description": "修改时间",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "creator": {
+          "type": "string",
+          "example": "testUser",
+          "description": "创建人",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "creator_id": {
+          "type": "string",
+          "example": "9fec03ee5b1040818b91bef6e16213dd",
+          "description": "创建人Id",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "operator": {
+          "type": "string",
+          "example": "operator",
+          "description": "修改人",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "properties": {
+          "description": "脚本标签:风险等级risk_level(取值范围:LOW/MEDIUM/HIGH)、审批人reviewer、脚本解释器interpreter等",
+          "$ref": "#/definitions/ScriptPropertiesModel"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "example": "0",
+          "description": "企业项目id"
+        }
+      },
+      "description": "脚本详情"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

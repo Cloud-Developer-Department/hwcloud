@@ -1,0 +1,264 @@
+{
+  "name": "CreateOrders",
+  "summary": "创建订单",
+  "tags": "购买商品",
+  "productshort": "Marketplace",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/api/mkp-openapi-public/global/v1/order/batch-order": {
+      "post": {
+        "tags": [
+          "购买商品"
+        ],
+        "summary": "创建订单",
+        "description": "创建订单",
+        "x-order": 2,
+        "operationId": "CreateOrders",
+        "consumes": [
+          "application/json",
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "name": "X-Service-Transaction-ID",
+            "in": "header",
+            "required": true,
+            "description": "事务id,Header中的业务幂等性参数,用于幂等操作",
+            "type": "string"
+          },
+          {
+            "name": "param",
+            "in": "body",
+            "required": true,
+            "description": "批量下单参数",
+            "schema": {
+              "$ref": "#/definitions/BatchCreateOrderOpenApiRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "正常请求成功",
+            "schema": {
+              "$ref": "#/definitions/BatchCreateOrderOpenApiResp"
+            }
+          },
+          "400": {
+            "description": "请求参数有误"
+          },
+          "401": {
+            "description": "权限不足"
+          },
+          "500": {
+            "description": "服务器错误"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "OfferingInfoV2OpenApi": {
+      "description": "批量下单接口商品信息",
+      "required": [
+        "offering_id"
+      ],
+      "properties": {
+        "offering_id": {
+          "type": "string",
+          "description": "商品id",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "linear_attr": {
+          "description": "线性属性",
+          "$ref": "#/definitions/LinearAttributeOpenApi"
+        },
+        "cycle_type": {
+          "type": "string",
+          "description": "charging_mode=1(包周期)时必填\n周期类型\n“year”:年\n“month”:月\n“day”:日",
+          "minLength": 0,
+          "maxLength": 20
+        },
+        "cycle_number": {
+          "type": "integer",
+          "format": "int32",
+          "description": "周期数量"
+        },
+        "extend_params": {
+          "type": "string",
+          "description": "JSON字符串,扩展参数",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "AgreementParamOpenApi": {
+      "description": "协议参数",
+      "required": [
+        "id",
+        "verion"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "协议id",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "verion": {
+          "type": "string",
+          "description": "协议版本",
+          "minLength": 1,
+          "maxLength": 20
+        }
+      }
+    },
+    "BatchCreateOrderOpenApiRequest": {
+      "description": "批量下单接口参数",
+      "required": [
+        "order_infos"
+      ],
+      "properties": {
+        "order_infos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderInfoV2OpenApi"
+          },
+          "description": "OrderInfo 数组",
+          "minItems": 1,
+          "maxItems": 30
+        }
+      },
+      "type": "object"
+    },
+    "BatchCreateOrderOpenApiResp": {
+      "description": "订单批量下单结果返回",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "返回码",
+          "maxLength": 16,
+          "minLength": 0
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "返回描述",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderResultOpenApi"
+          },
+          "description": "订购的订单结果信息列表"
+        }
+      }
+    },
+    "LinearAttributeOpenApi": {
+      "description": "线性属性",
+      "properties": {
+        "value": {
+          "description": "线性属性值",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9999999
+        },
+        "measure_id": {
+          "description": "度量单位id",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "OrderResultOpenApi": {
+      "description": "订单结果",
+      "properties": {
+        "order_id": {
+          "description": "订单id",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "request_id": {
+          "description": "请求id",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "OrderInfoV2OpenApi": {
+      "description": "创建订单请求参数",
+      "required": [
+        "offering_infos",
+        "request_id",
+        "order_type",
+        "agreement_params"
+      ],
+      "properties": {
+        "offering_infos": {
+          "type": "array",
+          "description": "订购的商品信息列表",
+          "maxItems": 100,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/OfferingInfoV2OpenApi"
+          }
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求id",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "order_type": {
+          "description": "new:购买新商品",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "auto_renew": {
+          "description": "是否自动续费:\n0:否\n1:是",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15
+        },
+        "auto_pay": {
+          "description": "是否自动支付:\nYES:是\nNO:否\n默认值为“NO”。",
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO"
+          ]
+        },
+        "agreement_params": {
+          "description": "下单待签署协议列表",
+          "type": "array",
+          "maxItems": 99,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/AgreementParamOpenApi"
+          }
+        },
+        "extend_params": {
+          "description": "JSON字符串,扩展参数",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mkp-api-cn.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

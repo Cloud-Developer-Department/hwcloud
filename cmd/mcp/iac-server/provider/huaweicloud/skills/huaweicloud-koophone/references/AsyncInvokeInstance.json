@@ -1,0 +1,201 @@
+{
+  "name": "AsyncInvokeInstance",
+  "summary": "实例执行异步命令",
+  "tags": "实例管理",
+  "productshort": "KooPhone",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/instances/async-command": {
+      "post": {
+        "x-request-examples-url-1": "/v1/instances/async-command",
+        "x-request-examples-text-1": {
+          "command": "ls -l /system",
+          "instance_ids": [
+            "a44uhlf7",
+            "efjy72gs"
+          ]
+        },
+        "x-request-examples-1": {
+          "command": "ls -l /system",
+          "instance_ids": [
+            "a44uhlf7",
+            "efjy72gs"
+          ]
+        },
+        "tags": [
+          "实例管理"
+        ],
+        "operationId": "AsyncInvokeInstance",
+        "summary": "实例执行异步命令",
+        "description": "实例执行异步命令接口。\n调用此api的前提条件是租户需要先购买koophone云手机实例。\n可以通过调用该接口实现对自己的koophone云手机实例进行异步adb指令操作。\n调用完该接口后携带该接口返回的task_id去调用实例执行任务查询接口。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "InstanceAsyncCommandsReq",
+            "description": "执行异步命令请求",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InstanceAsyncCommandsReq"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "租户级Token",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常响应",
+            "schema": {
+              "$ref": "#/definitions/InstanceAsyncCommandsRsp"
+            },
+            "examples": {
+              "application/json": {
+                "data": {
+                  "task_id": "6837531fd3f54550927b930180a706bf",
+                  "cmd_jobs": [
+                    {
+                      "instance_id": "a44uhlf7",
+                      "job_id": "1564567b8bab40f34711234cb80d0123"
+                    },
+                    {
+                      "instance_id": "efjy72gs",
+                      "job_id": "1564567b8bab40f34711234cb80d0456"
+                    }
+                  ]
+                },
+                "error_code": "0",
+                "error_msg": "ok"
+              }
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorInfo"
+            }
+          },
+          "500": {
+            "description": "内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "InstanceAsyncCommandsReq": {
+      "description": "执行异步命令请求",
+      "required": [
+        "command",
+        "instance_ids"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "命令,最大长度为1024字节,只支持大小写字母、数字、下划线(_)、点(.)、斜线(/)、冒号(:)、中划线(-)。",
+          "maxLength": 1024
+        },
+        "instance_ids": {
+          "type": "array",
+          "description": "实例列表",
+          "maxItems": 100,
+          "items": {
+            "maxLength": 32,
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ErrorInfo": {
+      "description": "响应结果",
+      "required": [
+        "error_code"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码,KOOPHONE.API.0001,数字递增"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应描述"
+        }
+      },
+      "type": "object"
+    },
+    "InstanceAsyncCommandsRsp": {
+      "description": "执行异步命令响应",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码,错误码规范KooPhone.API.1001,数字递增"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应描述"
+        },
+        "data": {
+          "description": "响应内容",
+          "$ref": "#/definitions/InstanceAsyncCommandsInfo"
+        }
+      },
+      "type": "object"
+    },
+    "CmdJob": {
+      "description": "命令任务",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "实例列表",
+          "maxLength": 32
+        },
+        "job_id": {
+          "type": "string",
+          "description": "异步命令任务id"
+        }
+      },
+      "type": "object"
+    },
+    "InstanceAsyncCommandsInfo": {
+      "description": "执行异步命令响应",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务id",
+          "maxLength": 32
+        },
+        "cmd_jobs": {
+          "type": "array",
+          "description": "响应任务列表",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/CmdJob"
+          }
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koophone.myhuaweicloud.com",
+  "base_path": "/v1",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

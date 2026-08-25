@@ -1,0 +1,237 @@
+{
+  "name": "ListSecurityDatasourceActions",
+  "summary": "查询数据操作信息",
+  "tags": "权限管理接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/security/permission-sets/datasource/actions": {
+      "get": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "权限管理接口"
+        ],
+        "summary": "查询数据操作信息",
+        "description": "查询数据操作信息",
+        "operationId": "ListSecurityDatasourceActions",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/workspace"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "parent_permission_set_id",
+            "in": "query",
+            "description": "父权限集ID。获取方法请参见[查询权限集列表](ListSecurityPermissionSets.xml)\n注意:\n* 当该值为0时,则所有库表均支持查询\n* 当该值为父权限集ID时,则基于父权限集中的权限查询",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "cluster_id",
+            "in": "query",
+            "description": "集群ID,获取方法请参见[查询单个数据连接信息](ShowDataconnection.xml)\n* 查询Hive和DWS数据源操作信息时该数值为必填项,当数据源为DLI时无需填写",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "datasource_type",
+            "in": "query",
+            "description": "数据源类型\n* HIVE数据源\n* DWS数据源\n* DLI数据源",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "HIVE",
+              "DWS",
+              "DLI"
+            ]
+          },
+          {
+            "name": "database_name",
+            "in": "query",
+            "description": "数据库名\n`注意:该值作为查询关键字时,不能与url同时存在,需要指定其一进行查询`",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "schema_name",
+            "in": "query",
+            "description": "schema名称",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "table_name",
+            "in": "query",
+            "description": "数据表名称",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "column_name",
+            "in": "query",
+            "description": "数据字段名称",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "description": "url路径名称\n`注意:该值作为查询关键字时,不能与database_name同时存在,需要指定其一进行查询`",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65535
+          }
+        ],
+        "x-request-examples-url-1": "/v1/0833a5737480d53b2f25c010dc1a7b88/security/permission-sets/datasource/actions?parent_permission_set_id=0&cluster_id=dc425074-26b3-479c-9e2f-b103c0cdd90f&datasource_type=HIVE&database_name=bigdatatest",
+        "x-request-examples-1": {
+          "parent_permission_set_id": "0",
+          "cluster_id": "dc425074-26b3-479c-9e2f-b103c0cdd90f",
+          "datasource_type": "HIVE",
+          "database_name": "bigdatatest"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ActionsDTO"
+            },
+            "examples": {
+              "application/json": {
+                "permission_actions": [
+                  "ALL",
+                  "SELECT",
+                  "UPDATE",
+                  "CREATE",
+                  "DROP",
+                  "ALTER",
+                  "INDEX",
+                  "READ",
+                  "WRITE"
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DLS.1000",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "process failed",
+          "minLength": 1,
+          "maxLength": 10240
+        }
+      }
+    },
+    "ActionsDTO": {
+      "type": "object",
+      "properties": {
+        "permission_actions": {
+          "type": "array",
+          "description": "权限操作列表",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/PermissionActions"
+          }
+        }
+      }
+    },
+    "PermissionActions": {
+      "type": "string",
+      "description": "HIVE数据源支持权限操作类型:\n  * `ALL` - 所有执行权限\n  * `SELECT` - 查询权限\n  * `UPDATE` - 更新权限\n  * `CREATE` - 创建权限\n  * `DROP` - drop操作权限\n  * `ALTER` - alter操作权限\n  * `INDEX` - 索引操作权限\n  * `READ` - 可读权限\n  * `WRITE` - 可写权限\n\nDLI数据源支持权限操作类型:\n  * `SELECT` - 查询权限\n  * `DROP` - drop操作权限\n  * `ALTER` - alter操作权限\n  * `INSERT` - 插入数据权限\n  * `CREATE_TABLE` - 创建表权限\n\nDWS数据源支持权限操作类型:\n  * `ALL` - 所有执行权限\n  * `SELECT` - 查询权限\n  * `UPDATE` - 更新权限\n  * `DROP` - drop操作权限\n  * `ALTER` - alter操作权限\n  * `INSERT` - 插入数据权限\n  * `CREATE_TABLE` - 创建表权限\n  * `DELETE` - 删除数据权限\n  * `CREATE_SCHEMA` - 创建schema权限",
+      "minItems": 0,
+      "maxItems": 100,
+      "enum": [
+        "ALL",
+        "SELECT",
+        "UPDATE",
+        "CREATE",
+        "DROP",
+        "ALTER",
+        "INDEX",
+        "READ",
+        "WRITE",
+        "INSERT",
+        "CREATE_TABLE",
+        "DELETE",
+        "CREATE_SCHEMA"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "project id",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "token",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10240
+    },
+    "workspace": {
+      "name": "workspace",
+      "in": "header",
+      "description": "DataArts Studio工作空间ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

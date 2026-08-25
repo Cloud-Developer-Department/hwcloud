@@ -1,0 +1,227 @@
+{
+  "name": "RunQueueAction",
+  "summary": "重启/扩容/缩容队列",
+  "tags": "队列相关API",
+  "productshort": "DLI",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/queues/{queue_name}/action": {
+      "put": {
+        "tags": [
+          "队列相关API"
+        ],
+        "summary": "重启/扩容/缩容队列",
+        "description": "该功能用于重新启动队列、扩容队列、缩容队列。",
+        "operationId": "RunQueueAction",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "queue_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-order": 3
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token。",
+            "required": true,
+            "type": "string",
+            "x-order": 2,
+            "x-vision": ""
+          },
+          {
+            "in": "body",
+            "name": "RunQueueActionRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RunQueueActionRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "is_success": true,
+                "message": "Restart success"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RunQueueActionResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "DLI.0008",
+                "error_msg": "There is no queue named test"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "DLI.0015",
+                "error_msg": "Token info for token is null, return."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hws_hk",
+        "x-apiErrorCodes": [
+          {
+            "errorCode": "DLI.0001",
+            "httpStatus": "400",
+            "errorMessage": "Parameter check errors occur.",
+            "errorDescription": "参数校验错误",
+            "solution": "",
+            "errorDescriptionEn": "",
+            "solutionEn": ""
+          },
+          {
+            "errorCode": "DLI.0007",
+            "httpStatus": "400",
+            "errorMessage": "Feature not supported.",
+            "errorDescription": "特性不支持",
+            "solution": "",
+            "errorDescriptionEn": "",
+            "solutionEn": ""
+          },
+          {
+            "errorCode": "DLI.0008",
+            "httpStatus": "400",
+            "errorMessage": "Metadata errors occur.",
+            "errorDescription": "元数据错误",
+            "solution": "",
+            "errorDescriptionEn": "",
+            "solutionEn": ""
+          },
+          {
+            "errorCode": "DLI.0013",
+            "httpStatus": "401",
+            "errorMessage": "User authentication errors occur.",
+            "errorDescription": "用户认证错误",
+            "solution": "",
+            "errorDescriptionEn": "",
+            "solutionEn": ""
+          }
+        ],
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "FailResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息。"
+        }
+      },
+      "type": "object"
+    },
+    "RunQueueActionRequestBody": {
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "example": "restart",
+          "description": "执行动作:restart:重启scale_out:扩容scale_in:缩容,目前只支持restart、scale_out、scale_in。",
+          "x-vision": ""
+        },
+        "force": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否强制重启,action为restart时可选择配置,默认为false。",
+          "default": false,
+          "x-vision": ""
+        },
+        "cu_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "队列的实际CU。",
+          "x-vision": ""
+        }
+      },
+      "type": "object"
+    },
+    "RunQueueActionResponseBody": {
+      "required": [
+        "is_success",
+        "message"
+      ],
+      "properties": {
+        "is_success": {
+          "type": "boolean",
+          "description": "请求执行是否成功。“true”表示请求执行成功。",
+          "x-vision": ""
+        },
+        "message": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,信息可能为空。",
+          "x-vision": ""
+        },
+        "job_id": {
+          "type": "string",
+          "description": "当force为true的时候返回的jobId,可以根据job_id的状态来看最终结果",
+          "x-vision": ""
+        },
+        "queue_name": {
+          "type": "string",
+          "description": "扩缩容的队列名称。",
+          "x-vision": ""
+        },
+        "result": {
+          "type": "boolean",
+          "description": "扩缩容结果",
+          "x-vision": ""
+        }
+      },
+      "description": "修改队列状态响应体",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dli.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

@@ -1,0 +1,449 @@
+{
+  "name": "ListMetrics",
+  "summary": "根据标签聚合、查询指标数据",
+  "tags": "设备存储数据查询",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/data-stores/{data_store_id}/metrics/query": {
+      "post": {
+        "tags": [
+          "DataStoreQuery"
+        ],
+        "summary": "根据标签聚合、查询指标数据",
+        "description": "根据标签聚合、查询数据",
+        "operationId": "ListMetrics",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[-a-zA-Z0-9]{1,128}$"
+          },
+          {
+            "name": "data_store_id",
+            "in": "path",
+            "description": "存储ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[-a-zA-Z0-9]{1,64}$"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户鉴权Token",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "minLength": 1,
+            "x-maxLength": 65535
+          },
+          {
+            "in": "body",
+            "name": "ListMetricsRequestBody",
+            "description": "设备时序聚合查询参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GetMetricsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetMetricsResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99000010",
+                "error_msg": "参数错误"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99000003",
+                "error_msg": "未授权"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99000007",
+                "error_msg": "未开通数据分析服务"
+              },
+              "application/json-2": {
+                "error_code": "IoTA.99000008",
+                "error_msg": "数据分析服务被冻结"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000007",
+              "IoTA.99000008"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99999999",
+                "error_msg": "服务内部错误"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<GetMetricsResponse>",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-externalAPI": "YES",
+        "x-open-for-HCS": "Y",
+        "x-open-for-CLOUD": "Y",
+        "x-iftype": "OpenAPI"
+      }
+    }
+  },
+  "definitions": {
+    "GetMetricsRequest": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "aggregate",
+          "description": "查询类型",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "transform|aggregate"
+        },
+        "transform": {
+          "$ref": "#/definitions/TransformMetrics"
+        },
+        "aggregate": {
+          "$ref": "#/definitions/AggregateMetrics"
+        }
+      },
+      "description": "查询指标请求"
+    },
+    "TimeSpan": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": "string",
+          "example": "2021-02-01T00:00:00.123Z",
+          "description": "起始时间",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "to": {
+          "type": "string",
+          "example": "2021-02-05T20:00:00.100Z",
+          "description": "结束时间",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "description": "起止时间范围"
+    },
+    "TransformMetric": {
+      "type": "object",
+      "required": [
+        "expression",
+        "inputs",
+        "metric_name"
+      ],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "description": "声明属性作为表达式参数",
+          "items": {
+            "$ref": "#/definitions/InputParam"
+          },
+          "maxItems": 3,
+          "minItems": 1
+        },
+        "metric_name": {
+          "type": "string",
+          "example": "temperature_floor",
+          "description": "指标名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_]{1,64}$"
+        },
+        "expression": {
+          "type": "string",
+          "example": "floor(x1)",
+          "description": "表达式",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "description": "查询指标"
+    },
+    "TransformMetrics": {
+      "type": "object",
+      "required": [
+        "metrics",
+        "tags",
+        "time_span"
+      ],
+      "properties": {
+        "time_span": {
+          "$ref": "#/definitions/TimeSpan"
+        },
+        "tags": {
+          "$ref": "#/definitions/TagFilter"
+        },
+        "metrics": {
+          "type": "array",
+          "description": "查询的测量指标列表",
+          "items": {
+            "$ref": "#/definitions/TransformMetric"
+          },
+          "maxItems": 20,
+          "minItems": 1
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "example": 100,
+          "description": "返回值个数限制",
+          "minimum": 1,
+          "maximum": 2000,
+          "default": 100
+        }
+      },
+      "description": "转换计算定义"
+    },
+    "TagFilter": {
+      "type": "object",
+      "description": "对property按指定tags标签进行过滤查询,填入设备标签与标签值,不可为空,例如 {\"deviceId\": \"id0001\"}",
+      "example": {
+        "deviceId": "IA2006300"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "description": "设备标签过滤值"
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "InputParam": {
+      "type": "object",
+      "required": [
+        "name",
+        "property_name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "x1",
+          "description": "参数名称",
+          "pattern": "^[a-zA-Z][a-zA-Z_0-9]{0,31}$"
+        },
+        "property_name": {
+          "type": "string",
+          "example": "prop_1",
+          "description": "属性名称",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$"
+        }
+      },
+      "description": "属性定义为输入参数"
+    },
+    "MetricList": {
+      "type": "object",
+      "properties": {
+        "metric_name": {
+          "type": "string",
+          "description": "metric 名称",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "values": {
+          "type": "array",
+          "description": "计算结果",
+          "items": {
+            "type": "object",
+            "properties": {}
+          },
+          "maxItems": 2000,
+          "minItems": 0
+        }
+      }
+    },
+    "GetMetricsResponse": {
+      "type": "object",
+      "properties": {
+        "timestamps": {
+          "type": "array",
+          "description": "时间序列",
+          "items": {
+            "type": "string",
+            "example": "2021-01-08T02:03:41.907Z"
+          },
+          "maxItems": 2000,
+          "minItems": 0
+        },
+        "metrics": {
+          "type": "array",
+          "description": "查询的测量指标列表",
+          "items": {
+            "$ref": "#/definitions/MetricList"
+          },
+          "maxItems": 20,
+          "minItems": 1
+        }
+      },
+      "description": "聚合与转换查询结果"
+    },
+    "AggregateMetric": {
+      "type": "object",
+      "required": [
+        "expression",
+        "inputs",
+        "metric_name"
+      ],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "description": "声明属性作为表达式参数",
+          "items": {
+            "$ref": "#/definitions/InputParam"
+          },
+          "maxItems": 1,
+          "minItems": 1
+        },
+        "metric_name": {
+          "type": "string",
+          "example": "temperature_avg",
+          "description": "指标名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_]{1,64}$"
+        },
+        "expression": {
+          "type": "string",
+          "example": "avg(x1)",
+          "description": "表达式",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "description": "查询指标"
+    },
+    "AggregateMetrics": {
+      "type": "object",
+      "required": [
+        "metrics",
+        "tags",
+        "time_span"
+      ],
+      "properties": {
+        "time_span": {
+          "$ref": "#/definitions/TimeSpan"
+        },
+        "interval": {
+          "type": "string",
+          "example": "1d|1h|10m|10s",
+          "description": "聚合时间间隔, 示例:\"1d|1h|10m|10s\"",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "offset": {
+          "type": "string",
+          "example": "1h|10m|10s",
+          "description": "聚合时间偏移量, 需要小于interval, 示例: \"1h|10m|10s\"",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "tags": {
+          "$ref": "#/definitions/TagFilter"
+        },
+        "metrics": {
+          "type": "array",
+          "description": "查询的测量指标列表",
+          "items": {
+            "$ref": "#/definitions/AggregateMetric"
+          },
+          "maxItems": 20,
+          "minItems": 1
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "example": 100,
+          "description": "返回值个数限制",
+          "minimum": 1,
+          "maximum": 2000,
+          "default": 100
+        }
+      },
+      "description": "聚合计算定义"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

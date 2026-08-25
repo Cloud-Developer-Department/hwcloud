@@ -1,0 +1,277 @@
+{
+  "name": "RunAddData",
+  "summary": "添加数据",
+  "tags": "添加数据",
+  "productshort": "ImageSearch",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/mms/{service_name}/data/add": {
+      "post": {
+        "tags": [
+          "添加数据"
+        ],
+        "summary": "添加数据",
+        "description": "添加数据到指定服务实例中。",
+        "operationId": "RunAddData",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例所属的项目ID,登陆华为云->用户中心->我的凭证->API凭证,即可查看对应区域的项目ID。",
+            "required": true
+          },
+          {
+            "name": "service_name",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例的名称,用户创建服务实例时指定。",
+            "required": true
+          },
+          {
+            "name": "addDataParam",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AddDataParam"
+            },
+            "description": "添加数据的请求body参数。",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/AddDataResponse"
+            },
+            "description": "添加数据的响应body参数。",
+            "examples": {
+              "application/json": {
+                "result": "success",
+                "data": {
+                  "image_info": {
+                    "objects": [
+                      {
+                        "box": "26,223,771,704",
+                        "category": 11,
+                        "category_name": "electronics"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "BAD REQUEST",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0003",
+                "error_msg": "Invalid parameter: item_id"
+              }
+            }
+          },
+          "403": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "FORBIDDEN",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0001",
+                "error_msg": "Request is unauthorized."
+              }
+            }
+          },
+          "500": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "INTERNAL SERVER ERROR",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.1015",
+                "error_msg": "Process INDEX failed."
+              }
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-request-examples-description-1": "添加商品图像数据,使用图像BASE64编码",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/mms/{service_name}/data/add",
+        "x-request-examples-1": {
+          "item_id": "electronics_01",
+          "image_base64": "/9j/4AAQSkZJRgABAgEASABIAAD/4RFZRXhpZgAATU0AKgAAAAgABwESAAMAAAABAAEAAAEaAAUAAAABAAAAYgEbAA...",
+          "desc": "行摄天地,纵横自然,我心宇宙",
+          "custom_tags": {
+            "brand": "HUAWEI"
+          },
+          "custom_num_tags": {
+            "year": 2022
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddDataRestInfo": {
+      "type": "object",
+      "description": "添加数据的相关信息。",
+      "properties": {
+        "image_info": {
+          "description": "添加图像数据的相关信息,不同服务类型返回信息不同,具体可参见服务类型说明。",
+          "properties": {
+            "objects": {
+              "type": "array",
+              "description": "添加的主体列表。",
+              "items": {
+                "properties": {
+                  "box": {
+                    "type": "string",
+                    "description": "主体目标框。"
+                  },
+                  "category": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "主体类目序号。"
+                  },
+                  "category_name": {
+                    "type": "string",
+                    "description": "主体类目名称。"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "请求失败时的错误编码,请求成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求失败时的错误信息,请求成功时无此字段。"
+        }
+      }
+    },
+    "AddDataParam": {
+      "type": "object",
+      "required": [
+        "item_id"
+      ],
+      "properties": {
+        "force": {
+          "type": "boolean",
+          "description": "是否强制添加数据,默认为false。\n- false: 数据已存在则不进行添加。\n- true: 数据已存在仍然覆盖添加。",
+          "default": false
+        },
+        "item_id": {
+          "type": "string",
+          "description": "数据的服务实例级唯一标识,字符长度范围为[1, 256]。",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "desc": {
+          "type": "string",
+          "description": "数据的描述信息,字符长度范围为[1, 2048]。",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "custom_tags": {
+          "type": "object",
+          "description": "数据的自定义字符标签,用于进行条件过滤。格式为键值对{key:value}。\n- key: 必须为服务实例custom_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。\n- value: 类型为字符串,字符长度范围为[1, 64]。",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "custom_num_tags": {
+          "type": "object",
+          "description": "数据的自定义数值标签,用于进行条件过滤。格式为键值对{key:value}。\n- key: 必须为服务实例custom_num_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。\n- value: 类型为数值,格式为double。",
+          "additionalProperties": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "image_base64": {
+          "type": "string",
+          "description": "图像文件的base64字符串,图像入库时,与image_url二选一。要求如下:\n- 格式:目前仅支持JPEG/JPG/PNG/BMP/WEBP格式的图像。\n- 大小:图像文件大小要求不超过5M。\n- 尺寸:默认情况下,要求图像的最短边大于64px,最长边小于4096px。部分服务类型有特殊要求,可参见服务类型说明。\n- 其他:图片中不能包含旋转信息。"
+        },
+        "image_url": {
+          "type": "string",
+          "description": "图像文件的服务可访问URL,字符长度范围为[1, 4096]。图像入库时,与image_base64二选一。",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "keywords": {
+          "type": "array",
+          "description": "关键词列表,关键词数量范围为[1, 100],关键词字符长度范围为[1, 64]。支持关键词搜索的服务实例添加数据时,如给定此参数,则直接使用给定的keywords作为关键词,否则会自动生成对应的keywords。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "optional_params": {
+          "$ref": "#/definitions/AddDataOptionalParam"
+        }
+      }
+    },
+    "AddDataOptionalParam": {
+      "type": "object",
+      "description": "添加数据的可选参数,其中每个参数仅对部分服务类型生效,具体可参见服务类型说明。",
+      "properties": {
+        "do_det": {
+          "type": "boolean",
+          "description": "是否进行目标检测,默认为true。",
+          "default": true
+        },
+        "box": {
+          "type": "string",
+          "description": "目标矩形框坐标,如给定则不进行目标检测,直接使用该box作为目标。格式为“x1,y1,x2,y2”(无空格),x1/y1为目标左上角坐标,x2/y2为目标右下角坐标,具体要求如下:\n- 0 <= x1 < x2 <= width,默认要求x2-x1 >= 15,具体可参考服务类型说明。\n- 0 <= y1 < y2 <= height,默认要求y2-y1 >= 15,具体可参考服务类型说明。"
+        },
+        "do_cls": {
+          "type": "boolean",
+          "description": "是否进行对象分类,默认为true。",
+          "default": true
+        },
+        "category": {
+          "type": "integer",
+          "description": "对象类目,如给定则不进行对象分类,直接使用该category作为类目。具体类目信息可参见对应的服务类型说明。",
+          "format": "int32"
+        }
+      }
+    },
+    "AddDataResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "添加数据完成返回success。"
+        },
+        "data": {
+          "$ref": "#/definitions/AddDataRestInfo"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mms.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

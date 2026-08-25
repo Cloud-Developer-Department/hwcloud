@@ -1,0 +1,234 @@
+{
+  "name": "UpdateHttpsInfo",
+  "summary": "配置HTTPS",
+  "tags": "域名配置",
+  "productshort": "CDN",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1.0/cdn/domains/{domain_id}/https-info": {
+      "put": {
+        "deprecated": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "description": "设置加速域名HTTPS。通过配置加速域名的HTTPS证书,并将其部署在全网CDN节点,实现HTTPS安全加速。",
+        "summary": "配置HTTPS",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "domain_id",
+            "in": "path",
+            "description": "加速域名ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "当用户开启企业项目功能时,该参数生效,表示修改当前企业项目下加速域名的配置,\"all\"代表所有项目。注意:当使用子帐号调用接口时,该参数必传。\n\n您可以通过调用企业项目管理服务(EPS)的查询企业项目列表接口(ListEnterpriseProject)查询企业项目id。",
+            "type": "string"
+          },
+          {
+            "name": "https",
+            "in": "body",
+            "description": "https配置。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HttpInfoRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "https": {
+                  "http2": 0,
+                  "certificate_type": 0,
+                  "force_redirect_config": {
+                    "redirect_type": "http",
+                    "switch": 1
+                  },
+                  "expiration_time": 1636183290000,
+                  "force_redirect_https": 2,
+                  "https_status": 2,
+                  "cert_name": "cdn_test_cert",
+                  "certificate": "-----BEGIN CERTIFICATE----------END CERTIFICATE-----",
+                  "private_key": ""
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/HttpInfoResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "PUT https://cdn.myhuaweicloud.com/v1.0/cdn/domains/ff8080**********************d71/https-info?enterprise_project_id=0",
+        "x-request-examples-1": {
+          "https": {
+            "http2": 0,
+            "certificate_type": 0,
+            "force_redirect_config": {
+              "redirect_type": "http",
+              "switch": 1
+            },
+            "force_redirect_https": 1,
+            "https_status": 2,
+            "cert_name": "cdn_test_cert",
+            "certificate": "-----BEGIN CERTIFICATE----------END CERTIFICATE-----",
+            "private_key": "-----BEGIN RSA PRIVATE KEY---------END RSA PRIVATE KEY-----"
+          }
+        },
+        "operationId": "UpdateHttpsInfo",
+        "tags": [
+          "域名配置"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "HttpInfoRequestBody": {
+      "required": [
+        "cert_name",
+        "https_status"
+      ],
+      "properties": {
+        "cert_name": {
+          "type": "string",
+          "description": "证书名字。(长度限制为3-64字符)。"
+        },
+        "https_status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "HTTPS证书是否启用。0:不启用,此时无需填写证书及私钥参数;1:启用HTTPS加速并协议跟随回源;2:启用HTTPS加速并HTTP回源;3:启用HTTPS加速并HTTPS回源,首次配置证书需要传递证书及私钥,如已有证书可不用传证书及私钥。"
+        },
+        "certificate": {
+          "type": "string",
+          "description": "HTTPS协议使用的SSL证书内容,仅支持PEM编码格式。不启用证书则无需输入。初次配置证书时必传。"
+        },
+        "private_key": {
+          "type": "string",
+          "description": "HTTPS协议使用的SSL证书私钥内容,仅支持PEM编码格式。不启用证书则无需输入。初次配置证书时必传。"
+        },
+        "http2": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否使用HTTP2.0。(1:是,0:否。)"
+        },
+        "certificate_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "证书类型。1:代表华为云托管证书;0:表示自有证书。 默认值0。"
+        },
+        "force_redirect_https": {
+          "type": "integer",
+          "description": "强制跳转HTTPS(0:不强制;1:强制) 为空值时默认设置为关闭。(此参数即将下线,建议使用force_redirect_config修改配置)",
+          "format": "int32"
+        },
+        "force_redirect_config": {
+          "description": "强制跳转",
+          "$ref": "#/definitions/ForceRedirect"
+        }
+      }
+    },
+    "HttpInfoResponseBody": {
+      "properties": {
+        "https_status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "HTTPS证书是否启用。0:不启用,此时无需填写证书及私钥参数;1:启用HTTPS加速并协议跟随回源;2:启用HTTPS加速并HTTP回源;3:启用HTTPS加速并HTTPS回源,开启时需要传递证书及私钥"
+        },
+        "cert_name": {
+          "type": "string",
+          "description": "证书名称。(长度限制为3-32字符)。"
+        },
+        "certificate": {
+          "type": "string",
+          "description": "证书内容。"
+        },
+        "private_key": {
+          "type": "string",
+          "description": "功能说明: HTTPS协议使用的私钥,不启用证书则无需输入。(为了客户信息安全,接口返回私钥为空)"
+        },
+        "certificate_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "证书类型。1:代表华为云托管证书;0:表示自有证书。"
+        },
+        "force_redirect_https": {
+          "type": "integer",
+          "format": "int32",
+          "description": "客户端请求是否强制重定向。1是,0否。(如果为2,表示强制跳转HTTP)"
+        },
+        "force_redirect_config": {
+          "description": "强制跳转",
+          "$ref": "#/definitions/ForceRedirect"
+        },
+        "http2": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否使用HTTP2.0。(1是,0否。)"
+        },
+        "expiration_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "证书过期时间"
+        }
+      }
+    },
+    "HttpInfoResponse": {
+      "properties": {
+        "https": {
+          "description": "https配置。",
+          "$ref": "#/definitions/HttpInfoResponseBody"
+        }
+      }
+    },
+    "HttpInfoRequest": {
+      "required": [
+        "https"
+      ],
+      "properties": {
+        "https": {
+          "description": "https配置。",
+          "$ref": "#/definitions/HttpInfoRequestBody"
+        }
+      }
+    },
+    "ForceRedirect": {
+      "required": [
+        "switch",
+        "redirect_type"
+      ],
+      "properties": {
+        "switch": {
+          "type": "integer",
+          "description": "强制跳转开关。1打开。0关闭。",
+          "format": "int32"
+        },
+        "redirect_type": {
+          "type": "string",
+          "description": "强制跳转类型。http:强制跳转HTTP。https:强制跳转HTTPS。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cdn.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

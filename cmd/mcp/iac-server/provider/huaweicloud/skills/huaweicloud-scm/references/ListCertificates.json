@@ -1,0 +1,391 @@
+{
+  "name": "ListCertificates",
+  "summary": "查询证书列表",
+  "tags": "证书生命周期管理",
+  "productshort": "SCM",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v3/scm/certificates": {
+      "get": {
+        "tags": [
+          "证书生命周期管理"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "查询证书列表",
+        "description": "根据证书名称或绑定域名查询证书列表。",
+        "operationId": "ListCertificates",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页条目数量,取值如下:\n- 10:每页显示10条证书信息。\n- 20:每页显示20条证书信息。\n- 50:每页显示50条证书信息。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "format": "int32",
+            "minimum": 10,
+            "maximum": 50
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "排序方式。根据排序参数sort_key进行排序,取值如下:\n- ASC:升序。\n- DESC:降序。",
+            "required": false,
+            "type": "string",
+            "default": "DESC",
+            "minLength": 0,
+            "maxLength": 32
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "description": "排序依据参数,取值如下:\n- certExpiredTime:证书到期时间。\n- certStatus:证书状态。\n- certUpdateTime:证书更新时间。",
+            "required": false,
+            "type": "string",
+            "default": "certUpdateTime",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "证书状态,取值如下:\n- ALL:所有证书状态。\n- PAID:证书已支付,待申请证书。\n- ISSUED:证书已签发。\n- CHECKING:证书申请审核中。\n- CANCELCHECKING:取消证书申请审核中。\n- UNPASSED:证书申请未通过。\n- EXPIRED:证书已过期。\n- REVOKING:证书吊销申请审核中。\n- REVOKED:证书已吊销。\n- UPLOAD:证书托管中。\n- CHECKING_ORG:待完成企业资格认证。\n- ISSUING:证书待签发。\n- SUPPLEMENTCHECKING:多域名证书新增附加域名审核中。",
+            "required": false,
+            "type": "string",
+            "default": "ALL",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "企业多项目ID。用户未开通企业多项目时,不需要输入该字段。 用户开通企业多项目时,查询资源可以输入该字段。 若用户不输入该字段,默认查询租户所有有权限的企业多项目下的资源。 此时“enterprise_project_id”取值为“all”。 若用户输入该字段,取值满足以下任一条件。\n- 取值为“all”\n- 取值为“0”\n- 满足正则匹配:“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”",
+            "required": false,
+            "type": "string",
+            "default": "all",
+            "minLength": 0,
+            "maxLength": 64,
+            "x-open-region-cloud": "hc"
+          },
+          {
+            "name": "deploy_support",
+            "in": "query",
+            "description": "是否仅筛选支持部署的证书。",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "owned_by_self",
+            "in": "query",
+            "description": "过滤资源是否属于当前租户,取值如下:\n- true:只查属于当前租户的资源,不包括共享资源。\n- false:查询当前租户及共享给该租户的资源。",
+            "required": false,
+            "type": "boolean",
+            "default": true,
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "name": "expired_days_since",
+            "in": "query",
+            "description": "证书在有效期内及最多过期xx天。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 1095
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "description": "证书名称、域名搜索关键词",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 255
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回。",
+            "schema": {
+              "$ref": "#/definitions/ListCertificatesResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "certificates": [
+                  {
+                    "id": "scs1554192131150",
+                    "name": "test",
+                    "domain": "www.zx.com",
+                    "sans": "a.zx.com;b.zx.com",
+                    "type": "OV_SSL_CERT",
+                    "deploy_support": true,
+                    "signature_algorithm": "SHA256WITHRSA",
+                    "brand": "GEOTRUST",
+                    "expire_time": "2021-05-27 16:46:25.0",
+                    "domain_type": "MULTI_DOMAIN",
+                    "validity_period": 12,
+                    "status": "ISSUED",
+                    "domain_count": 2,
+                    "wildcard_count": 0,
+                    "description": null
+                  }
+                ],
+                "total_count": 1
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "403": {
+            "description": "禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "404": {
+            "description": "访问页面未找到。"
+          },
+          "500": {
+            "description": "请求未完成,服务器内部异常。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "x-hc": "Y",
+        "x-hk": "Y",
+        "x-open-region-cloud": "hc,hk"
+      }
+    }
+  },
+  "definitions": {
+    "ListCertificatesResponseBody": {
+      "type": "object",
+      "required": [
+        "certificates",
+        "total_count"
+      ],
+      "properties": {
+        "certificates": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "description": "证书列表,详情请参见CertificateDetail字段数据结构说明。",
+          "items": {
+            "$ref": "#/definitions/CertificateDetail"
+          }
+        },
+        "total_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "证书数量。",
+          "format": "int32"
+        }
+      },
+      "title": "ListCertificatesResponseBody"
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息。"
+        }
+      },
+      "title": "Error"
+    },
+    "CertificateDetail": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "domain",
+        "sans",
+        "type",
+        "brand",
+        "expire_time",
+        "domain_type",
+        "signature_algorithm",
+        "deploy_support",
+        "validity_period",
+        "status",
+        "domain_count",
+        "wildcard_count",
+        "description",
+        "enterprise_project_id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 16,
+          "description": "证书id。"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "minLength": 3,
+          "maximum": 63,
+          "description": "证书名称。"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "证书绑定的域名。"
+        },
+        "sans": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "多域名证书绑定的附加域名。"
+        },
+        "signature_algorithm": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "签名算法。"
+        },
+        "deploy_support": {
+          "type": "boolean",
+          "description": "是否支持部署。"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "证书类型。取值如下:\nDV_SSL_CERT、DV_SSL_CERT_BASIC、EV_SSL_CERT、\nEV_SSL_CERT_PRO、OV_SSL_CERT、OV_SSL_CERT_PRO"
+        },
+        "brand": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "证书品牌。取值如下:GLOBALSIGN、SYMANTEC、GEOTRUST、CFCA"
+        },
+        "expire_time": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "证书过期时间。"
+        },
+        "domain_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "域名类型。取值如下:\n- SINGLE_DOMAIN:单域名\n- WILDCARD:通配符\n- MULTI_DOMAIN:多域名"
+        },
+        "validity_period": {
+          "type": "integer",
+          "minimum": 12,
+          "maximum": 12,
+          "description": "证书有效期,按月为单位。云证书管理服务提供了一种购买多年有效期证书的解决方案,这种多年有效期证书生效方式为多张有效期为1年的SSL证书叠加生效,例如:有效期为“3年”的证书实际包含3张有效期为1年且规格相同的SSL证书,在第一张证书到期前30天,系统自动以第一张证书的信息申请第二张证书,在第二张证书到期前30天,系统自动以第一张证书的信息申请第三张证书。",
+          "format": "int8"
+        },
+        "status": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "证书状态,取值如下:\n- PAID:证书已支付;待申请证书。\n- ISSUED:证书已签发。\n- CHECKING:证书申请审核中。\n- CANCELCHECKING:取消证书申请审核中。\n- UNPASSED:证书申请未通过。\n- EXPIRED:证书已过期。\n- REVOKING:证书吊销申请审核中。\n- CANCLEREVOKING:证书取消吊销申请审核中。\n- REVOKED:证书已吊销。\n- UPLOAD:证书托管中。\n- SUPPLEMENTCHECKING:多域名证书新增附加域名审核中。\n- CANCELSUPPLEMENTING:取消新增附加域名审核中。"
+        },
+        "domain_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "证书可绑定域名个数。"
+        },
+        "wildcard_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "证书可绑定泛域名个数。"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "证书描述。"
+        },
+        "domain_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100,
+          "description": "账号ID。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "企业项目ID,默认为“0”。\n对于开通企业项目的用户,表示资源处于默认企业项目下。\n对于未开通企业项目的用户,表示资源未处于企业项目下。",
+          "x-open-region-cloud": "hc"
+        }
+      },
+      "title": "CertificateDetail"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "scm.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

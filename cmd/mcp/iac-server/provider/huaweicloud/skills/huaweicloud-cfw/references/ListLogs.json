@@ -1,0 +1,601 @@
+{
+  "name": "ListLogs",
+  "summary": "查询防火墙日志",
+  "tags": "日志管理",
+  "productshort": "CFW",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/cfw/{fw_instance_id}/logs": {
+      "post": {
+        "tags": [
+          "Log Management"
+        ],
+        "summary": "查询防火墙日志",
+        "description": "查询防火墙日志",
+        "operationId": "ListLogs",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释**:\n项目ID,用于明确项目归属,配置后可通过该ID查询项目下资产,可以从调API处获取,也可以从控制台获取。[项目ID获取方式](cfw_02_0015.xml)\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 0
+          },
+          {
+            "name": "fw_instance_id",
+            "in": "path",
+            "description": "**参数解释**:\n防火墙ID,用户创建防火墙实例后产生的唯一ID,配置后可区分不同防火墙,可通过[防火墙ID获取方式](cfw_02_0028.xml)获取\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+          },
+          {
+            "in": "body",
+            "name": "listLogsRequestBody",
+            "description": "**参数解释**:\n查询防火墙日志请求体\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListLogsRequestBody"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "limit": 1000,
+                  "records": [
+                    {
+                      "app": "DNS",
+                      "bytes": 87,
+                      "direction": "in2out",
+                      "dst_ip": "100.85.219.117",
+                      "dst_port": 53,
+                      "end_time": 1751963431000,
+                      "log_id": "73861",
+                      "packets": 1,
+                      "protocol": "UDP",
+                      "src_ip": "100.93.2.30",
+                      "src_port": 55637,
+                      "start_time": 1751963369000
+                    }
+                  ],
+                  "total": 1
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListLogsResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "CFW.00200003",
+                "error_msg": "参数错误"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://{Endpoint}//v1/a16df7cf1d094befa6bbc72cbf51e93a/cfw/fcd04edd-428a-4631-bef5-46a924293cca/logs",
+        "x-request-examples-description-1": "项目ID为a16df7cf1d094befa6bbc72cbf51e93a,防火墙ID为fcd04edd-428a-4631-bef5-46a924293cca,时间范围为1751952647737到1751963447737,查询数量1000条,过滤条件为目的IP为方向为100.85.219.117,查询互联网边界的流量日志",
+        "x-request-examples-text-1": {
+          "limit": 1000,
+          "filters": [
+            {
+              "field": "dst_ip",
+              "operator": "equal",
+              "values": [
+                "100.85.219.117"
+              ]
+            }
+          ],
+          "start_time": 1751952647737,
+          "end_time": 1751963447737,
+          "log_type": "internet",
+          "type": "flow"
+        },
+        "x-request-examples-1": {
+          "limit": 1000,
+          "filters": [
+            {
+              "field": "dst_ip",
+              "operator": "equal",
+              "values": [
+                "100.85.219.117"
+              ]
+            }
+          ],
+          "start_time": 1751952647737,
+          "end_time": 1751963447737,
+          "log_type": "internet",
+          "type": "flow"
+        },
+        "x-method-annotations": [
+          "@IamAuthMeta(rbac = {RoleConst.TE_ADMIN, RoleConst.OP_SERVICE, RoleConst.READ_ONLY, RoleConst.TE_ADMIN_RESTRICTED, RoleConst.TE_ADMIN_SUSPENDED}, needRbacCheck = false, needCbcCheck = false, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthAction(iam3Action = IamV3Action.GET_FLOW_LOG_LIST, iam5Action = CommonConstant.IAM5_LIST_FLOW_LOG)",
+          "@IamAuthMetaV5(needCbcCheck = false, needAbacResourceCheck = true, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthParam(instanceId = \"fw_instance_id\")"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "Filter": {
+      "type": "object",
+      "required": [
+        "field",
+        "operator"
+      ],
+      "properties": {
+        "field": {
+          "type": "string",
+          "example": "protocol",
+          "description": "**参数解释**:\n日志字段,如src_ip\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "values": {
+          "type": "array",
+          "example": [
+            "ANY",
+            "TCP",
+            "ICMP"
+          ],
+          "description": "**参数解释**:\n值\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "maxItems": 10,
+          "minItems": 1
+        },
+        "operator": {
+          "type": "string",
+          "example": "equals",
+          "description": "**参数解释**:\n操作符\n**约束限制**:\n不涉及\n**取值范围**:\nequal 等于\nnot_equal 不等于\ncontain 包含\nstarts_with 以开始\n**默认取值**:\n不涉及",
+          "enum": [
+            "equal",
+            "not_equal",
+            "contain",
+            "starts_with"
+          ]
+        }
+      }
+    },
+    "ListLogsRequestBody": {
+      "type": "object",
+      "required": [
+        "end_time",
+        "limit",
+        "log_type",
+        "start_time",
+        "type"
+      ],
+      "properties": {
+        "filters": {
+          "type": "array",
+          "description": "**参数解释**:\n过滤条件\n**约束限制**:\n不涉及\n**取值范围**:\n1-1024\n**默认取值**:\n不涉及",
+          "items": {
+            "$ref": "#/definitions/Filter"
+          },
+          "maxItems": 64,
+          "minItems": 1
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "example": 10,
+          "description": "**参数解释**:\n每页显示个数\n**约束限制**:\n不涉及\n**取值范围**:\n1-1024\n**默认取值**:\n不涉及",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "**参数解释**:\n偏移量\n**约束限制**:\n第一页为空,其他页不为空\n**取值范围**:\n相对于上一页的偏移量\n**默认取值**:\n不涉及",
+          "minimum": -10000,
+          "maximum": 10000
+        },
+        "log_id": {
+          "type": "string",
+          "description": "**参数解释**:\n文档ID\n**约束限制**:\n第一页为空,其他页不为空\n**取值范围**:\n上一次查询最后一条数据的log_id\n**默认取值**:\n不涉及",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "next_date": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n下个日期\n**约束限制**:\n第一页为空,其他页不为空\n**取值范围**:\n查询流量日志时为上一次查询最后一条数据的end_time\n查询访问控制日志时为上一次查询最后一条数据的hit_time\n查询访问控制日志时为上一次查询最后一条数据的event_time\n查询URL日志时为上一次查询最后一条数据的hit_time\n**默认取值**:\n不涉及",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1742442512000,
+          "description": "**参数解释**:\n开始时间\n**约束限制**:\n不涉及\n**取值范围**:\n毫秒级时间戳\n**默认取值**:\n不涉及",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1742442512000,
+          "description": "**参数解释**:\n结束时间\n**约束限制**:\n不涉及\n**取值范围**:\n毫秒级时间戳\n**默认取值**:\n不涉及",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "log_type": {
+          "type": "string",
+          "description": "**参数解释**:\n日志类型\n**约束限制**:\n不涉及\n**取值范围**:\ninternet为南北向日志、nat为nat场景日志,vpc为东西向日志,vgw为vgw场景日志\n**默认取值**:\n不涉及",
+          "enum": [
+            "internet",
+            "nat",
+            "vpc",
+            "vgw"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "description": "**参数解释**:\n日志类型\n**约束限制**:\n不涉及\n**取值范围**:\nattack为攻击日志、acl 访问控制日志,flow 流量日志,url url日志\n**默认取值**:\n不涉及",
+          "enum": [
+            "attack",
+            "acl",
+            "flow",
+            "url"
+          ]
+        }
+      },
+      "description": "**参数解释**:\n查询条件\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+    },
+    "LogVO": {
+      "type": "object",
+      "properties": {
+        "app": {
+          "type": "string",
+          "description": "**参数解释**:\n应用\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "bytes": {
+          "type": "number",
+          "format": "double",
+          "description": "**参数解释**:\n流字节数,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "direction": {
+          "type": "string",
+          "description": "**参数解释**:\n会话方向\n**取值范围**:\nout2in 外到内访问\nin2out 内到外访问",
+          "readOnly": true
+        },
+        "dst_host": {
+          "type": "string",
+          "description": "**参数解释**:\n流字节数,访问控制日志和流量日志中存在\n**取值范围**:\n目的网址",
+          "readOnly": true
+        },
+        "dst_ip": {
+          "type": "string",
+          "description": "**参数解释**:\n目的IP\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n目的端口\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n会话结束时间,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "log_id": {
+          "type": "string",
+          "description": "**参数解释**:\n日志ID,用于分页查询\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "packets": {
+          "type": "number",
+          "format": "double",
+          "description": "**参数解释**:\n流包数,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "protocol": {
+          "type": "string",
+          "description": "**参数解释**:\n协议\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_ip": {
+          "type": "string",
+          "description": "**参数解释**:\n源Ip\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n源端口\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n会话开始时间,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_region_id": {
+          "type": "string",
+          "description": "**参数解释**:\n目的地区ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_region_name": {
+          "type": "string",
+          "description": "**参数解释**:\n目的地区名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_province_id": {
+          "type": "string",
+          "description": "**参数解释**:\n目的省份ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_province_name": {
+          "type": "string",
+          "description": "**参数解释**:\n目的省份名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_city_id": {
+          "type": "string",
+          "description": "**参数解释**:\n目的城市ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "dst_city_name": {
+          "type": "string",
+          "description": "**参数解释**:\n目的城市名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_region_id": {
+          "type": "string",
+          "description": "**参数解释**:\n源地区ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_region_name": {
+          "type": "string",
+          "description": "**参数解释**:\n源地区名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_province_id": {
+          "type": "string",
+          "description": "**参数解释**:\n源省份ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_province_name": {
+          "type": "string",
+          "description": "**参数解释**:\n源省份名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_city_id": {
+          "type": "string",
+          "description": "**参数解释**:\n源城市ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "src_city_name": {
+          "type": "string",
+          "description": "**参数解释**:\n源城市名称\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "vgw_id": {
+          "type": "string",
+          "description": "**参数解释**:\n虚拟网关ID\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "sctp_verification_tag": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\nsctp验证标签,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "sctp_is_handshake_flow": {
+          "type": "string",
+          "description": "**参数解释**:\nsctp握手流,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_rule_id": {
+          "type": "string",
+          "description": "**参数解释**:\nqos规则ID,流量日志、访问控制日志存在\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_rule_name": {
+          "type": "string",
+          "description": "**参数解释**:\nqos规则名称,流量日志、访问控制日志存在\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_channel_id": {
+          "type": "string",
+          "description": "**参数解释**:\nqos通道ID,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_channel_name": {
+          "type": "string",
+          "description": "**参数解释**:\nqos通道名称,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_drop_packets": {
+          "type": "number",
+          "format": "double",
+          "description": "**参数解释**:\nqos丢包数,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_drop_bytes": {
+          "type": "number",
+          "format": "double",
+          "description": "**参数解释**:\nqos丢弃字节,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_rule_type": {
+          "type": "integer",
+          "description": "**参数解释**:\nqos规则类型,流量日志、访问控制日志存在\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "qos_channel_type": {
+          "type": "integer",
+          "description": "**参数解释**:\nqos通道类型,流量日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "action": {
+          "type": "string",
+          "description": "**参数解释**:\n动作,攻击日志、访问控制日志、URL日志存在\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "url": {
+          "type": "string",
+          "description": "**参数解释**:\nurl,URL日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "hit_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n命中时间,访问控制日志、URL日志存在\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "rule_id": {
+          "type": "string",
+          "description": "**参数解释**:\n规则ID,访问控制日志、URL日志存在\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "rule_name": {
+          "type": "string",
+          "description": "**参数解释**:\n规则名称,访问控制日志、URL日志存在\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "rule_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n规则类型,访问控制日志和URL日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "attack_rule": {
+          "type": "string",
+          "description": "**参数解释**:\n规则类型,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "attack_rule_id": {
+          "type": "string",
+          "description": "**参数解释**:\n攻击规则ID,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "attack_type": {
+          "type": "string",
+          "description": "**参数解释**:\n攻击类型,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "event_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n事件时间,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "level": {
+          "type": "string",
+          "description": "**参数解释**:\n攻击等级,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "packet": {
+          "type": "string",
+          "description": "**参数解释**:\n规则载荷,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "source": {
+          "type": "string",
+          "description": "**参数解释**:\n攻击来源,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "real_ip": {
+          "type": "string",
+          "description": "**参数解释**:\n真实IP,攻击日志字段\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "tag": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n标签类型,攻击日志字段\n**取值范围**:\n1 WAF回源IP",
+          "readOnly": true
+        }
+      },
+      "title": "LogVO"
+    },
+    "ListLogsResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "**参数解释**:\n日志\n**取值范围**:\n不涉及",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "format": "int32",
+              "description": "**参数解释**:\n条数\n**取值范围**:\n不涉及",
+              "readOnly": true
+            },
+            "records": {
+              "type": "array",
+              "description": "**参数解释**:\n日志\n**取值范围**:\n不涉及",
+              "readOnly": true,
+              "items": {
+                "$ref": "#/definitions/LogVO"
+              }
+            },
+            "total": {
+              "type": "integer",
+              "format": "int64",
+              "description": "**参数解释**:\n记录总数\n**取值范围**:\n不涉及",
+              "readOnly": true
+            }
+          }
+        }
+      },
+      "title": "ListLogsResp"
+    },
+    "ErrorRsp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:\n错误描述\n**取值范围**:\n不涉及",
+          "readOnly": true
+        }
+      },
+      "description": "**参数解释**:\n失败时返回的错误信息\n**取值范围**:\n不涉及"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cfw.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

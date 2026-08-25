@@ -1,0 +1,254 @@
+{
+  "name": "ListVaultTops",
+  "summary": "查询使用最高的存储库",
+  "tags": "监控",
+  "productshort": "BCC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{domain_id}/backup/vault-tops": {
+      "get": {
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{domain_id}/backup/vault-tops",
+        "x-request-examples-text-1": "https://{endpoint}/v1/{domain_id}/backup/vault-tops?metric_name=vault_util&region_id=&limit=3",
+        "x-request-examples-1": "https://{endpoint}/v1/{domain_id}/backup/vault-tops?metric_name=vault_util&region_id=&limit=3",
+        "tags": [
+          "监控"
+        ],
+        "summary": "查询使用最高的存储库",
+        "description": "查询使用最高的存储库,按使用容量或者按使用率排序返回",
+        "operationId": "ListVaultTops",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "账号ID",
+            "pattern": "^[a-z0-9]{16,32}$",
+            "minLength": 16,
+            "maxLength": 32
+          },
+          {
+            "name": "region_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "区域ID",
+            "pattern": "^[a-z0-9-]{6,32}$",
+            "minLength": 6,
+            "maxLength": 32
+          },
+          {
+            "name": "metric_name",
+            "in": "query",
+            "required": true,
+            "description": "返回的类型:按容量排序返回或者按使用率排序返回,取值范围:vault_util,used_vault_size",
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 16,
+            "enum": [
+              "vault_util",
+              "used_vault_size"
+            ]
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "返回的存储库数量,取值范围(0,100],默认值为5,用于限制结果数据条数。",
+            "type": "integer",
+            "format": "int32",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "schema": {
+              "$ref": "#/definitions/ListVaultTopsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "count": 3,
+                "vaults": [
+                  {
+                    "time": 1746576000000,
+                    "dimension": "instance_id,f943ef69-1071-4a46-9c45-962c7f826da5",
+                    "value": 50.37,
+                    "unit": "%"
+                  },
+                  {
+                    "time": 1746576000000,
+                    "dimension": "instance_id,0aae4cbc-f79c-4670-b178-bef948373197",
+                    "value": 0,
+                    "unit": "%"
+                  },
+                  {
+                    "time": 1746576000000,
+                    "dimension": "instance_id,d2afb771-71e5-47a7-ba82-59d98ba24c0a",
+                    "value": 0,
+                    "unit": "%"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "请求错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "未提供认证信息或认证信息错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "请求页面被禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "404": {
+            "description": "未找到资源。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "408": {
+            "description": "请求超出了服务器的等待时间。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "429": {
+            "description": "当前请求过多。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "请求未完成,服务异常。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "503": {
+            "description": "系统暂时不可用,请求受限。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "bcc::listVaultTop",
+          "authLevel": "NO_INSTANCE",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": false,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": false,
+          "needCbcCheck": false,
+          "model": "v5",
+          "authContextInitializerName": "baseIamAuthContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListVaultTopsResponseBody": {
+      "type": "object",
+      "description": "存储库统计信息",
+      "required": [
+        "count",
+        "vaults"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "存储库总数",
+          "minimum": 0,
+          "maximum": 65535,
+          "exclusiveMaximum": true
+        },
+        "vaults": {
+          "type": "array",
+          "items": {
+            "required": [
+              "id",
+              "time",
+              "dimension",
+              "value"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "存储库ID"
+              },
+              "time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "指标时间,单位毫秒"
+              },
+              "dimension": {
+                "type": "string",
+                "description": "指标数据维度"
+              },
+              "value": {
+                "type": "number",
+                "format": "double",
+                "description": "指标数据取值"
+              },
+              "unit": {
+                "type": "string",
+                "description": "指标数据的单位,例如:个、GB、%"
+              }
+            }
+          },
+          "description": "存储库统计信息",
+          "minItems": 0,
+          "maxItems": 100
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcc.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

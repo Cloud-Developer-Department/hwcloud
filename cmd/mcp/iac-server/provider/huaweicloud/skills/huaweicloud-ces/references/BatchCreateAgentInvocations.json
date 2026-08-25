@@ -1,0 +1,372 @@
+{
+  "name": "BatchCreateAgentInvocations",
+  "summary": "批量创建Agent任务",
+  "tags": "Agent任务相关接口",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/agent-invocations/batch-create": {
+      "post": {
+        "tags": [
+          "Agent任务相关接口"
+        ],
+        "summary": "批量创建Agent任务",
+        "operationId": "BatchCreateAgentInvocations",
+        "description": "批量创建Agent任务",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-version": "v3",
+        "x-constraint": "目前拉美-布宜诺斯艾利斯一、拉美-利马一2个局点不支持该接口\n",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectID"
+          },
+          {
+            "$ref": "#/parameters/ContentType"
+          },
+          {
+            "$ref": "#/parameters/ProjectAuthToken"
+          },
+          {
+            "name": "BatchCreateAgentInvocationsRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "批量创建Agent任务请求体",
+            "schema": {
+              "$ref": "#/definitions/BatchCreateInvocationRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/BatchCreateInvocationResp"
+            },
+            "examples": {
+              "invocations": [
+                {
+                  "instance_id": "instancexxx001",
+                  "ret_status": "successful"
+                },
+                {
+                  "instance_id": "instancexxx002",
+                  "ret_status": "error",
+                  "error_msg": "do not meet the installation conditions"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp400"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp401"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp403"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp500"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "pattern": "^(taskmgr\\.[0-9]{4})$"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "BatchCreateInvocationInfo": {
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "**参数解释**:\n机器id\n**取值范围**:\n1到64个字符的字符串,且只包含字母、数字和连字符\n",
+          "pattern": "^[a-zA-Z0-9-]{1,64}$"
+        },
+        "invocation_id": {
+          "type": "string",
+          "description": "**参数解释**:\n任务id\n**取值范围**:\n1到64个字符的字符串,且只包含字母、数字和连字符\n",
+          "pattern": "^[a-zA-Z0-9-]{1,64}$"
+        },
+        "ret_status": {
+          "type": "string",
+          "description": "**参数解释**:\n任务结果, successful成功,error失败\n**取值范围**:\n- successful: 成功\n- error: 失败\n",
+          "enum": [
+            "successful",
+            "error"
+          ]
+        },
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码\n**取值范围**:\n以\"invocationmgr.\"开头且后跟4位数字的完整字符串\n",
+          "pattern": "^(invocationmgr\\.[0-9]{4})$"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:\n错误信息\n**取值范围**:\n数组长度范围为[1,128]\n",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "BatchCreateInvocationRequestBody": {
+      "example": {
+        "instance_ids": [
+          "instancexxx001",
+          "instancexxx002"
+        ],
+        "invocation_type": "INSTALL",
+        "invocation_target": "telescope"
+      },
+      "required": [
+        "invocation_type"
+      ],
+      "properties": {
+        "instance_ids": {
+          "description": "**参数解释**:\n主机id列表(INSTALL和UPDATE时必须)\n**取值范围**:\n数组长度范围为[1,100]\n",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{1,64}$"
+          }
+        },
+        "invocation_type": {
+          "description": "**参数解释**:\n任务类型\n**取值范围**:\n- INSTALL:安装\n- UPDATE:升级\n- ROLLBACK:回滚\n- RETRY:重试\n- SET_REMOTE_INSTALLER:设置远程安装主机\n- REMOTE_INSTALL:执行远程安装\n",
+          "type": "string",
+          "enum": [
+            "INSTALL",
+            "UPDATE",
+            "ROLLBACK",
+            "RETRY",
+            "SET_REMOTE_INSTALLER",
+            "REMOTE_INSTALL"
+          ]
+        },
+        "invocation_target": {
+          "description": "**参数解释**:\n任务对象,目前仅支持telescope\n**取值范围**:\n- telescope:主机监控插件telescope\n",
+          "type": "string",
+          "default": "telescope",
+          "enum": [
+            "telescope"
+          ]
+        },
+        "invocation_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{1,64}$"
+          },
+          "description": "**参数解释**:\n任务ID列表(ROLLBACK和RETRY时必须)\n**取值范围**:\n数组长度范围为[1,100]\n",
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "version_type": {
+          "type": "string",
+          "description": "**参数解释**:\n插件升级时需要选择升级“基础版本”还是“增强版本”\n**取值范围**:\n- BASIC_VERSION: 升级成基础版本\n- ADVANCE_VERSION: 升级成增强版本\n",
+          "enum": [
+            "BASIC_VERSION",
+            "ADVANCE_VERSION"
+          ]
+        },
+        "origin": {
+          "type": "string",
+          "description": "**参数解释**:\nAgent任务接口调用源\n**取值范围**:\n- CES: 由Console调用\n- APICOM_BMS: 由裸金属服务器调用\n- ADMIN_SERVER: 由运维平台调用\n",
+          "enum": [
+            "CES",
+            "APICOM_BMS",
+            "ADMIN_SERVER"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "description": "**参数解释**:\n版本号\n**取值范围**:\n数组长度范围为[0,64]\n",
+          "pattern": "^([0-9A-Za-z]|_|-|\\.)+$",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "remote_install_meta": {
+          "description": "**参数解释**:\n创建远程安装任务时需要下发的被安装主机相关信息\n**取值范围**:\n数组长度范围为[0,100]\n",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/RemoteInstallHostInfo"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ErrorResp400": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0005",
+        "error_msg": "Some content in message body is not correct."
+      }
+    },
+    "ErrorResp401": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0003",
+        "error_msg": "Authentication fails or the authentication information is not provided"
+      }
+    },
+    "ErrorResp500": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0001",
+        "error_msg": "Internal service error"
+      }
+    },
+    "RemoteInstallHostInfo": {
+      "properties": {
+        "instance_name": {
+          "type": "string",
+          "description": "**参数解释**:\n被远程安装的主机名称\n**取值范围**:\n数组长度范围为[1,128]\n",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "remote_ip": {
+          "type": "string",
+          "description": "**参数解释**:\n被远程安装的主机IP\n**取值范围**:\n仅由数字(0-9)和小数点(.)组成的字符串,字符串长度为[1,15]\n",
+          "pattern": "^(([0-9]|\\.){1,15})$"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "**参数解释**:\n被远程安装的主机的登录用户名\n**取值范围**:\n数组长度范围为[1,16]\n",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "port": {
+          "type": "string",
+          "description": "**参数解释**:\n被远程安装的主机的登录端口\n**取值范围**:\n数组长度范围为[1,5]\n",
+          "minLength": 1,
+          "maxLength": 5
+        },
+        "password": {
+          "type": "string",
+          "description": "**参数解释**:\n被远程安装的主机的登录密码\n**取值范围**:\n数组长度范围为[1,3000]\n",
+          "minLength": 1,
+          "maxLength": 3000
+        },
+        "remote_use_pem": {
+          "type": "boolean",
+          "default": false,
+          "description": "**参数解释**:\n被远程安装的主机远程连接是否采用密钥方式(false时为密码方式)\n**取值范围**:\n- false: 密码方式\n- true: 密钥方式\n"
+        }
+      }
+    },
+    "ErrorResp403": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0007",
+        "error_msg": "The authentication information is incorrect or the service invoker does not have sufficient rights."
+      }
+    },
+    "BatchCreateInvocationResp": {
+      "example": {
+        "invocations": [
+          {
+            "instance_id": "instancexxx001",
+            "ret_status": "successful"
+          },
+          {
+            "instance_id": "instancexxx002",
+            "ret_status": "error",
+            "error_msg": "do not meet the installation conditions"
+          }
+        ]
+      },
+      "properties": {
+        "invocations": {
+          "description": "**参数解释**:\n创建任务的信息列表\n**取值范围**:\n数组长度范围为[0,100]\n",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/BatchCreateInvocationInfo"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectID": {
+      "name": "project_id",
+      "in": "path",
+      "description": "**参数解释**:项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见“[获取项目ID](ces_03_0057.xml)”。取值范围: 字符串的长度必须在 1 到 64个字符之间。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1,64]个字符\n**默认取值**:\n不涉及\n",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "required": true
+    },
+    "ContentType": {
+      "name": "Content-Type",
+      "in": "header",
+      "description": "**参数解释**:\n发送的实体的MIME类型\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,64]个字符\n**默认取值**:\napplication/json; charset=UTF-8\n",
+      "required": false,
+      "type": "string",
+      "default": "application/json; charset=UTF-8",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ProjectAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户project Token。用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,16384]个字符\n**默认取值**:\n不涉及\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

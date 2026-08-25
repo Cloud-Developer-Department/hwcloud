@@ -1,0 +1,261 @@
+{
+  "name": "ModifyExternalNetwork",
+  "summary": "修改外部网络(FusionCompute)",
+  "tags": "VRM云服务",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/orchestration/v3.0/fcvpc/external-networks/{network_id}": {
+      "put": {
+        "summary": "修改外部网络(FusionCompute)",
+        "description": "修改外部网络。",
+        "x-resource": "虚拟私有云",
+        "x-filter": "ManageOne,interservice,openapi",
+        "x-plane": "Tenant",
+        "tags": [
+          "VRM云服务"
+        ],
+        "operationId": "ModifyExternalNetwork",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户带有project信息的Token(mo_bss_adm角色的用户token)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言信息。",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "network_id",
+            "in": "path",
+            "description": "外部网络ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "description": "修改外部网络请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FCModifyExNetworkRequest"
+            }
+          }
+        ],
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > VRM云服务”章节。\n",
+        "responses": {
+          "200": {
+            "description": "修改外部网络任务创建成功。",
+            "schema": {
+              "$ref": "#/definitions/ModifyFCExternalNetworkTaskResp"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": "5e36b994-fa91-4ae8-b177-483074c04b35",
+                "network_id": "30000000223"
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "鉴权失败。"
+          },
+          "404": {
+            "description": "接口没找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "PUT https://{endpoint}/rest/orchestration/v3.0/fcvpc/external-networks/1213123414",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "cloud_infra_id": "FC_fc-bj-2_192.168.132.121",
+          "name": "external_net_1507",
+          "description": "",
+          "tx_limit": 100,
+          "tx_peak_limit": 100,
+          "tx_burst_size": 100,
+          "tx_weight": 0,
+          "priority": 7,
+          "rx_limit": 100,
+          "rx_peak_limit": 100,
+          "rx_burst_size": 100,
+          "ip_bcst_suppress": 2,
+          "is_ip_mac_bind": true,
+          "is_calc_tcp_check_sum": true,
+          "is_dhcp_isolation": true
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ModifyFCExternalNetworkTaskResp": {
+      "description": "异步接口任务响应体。",
+      "properties": {
+        "task_id": {
+          "description": "任务ID。",
+          "type": "string"
+        },
+        "network_id": {
+          "description": "网络ID。",
+          "type": "string"
+        }
+      }
+    },
+    "AllocationPool4FCExtNetwork": {
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "description": "起始IP地址。",
+          "type": "string"
+        },
+        "end": {
+          "description": "结束IP地址。",
+          "type": "string"
+        }
+      }
+    },
+    "FCModifyExNetworkRequest": {
+      "required": [
+        "cloud_infra_id",
+        "name"
+      ],
+      "properties": {
+        "cloud_infra_id": {
+          "description": "云资源池ID。",
+          "type": "string"
+        },
+        "name": {
+          "description": "网络名称。",
+          "type": "string"
+        },
+        "description": {
+          "description": "网络描述。",
+          "type": "string"
+        },
+        "tx_limit": {
+          "description": "发送平均带宽;(Mbps,) ,可选 范围:1 – 网卡最大速率(10 * 1000)\n如果已选择priority,则为必选",
+          "type": "integer",
+          "x-allowNull": true
+        },
+        "tx_peak_limit": {
+          "description": "发送峰值带宽(Mbps),可选,范围:txLimit– 网卡最大速率(10 * 1000)。\n1)只有选择了txLimit,才能选择txPeakLimit字段。\n2)txPeakLimit的默认值是txLimit。\nSRIOV场景不支持",
+          "type": "integer",
+          "x-allowNull": true
+        },
+        "tx_burst_size": {
+          "description": "发送突发大小(Mbits),可选,范围:1-10000Mbits。\n1)只有选择了txLimit,才能选择txBurstSize字段。\n2)txBurstSize默认值大小等于txPeakLimit。\n(如峰值带宽100Mbps,突发大小缺省为100Mbits)\nSRIOV场景不支持",
+          "type": "integer",
+          "x-allowNull": true
+        },
+        "priority": {
+          "description": "发送优先级(2~7),可选,优先级越小表示调度越快\n1)priority默认值为7。\n2)只有选择txLimit时,priority默认值才生效。\nSRIOV、用户态交换模式场景不支持",
+          "type": "integer",
+          "x-allowNull": true
+        },
+        "rx_limit": {
+          "description": "接收平均带宽(Mbps) ,可选 范围:1 – 网卡最大速率(10 * 1000)。\nSRIOV场景不支持",
+          "type": "integer",
+          "x-allowNull": true
+        },
+        "rx_peak_limit": {
+          "description": "接收峰值带宽(Mbps),可选,范围:rxLimit– 网卡最大速率(10 * 1000)。\n1)只有选择了rxLimit,才能选择rxPeakLimit字段。\n2)rxPeakLimit的默认值是rxLimit。\nSRIOV场景不支持",
+          "type": "integer",
+          "x-allowNull": true
+        },
+        "rx_burst_size": {
+          "description": "接收突发大小(Mbits),可选,范围:1-10000Mbits。\n1)只有选择了rxLimit,才能选择rxBurstSize字段。\n2)rxBurstSize默认值大小等于rxPeakLimit。\n(如峰值带宽100Mbps,突发大小缺省为100Mbits)\nSRIOV场景不支持",
+          "type": "integer",
+          "x-allowNull": true
+        },
+        "ip_bcst_suppress": {
+          "description": "设置广播抑制带宽,可选,默认值为0,表示不设置广播抑制带宽,设置的情况下,范围为[1,5000]pps。\nSRIOV交换模式场景不支持",
+          "type": "integer",
+          "format": "int32",
+          "default": 0
+        },
+        "is_ip_mac_bind": {
+          "description": "是否设置该端口组内的虚拟机的IP地址与MAC地址绑定,true:设置IP地址与MAC地址绑定,false:不设置IP地址与MAC地址绑定,可选,默认值为false。\nSRIOV、用户态交换模式场景不支持",
+          "type": "boolean",
+          "default": false
+        },
+        "is_calc_tcp_check_sum": {
+          "description": "是否设置填充TCP校验和,true:设置填充TCP校验和,false:不设置填充TCP校验和,可选,默认值为false。\nSRIOV、用户态交换模式场景不支持",
+          "type": "boolean",
+          "default": false
+        },
+        "is_dhcp_isolation": {
+          "description": "是否设置DHCP隔离,true:设置DHCP隔离,false:不设置DHCP隔离,可选,默认值为false。\nSRIOV交换模式场景不支持",
+          "type": "boolean",
+          "default": false
+        },
+        "ipv4_primary_dns": {
+          "description": "IPv4协议的首选DNS服务器信息。",
+          "type": "string"
+        },
+        "ipv4_second_dns": {
+          "description": "IPv4协议的备选DNS服务器信息。",
+          "type": "string"
+        },
+        "ipv6_primary_dns": {
+          "description": "IPv6协议的首选DNS服务器信息。",
+          "type": "string"
+        },
+        "ipv6_second_dns": {
+          "description": "IPv6协议的备选DNS服务器信息。",
+          "type": "string"
+        },
+        "ipv4_subnet": {
+          "description": "IPv4子网信息。",
+          "$ref": "#/definitions/Subnet4ModifyingFCExtNetwork"
+        },
+        "ipv6_subnet": {
+          "description": "IPv6子网信息。",
+          "$ref": "#/definitions/Subnet4ModifyingFCExtNetwork"
+        }
+      }
+    },
+    "Subnet4ModifyingFCExtNetwork": {
+      "properties": {
+        "allocation_pools": {
+          "description": "IP地址池。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/AllocationPool4FCExtNetwork"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

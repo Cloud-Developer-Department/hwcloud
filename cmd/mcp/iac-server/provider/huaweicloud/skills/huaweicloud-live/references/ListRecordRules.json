@@ -1,0 +1,442 @@
+{
+  "name": "ListRecordRules",
+  "summary": "查询录制规则列表",
+  "tags": "录制管理",
+  "productshort": "Live",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v1/{project_id}/record/rules": {
+      "get": {
+        "x-navigation-title": "录制管理",
+        "description": "查询录制规则列表接口,通过指定条件,查询满足条件的录制规则列表。",
+        "summary": "查询录制规则列表",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-live/live_03_0023.html)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "publish_domain",
+            "in": "query",
+            "description": "直播推流域名",
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1
+          },
+          {
+            "name": "app",
+            "in": "query",
+            "description": "流应用名称",
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          {
+            "name": "stream",
+            "in": "query",
+            "description": "流名称",
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          {
+            "name": "record_type",
+            "in": "query",
+            "description": "录制类型,如果不填写则查询所有录制类型,包括:CONTINUOUS_RECORD,COMMAND_RECORD,PLAN_RECORD,ON_DEMAND_RECORD。默认CONTINUOUS_RECORD。\n- CONTINUOUS_RECORD:持续录制,在该规则类型配置后,只要有流到推送到录制系统,就触发录制。\n- COMMAND_RECORD:命令录制,在该规则类型配置后,在流推送到录制系统后,租户需要通过命令控制该流的录制开始和结束。\n- PLAN_RECORD:计划录制,在该规则类型配置后,推的流如果在计划录制的时间区间则触发录制。\n- ON_DEMAND_RECORD:按需录制,在该规则类型配置后,录制系统收到推流后,需要调用租户提供的接口查询录制规则,并根据规则录制。",
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "enum": [
+              "CONTINUOUS_RECORD",
+              "COMMAND_RECORD",
+              "PLAN_RECORD",
+              "ON_DEMAND_RECORD"
+            ]
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询,offset大于等于0",
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "maximum": 4096,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页记录数,取值范围[1,100],默认值10",
+            "type": "integer",
+            "format": "int32",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询录制配置成功",
+            "schema": {
+              "$ref": "#/definitions/RecordRules"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "record_config": [
+                  {
+                    "id": "42810594c2fc9xxxx36b7784c76a06e8",
+                    "project_id": "05a8ae592500xxxx2f83c0091083231a",
+                    "publish_domain": "publish.xxx.com",
+                    "app": "live",
+                    "stream": "*",
+                    "record_type": "PLAN_RECORD",
+                    "default_record_config": {
+                      "record_format": [
+                        "HLS"
+                      ],
+                      "obs_addr": {
+                        "bucket": "mybucket",
+                        "location": "cn-north-4",
+                        "object": "record/"
+                      },
+                      "hls_config": {
+                        "record_cycle": 900,
+                        "record_prefix": "record-publish_domain-app-stream-file_start_time_unix/record-publish_domain-app-stream-file_start_time_unix",
+                        "record_ts_prefix": "{stream}-{file_start_time_unix}-{file_end_time_unix}-{ts_sequence_number}",
+                        "record_slice_duration": 10,
+                        "record_max_duration_to_merge_file": 60
+                      },
+                      "start_time": "2020-03-08T14:10:25Z",
+                      "end_time": "2020-03-08T15:06:25Z",
+                      "create_time": "2020-02-26T15:54:53.84Z",
+                      "update_time": "2020-02-27T15:54:53.84Z"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://live.hwcloud.com/v1/{project_id}/record/rules?publish_domain=xxx",
+        "operationId": "ListRecordRules",
+        "tags": [
+          "录制管理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "FLVRecordConfig": {
+      "required": [
+        "record_cycle"
+      ],
+      "properties": {
+        "record_cycle": {
+          "type": "integer",
+          "description": "单位为秒,周期录制时长,最小1分钟,最大12小时。如果为0则整个流录制一个文件。",
+          "maximum": 43200,
+          "minimum": 0
+        },
+        "record_prefix": {
+          "type": "string",
+          "description": "录制FLV文件含路径和文件名的前缀, 默认Record/{publish_domain}/{app}/{record_type}/{record_format}/{stream}_{file_start_time}/{file_start_time}",
+          "default": "Record/{publish_domain}/{app}/{record_type}/{record_format}/{stream}_{file_start_time}/{file_start_time}",
+          "maxLength": 512,
+          "minLength": 1
+        },
+        "record_max_duration_to_merge_file": {
+          "type": "integer",
+          "description": "录制flv拼接时长,如果流中断超过该时间,则生成新文件。单位秒。如果为0表示流中断就生成新文件。默认为0。",
+          "default": 0,
+          "maximum": 300,
+          "minimum": 0
+        }
+      }
+    },
+    "RecordRules": {
+      "type": "object",
+      "required": [
+        "total",
+        "record_config"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "查询结果的总元素数量",
+          "minimum": 0,
+          "maximum": 1024000
+        },
+        "record_config": {
+          "type": "array",
+          "description": "录制配置数组",
+          "items": {
+            "$ref": "#/definitions/RecordRule",
+            "type": "object"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        }
+      }
+    },
+    "MP4RecordConfig": {
+      "required": [
+        "record_cycle"
+      ],
+      "properties": {
+        "record_cycle": {
+          "type": "integer",
+          "description": "单位为秒,周期录制时长,最小1分钟,最大12小时。如果为0则整个流录制一个文件。",
+          "maximum": 43200,
+          "minimum": 0
+        },
+        "record_prefix": {
+          "type": "string",
+          "description": "录制文件含路径和文件名的前缀, 默认Record/{publish_domain}/{app}/{record_type}/{record_format}/{stream}_{file_start_time}/{file_start_time}",
+          "default": "Record/{publish_domain}/{app}/{record_type}/{record_format}/{stream}_{file_start_time}/{file_start_time}",
+          "maxLength": 512,
+          "minLength": 1
+        },
+        "record_max_duration_to_merge_file": {
+          "type": "integer",
+          "description": "录制mp4拼接时长,如果流中断超过该时间,则生成新文件。单位秒。如果为0表示流中断就生成新文件。默认为0。",
+          "default": 0,
+          "maximum": 300,
+          "minimum": 0
+        }
+      }
+    },
+    "VideoFormatVar": {
+      "type": "string",
+      "enum": [
+        "FLV",
+        "HLS",
+        "MP4"
+      ]
+    },
+    "HLSRecordConfig": {
+      "required": [
+        "record_cycle"
+      ],
+      "properties": {
+        "record_cycle": {
+          "type": "integer",
+          "description": "单位为秒,周期录制时长,最小1分钟(60秒),最大12小时。如果为0则整个流录制一个文件。",
+          "maximum": 43200,
+          "minimum": 0
+        },
+        "record_prefix": {
+          "type": "string",
+          "description": "录制m3u8文件含路径和文件名的前缀, 默认Record/{publish_domain}/{app}/{record_type}/{record_format}/{stream}_{file_start_time}/{stream}_{file_start_time}",
+          "default": "Record/{publish_domain}/{app}/{record_type}/{record_format}/{stream}_{file_start_time}/{stream}_{file_start_time}",
+          "maxLength": 512,
+          "minLength": 1
+        },
+        "record_ts_prefix": {
+          "type": "string",
+          "description": "录制ts文件名的前缀, 默认{file_start_time_unix}_{file_end_time_unix}_{ts_sequence_number}",
+          "default": "{file_start_time_unix}_{file_end_time_unix}_{ts_sequence_number}",
+          "maxLength": 512,
+          "minLength": 1
+        },
+        "record_slice_duration": {
+          "type": "integer",
+          "description": "录制HLS时ts的切片时长,非必须,缺省为10,单位秒,最小2,最大60",
+          "default": 10,
+          "maximum": 60,
+          "minimum": 2
+        },
+        "record_max_duration_to_merge_file": {
+          "type": "integer",
+          "description": "录制HLS文件拼接时长,如果流中断超过该时间,则生成新文件。单位秒。如果为0表示流中断就生成新文件,如果为-1则表示相同的流中断恢复后继续在30天内的前一个文件保存。默认为0。",
+          "default": 0,
+          "maximum": 300,
+          "minimum": -1
+        }
+      }
+    },
+    "RecordObsFileAddr": {
+      "required": [
+        "bucket",
+        "location",
+        "object"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "OBS的bucket名称",
+          "maxLength": 256,
+          "minLength": 1,
+          "example": "mybucket"
+        },
+        "location": {
+          "type": "string",
+          "description": "OBS Bucket所在RegionID",
+          "enum": [
+            "cn-north-4",
+            "cn-north-5",
+            "cn-north-6"
+          ]
+        },
+        "object": {
+          "type": "string",
+          "description": "OBS对象路径,遵守OBS Object定义。如果为空则保存到根目录",
+          "maxLength": 1024,
+          "minLength": 0,
+          "example": "Record/"
+        }
+      }
+    },
+    "DefaultRecordConfig": {
+      "required": [
+        "record_format",
+        "obs_addr"
+      ],
+      "properties": {
+        "record_format": {
+          "type": "array",
+          "description": "录制格式,当前支持:FLV,HLS,MP4三种格式,设置格式时必须使用大写字母",
+          "maxItems": 3,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/VideoFormatVar"
+          }
+        },
+        "obs_addr": {
+          "type": "object",
+          "description": "录制保存的租户的桶信息",
+          "$ref": "#/definitions/RecordObsFileAddr"
+        },
+        "hls_config": {
+          "$ref": "#/definitions/HLSRecordConfig"
+        },
+        "flv_config": {
+          "$ref": "#/definitions/FLVRecordConfig"
+        },
+        "mp4_config": {
+          "$ref": "#/definitions/MP4RecordConfig"
+        }
+      }
+    },
+    "RecordRule": {
+      "required": [
+        "publish_domain",
+        "app",
+        "stream"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "规则id,由服务端返回。创建或修改的时候不携带",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "publish_domain": {
+          "type": "string",
+          "description": "直播推流域名",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "app": {
+          "type": "string",
+          "description": "应用名,如果任意应用填写*。录制规则匹配的时候,优先精确app匹配,如果匹配不到,则匹配*",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "stream": {
+          "type": "string",
+          "description": "录制的流名,如果任意流名则填写*。录制规则匹配的时候,优先精确stream匹配,如果匹配不到,则匹配*",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "record_type": {
+          "type": "string",
+          "description": "录制类型,包括:CONTINUOUS_RECORD,COMMAND_RECORD,PLAN_RECORD, ON_DEMAND_RECORD。默认CONTINUOUS_RECORD。\n- CONTINUOUS_RECORD: 持续录制,在该规则类型配置后,只要有流到推送到录制系统,就触发录制。\n- COMMAND_RECORD: 命令录制,在该规则类型配置后,在流推送到录制系统后,租户需要通过命令控制该流的录制开始和结束。命令控制的接口参考/v1/{project_id}/record/control\n- PLAN_RECORD: 计划录制,在该规则类型配置后,推的流如果在计划录制的时间区间则触发录制。\n- ON_DEMAND_RECORD: 按需录制,在该规则类型配置后,录制系统收到推流后,需要调用租户提供的接口查询录制规则,并根据规则录制。租户提供的接口定义参考:/customer-record-ondemand-url",
+          "default": "CONTINUOUS_RECORD",
+          "enum": [
+            "CONTINUOUS_RECORD",
+            "COMMAND_RECORD",
+            "PLAN_RECORD",
+            "ON_DEMAND_RECORD"
+          ]
+        },
+        "default_record_config": {
+          "type": "object",
+          "description": "默认录制规则配置",
+          "$ref": "#/definitions/DefaultRecordConfig"
+        },
+        "create_time": {
+          "type": "string",
+          "description": "创建时间,格式:yyyy-mm-ddThh:mm:ssZ,UTC时间。 在查询的时候返回",
+          "maxLength": 64,
+          "minLength": 1,
+          "format": "date"
+        },
+        "update_time": {
+          "type": "string",
+          "description": "修改时间,格式:yyyy-mm-ddThh:mm:ssZ,UTC时间。 在查询的时候返回",
+          "maxLength": 64,
+          "minLength": 1,
+          "format": "date"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

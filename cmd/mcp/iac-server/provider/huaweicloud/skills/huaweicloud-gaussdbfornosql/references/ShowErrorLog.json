@@ -1,0 +1,197 @@
+{
+  "name": "ShowErrorLog",
+  "summary": "查询数据库错误日志信息",
+  "tags": "日志管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/error-log": {
+      "get": {
+        "tags": [
+          "日志管理"
+        ],
+        "summary": "查询数据库错误日志信息",
+        "description": "查询数据库错误日志",
+        "operationId": "ShowErrorLog",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-constraint": "该接口支持如下数据库实例。\n- GeminiDB Mongo副本集4.0\n\n当前仅支持查询最近的2000条错误日志。\n\n当前接口仅支持查询最近一个月内的错误日志",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "用户token。"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例ID,可以调用“查询实例列表”接口获取。如果未申请实例,可以调用“创建实例”接口创建。"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "开始时间,格式为“yyyy-mm-ddThh:mm:ssZ”。其中,T指某个时间的开始,Z指时区偏移量,例如北京时间偏移显示为+0800。开始时间不得早于当前时间31天。"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "结束时间,格式为“yyyy-mm-ddThh:mm:ssZ”。其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。\n只能查询当前时间前一个月内的错误日志。结束时间不能晚于当前时间。"
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "节点ID,取空值,表示查询实例下所有允许查询的节点。"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "语句类型,取空值,表示查询所有语句类型,也可指定如下日志类型:\n- Warning\n- Error"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "索引位置,偏移量。取值范围为 [0, 1999]。\n从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询)\n- 必须为数字,不能为负数。"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "查询记录数。取值范围[1, 100],默认10 (表示默认返回10条数据)。\n- limit 与 offset的和需要满足小于等于2000的条件。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShowErrorLogResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "error_log_list": [
+                  {
+                    "node_name": "Test_replica_node_2",
+                    "level": "WARNING",
+                    "time": "2020-12-15T08:53:01.868+0000",
+                    "content": "W NETWORK  [LogicalSessionCacheReap] Unable to reach primary for set replica"
+                  }
+                ],
+                "total_count": 1
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/375d8d8fad1f43039e23d3b6c0f60a19/instances/9136fd2a9fcd405ea4674276ce36dae8in10/error-log"
+      }
+    }
+  },
+  "definitions": {
+    "ShowErrorLogResponseBody": {
+      "type": "object",
+      "required": [
+        "total_count",
+        "error_log_list"
+      ],
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总记录数。"
+        },
+        "error_log_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ErrorLogList"
+          }
+        }
+      }
+    },
+    "ErrorLogList": {
+      "type": "object",
+      "required": [
+        "node_name",
+        "level",
+        "time",
+        "content"
+      ],
+      "properties": {
+        "node_name": {
+          "type": "string",
+          "description": "节点名称。"
+        },
+        "level": {
+          "type": "string",
+          "description": "日志级别。"
+        },
+        "time": {
+          "type": "string",
+          "description": "发生时间,UTC时间。"
+        },
+        "content": {
+          "type": "string",
+          "description": "日志内容。"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

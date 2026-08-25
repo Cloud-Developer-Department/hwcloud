@@ -1,0 +1,545 @@
+{
+  "name": "UpdateWorkspace",
+  "summary": "修改云办公服务属性",
+  "tags": "云办公服务",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/workspaces": {
+      "put": {
+        "tags": [
+          "Workspace"
+        ],
+        "summary": "修改云办公服务属性",
+        "description": "该接口目前支持修改云办公服务属性。单次请求仅支持修改一种属性类型。",
+        "operationId": "UpdateWorkspace",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "UpdateWorkspaceRequestBody",
+            "description": "修改云办公服务属性请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModifyWorkspaceAttributesReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "修改云办公服务属性响应。",
+            "examples": {
+              "application/json": {
+                "job_id": "0000000059071dbc01591661d3990019"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ModifyWorkspaceAttributesRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:tenants:update\",  needApigwJwtAuthCheck = false, needRbacCheck = false, authContextInitializerName = \"workspaceTenantAuthContextInitializer\")",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"updateWorkspace\")"
+        ],
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-support-hcs": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "PUT /v2/fb2e5ec048384c8f9469d22db0037908/workspaces",
+        "x-request-examples-1": {
+          "access_mode": "BOTH"
+        },
+        "x-request-examples-2": {
+          "ad_domains": {
+            "domain_type": "LOCAL_AD",
+            "domain_admin_account": "vdsadmin",
+            "active_domain_ip": "192.161.43.66",
+            "standby_domain_ip": "192.161.43.67",
+            "domain_name": "vdesktop.huawei.com",
+            "domain_password": "xxxxxxxxxx@",
+            "active_domain_name": "AD-xxx-0001.vdesktop.huawei.com",
+            "active_dns_ip": "192.161.43.66",
+            "standby_domain_name": "AD-xxx-0002.vdesktop.huawei.com",
+            "standby_dns_ip": "192.161.43.67",
+            "cba_enabled": true,
+            "certificate_id": "xxxxxxxxxxx"
+          }
+        },
+        "x-request-examples-3": {
+          "access_mode": "DEDICATED",
+          "dedicated_subnets": "192.168.0.0/24;10.0.0.0/16"
+        },
+        "x-request-examples-4": {
+          "is_send_email": false
+        },
+        "x-apig-group": "public,internal_token"
+      }
+    }
+  },
+  "definitions": {
+    "DomainController": {
+      "required": [
+        "dc_ip",
+        "dc_name"
+      ],
+      "properties": {
+        "dc_ip": {
+          "type": "string",
+          "description": "域控制器IP地址。",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^((\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])$"
+        },
+        "dc_name": {
+          "type": "string",
+          "description": "域控制器名称。",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "description": "域控制器信息。"
+    },
+    "AdDomain": {
+      "required": [
+        "domain_type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "域id。"
+        },
+        "domain_type": {
+          "type": "string",
+          "description": "域类型。\n- LITE_AS:本地认证。\n- LOCAL_AD:本地AD。\n说明:域类型为“LOCAL_AD”时,请确保所选VPC网络与AD所属网络可连通。",
+          "minLength": 1,
+          "maxLength": 55,
+          "enum": [
+            "LITE_AS",
+            "LOCAL_AD"
+          ]
+        },
+        "domain_name": {
+          "type": "string",
+          "description": "域名称。域类型为LOCAL_AD时需要配置。\n域名必须为AD服务器上已经存在的域名,且长度不超过55。",
+          "minLength": 1,
+          "maxLength": 55
+        },
+        "domain_admin_account": {
+          "type": "string",
+          "description": "域管理员账号。域类型为LOCAL_AD时需要配置。\n必须为AD服务器上已经存在的域管理员账号。",
+          "minLength": 1,
+          "maxLength": 55
+        },
+        "domain_password": {
+          "type": "string",
+          "description": "域管理员账号密码。域类型为LOCAL_AD时需要配置。",
+          "minLength": 1,
+          "maxLength": 255,
+          "x-isSensitive": true
+        },
+        "active_domain_ip": {
+          "type": "string",
+          "description": "主域控制器IP地址。域类型为LOCAL_AD时需要配置。",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^((\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])$"
+        },
+        "active_domain_name": {
+          "type": "string",
+          "description": "主域控制器名称。域类型为LOCAL_AD时需要配置。",
+          "minLength": 1,
+          "maxLength": 55
+        },
+        "standby_domain_ip": {
+          "type": "string",
+          "description": "备域控制器IP地址。域类型为LOCAL_AD时且配置备节点时需要配置。",
+          "minLength": 0,
+          "maxLength": 255,
+          "pattern": "^((\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])$"
+        },
+        "standby_domain_name": {
+          "type": "string",
+          "description": "备域控制器名称。域类型为LOCAL_AD时且配置备节点时需要配置。",
+          "minLength": 0,
+          "maxLength": 55
+        },
+        "active_dns_ip": {
+          "type": "string",
+          "description": "主DNS IP地址。域类型为LOCAL_AD时需要配置。",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^((\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])$"
+        },
+        "standby_dns_ip": {
+          "type": "string",
+          "description": "备DNS IP地址。域类型为LOCAL_AD时且配置备节点时需要配置。",
+          "minLength": 0,
+          "maxLength": 255,
+          "pattern": "^((\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])$"
+        },
+        "delete_computer_object": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否在删除桌面的同时删除AD上对应的计算机对象,0代表不删除,1代表删除。",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0
+        },
+        "use_ldaps": {
+          "type": "boolean",
+          "description": "是否开启LDAPS。",
+          "default": false,
+          "x-hcs-ignore": true
+        },
+        "tls_config": {
+          "$ref": "#/definitions/TlsConfig"
+        },
+        "cba_enabled": {
+          "type": "boolean",
+          "description": "是否开启智能卡认证。"
+        },
+        "certificate_id": {
+          "type": "string",
+          "description": "智能卡证书id。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "domain_controllers": {
+          "type": "array",
+          "description": "域控制器信息列表。有值时,active_domain_name、active_domain_ip、standby_domain_name、standby_domain_ip无效。",
+          "items": {
+            "$ref": "#/definitions/DomainController"
+          },
+          "maxItems": 1000,
+          "minItems": 0,
+          "x-maxLength": 1000,
+          "x-minLength": 0
+        }
+      },
+      "description": "域信息。"
+    },
+    "ModifyWorkspaceAttributesRsp": {
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "修改云办公服务属性的任务ID。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "enterprise_id": {
+          "type": "string",
+          "description": "企业ID。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "dc_vnc_ip": {
+          "type": "string",
+          "description": "专线vnc访问的ip。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "description": "修改服务属性响应。"
+    },
+    "ModifyWorkspaceAttributesReq": {
+      "properties": {
+        "ad_info": {
+          "$ref": "#/definitions/AdDomainInfo"
+        },
+        "ad_domains": {
+          "$ref": "#/definitions/AdDomain"
+        },
+        "access_mode": {
+          "type": "string",
+          "description": "接入模式。\n- INTERNET:互联网接入。\n- DEDICATED:专线接入。\n- BOTH:代表两种接入方式都支持。",
+          "minLength": 1,
+          "maxLength": 55,
+          "enum": [
+            "INTERNET",
+            "DEDICATED",
+            "BOTH"
+          ]
+        },
+        "dedicated_subnets": {
+          "type": "string",
+          "example": "192.168.0.0/24;10.0.0.0/16",
+          "description": "专线接入网段列表,多个网段信息用分号隔开,列表长度不超过5。",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "adn_conflict_network": {
+          "type": "string",
+          "example": "7.88.123.0/24;8.99.0.0/16",
+          "description": "ADN上网冲突网段列表,多个网段信息用分号隔开,列表长度不超过50。",
+          "minLength": 0,
+          "maxLength": 1000,
+          "x-hcs-ignore": true
+        },
+        "subnet_ids": {
+          "type": "array",
+          "description": "子网的网络ID列表。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 5000
+          },
+          "maxItems": 100,
+          "minItems": 0,
+          "x-maxLength": 100,
+          "x-minLength": 0
+        },
+        "internet_access_port": {
+          "type": "string",
+          "description": "互联网接入端口。",
+          "minLength": 0,
+          "maxLength": 10
+        },
+        "enterprise_id": {
+          "type": "string",
+          "description": "企业ID。",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "is_send_email": {
+          "type": "boolean",
+          "description": "桌面退订是否发送邮件通知。"
+        },
+        "dc_vnc_ip": {
+          "type": "string",
+          "description": "开通专线访问VNC功能,如果传入的是default则自动创建,如果传入的自定义的dc_vnc_ip则直接使用,如果传入的是close表示关闭自定义VNC。",
+          "minLength": 0,
+          "maxLength": 255,
+          "x-hcs-ignore": true
+        },
+        "authorized_collect_log": {
+          "type": "boolean",
+          "description": "是否授权收集日志。"
+        },
+        "authorized_hda_upgrade": {
+          "type": "boolean",
+          "description": "是否授权hda升级。"
+        },
+        "apply_shared_vpc_dedicated_param": {
+          "$ref": "#/definitions/ApplySharedVpcDedicatedParam"
+        },
+        "apply_dedicated_standby_network_param": {
+          "$ref": "#/definitions/ApplyDedicatedStandbyNetworkParam"
+        },
+        "is_authorized_install_agent": {
+          "type": "boolean",
+          "description": "是否授权桌面自动安装agent插件。"
+        },
+        "enable_user_create_snapshot": {
+          "type": "boolean",
+          "description": "是否授权最终租户创建快照。"
+        }
+      }
+    },
+    "ApplyDedicatedStandbyNetworkParam": {
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "租户指定的专线备用地址。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "port": {
+          "type": "integer",
+          "description": "租户指定的专线备用地址端口。",
+          "minimum": 1025,
+          "maximum": 65535
+        },
+        "availability_zone": {
+          "type": "array",
+          "description": "开通服务资源使用的可用分区,默认随机使用2个可用区。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 255
+          },
+          "maxItems": 10,
+          "minItems": 0
+        }
+      },
+      "description": "开通专线备用线路入参。"
+    },
+    "AdDomainInfo": {
+      "required": [
+        "domain_admin_account",
+        "domain_password",
+        "domain_type"
+      ],
+      "properties": {
+        "domain_type": {
+          "type": "string",
+          "description": "域类型。\n- LITE_AS:LiteAS。\n- LOCAL_AD:本地AD。\n说明:域类型为“LOCAL_AD”时,请确保所选VPC网络与“LOCAL_AD”所属网络可连通。",
+          "minLength": 1,
+          "maxLength": 55,
+          "enum": [
+            "LITE_AS",
+            "LOCAL_AD"
+          ]
+        },
+        "domain_admin_account": {
+          "type": "string",
+          "description": "域管理员账号。",
+          "minLength": 1,
+          "maxLength": 55
+        },
+        "domain_password": {
+          "type": "string",
+          "description": "域管理员账号密码。",
+          "minLength": 1,
+          "maxLength": 255,
+          "x-isSensitive": true
+        },
+        "cba_enabled": {
+          "type": "boolean",
+          "description": "是否开启智能卡认证。"
+        },
+        "certificate_id": {
+          "type": "string",
+          "description": "智能卡证书id。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "description": "域信息。"
+    },
+    "ApplySharedVpcDedicatedParam": {
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "租户指定的共享Vpc专线地址。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "port": {
+          "type": "integer",
+          "description": "租户指定共享Vpc专线地址端口。",
+          "minimum": 1025,
+          "maximum": 65535
+        },
+        "availability_zone": {
+          "type": "array",
+          "description": "开通服务资源使用的可用分区,默认随机使用2个可用区。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 255
+          },
+          "maxItems": 10,
+          "minItems": 0,
+          "x-maxLength": 10,
+          "x-minLength": 0
+        }
+      },
+      "description": "共享Vpc专线入参。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    },
+    "TlsConfig": {
+      "properties": {
+        "cert_pem": {
+          "type": "string",
+          "description": "pem内容, 有则更新,无则上传。查询不返回。",
+          "minLength": 0,
+          "maxLength": 8192
+        },
+        "cert_start_time": {
+          "type": "string",
+          "description": "证书生效开始时间,时间参考样例 2022-01-25T09:24:27。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "cert_end_time": {
+          "type": "string",
+          "description": "证书生效截止时间,时间参考样例 2022-01-25T09:24:27。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "description": "TLS信息。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

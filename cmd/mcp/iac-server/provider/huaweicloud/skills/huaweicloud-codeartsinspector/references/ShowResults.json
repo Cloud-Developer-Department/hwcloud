@@ -1,0 +1,324 @@
+{
+  "name": "ShowResults",
+  "summary": "获取网站扫描结果",
+  "tags": "网站报告管理",
+  "productshort": "CodeArtsInspector",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/{project_id}/webscan/results": {
+      "get": {
+        "tags": [
+          "web_results"
+        ],
+        "summary": "获取网站扫描结果",
+        "description": "获取网站漏洞扫描结果",
+        "operationId": "ShowResults",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 102400
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户的project_id,获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-vss/vss_api_04_019.html)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32
+          },
+          {
+            "name": "task_id",
+            "in": "query",
+            "description": "任务ID",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 50,
+            "x-example": "017281b97c9845b08174895992ba179643028"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "分页查询,偏移量,表示从此偏移量开始查询",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 10000,
+            "default": 0,
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页查询,每页显示的条目数量",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 5,
+            "x-example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ShowResultsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "data": [
+                  {
+                    "vuln_id": "006e7c21dc390410c2270bf9bebf7b1e",
+                    "domain_id": "2ec0993b8572455aacf14b6f9288b167",
+                    "url": "https://127.0.0.1:8080/examples/test.html",
+                    "severity": "middle",
+                    "vuln_status": "repairing",
+                    "vuln_class": "CSRF",
+                    "vuln_type": "Cross-Site Request Forgery",
+                    "description": "Attackers can induce web visitors to send requests to servers to cause request forgery, causing loss of web visitor data.",
+                    "advice": "Use secure anti-csrf tokens to prevent CSRF and replay.",
+                    "hit_details": "Referer",
+                    "request": "The first request ------------------",
+                    "response": "The first response ------------------",
+                    "find_time": "2021-09-18 16:26:24"
+                  }
+                ],
+                "statistics": {
+                  "high": 0,
+                  "middle": 1,
+                  "low": 0,
+                  "hint": 0
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "418": {
+            "description": "I'm a teapot",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/{project_id}/webscan/results?task_id=017281b97c9845b08174895992ba179643028"
+      }
+    }
+  },
+  "definitions": {
+    "ShowResultsResponseBody": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "网站漏洞总数",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "data": {
+          "type": "array",
+          "description": "网站漏洞信息列表",
+          "items": {
+            "$ref": "#/definitions/VulnItem"
+          },
+          "minItems": 0,
+          "maxItems": 100000
+        },
+        "statistics": {
+          "description": "网站漏洞风险等级统计",
+          "$ref": "#/definitions/VulnsLevel"
+        }
+      }
+    },
+    "VulnItem": {
+      "properties": {
+        "vuln_id": {
+          "type": "string",
+          "description": "漏洞ID",
+          "minLength": 32,
+          "maxLength": 32,
+          "example": "006e7c21dc390410c2270bf9bebf7b1e"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "网站域名ID",
+          "minLength": 32,
+          "maxLength": 32,
+          "example": "2ec0993b8572455aacf14b6f9288b167"
+        },
+        "url": {
+          "type": "string",
+          "description": "目标网址",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "https://127.0.0.1:8080/examples/test.html"
+        },
+        "severity": {
+          "type": "string",
+          "description": "漏洞风险等级:\n  * high - 高风险\n  * middle - 中风险\n  * low - 低风险\n  * hint - 提示\n",
+          "enum": [
+            "high",
+            "middle",
+            "low",
+            "hint"
+          ]
+        },
+        "vuln_status": {
+          "type": "string",
+          "description": "漏洞状态:\n  * repairing - 未修复\n  * repaired - 已修复\n  * false_report - 误报,已忽略\n",
+          "enum": [
+            "repairing",
+            "repaired",
+            "false_report"
+          ]
+        },
+        "vuln_class": {
+          "type": "string",
+          "description": "漏洞类别",
+          "minLength": 0,
+          "maxLength": 64,
+          "example": "InformationLeakage"
+        },
+        "vuln_type": {
+          "type": "string",
+          "description": "漏洞名称",
+          "minLength": 0,
+          "maxLength": 64,
+          "example": "Insecure HTTP Method"
+        },
+        "description": {
+          "type": "string",
+          "description": "漏洞描述",
+          "minLength": 0,
+          "maxLength": 1000,
+          "example": "Attackers can use the OPTIONS and Trace methods to enumerate server information."
+        },
+        "advice": {
+          "type": "string",
+          "description": "修复建议",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "hit_details": {
+          "type": "string",
+          "description": "命中详情",
+          "minLength": 0,
+          "maxLength": 1000000
+        },
+        "request": {
+          "type": "string",
+          "description": "请求详情",
+          "minLength": 0,
+          "maxLength": 1000000
+        },
+        "response": {
+          "type": "string",
+          "description": "响应详情",
+          "minLength": 0,
+          "maxLength": 1000000
+        },
+        "provider": {
+          "type": "string",
+          "description": "漏洞确认人",
+          "minLength": 0,
+          "maxLength": 32,
+          "example": "user1"
+        },
+        "reason": {
+          "type": "string",
+          "description": "漏洞忽略理由",
+          "minLength": 0,
+          "maxLength": 1000,
+          "example": "确认该漏洞是误报"
+        },
+        "find_time": {
+          "type": "string",
+          "description": "漏洞发现时间",
+          "minLength": 0,
+          "maxLength": 19,
+          "example": "2021-09-18 16:26:24"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 0,
+          "maxLength": 50,
+          "example": "VSS.00006016"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 0,
+          "maxLength": 256,
+          "example": "Invalid domain parameter."
+        }
+      }
+    },
+    "VulnsLevel": {
+      "properties": {
+        "high": {
+          "type": "integer",
+          "format": "int32",
+          "description": "高危漏洞数",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "middle": {
+          "type": "integer",
+          "format": "int32",
+          "description": "中危漏洞数",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "low": {
+          "type": "integer",
+          "format": "int32",
+          "description": "低危漏洞数",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "hint": {
+          "type": "integer",
+          "format": "int32",
+          "description": "提示危漏洞数",
+          "minimum": 0,
+          "maximum": 1000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "vss.myhuaweicloud.com",
+  "base_path": "/v3",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

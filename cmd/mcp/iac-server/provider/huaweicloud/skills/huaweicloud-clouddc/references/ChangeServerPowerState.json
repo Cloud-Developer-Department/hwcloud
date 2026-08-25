@@ -1,0 +1,173 @@
+{
+  "name": "ChangeServerPowerState",
+  "summary": "批量修改物理服务器电源状态",
+  "tags": "物理服务器管理",
+  "productshort": "CloudDC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{project_id}/physicalservers/power-state": {
+      "put": {
+        "tags": [
+          "物理服务器管理"
+        ],
+        "summary": "批量修改物理服务器电源状态",
+        "description": "修改物理服务器电源状态,此接口为异步接口,电源状态修改成功与否需要根据查询物理服务器信息获得",
+        "operationId": "ChangeServerPowerState",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "ChangeServerPowerStateRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "修改电源状态",
+            "schema": {
+              "$ref": "#/definitions/PowerAction"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "修改电源成功",
+            "schema": {
+              "$ref": "#/definitions/ServersResponse"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "ServersResponse": {
+      "description": "物理服务器批量资源返回信息",
+      "properties": {
+        "physical_servers": {
+          "description": "物理服务器返回信息",
+          "type": "array",
+          "items": {
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/ResourceUuid"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "ResourceUuid": {
+      "type": "string",
+      "description": "UUID(Universally Unique Identifier)是一个 128 位的数字,通常以 32 个十六进制数字的形式表示,分为 5 组,用连字符分隔。具体格式如下:\n\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n其中:\n\n每个 x 是一个十六进制数字(0-9 或 a-f)。\n5 组的长度分别是:8 位、4 位、4 位、4 位 和 12 位。\n为了匹配这种格式的 UUID,可以使用以下正则表达式:\n\nregex\n^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+    },
+    "PowerAction": {
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "电源操作",
+          "enum": [
+            "power on",
+            "power off",
+            "rebooting"
+          ],
+          "minLength": 2,
+          "maxLength": 32,
+          "example": "power on"
+        },
+        "server_id_set": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceUuid"
+          },
+          "description": "server id set"
+        }
+      },
+      "description": "电源状态:\n- power on:正常开启电源\n- power off:正常关闭电源\n- rebooting:重启"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

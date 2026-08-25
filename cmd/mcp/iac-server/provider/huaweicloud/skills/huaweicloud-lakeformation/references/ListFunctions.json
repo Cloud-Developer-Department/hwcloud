@@ -1,0 +1,445 @@
+{
+  "name": "ListFunctions",
+  "summary": "列举函数",
+  "tags": "函数管理",
+  "productshort": "LakeFormation",
+  "region_id": "la-north-2",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/catalogs/{catalog_name}/databases/{database_name}/functions": {
+      "get": {
+        "tags": [
+          "Function"
+        ],
+        "summary": "列举函数",
+        "description": "列举函数",
+        "operationId": "ListFunctions",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+$"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例Id",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{36}$"
+          },
+          {
+            "name": "catalog_name",
+            "in": "path",
+            "description": "catalog名字",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "[a-zA-Z0-9_]+"
+          },
+          {
+            "name": "database_name",
+            "in": "path",
+            "description": "数据库名字",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$"
+          },
+          {
+            "name": "function_name_pattern",
+            "in": "query",
+            "description": "函数名通配符",
+            "required": false,
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^[a-zA-Z0-9_|*.]*$"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询返回满足条件的function数量",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "maximum": 2000,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "当前查询的起始位置",
+            "required": false,
+            "type": "string",
+            "maxLength": 256
+          },
+          {
+            "name": "reverse_page",
+            "in": "query",
+            "description": "是否查询上一页",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "x-annotations": [
+              "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+            ],
+            "x-imports": [
+              "com.huawei.us.validator.annotation.UsNoConstraint;"
+            ]
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "page_info": {
+                  "current_count": 2
+                },
+                "functions": [
+                  {
+                    "catalog_name": "catalog_1",
+                    "database_name": "database",
+                    "function_name": "123kk",
+                    "function_type": "JAVA",
+                    "owner": "owner_1",
+                    "owner_type": "USER",
+                    "class_name": "lxy",
+                    "create_time": "2022-12-08T08:18:54.000+00:00",
+                    "resource_uris": [
+                      {
+                        "type": "FILE",
+                        "uri": "obs://lakeformation-test/test2/6/"
+                      }
+                    ]
+                  },
+                  {
+                    "catalog_name": "catalog_2",
+                    "database_name": "database",
+                    "function_name": "1456",
+                    "function_type": "JAVA",
+                    "owner": "owner_2",
+                    "owner_type": "USER",
+                    "class_name": "34",
+                    "create_time": "2022-12-09T01:50:56.000+00:00",
+                    "resource_uris": [
+                      {
+                        "type": "JAR",
+                        "uri": "obs://lakeformation-test/"
+                      },
+                      {
+                        "type": "FILE",
+                        "uri": "obs://lakeformation-test/test3/"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/PagedListFunction"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-request-examples-url-1": "/v1/{project_id}/instances/{instance_id}/catalogs/{catalog_name}/databases/{database_name}/functions",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "PagedListFunction": {
+      "properties": {
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PagedInfo"
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Function"
+          }
+        }
+      }
+    },
+    "PagedInfo": {
+      "type": "object",
+      "required": [
+        "current_count",
+        "next_marker",
+        "previous_marker"
+      ],
+      "properties": {
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本次返回的对象个数",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "next_marker": {
+          "type": "string",
+          "example": "006f492b-xxxx",
+          "description": "下一页查询地址",
+          "maxLength": 32
+        },
+        "previous_marker": {
+          "type": "string",
+          "example": "003e6eba-xxxx",
+          "description": "上一页查询地址",
+          "maxLength": 32
+        }
+      },
+      "description": "分页返回信息"
+    },
+    "Function": {
+      "properties": {
+        "catalog_name": {
+          "type": "string",
+          "description": "catalog名称",
+          "pattern": "[a-zA-Z0-9_]+",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "database_name": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$",
+          "description": "数据库名称"
+        },
+        "function_name": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "[a-zA-Z0-9_]+",
+          "description": "函数名称。只能包含字母、数字和下划线,且长度为1~256个字符。"
+        },
+        "function_type": {
+          "type": "string",
+          "enum": [
+            "JAVA"
+          ],
+          "description": "函数类型,JAVA"
+        },
+        "owner": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "[a-zA-Z0-9_]+",
+          "description": "函数所有者。只能包含字母、数字和下划线,且长度为1~256个字符。"
+        },
+        "owner_type": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "GROUP",
+            "ROLE"
+          ],
+          "description": "所有者类型,USER-用户,GROUP-组,ROLE-角色"
+        },
+        "owner_auth_source_type": {
+          "type": "string",
+          "enum": [
+            "IAM",
+            "SAML",
+            "LDAP",
+            "LOCAL",
+            "AGENTTENANT",
+            "OTHER"
+          ],
+          "description": "所有者授权来源类型,IAM-云用户,SAML-联邦,LDAP-ld用户,LOCAL-本地用户,AGENTTENANT-委托,OTHER-其它。LakeFormation服务分为一期和二期,一期响应Body无该参数。"
+        },
+        "class_name": {
+          "type": "string",
+          "description": "函数类名",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间格式为yyyy-mm-ddThh:mm:sss"
+        },
+        "resource_uris": {
+          "type": "array",
+          "description": "函数地址信息",
+          "items": {
+            "$ref": "#/definitions/FunctionResourceUri"
+          },
+          "minItems": 0,
+          "maxItems": 1000
+        }
+      },
+      "description": "函数信息",
+      "required": [
+        "catalog_name",
+        "database_name",
+        "function_name",
+        "function_type",
+        "owner",
+        "owner_type",
+        "class_name"
+      ],
+      "type": "object"
+    },
+    "FunctionResourceUri": {
+      "required": [
+        "type",
+        "uri"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "函数包类型",
+          "enum": [
+            "JAR",
+            "FILE",
+            "ARCHIVE"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "description": "函数包地址信息",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^obs://.+"
+        }
+      },
+      "description": "函数包信息"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.la-north-2.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

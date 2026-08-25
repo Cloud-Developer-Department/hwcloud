@@ -1,0 +1,250 @@
+{
+  "name": "ListPlayDomainStreamInfo",
+  "summary": "查询播放域名下的流数据",
+  "tags": "数据统计分析",
+  "productshort": "Live",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v2/{project_id}/stats/stream/play-info": {
+      "get": {
+        "tags": [
+          "DataStatisticsAnalysis"
+        ],
+        "summary": "查询播放域名下的流数据",
+        "description": "查询播放域名下的监控数据,根据输入时间点,返回查询该时间点所有流的带宽、在线人数、协议。\n返回的数据粒度为1分钟。\n最大查询周期7天,数据延迟5分钟。\n",
+        "operationId": "ListPlayDomainStreamInfo",
+        "deprecated": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-external-api": true,
+        "x-interface-frequency": "HIGH",
+        "x-api-type": "open-api",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。使用Token鉴权方式时必选。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带的鉴权信息。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+          },
+          {
+            "name": "X-Sdk-Date",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "20191115T033655Z"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-live/live_03_0023.html)。\n",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "in": "query",
+            "name": "play_domains",
+            "description": "播放域名列表,最多支持查询10个域名,多个域名以逗号分隔。\n\n如果不传入域名,则查询租户下所有播放域名的流数据。\n",
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100,
+            "required": false,
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "time",
+            "description": "查询数据的时间点,精确到分钟。\n\n日期格式按照ISO8601表示法,并使用UTC时间。\n\n格式为:YYYY-MM-DDThh:mm:ssZ,最大查询周期七天。\n\n时间必须为时间粒度整时刻点,如:2024-02-02T08:01:00Z。\n",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 64
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。\n",
+            "schema": {
+              "$ref": "#/definitions/PlayDomainStreamInfoRsp"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求的唯一标识。"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "time": "2024-06-06T08:00:00Z",
+                "data_list": [
+                  {
+                    "play_domain": "play.example.com",
+                    "stream": "test_stream_01",
+                    "bandwidth": 1245,
+                    "online": 123,
+                    "protocol": "hls"
+                  },
+                  {
+                    "play_domain": "play.example.com",
+                    "stream": "test_stream_02",
+                    "bandwidth": 1025,
+                    "online": 60,
+                    "protocol": "hls"
+                  },
+                  {
+                    "play_domain": "play.example01.com",
+                    "stream": "test_stream_03",
+                    "bandwidth": 3242,
+                    "online": 546,
+                    "protocol": "flv"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "处理失败返回。\n",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求的唯一标识。"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Invalid request parameter: domains"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询播放域名下的流信息",
+        "x-request-examples-url-1": "GET /v2/{project_id}/stats/stream/play-info?play_domains=play.example.com&time=2024-06-06T08:00:00Z\n"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "PlayDomainStreamInfo": {
+      "type": "object",
+      "properties": {
+        "play_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "播放域名"
+        },
+        "stream": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "播放流名"
+        },
+        "protocol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "播放的协议,支持flv,hls,rtmp。"
+        },
+        "bandwidth": {
+          "type": "integer",
+          "format": "int64",
+          "description": "1分钟粒度的带宽值,单位为bps。",
+          "minimum": 0,
+          "maximum": 50000000000000000
+        },
+        "online": {
+          "type": "integer",
+          "format": "int64",
+          "description": "1分钟粒度的在线人数。",
+          "minimum": 0,
+          "maximum": 1000000000
+        }
+      }
+    },
+    "PlayDomainStreamInfoRsp": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "description": "采样时间。日期格式按照ISO8601表示法,并使用UTC时间。 格式为:YYYY-MM-DDThh:mm:ssZ。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "data_list": {
+          "description": "采样数据列表",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 86400,
+          "items": {
+            "$ref": "#/definitions/PlayDomainStreamInfo"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

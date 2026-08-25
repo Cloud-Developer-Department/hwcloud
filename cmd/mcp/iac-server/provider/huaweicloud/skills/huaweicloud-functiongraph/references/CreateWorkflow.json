@@ -1,0 +1,887 @@
+{
+  "name": "CreateWorkflow",
+  "summary": "创建函数流",
+  "tags": "函数流",
+  "productshort": "FunctionGraph",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/fgs/workflows": {
+      "post": {
+        "tags": [
+          "函数流"
+        ],
+        "summary": "创建函数流",
+        "description": "创建函数流",
+        "operationId": "CreateWorkflow",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户project_id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "CreateWorkflowRequestBody",
+            "description": "创建函数流的body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WorkflowCreateBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/WorkflowSimpleInfo"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp500"
+            }
+          }
+        },
+        "x-request-examples-text-1": {
+          "name": "workflow_test",
+          "start": "test",
+          "functions": [
+            {
+              "name": "test",
+              "operation": "urn:fss:{regin}:c53626012ba84727b938ca8bf03108ef:test:latest"
+            }
+          ],
+          "constants": {},
+          "states": [
+            {
+              "id": "test",
+              "name": "test",
+              "type": "Operation",
+              "end": false,
+              "transition": "end",
+              "actions": [
+                {
+                  "function_ref": {
+                    "ref_name": "test",
+                    "arguments": {
+                      "execution_name": "$.test"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "end",
+              "name": "end",
+              "type": "End",
+              "end": true,
+              "transition": "",
+              "state_data_filter": {
+                "input": "",
+                "output": ""
+              },
+              "actions": [],
+              "action_mode": ""
+            }
+          ],
+          "retries": [
+            {
+              "name": "test"
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "name": "workflow_test",
+          "start": "test",
+          "functions": [
+            {
+              "name": "test",
+              "operation": "urn:fss:{regin}:c53626012ba84727b938ca8bf03108ef:test:latest"
+            }
+          ],
+          "constants": {},
+          "states": [
+            {
+              "id": "test",
+              "name": "test",
+              "type": "Operation",
+              "end": false,
+              "transition": "end",
+              "actions": [
+                {
+                  "function_ref": {
+                    "ref_name": "test",
+                    "arguments": {
+                      "execution_name": "$.test"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "end",
+              "name": "end",
+              "type": "End",
+              "end": true,
+              "transition": "",
+              "state_data_filter": {
+                "input": "",
+                "output": ""
+              },
+              "actions": [],
+              "action_mode": ""
+            }
+          ],
+          "retries": [
+            {
+              "name": "test"
+            }
+          ]
+        },
+        "x-request-examples-description-1": "创建函数流。",
+        "x-request-examples-url-1": "POST /v2/{project_id}/fgs/workflows",
+        "x-support-sdk": "Y",
+        "x-produc-type": "functiongraph"
+      }
+    }
+  },
+  "definitions": {
+    "StateDataFilter": {
+      "properties": {
+        "input": {
+          "type": "string",
+          "example": "$.body",
+          "description": "输入过滤表达式(JsonPath)",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "output": {
+          "type": "string",
+          "example": "$.body",
+          "description": "输出过滤表达式(JsonPath)",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      },
+      "description": "输入输出过滤配置"
+    },
+    "OnError": {
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "$.errorCode == 500",
+          "description": "错误匹配表达式,用来过滤需要处理的异常",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "transition": {
+          "type": "string",
+          "example": "Node1",
+          "description": "下一步骤节点ID",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "retry_ref": {
+          "type": "string",
+          "example": "retry-policy1",
+          "description": "重试策略名称",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      },
+      "description": "错误处理策略详情"
+    },
+    "WorkflowSimpleInfo": {
+      "required": [
+        "created_by",
+        "created_time",
+        "description",
+        "id",
+        "name",
+        "updated_time",
+        "workflow_urn",
+        "enable_stream_response"
+      ],
+      "properties": {
+        "enable_stream_response": {
+          "type": "boolean",
+          "description": "函数流是否返回流式数据",
+          "example": false
+        },
+        "id": {
+          "type": "string",
+          "example": "48aff955-ea10-4ffd-b426-190bc192dc14",
+          "description": "唯一标识ID,流程定义ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "workflow_urn": {
+          "$ref": "#/definitions/WorkflowUrn"
+        },
+        "name": {
+          "type": "string",
+          "example": "test-flow",
+          "description": "流程定义名称",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "description": {
+          "type": "string",
+          "example": "desc",
+          "description": "流程定义描述",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "created_time": {
+          "type": "string",
+          "example": "2021-01-01T00:00:00Z",
+          "description": "流程创建时间,格式:yyyy-MM-ddTHH:mm:ssZ,UTC时间",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "updated_time": {
+          "type": "string",
+          "example": "2021-01-01T00:00:00Z",
+          "description": "流程修改时间,格式:yyyy-MM-ddTHH:mm:ssZ,UTC时间",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "created_by": {
+          "type": "string",
+          "example": "admin",
+          "description": "流程创建者",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "description": "函数流详情"
+    },
+    "Retry": {
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "retry-policy1",
+          "description": "重试策略名称,在单个流程中,名称需要唯一",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^([_a-zA-Z0-9().-]|[\\一-\\龥]){1,256}$"
+        },
+        "delay": {
+          "type": "integer",
+          "format": "int64",
+          "example": 10,
+          "description": "重试间隔,单位:秒。若不传,默认为1",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "max_attempts": {
+          "type": "integer",
+          "format": "int64",
+          "example": 5,
+          "description": "最大重试次数,。若不传,默认为3",
+          "minimum": 1,
+          "maximum": 8
+        }
+      },
+      "description": "重试策略"
+    },
+    "OBSTriggerConfig": {
+      "required": [
+        "bucket",
+        "events",
+        "prefix",
+        "suffix"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "example": "bucket",
+          "description": "OBS桶名(trigger_type为OBS时配置)",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "events": {
+          "type": "array",
+          "example": [
+            "ObjectCreated:Put",
+            "ObjectRemoved:Delete"
+          ],
+          "description": "OBS事件列表(trigger_type为OBS时配置)",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 64,
+          "minItems": 1
+        },
+        "prefix": {
+          "type": "string",
+          "example": "pre",
+          "description": "对象名前缀(trigger_type为OBS时配置)",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "suffix": {
+          "type": "string",
+          "example": "mp4",
+          "description": "对象名后缀(trigger_type为OBS时配置)",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "description": "触发器结构体"
+    },
+    "WorkflowUrn": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "函数工作流URN, 格式为:\nurn:fss:<region_id>:<project_id>:workflow:\\<package\\>:<workflow_name>:\\<version\\>\n注意:\npackage当前只支持default\nversion当前只支持latest",
+      "example": "urn:fss:cn-north-7:73d69ae0cfcf460190522d060f05ad:workflow:default:testflow:latest"
+    },
+    "Action": {
+      "properties": {
+        "function_ref": {
+          "$ref": "#/definitions/FunctionRef"
+        }
+      },
+      "description": "节点操作详情"
+    },
+    "Trigger": {
+      "required": [
+        "trigger_name",
+        "trigger_type"
+      ],
+      "properties": {
+        "trigger_name": {
+          "type": "string",
+          "example": "trigger-obs",
+          "description": "触发器名称",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "trigger_type": {
+          "type": "string",
+          "example": "OBS",
+          "description": "触发器类型\nFLOWTIMER:定时触发器\nSMN:SMN触发器\nAPIG:APIG触发器(共享版)\nAPIG_DE:APIG触发器(专享版)\nOBS:OBS触发器",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "FLOWTIMER",
+            "SMN",
+            "APIG",
+            "APIG_DE",
+            "OBS"
+          ]
+        },
+        "enabled": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否启用触发器",
+          "enum": [
+            true,
+            false
+          ],
+          "default": true
+        },
+        "trigger_config": {
+          "description": "OBS触发器配置,当trigger_type为OBS时需要设置",
+          "$ref": "#/definitions/OBSTriggerConfig"
+        }
+      },
+      "description": "触发器结构体"
+    },
+    "OperationState": {
+      "required": [
+        "actions",
+        "end",
+        "id",
+        "name",
+        "transition",
+        "type"
+      ],
+      "properties": {
+        "action_mode": {
+          "type": "string",
+          "example": "sequential",
+          "description": "Action执行模式,支持串行,并行两种模式,默认串行",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "sequential",
+            "parallel"
+          ]
+        },
+        "actions": {
+          "type": "array",
+          "example": [
+            {
+              "function_ref": {
+                "ref_name": "func1",
+                "arguments": {
+                  "execution_name": "$.execution_name",
+                  "graph_name": "$.graph_name",
+                  "Records": "$.Records",
+                  "inputs": "$.inputs",
+                  "dynamic_source": {
+                    "input": {
+                      "bucket": "",
+                      "location": "",
+                      "object": ""
+                    },
+                    "output": {
+                      "bucket": "$.inputs.resize_outbucket | $.constants.inputs.resize_outbucket.value",
+                      "location": "cn-north-7",
+                      "object": "$.inputs.resize_outpath | $.constants.inputs.resize_outpath.value",
+                      "source_path": "$.inputs.resize_source_path | $.constants.inputs.resize_source_path.value"
+                    },
+                    "resize_param": {
+                      "color": "$.inputs.resize_color | $.constants.inputs.resize_color.value",
+                      "h": "$.inputs.resize_h | $.constants.inputs.resize_h.value",
+                      "l": "$.inputs.resize_l | $.constants.inputs.resize_l.value",
+                      "limit": "$.inputs.resize_limit | $.constants.inputs.resize_limit.value",
+                      "m": "$.inputs.resize_m | $.constants.inputs.resize_m.value",
+                      "p": "$.inputs.resize_p | $.constants.inputs.resize_p.value",
+                      "s": "$.inputs.resize_s | $.constants.inputs.resize_s.value",
+                      "w": "$.inputs.resize_w | $.constants.inputs.resize_w.value"
+                    }
+                  }
+                }
+              },
+              "invoke_mode": "synchronize"
+            }
+          ],
+          "description": "节点中要执行的操作列表",
+          "items": {
+            "$ref": "#/definitions/Action"
+          },
+          "maxItems": 10,
+          "minItems": 1
+        },
+        "on_errors": {
+          "type": "array",
+          "description": "错误处理策略",
+          "items": {
+            "$ref": "#/definitions/OnError"
+          },
+          "maxItems": 200,
+          "minItems": 0
+        },
+        "id": {
+          "type": "string",
+          "example": "Start",
+          "description": "节点ID,需要在当前函数流中唯一",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "example": "function1",
+          "description": "节点名称",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^([_a-zA-Z0-9().-]|[\\一-\\龥]){1,256}$"
+        },
+        "type": {
+          "type": "string",
+          "example": "Operation",
+          "description": "节点类型",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "Operation",
+            "Sleep",
+            "End"
+          ]
+        },
+        "end": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否是结束节点"
+        },
+        "transition": {
+          "type": "string",
+          "example": "Node1",
+          "description": "下一步骤节点ID",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "state_data_filter": {
+          "description": "过滤表达式",
+          "$ref": "#/definitions/StateDataFilter"
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int64",
+          "example": 5,
+          "description": "时间等待节点等待时间(秒),节点类型为Sleep时为必填,节点类型不为Sleep时无效",
+          "minimum": 0.001,
+          "maximum": 86400
+        }
+      },
+      "description": "函数执行节点信息"
+    },
+    "ExpressConfig": {
+      "properties": {
+        "log_level": {
+          "type": "string",
+          "example": "NONE",
+          "description": "快速模式相关配置,仅在mode配置为EXPRESS时生效\n快速模式下流程的执行日志级别,当前支持:\nALL: 记录所有节点的执行日志\nERROR:仅记录异常节点执行日志\nNONE:不记录日志\n注意:当配置为ALL和ERROR级别时租户需要开启LTS相关权限",
+          "minLength": 1,
+          "maxLength": 5,
+          "enum": [
+            "ALL",
+            "ERROR",
+            "NONE"
+          ]
+        }
+      },
+      "description": "快速模式配置项"
+    },
+    "WorkflowCreateBody": {
+      "required": [
+        "constants",
+        "functions",
+        "name",
+        "retries",
+        "start",
+        "states"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "test-flow",
+          "description": "函数流名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^([_a-zA-Z0-9().-]|[\\一-\\龥]){1,64}$"
+        },
+        "description": {
+          "type": "string",
+          "example": "test-flow-description",
+          "description": "函数流描述",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^([_a-zA-Z0-9().-]|[\\一-\\龥]){1,512}$"
+        },
+        "start": {
+          "type": "string",
+          "example": "Start",
+          "description": "流程开始节点ID",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "triggers": {
+          "type": "array",
+          "example": [
+            {
+              "trigger_name": "test-trigger-obs",
+              "trigger_type": "OBS",
+              "enabled": true,
+              "trigger_config": {
+                "bucket": "trigger-bucket",
+                "events": [
+                  "OBJECT_CREATED_PUT",
+                  "OBJECT_REMOVED_DELETE"
+                ],
+                "prefix": "test",
+                "suffix": "py"
+              }
+            },
+            {
+              "trigger_name": "test-trigger-smn",
+              "trigger_type": "SMN",
+              "enabled": true
+            }
+          ],
+          "description": "触发器列表",
+          "items": {
+            "$ref": "#/definitions/Trigger"
+          },
+          "maxItems": 200,
+          "minItems": 0
+        },
+        "functions": {
+          "type": "array",
+          "example": [
+            {
+              "name": "func1",
+              "operation": "urn:fss:cn-north-7:c53626012ba84727b938ca8bf03108ef:function:default:workflow_python:latest",
+              "metadata": {
+                "action_template_category": "ImageProcess",
+                "action_template_name": "third_33353265306163343033633a3138382e3135323a",
+                "action_template_provider_name": "iaas_obs_jwx533050_01",
+                "dynamic_source": "{\"input\":{\"bucket\":\"\",\"location\":\"\",\"object\":\"\"},\"output\":{\"bucket\":{\"get_input\":\"$.inputs.resize_outbucket\"},\"location\":\"cn-north-7\",\"object\":{\"get_input\":\"$.inputs.resize_outpath\"},\"source_path\":{\"get_input\":\"$.inputs.resize_source_path\"}},\"resize_param\":{\"color\":{\"get_input\":\"$.inputs.resize_color\"},\"h\":{\"get_input\":\"$.inputs.resize_h\"},\"l\":{\"get_input\":\"$.inputs.resize_l\"},\"limit\":{\"get_input\":\"$.inputs.resize_limit\"},\"m\":{\"get_input\":\"$.inputs.resize_m\"},\"p\":{\"get_input\":\"$.inputs.resize_p\"},\"s\":{\"get_input\":\"$.inputs.resize_s\"},\"w\":{\"get_input\":\"$.inputs.resize_w\"}}}"
+              }
+            }
+          ],
+          "description": "函数列表",
+          "items": {
+            "$ref": "#/definitions/Function"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        },
+        "states": {
+          "type": "array",
+          "example": [
+            {
+              "id": "End",
+              "name": "End",
+              "type": "End",
+              "end": true,
+              "transition": "",
+              "state_data_filter": {
+                "input": "",
+                "output": ""
+              },
+              "actions": [],
+              "action_mode": ""
+            },
+            {
+              "id": "633a3138382e3135323a",
+              "name": "633a3138382e3135323a",
+              "type": "Operation",
+              "end": false,
+              "transition": "End",
+              "state_data_filter": {
+                "input": "$",
+                "output": "$"
+              },
+              "actions": [
+                {
+                  "function_ref": {
+                    "ref_name": "func1",
+                    "arguments": {
+                      "execution_name": "$.execution_name",
+                      "graph_name": "$.graph_name",
+                      "Records": "$.Records",
+                      "inputs": "$.inputs",
+                      "dynamic_source": {
+                        "input": {
+                          "bucket": "",
+                          "location": "",
+                          "object": ""
+                        },
+                        "output": {
+                          "bucket": "$.inputs.resize_outbucket | $.constants.inputs.resize_outbucket.value",
+                          "location": "cn-north-7",
+                          "object": "$.inputs.resize_outpath | $.constants.inputs.resize_outpath.value",
+                          "source_path": "$.inputs.resize_source_path | $.constants.inputs.resize_source_path.value"
+                        },
+                        "resize_param": {
+                          "color": "$.inputs.resize_color | $.constants.inputs.resize_color.value",
+                          "h": "$.inputs.resize_h | $.constants.inputs.resize_h.value",
+                          "l": "$.inputs.resize_l | $.constants.inputs.resize_l.value",
+                          "limit": "$.inputs.resize_limit | $.constants.inputs.resize_limit.value",
+                          "m": "$.inputs.resize_m | $.constants.inputs.resize_m.value",
+                          "p": "$.inputs.resize_p | $.constants.inputs.resize_p.value",
+                          "s": "$.inputs.resize_s | $.constants.inputs.resize_s.value",
+                          "w": "$.inputs.resize_w | $.constants.inputs.resize_w.value"
+                        }
+                      }
+                    }
+                  },
+                  "invoke_mode": "synchronize"
+                }
+              ],
+              "action_mode": "sequential"
+            }
+          ],
+          "description": "函数流节点清单,定义参考SleepState和OperationState",
+          "items": {
+            "$ref": "#/definitions/OperationState"
+          },
+          "maxItems": 100,
+          "minItems": 1
+        },
+        "constants": {
+          "type": "object",
+          "example": {
+            "input": {
+              "bucket": "default_bucket"
+            }
+          },
+          "description": "函数流中的常量",
+          "properties": {}
+        },
+        "retries": {
+          "type": "array",
+          "description": "重试策略清单",
+          "items": {
+            "$ref": "#/definitions/Retry"
+          },
+          "maxItems": 200,
+          "minItems": 0
+        },
+        "mode": {
+          "type": "string",
+          "example": "NORMAL",
+          "description": "函数流模式,当前支持两种模式\nNORMAL: 标准模式,普通模式面向普通的业务场景,支持长时间任务,支持执行历史持久化和查询,只支持异步调用\nEXPRESS: 快速模式,快速模式面向业务执行时长较短,需要极致性能的场景,只支持流程执行时长低于5分钟的场景,不支持执行历史持久化,支持同步和异步调用\n默认为标准模式",
+          "enum": [
+            "NORMAL",
+            "EXPRESS"
+          ],
+          "default": "NORMAL"
+        },
+        "express_config": {
+          "description": "快速函数流模式配置,当mode为EXPRESS时需要设置",
+          "$ref": "#/definitions/ExpressConfig"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "example": "test-project-id",
+          "description": "企业项目ID",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "enable_stream_response": {
+          "type": "boolean",
+          "description": "是否返回流数据",
+          "example": false,
+          "default": false
+        }
+      },
+      "description": "创建函数流的body体"
+    },
+    "Function": {
+      "required": [
+        "name",
+        "operation"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "functionName",
+          "description": "函数名称,在单个流程中,名称需要唯一",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "operation": {
+          "type": "string",
+          "example": "urn:fss:cn-north-7:*:test_workflow",
+          "description": "函数调用URN",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "metadata": {
+          "type": "object",
+          "example": {
+            "action_template_name": "templateA",
+            "action_template_category": "video",
+            "action_template_provider_name": "obs"
+          },
+          "description": "函数扩展属性,由用户自己定制",
+          "properties": {}
+        }
+      },
+      "description": "函数信息"
+    },
+    "ErrorRsp400": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "FGS.3002",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Invalid parameters.",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "example": "Req1",
+          "description": "请求ID",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    },
+    "ErrorRsp500": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "FGS.3002",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Internal Error.",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "example": "Req1",
+          "description": "请求ID",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    },
+    "FunctionRef": {
+      "required": [
+        "arguments",
+        "ref_name"
+      ],
+      "properties": {
+        "ref_name": {
+          "type": "string",
+          "example": "functionName",
+          "description": "函数引用名称,需要和外层functions中的name对应",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "invoke_mode": {
+          "type": "string",
+          "example": "synchronize",
+          "description": "函数调用模式,目前只支持同步调用",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "synchronize"
+          ]
+        },
+        "arguments": {
+          "type": "object",
+          "example": {
+            "dynamic_source": {
+              "bucket": "$.input.bucket | $.constants.input.bucket"
+            },
+            "account": "$.account"
+          },
+          "description": "函数执行时的入参,支持引用constants中的常量\n定义方式:参数路径 | 常量值/常量路径\n参数路径指输入参数的JsonPath路径,如$.a.b[0].c\n常量值可以为数字类型,字符串类型(需要用单引号括起来),布尔类型\n常量路径为常量的JsonPath路径,但是根节点需要用$CONST表示,示例:$CONST.a.b",
+          "properties": {}
+        }
+      },
+      "description": "函数调用信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "functiongraph.ae-ad-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

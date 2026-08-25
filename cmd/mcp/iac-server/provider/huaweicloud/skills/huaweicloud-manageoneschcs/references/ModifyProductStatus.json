@@ -1,0 +1,222 @@
+{
+  "name": "ModifyProductStatus",
+  "summary": "更新产品状态",
+  "tags": "产品管理",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/product/v3.0/products/{product_id}/action": {
+      "put": {
+        "summary": "更新产品状态",
+        "description": "更新产品状态,状态包含:上线、下线、发布、部分发布、取消发布、调整发布范围。\n1. 云联邦HCS产品,在上线操作时,必须给所有审批项关联审批流程;\n对于华为云云联邦、云联邦HCS产品,只能关联内部审批。\n请求示例如下:\nproduct/v3.0/products/{云联邦HCS产品的product_id}/action\n\n{ \n  \"action_type\":\"online\",\n  \"process_ids\":[\n  {\n          \"action\":\"apply\",\n          \"process_id\":\"审批流程id\"\n       },\n       {\n          \"action\":\"delete\",\n           \"process_id\":\"审批流程id\"\n       },\n       {\n           \"action\":\"delay\",\n           \"process_id\":\"审批流程id\"\n       }\n   ]\n }\n\n请求响应如下:\n{\n    \"result\": true\n}\n\n2. 产品发布时选择部分可见时,必须传可见范围的一级vdc_id集合\n请求示例如下:\n{ \n  \"action_type\":\"partial_publish\",\n  \"ids\":[\"一级vdc_id\",\"一级vdc_id\"]\n }\n\n请求响应如下:\n{\n    \"result\": true\n}\n\n3. 处于未发布、已发布、上线状态的产品修改发布范围\n请求示例如下:\n{ \n  \"action_type\":\"modify_publish\",\n  \"ids\":[\"一级vdc_id\",\"一级vdc_id\"]\n}\n\n4. 发布带有审批流程的部分可见的产品\n请求示例如下:\n{\n  \"action_type\": \"partial_publish\",\n  \"ids\":[\"一级vdc_id\"],\n  \"process_ids\": [\n      {\n          \"action\": \"apply\",\n          \"process_id\": \"审批流程id\"\n      },\n      {\n          \"action\": \"clone\",\n          \"process_id\": \"审批流程id\"\n      }\n  ]\n}",
+        "x-opseverity": "Minor",
+        "x-resource": "更新产品状态",
+        "tags": [
+          "产品管理"
+        ],
+        "operationId": "ModifyProductStatus",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > 产品管理”章节。\n",
+        "parameters": [
+          {
+            "name": "X-Language",
+            "description": "操作发生时的语言环境,中文是zh-cn,英文是en-us。",
+            "in": "header",
+            "type": "string",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "机机账户运营管理员或VDC管理员有效的token。"
+          },
+          {
+            "name": "product_id",
+            "description": "产品ID。",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 1
+          },
+          {
+            "name": "online_vdc_id",
+            "description": "Online vdc id。",
+            "in": "query",
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          {
+            "name": "crs_local_version",
+            "description": "云联邦HCS场景下本端版本。",
+            "in": "header",
+            "type": "string",
+            "default": "",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          {
+            "name": "productStatusActionVO",
+            "description": "更新状态的对象。",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProductStatusActionVO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "更新产品状态结果。",
+            "schema": {
+              "$ref": "#/definitions/CommonResultDTO"
+            },
+            "examples": {
+              "application/json": {
+                "result": true
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "406": {
+            "description": "流控限流。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "PUT https://{endpoint}/rest/product/v3.0/products/b5cff842ec854e5eb40486646d2fddd6/action",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "action_type": "publish",
+          "ids": [
+            "id1",
+            "id2",
+            "id3"
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ProductStatusActionVO": {
+      "description": "更新产品状态的接收参数对象。",
+      "required": [
+        "service_type"
+      ],
+      "properties": {
+        "ids": {
+          "description": "actionType为部分发布、调整发布范围、上线时指定上线的VDC ID列表。",
+          "type": "array",
+          "maxItems": 5000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "action_type": {
+          "description": "动作标识:上线、下线、发布、部分发布、取消发布、调整发布范围、发布上线、下线取消发布、部分发布上线、调整发布上线范围。",
+          "type": "string",
+          "enum": [
+            "publish",
+            "unpublish",
+            "online",
+            "offline",
+            "partial_publish",
+            "modify_publish",
+            "publish_online",
+            "offline_unpublish",
+            "partial_publish_online",
+            "modify_publish_online"
+          ]
+        },
+        "request_source": {
+          "description": "请求来源,用来标识调用接口的请求来源,ManageOne前端页面调用传入frontPage,此时不会更新process_ids",
+          "type": "string",
+          "default": "",
+          "maxLength": 16,
+          "minLength": 0
+        },
+        "process_ids": {
+          "description": "审批和操作类型对象集合。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/ApprovalActionVO"
+          }
+        }
+      }
+    },
+    "CommonResultDTO": {
+      "description": "通用操作的返回值对象。",
+      "required": [
+        "result"
+      ],
+      "properties": {
+        "result": {
+          "description": "操作结果。",
+          "type": "boolean"
+        }
+      }
+    },
+    "ApprovalActionVO": {
+      "description": "产品和操作类型的接收参数对象。",
+      "required": [
+        "action",
+        "description"
+      ],
+      "properties": {
+        "action": {
+          "description": "使用产品的动作,包括:申请、克隆、变更、删除、软删除、还原、延期、快照、华为云服务全量审批、关机、开机、重启。",
+          "type": "string",
+          "enum": [
+            "apply",
+            "modify",
+            "delete",
+            "delay",
+            "softdelete",
+            "restore",
+            "clone",
+            "snapshot",
+            "all",
+            "stop",
+            "start",
+            "restart"
+          ]
+        },
+        "process_id": {
+          "description": "审批ID。",
+          "type": "string",
+          "maxLength": 36,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

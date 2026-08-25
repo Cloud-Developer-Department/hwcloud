@@ -1,0 +1,246 @@
+{
+  "name": "CreateAssetProcessTask",
+  "summary": "媒资处理",
+  "tags": "媒资处理",
+  "productshort": "VOD",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1.0/{project_id}/asset/process": {
+      "post": {
+        "x-publishpath": "vod_04_0206",
+        "x-request-examples-text-1": {
+          "asset_id": "b4f39691d66cc0ef75d62ee567146e11",
+          "template_group_name": "test",
+          "auto_encrypt": 0,
+          "thumbnail": null,
+          "type": "time",
+          "time": 12,
+          "subtitle_id": [
+            1
+          ]
+        },
+        "description": "实现视频转码、截图、加密等处理。既可以同时启动多种操作,也可以只启动一种操作。",
+        "summary": "媒资处理",
+        "operationId": "CreateAssetProcessTask",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "媒资处理"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/usermanual-vod/vod_01_0058.html)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "AssetProcessReq",
+            "schema": {
+              "$ref": "#/definitions/AssetProcessReq"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "处理成功返回。",
+            "schema": {
+              "$ref": "#/definitions/AssetProcessRsp"
+            },
+            "examples": {
+              "application/json": {
+                "asset_id": "b4f39691d66cc0ef75d62ee567146e11"
+              }
+            }
+          },
+          "403": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10062",
+                "error_msg": "Media asset or resource does not exist, please check."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v1.0/{project_id}/asset/process",
+        "x-request-examples-1": {
+          "asset_id": "b4f39691d66cc0ef75d62ee567146e11",
+          "template_group_name": "test",
+          "auto_encrypt": 0,
+          "thumbnail": null,
+          "type": "time",
+          "time": 12,
+          "subtitle_id": [
+            1
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "AssetProcessRsp": {
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "description": "媒资ID。"
+        },
+        "thumbnail_task_id": {
+          "type": "string",
+          "description": "截图任务id,仅支持多截图场景会返回。"
+        }
+      }
+    },
+    "AssetProcessReq": {
+      "required": [
+        "asset_id"
+      ],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "description": "媒资ID。"
+        },
+        "template_group_name": {
+          "type": "string",
+          "description": "转码模板组名称。\n若不为空,则使用指定的转码模板对上传的音视频进行转码,您可以在视频点播控制台配置转码模板,具体请参见[转码设置](https://support.huaweicloud.com/usermanual-vod/vod_01_0072.html)。",
+          "maxLength": 128
+        },
+        "auto_encrypt": {
+          "type": "integer",
+          "description": "是否自动加密。\n\n取值如下:\n- 0:表示不加密。\n- 1:表示需要加密。\n\n默认值:0。\n\n加密与转码必须要一起进行,当需要加密时,转码参数不能为空,且转码输出格式必须要为HLS。",
+          "default": 0
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/Thumbnail"
+        },
+        "subtitle_id": {
+          "type": "array",
+          "description": "字幕文件ID。\n\n>\n仅在[创建媒资](https://support.huaweicloud.com/api-vod/vod_04_0196.html)时,请求参数设置了“**subtitles**”时,该参数设置才生效。",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "Thumbnail": {
+      "description": "截图参数",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "截图类型。\n\n取值如下:\n- time:每次进行截图的间隔时间。\n- dots: 按照指定的时间点截图。\n- quantity: 按照指定张数,根据视频时长等分视频截图。",
+          "enum": [
+            "time",
+            "dots",
+            "quantity"
+          ]
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "**type**取值为quantity时必填。 按照指定张数,根据视频时长等分视频截图。\n取值范围:[1,10]之间的整数。"
+        },
+        "quantity_time": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "**type**取值为quantity时选填。 按照指定时间间隔取指定张数截图。\n取值范围:[0,2147483647]之间的整数。"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "根据时间间隔采样时的时间间隔值。单位:秒。\n**type**取值为time时。\n默认值:12\n取值范围:[0,100]之间的整数。"
+        },
+        "dots": {
+          "type": "array",
+          "description": "**type**取值为dots时必填。指定时间截图时的时间点数组。",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "cover_position": {
+          "type": "integer",
+          "description": "该值表示指定第几张截图作为封面。\n\n默认值:1。"
+        },
+        "format": {
+          "type": "integer",
+          "description": "截图文件格式。\n\n取值如下:\n- 1:jpg。\n\n默认值:1 。",
+          "default": 1
+        },
+        "aspect_ratio": {
+          "type": "integer",
+          "description": "纵横比,图像缩放方式。\n\n取值如下:\n- 0:自适应(保持原有宽高比)。\n- 1:16:9。\n\n默认值:0。",
+          "default": 0
+        },
+        "max_length": {
+          "type": "integer",
+          "description": "截图最长边的尺寸。\n\n单位:像素。\n\n宽边尺寸按照该尺寸与原始视频像素等比缩放计算。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,224 @@
+{
+  "name": "ListCoreGatewayQuotas",
+  "summary": "查询账号配额",
+  "tags": "配额管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/core/gateway-quotas": {
+      "get": {
+        "operationId": "ListCoreGatewayQuotas",
+        "summary": "查询账号配额",
+        "description": "获取当前认证账号的有效配额信息,包括配额类型、最小值、最大值、配额值和已使用数量。",
+        "tags": [
+          "配额管理"
+        ],
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Control-plane",
+        "x-is-registered": "Y",
+        "x-sec-data-level": "L3",
+        "x-apigateway-request-type": "public",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "parameters": [
+          {
+            "name": "gateway_id",
+            "in": "query",
+            "description": "**参数解释:**\n网关的唯一标识符。\n网关ID获取方式:\n1. 进入AgentArts平台,在左侧导航栏选择“开发中心 > 组件库 ”,选择“网关”页签。\n2. 在网关列表中“网关名称/ID”处复制网关ID即可。\n**约束限制:**\n不涉及。\n**取值范围:**\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值:**\n不涉及。",
+            "required": false,
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "**参数解释:**\n返回的最大结果数。\n**约束限制:**\n不涉及。\n**取值范围:**\nint32,取值范围为1-2条。\n**默认取值:**\n2",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2,
+            "default": 2
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "**参数解释:**\n返回结果偏移量。\n**约束限制:**\n不涉及。\n**取值范围:**\nint32,取值范围为0-100000条。\n**默认取值:**\n0",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100000,
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功检索账号配额列表",
+            "schema": {
+              "$ref": "#/definitions/ListCoreGatewayQuotasResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "quotas": [
+                  {
+                    "type": "gateway_count",
+                    "min": 1,
+                    "max": 100,
+                    "quota": 20,
+                    "used": 5
+                  }
+                ],
+                "size": 1,
+                "total": 1
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/CoreGatewayCommonError"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "AgentArts.02000500",
+                "error_msg": "内部服务器错误"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListCoreGatewayQuotasResponseBody": {
+      "type": "object",
+      "required": [
+        "quotas",
+        "size",
+        "total"
+      ],
+      "properties": {
+        "quotas": {
+          "type": "array",
+          "description": "**参数解释:**\n配额列表。\n**取值范围:**\n数组长度为 1-2。",
+          "items": {
+            "$ref": "#/definitions/CoreGatewayQuota"
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2,
+          "example": 1,
+          "description": "**参数解释:**\n当前页返回的配额数量。\n**取值范围:**\n取值为 0-2个。"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2,
+          "example": 1,
+          "description": "**参数解释:**\n配额总数。\n**取值范围:**\n取值为 0-2个。"
+        }
+      }
+    },
+    "CoreGatewayCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码。\n**取值范围:**\n取值为固定18个字符,匹配以 AgentArts. 开头、后接恰好8位数字的字符串,符合正则条件^AgentArts\\.[0-9]{8}$。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18,
+          "example": "AgentArts.02000000"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误消息。\n**取值范围:**\n取值为 1-256 个字符,匹配由字母、数字、空格、中文汉字以及常见中英文标点符号组成的非空字符串,符合正则条件^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()''\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "error_reason": {
+          "type": "string",
+          "description": "**参数解释:**\n错误原因。\n**取值范围:**\n取值为 1-256 个字符,匹配由字母、数字、空格、中文汉字以及常见中英文标点符号组成的非空字符串,符合正则条件^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()''\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "error_suggestion": {
+          "type": "string",
+          "description": "**参数解释:**\n错误处理建议。\n**取值范围:**\n取值为 1-256 个字符,匹配由字母、数字、空格、中文汉字以及常见中英文标点符号组成的非空字符串,符合正则条件^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()''\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "CoreGatewayQuota": {
+      "type": "object",
+      "required": [
+        "type",
+        "min",
+        "max",
+        "quota",
+        "used"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "gateway_count",
+            "target_count_per_gateway"
+          ],
+          "description": "**参数解释:**\n配额类型。\n**取值范围:**\n- `gateway_count`: 网关数量配额,当指定gateway id时,不返回该类型的配额详情。\n- `target_count_per_gateway`: 每个网关的目标服务数量配额,仅当指定了gateway id时,才会返回该类型的配额详情。"
+        },
+        "min": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "**参数解释:**\n最小允许值。\n**取值范围:**\n取值为 1-10000个。"
+        },
+        "max": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "**参数解释:**\n最大允许值。\n**取值范围:**\n取值为 1-10000个。"
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "**参数解释:**\n当前配置的配额值。\n**取值范围:**\n取值为 1-10000个。"
+        },
+        "used": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "**参数解释:**\n已使用数量(实时计算)。\n**取值范围:**\n取值为 0-10000个。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,260 @@
+{
+  "name": "ListProjectModules",
+  "summary": "查询项目的模块列表",
+  "tags": "Scrum项目的模块",
+  "productshort": "ProjectMan",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v4/projects/{project_id}/modules": {
+      "get": {
+        "tags": [
+          "Scrum项目的模块"
+        ],
+        "summary": "查询项目的模块列表",
+        "operationId": "ListProjectModules",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "pattern": "^[0-9a-z]{32}$",
+            "required": true,
+            "type": "string",
+            "description": "devcloud项目的32位id"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "type": "integer",
+            "format": "int32",
+            "description": "查询偏移量",
+            "required": false,
+            "default": 0
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "type": "integer",
+            "format": "int32",
+            "required": false,
+            "description": "一次返回的数据,最小1,最大100",
+            "maximum": 100,
+            "minimum": 1,
+            "default": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListProjectModulesResponseBody"
+            },
+            "examples": {
+              "application/json": "{\n  \"total\": 1,\n  \"modules\": [\n    {\n      \"module_id\": 1,\n      \"module_name\": \"demo\",\n      \"owner\": {\n        \"user_id\": \"09d75cde5180d4481f91c018e89cb8e2\",\n        \"user_num_id\": 4091,\n        \"user_name\": \"demo_user_name_06\",\n        \"nick_name\": \"demo\"\n      },\n      \"deepth\": 1,\n      \"is_parent\": true,\n      \"children\": [\n        {\n          \"module_id\": 1,\n          \"module_name\": \"demo\",\n          \"owner\": {\n            \"user_id\": \"09d75cde5180d4481f91c018e89cb8e2\",\n            \"user_num_id\": 4091,\n            \"user_name\": \"demo_user_name_06\",\n            \"nick_name\": \"demo\"\n          },\n          \"deepth\": 1,\n          \"is_parent\": true,\n          \"parent_module_id\": 1\n        }\n      ]\n    }\n  ]\n}"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/BadRequestError"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedRequestError"
+            }
+          }
+        },
+        "deprecated": false,
+        "description": "查询项目的模块列表",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "Get https://{endpoint}/v4/projects/0792b7d26cb74bd799cbae80063dc74a/modules"
+      }
+    }
+  },
+  "definitions": {
+    "ModuleOwner": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "用户32位字符串id",
+          "example": "09d75cde5180d4481f91c018e89cb8e2"
+        },
+        "user_num_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "用户数字id",
+          "example": 4091
+        },
+        "user_name": {
+          "type": "string",
+          "description": "用户名称",
+          "example": "demo_user_name_06"
+        },
+        "nick_name": {
+          "type": "string",
+          "description": "用户昵称",
+          "example": "模块demo"
+        }
+      }
+    },
+    "UnauthorizedRequestError": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "认证信息过期"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DEV.00000003"
+        }
+      }
+    },
+    "ProjectModule": {
+      "type": "object",
+      "properties": {
+        "module_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "模块id",
+          "example": 1
+        },
+        "module_name": {
+          "type": "string",
+          "description": "模块名称",
+          "example": "模块demo"
+        },
+        "owner": {
+          "$ref": "#/definitions/ModuleOwner"
+        },
+        "deepth": {
+          "type": "integer",
+          "format": "int32",
+          "description": "模块层级",
+          "example": 1
+        },
+        "is_parent": {
+          "type": "boolean",
+          "description": "是否是父级,true 父模块, false 非父模块",
+          "example": true
+        },
+        "children": {
+          "type": "array",
+          "description": "子模块信息",
+          "items": {
+            "$ref": "#/definitions/ProjectChildModule"
+          }
+        }
+      }
+    },
+    "BadRequestError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "参数错误"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "PM.00000001"
+        }
+      }
+    },
+    "ListProjectModulesResponseBody": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "模块总数",
+          "example": 1
+        },
+        "modules": {
+          "type": "array",
+          "description": "模块列表",
+          "items": {
+            "$ref": "#/definitions/ProjectModule"
+          }
+        }
+      }
+    },
+    "ProjectChildModule": {
+      "type": "object",
+      "properties": {
+        "module_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "模块id",
+          "example": 1
+        },
+        "module_name": {
+          "type": "string",
+          "description": "模块名称",
+          "example": "模块demo"
+        },
+        "owner": {
+          "$ref": "#/definitions/ModuleOwner"
+        },
+        "deepth": {
+          "type": "integer",
+          "format": "int32",
+          "description": "模块层级",
+          "example": 1
+        },
+        "is_parent": {
+          "type": "boolean",
+          "description": "是否是父级,true 父模块, false 非父模块",
+          "example": true
+        },
+        "parent_module_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "父模块id",
+          "example": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "projectman-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v4",
+  "method": "get",
+  "uri": null
+}

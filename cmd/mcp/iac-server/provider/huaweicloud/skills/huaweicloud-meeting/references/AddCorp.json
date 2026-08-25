@@ -1,0 +1,504 @@
+{
+  "name": "AddCorp",
+  "summary": "SP管理员创建企业",
+  "tags": "企业管理",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/usg/dcs/sp/corp": {
+      "post": {
+        "summary": "SP管理员创建企业",
+        "description": "创建企业,默认管理员及分配资源。",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 5,
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Access-Token"
+          },
+          {
+            "$ref": "#/parameters/X-Request-ID"
+          },
+          {
+            "$ref": "#/parameters/Accept-Language"
+          },
+          {
+            "name": "corpDTO",
+            "in": "body",
+            "required": true,
+            "description": "创建企业请求。",
+            "schema": {
+              "$ref": "#/definitions/AddCorpDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "schema": {
+              "$ref": "#/definitions/StringDTO"
+            },
+            "examples": {
+              "application/json": {
+                "value": "629688973"
+              }
+            }
+          },
+          "401": {
+            "description": "未鉴权或鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          },
+          "403": {
+            "description": "权限受限",
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          }
+        },
+        "tags": [
+          "企业管理"
+        ],
+        "operationId": "AddCorp",
+        "x-imports": "com.huawei.springframework.om.trace.masker.annotation.*;com.huawei.springframework.security.auth.annotation.TokenAuthorization;com.huawei.springframework.security.auth.constants.*;com.huawei.usg.oms.model.kafka.constants.oplog.*;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.ops.model.kafka.annotation.*;com.huawei.usg.datacenter.lock.ConcurrentLock;",
+        "x-methodAnnotations": [
+          "@ConcurrentLock",
+          "@TokenAuthorization(userType = UserTypeEnum.SP_ADMIN)",
+          "@OpLogFunction(opObject = OpObjectEnum.SPPORTAL_CORP_MANAGE, opType = OpTypeEnum.ADD)",
+          "@RequestMaskRule"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/usg/dcs/sp/corp",
+        "x-request-examples-1": {
+          "basicInfo": {
+            "name": "华为技术有限公司",
+            "domain": "huawei.com",
+            "phone": "+86191****9092",
+            "country": "chinaPR",
+            "fax": "+123456789",
+            "email": "zhangsan@huawei.com",
+            "address": "浙江杭州",
+            "description": "description",
+            "spId": "",
+            "language": "zh-CN",
+            "timeZoneId": "56"
+          },
+          "adminInfo": {
+            "account": "zhangsan@corp",
+            "name": "zhangsan",
+            "pwd": "Qdjtufjwr4$4",
+            "email": "zhangsan@huawei.com",
+            "phone": "+86191****9092",
+            "country": "chinaPR",
+            "sendNotify": false
+          },
+          "resInfo": {
+            "resource": [
+              {
+                "id": "36f2c0117cf14c3db61a7880eb73cee6",
+                "type": "VMR",
+                "typeId": "2c90bb2871e577590171e57bfec908b2",
+                "count": 10,
+                "expireDate": 2549030400000
+              }
+            ]
+          },
+          "groupId": "297e87ec7713734b01771458c2d80000"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StringDTO": {
+      "x-subPackage": "common",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "返回结果。"
+        }
+      }
+    },
+    "AddCorpResDTO": {
+      "x-subPackage": "corp",
+      "x-imports": "com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.ops.model.kafka.annotation.*",
+      "description": "企业的资源信息。",
+      "properties": {
+        "resource": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceDTO"
+          },
+          "description": "企业待添加的资源列表。",
+          "x-minLength": 0,
+          "x-maxLength": 100
+        }
+      }
+    },
+    "AdminDTO": {
+      "x-subPackage": "admin",
+      "x-imports": "com.huawei.springframework.utils.ValidateConstants;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.ops.model.kafka.annotation.*;com.huawei.usg.oms.model.kafka.constants.oplog.*",
+      "description": "管理员信息。",
+      "required": [
+        "account",
+        "name",
+        "pwd"
+      ],
+      "properties": {
+        "account": {
+          "type": "string",
+          "description": "用户帐号,帐号只能包含大小写字母、数字、_、-、.、@符号,不能为纯数字和@后面带.号。",
+          "pattern": "^(?!^[0-9]+$)([A-Za-z0-9_.@-]){0,64}$",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.User.Account\")"
+          ],
+          "example": "zhangsan@corp"
+        },
+        "name": {
+          "type": "string",
+          "description": "名称。",
+          "maxLength": 128,
+          "minLength": 1,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Common.Name\")"
+          ],
+          "example": "zhangsan"
+        },
+        "pwd": {
+          "type": "string",
+          "description": "若携带则以前台携带为准,否则后台默认生成,密码必须满足:\n* 6-32位\n* 不能和帐号的正序和倒序一致\n* 至少包含两种字符类型:小写字母、大写字母、数字、特殊字符(` ~ ! @ # $ % ^ & * ( ) - _ = + \\ | [ { } ] ; : \\\" ,' < . > / ?",
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.PWD_PATTERN)"
+          ],
+          "maxLength": 32,
+          "minLength": 6,
+          "example": "Qdjtufjwr4$4"
+        },
+        "email": {
+          "type": "string",
+          "description": "邮箱,管理员手机和邮箱必填其一,否则无法重置密码。如果企业短信开关关闭,则邮箱必填。格式必须满足(^$|^[\\\\w-+]+(\\\\.[\\\\w-+]+)*@[\\\\w-]+(\\\\.[\\\\w-]+)*(\\\\.[\\\\w-]{1,})$)。",
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.EMAIL_PATTERN)",
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Admin.Email\",maskType = MaskerTypeEnum.EMAIL)"
+          ],
+          "maxLength": 255,
+          "minLength": 0,
+          "example": "zhangsan@huawei.com"
+        },
+        "phone": {
+          "type": "string",
+          "description": "手机号,必须加上国家码,例如中国大陆手机+86xxxxxxx,当填写手机号时 “country”参数必填,手机格式必须满足(^$|^[+]?[0-9]+$)。",
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.PHONE_PATTERN)",
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Admin.Phone\", maskType = MaskerTypeEnum.PHONE_NUMBER)"
+          ],
+          "maxLength": 32,
+          "minLength": 0,
+          "example": "+86191****9092"
+        },
+        "country": {
+          "description": "[手机号所属的国家](https://support.huaweicloud.com/api-meeting/meeting_21_0109.html#ZH-CN_TOPIC_0212714591__table19371178135314) 。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "default": "chinaPR",
+          "example": "chinaPR"
+        }
+      }
+    },
+    "AddCorpDTO": {
+      "x-subPackage": "corp",
+      "x-imports": "com.huawei.usg.datacenter.model.admin.AdminDTO;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.ops.model.kafka.annotation.*",
+      "required": [
+        "basicInfo",
+        "adminInfo"
+      ],
+      "properties": {
+        "basicInfo": {
+          "$ref": "#/definitions/CorpBasicDTO",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.BasicInfo\")"
+          ]
+        },
+        "adminInfo": {
+          "$ref": "#/definitions/AdminDTO",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Admin\")"
+          ]
+        },
+        "resInfo": {
+          "$ref": "#/definitions/AddCorpResDTO",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.Resource\")"
+          ]
+        },
+        "groupId": {
+          "description": "媒体接入(包括SBC和MCU)分组id,可通过[SP管理员查询资源信息](https://support.huaweicloud.com/api-meeting/meeting_21_1537.html)接口查询获取。",
+          "type": "string",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Group.Id\")"
+          ]
+        },
+        "propertyInfo": {
+          "description": "可配置项信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrgPropertyDTO"
+          }
+        }
+      }
+    },
+    "AbnormalResultDTO": {
+      "x-subPackage": "discard",
+      "x-ref-external": "com.huawei.usg.datacenter.model.discard.*",
+      "description": "异常返回结果。",
+      "required": [
+        "error_code",
+        "error_msg",
+        "request_id"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求唯一标识。"
+        }
+      }
+    },
+    "OrgPropertyDTO": {
+      "x-subPackage": "property",
+      "x-imports": "com.huawei.usg.oms.model.kafka.annotation.*",
+      "properties": {
+        "propertyKey": {
+          "description": "配置项key。\n开通本地录制功能,参数填写:enableClientRecord。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "propertyValue": {
+          "description": "配置项值。\n开通本地录制功能,参数填写:true。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "CorpBasicDTO": {
+      "x-subPackage": "corp",
+      "x-imports": "com.huawei.springframework.utils.ValidateConstants;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.ops.model.kafka.annotation.*;com.huawei.usg.oms.model.kafka.constants.oplog.*",
+      "description": "企业的基本信息。",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "企业名称,格式必须满足^[^#%&'+;<>=\\\"'??\\\\\\\\....../]*$。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.GROUP_NAME_PATTERN)",
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.Name\")"
+          ],
+          "example": "华为技术有限公司"
+        },
+        "domain": {
+          "description": "企业域名。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "example": "huawei.com"
+        },
+        "phone": {
+          "description": "手机号,必须加上国家码,例如中国大陆手机+86xxxxxxx,当填写手机号时, “country”参数必填,手机格式必须满足(^$|^[+]?[0-9]+$)。",
+          "type": "string",
+          "maxLength": 32,
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.PHONE_PATTERN)",
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.Phone\", maskType = MaskerTypeEnum.PHONE_NUMBER)"
+          ],
+          "example": "+86191****9092"
+        },
+        "country": {
+          "description": "[手机号所属的国家](https://support.huaweicloud.com/api-meeting/meeting_21_0109.html#ZH-CN_TOPIC_0212714591__table19371178135314) 。",
+          "type": "string",
+          "maxLength": 255,
+          "default": "chinaPR",
+          "example": "chinaPR"
+        },
+        "fax": {
+          "description": "传真号码,格式必须满足(^$|^[+]?[0-9]+$)。",
+          "type": "string",
+          "maxLength": 32,
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.PHONE_PATTERN)",
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.Fax\", maskType = MaskerTypeEnum.PHONE_NUMBER)"
+          ],
+          "example": "+123456789"
+        },
+        "email": {
+          "description": "邮箱地址,格式必须满足(^$|^[\\\\w-+]+(\\\\.[\\\\w-+]+)*@[\\\\w-]+(\\\\.[\\\\w-]+)*(\\\\.[\\\\w-]{1,})$)。",
+          "type": "string",
+          "maxLength": 255,
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.EMAIL_PATTERN)",
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.Email\", maskType = MaskerTypeEnum.EMAIL)"
+          ],
+          "example": "zhangsan@huawei.com"
+        },
+        "address": {
+          "description": "地址。",
+          "type": "string",
+          "maxLength": 255,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.Address\")"
+          ],
+          "example": "浙江杭州"
+        },
+        "description": {
+          "description": "备注。",
+          "type": "string",
+          "maxLength": 255,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Common.Remarks\")"
+          ],
+          "example": "description"
+        },
+        "spId": {
+          "description": "企业归属的SP ID。仅在查询时返回。",
+          "type": "string",
+          "maxLength": 32,
+          "x-example": "8a8d1384700be6870170117caca923af"
+        },
+        "language": {
+          "description": "企业提示音语言设置,zh-CN或en-US。",
+          "type": "string",
+          "maxLength": 128,
+          "enum": [
+            "zh-CN",
+            "en-US"
+          ],
+          "default": "zh-CN",
+          "example": "zh-CN",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.DefaultVoicePrompt\", valueMapJson=\"{\\\"ZH_CN\\\":\\\"I18n.OpLog.Dcs.Language.ZHCN\\\", \\\"EN_US\\\":\\\"I18n.OpLog.Dcs.Language.ENUS\\\"}\")"
+          ]
+        },
+        "timeZoneId": {
+          "description": "时区Id设置,例如北京东8区timeZoneId值为56,时区Id和时区的对应关系请参考: [时区表](https://support.huaweicloud.com/api-meeting/meeting_21_0110.html) 。",
+          "type": "string",
+          "maxLength": 128,
+          "default": "56",
+          "example": "56",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.TimeZone\", valueMapJson=\"{\\\"1\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_1\\\", \\\"2\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_2\\\", \\\"3\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_3\\\", \\\"4\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_4\\\", \\\"5\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_5\\\", \\\"6\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_6\\\", \\\"7\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_7\\\", \\\"8\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_8\\\", \\\"9\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_9\\\", \\\"10\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_10\\\", \\\"11\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_11\\\", \\\"12\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_12\\\", \\\"13\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_13\\\", \\\"14\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_14\\\", \\\"15\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_15\\\", \\\"16\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_16\\\", \\\"17\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_17\\\", \\\"18\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_18\\\", \\\"19\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_19\\\", \\\"20\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_20\\\", \\\"21\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_21\\\", \\\"22\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_22\\\", \\\"23\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_23\\\", \\\"24\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_24\\\", \\\"25\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_25\\\", \\\"26\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_26\\\", \\\"27\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_27\\\", \\\"28\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_28\\\", \\\"29\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_29\\\", \\\"30\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_30\\\", \\\"31\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_31\\\", \\\"32\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_32\\\", \\\"33\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_33\\\", \\\"34\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_34\\\", \\\"35\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_35\\\", \\\"36\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_36\\\", \\\"37\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_37\\\", \\\"38\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_38\\\", \\\"39\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_39\\\", \\\"40\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_40\\\", \\\"41\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_41\\\", \\\"42\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_42\\\", \\\"43\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_43\\\", \\\"44\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_44\\\", \\\"45\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_45\\\", \\\"46\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_46\\\", \\\"47\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_47\\\", \\\"48\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_48\\\", \\\"49\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_49\\\", \\\"50\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_50\\\", \\\"51\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_51\\\", \\\"52\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_52\\\", \\\"53\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_53\\\", \\\"54\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_54\\\", \\\"55\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_55\\\", \\\"56\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_56\\\", \\\"57\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_57\\\", \\\"58\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_58\\\", \\\"59\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_59\\\", \\\"60\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_60\\\", \\\"61\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_61\\\", \\\"62\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_62\\\", \\\"63\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_63\\\", \\\"64\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_64\\\", \\\"65\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_65\\\", \\\"66\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_66\\\", \\\"67\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_67\\\", \\\"68\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_68\\\", \\\"69\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_69\\\", \\\"70\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_70\\\", \\\"71\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_71\\\", \\\"72\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_72\\\", \\\"73\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_73\\\", \\\"74\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_74\\\", \\\"75\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_75\\\", \\\"76\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_76\\\", \\\"77\\\":\\\"I18n.OpLog.Dcs.TimeZone.Id_77\\\"}\")"
+          ]
+        }
+      }
+    },
+    "ResourceDTO": {
+      "x-subPackage": "resource",
+      "x-imports": "com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.ops.model.kafka.annotation.*",
+      "required": [
+        "type",
+        "count",
+        "expireDate"
+      ],
+      "properties": {
+        "id": {
+          "description": "资源标识,不携带则后台自动生成。",
+          "type": "string",
+          "maxLength": 32,
+          "example": "ff108081699b36cd0119c411a0980153"
+        },
+        "type": {
+          "description": "资源类型。\n- VMR        - 云会议室\n- CONF_CALL  - 会议并发数\n- HARD_1080P - 1080P硬终端\n- HARD_720P  - 720P硬终端\n- SOFT       - 软终端用户数\n- ROOM       - 大屏软终端\n- LIVE       - 直播推流\n- RECORD     - 录播空间\n- HARD_THIRD_PARTY - 第三方硬终端帐号\n- HUAWEI_VISION -智慧屏\n- IDEA_HUB   - ideahub",
+          "type": "string",
+          "maxLength": 32,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.ResType\")"
+          ],
+          "example": "VMR"
+        },
+        "typeId": {
+          "description": "类型标识,比如资源类型为vmr,vmr又分为5方,10方等,该参数为vmrPkgId,用来区分子类别,详见如下:\n- vmr10:ff808081699b56d40169c410d5080179\n- vmr50:ff808081699b56cb0169c411a0980152\n- vmr100:ff808081699b56cb0169c41167850151\n- vmr200:ff808081699b56d40169c410913d0178\n- vmr25:ff808081699b56d40169c4111fe5017a\n- vmr300:ff8080816b9ec3ab016bdff237962e83\n- vmr400:ff8080816b9ec475016bdff37efc279f\n- vmr500:ff8080816b9ec3ab016bdff338542e84",
+          "type": "string",
+          "maxLength": 32,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.ResTypeId\")"
+          ],
+          "example": "ff808081699b56cb0169c411a0980152"
+        },
+        "count": {
+          "description": "资源数量。",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000000,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.ResCount\")"
+          ],
+          "example": 10
+        },
+        "expireDate": {
+          "description": "到期时间,utc时间戳。",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Corp.ResExpireDate\")"
+          ],
+          "example": 2549030400000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Request-ID": {
+      "name": "X-Request-Id",
+      "in": "header",
+      "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+      "required": false,
+      "type": "string",
+      "x-example": "208b6e4c92074487bc43292f8554561e"
+    },
+    "Accept-Language": {
+      "name": "Accept-Language",
+      "in": "header",
+      "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+      "required": false,
+      "type": "string",
+      "x-example": "zh-CN"
+    },
+    "X-Access-Token": {
+      "name": "X-Access-Token",
+      "in": "header",
+      "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+      "required": true,
+      "format": "password",
+      "type": "string",
+      "x-example": "stb42Kw30IPpsIRm3DhsE0ym7B2tdAHcwfyY"
+    }
+  },
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

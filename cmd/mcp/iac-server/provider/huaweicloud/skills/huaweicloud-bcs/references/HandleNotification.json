@@ -1,0 +1,298 @@
+{
+  "name": "HandleNotification",
+  "summary": "处理联盟邀请",
+  "tags": "BCS联盟",
+  "productshort": "BCS",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v2/{project_id}/notification/handle": {
+      "post": {
+        "x-secnario": "hws",
+        "x-api-type": "open",
+        "tags": [
+          "BCS联盟"
+        ],
+        "summary": "处理联盟邀请",
+        "description": "处理联盟邀请",
+        "operationId": "HandleNotification",
+        "x-order": 2,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "帐号token",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的项目ID,一般为32位字符串",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "HandleNotificationRequestBody",
+            "description": "处理联盟邀请",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HandleNotificationRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/SuccessResponse"
+            },
+            "examples": {
+              "application/json": {
+                "result": "success"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4006014",
+                "error_msg": "Invalid Parameter quotasType : ecs"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4010401",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4030403",
+                "error_msg": "No permissions to request this method"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4040404",
+                "error_msg": "Not Found:the url is not found"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.5000500",
+                "error_msg": "Internal Server Error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "HandleNotificationRequestBody": {
+      "required": [
+        "channel_name",
+        "status",
+        "invitor_info"
+      ],
+      "properties": {
+        "channel_name": {
+          "type": "string",
+          "example": "new_channel",
+          "description": "邀请目标通道"
+        },
+        "status": {
+          "type": "string",
+          "example": "reject",
+          "description": "处理邀请",
+          "enum": [
+            "agreed",
+            "reject"
+          ]
+        },
+        "invitor_info": {
+          "$ref": "#/definitions/HandleNotificationInvitor",
+          "description": "邀请方信息"
+        },
+        "invitee_info": {
+          "$ref": "#/definitions/HandleNotificationInvitee",
+          "description": "被邀请方信息,同意加入时必填"
+        },
+        "invited_orgs": {
+          "type": "array",
+          "description": "加入联盟的组织,同意加入时必填",
+          "items": {
+            "$ref": "#/definitions/HandleNotificationOrg"
+          }
+        }
+      },
+      "description": "处理联盟邀请body数据",
+      "example": {
+        "channel_name": "channel",
+        "invited_orgs": [
+          {
+            "name": "organization"
+          }
+        ],
+        "invitor_info": {
+          "invitor_user_id": "051dded56100d4f90fe6c01d7d7a9240",
+          "invitor_bcs_id": "6a9062bb-6aaf-a1cc-1756-7f45f9e0ea11",
+          "invitor_project_id": "051dded75a80d4fb2f38c01d64a5789e",
+          "invitor_bcs_name": "invitor-xxx"
+        },
+        "invitee_info": {
+          "invitee_user_id": "051ddda48580d3371fc6c014ba7175b5",
+          "invitee_bcs_id": "6a9062bb-6aaf-a1cc-1756-7f45f9e0ea11",
+          "invitee_project_id": "051dded75a80d4fb2f38c01d64a5789e",
+          "invitee_bcs_name": "invitee-xxx"
+        },
+        "status": "reject"
+      }
+    },
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误"
+    },
+    "SuccessResponse": {
+      "description": "请求成功",
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "请求成功的结果"
+        }
+      }
+    },
+    "HandleNotificationInvitee": {
+      "required": [
+        "invitee_bcs_id",
+        "invitee_bcs_name",
+        "invitee_project_id",
+        "invitee_user_id"
+      ],
+      "properties": {
+        "invitee_bcs_id": {
+          "type": "string",
+          "example": "f390a735-9ff6-2f1b-f982-93992f861ca6",
+          "description": "被邀请方BCS服务实例ID"
+        },
+        "invitee_bcs_name": {
+          "type": "string",
+          "example": "abc",
+          "description": "被邀请方BCS服务实例名称,同意联盟邀请时必填"
+        },
+        "invitee_project_id": {
+          "type": "string",
+          "example": "397cd10b30544c588b2f4a56d83856c4",
+          "description": "被邀请方project id"
+        },
+        "invitee_user_id": {
+          "type": "string",
+          "example": "28839632c7954c6380e59a4d416a60ee",
+          "description": "被邀请方租户id。控制台->被邀请方帐号->我的凭证->API凭证->帐号ID"
+        }
+      }
+    },
+    "HandleNotificationOrg": {
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "organization002",
+          "description": "加入的组织"
+        }
+      }
+    },
+    "HandleNotificationInvitor": {
+      "required": [
+        "invitor_bcs_id",
+        "invitor_project_id",
+        "invitor_user_id",
+        "invitor_bcs_name"
+      ],
+      "properties": {
+        "invitor_bcs_id": {
+          "type": "string",
+          "example": "eb1638e3-6272-24e0-5249-2abb7991c269",
+          "description": "邀请方BCS服务实例ID"
+        },
+        "invitor_bcs_name": {
+          "type": "string",
+          "example": "bcs_invitor-xxx",
+          "description": "邀请方BCS服务实例名称"
+        },
+        "invitor_project_id": {
+          "type": "string",
+          "example": "397cd10b30544c588b2f4a56d83856c4",
+          "description": "邀请方project id"
+        },
+        "invitor_user_id": {
+          "type": "string",
+          "example": "28839632c7954c6380e59a4d416a60ee",
+          "description": "邀请方租户id。控制台->邀请方帐号->我的凭证->API凭证->帐号ID"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcs.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

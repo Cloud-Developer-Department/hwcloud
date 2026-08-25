@@ -1,0 +1,296 @@
+{
+  "name": "BatchExecuteAssetAction",
+  "summary": "批量资产操作",
+  "tags": "数字资产管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/digital-assets/batch-action": {
+      "post": {
+        "tags": [
+          "DigitalAssetContentManager"
+        ],
+        "summary": "批量资产操作",
+        "description": "该接口用批量资产操作。",
+        "operationId": "BatchExecuteAssetAction",
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-App-UserId"
+          },
+          {
+            "in": "body",
+            "name": "BatchExecuteAssetActionRequestBody",
+            "description": "资产批量操作命令",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchAssetActionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "ret_status": "SUCESS",
+                    "asset_ids": [
+                      "xxxxx1",
+                      "xxxxx2"
+                    ]
+                  },
+                  {
+                    "ret_status": "FAILED",
+                    "asset_ids": [
+                      "xxxx3",
+                      "xxxx4"
+                    ],
+                    "error_info": {
+                      "error_code": "MSS.xxxxxx",
+                      "error_msg": "权限不足"
+                    }
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchAssetActionRsp"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServiceError"
+          }
+        },
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam,internal-appcode",
+        "x-open-range": "public",
+        "x-methodAnnotations": [
+          "@DeprecatedUserIdApi"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/digital-assets/batch-action",
+        "x-request-examples-text-1": {
+          "action": "DETELTE",
+          "asset_ids": [
+            "xxxxx1",
+            "xxxxx2",
+            "xxxxx3",
+            "xxxxx4"
+          ]
+        },
+        "x-order": 6
+      }
+    }
+  },
+  "definitions": {
+    "AssetActionResult": {
+      "properties": {
+        "ret_status": {
+          "type": "string",
+          "description": "处理状态。\n* SUCCESS:成功\n* FAILED:失败",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "SUCCESS",
+            "FAILED"
+          ]
+        },
+        "asset_ids": {
+          "type": "array",
+          "description": "资产ID列表",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100,
+          "x-minLength": 0
+        },
+        "error_info": {
+          "description": "错误信息",
+          "$ref": "#/definitions/ErrorResponse"
+        }
+      },
+      "description": "资产操作结果"
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "BatchAssetActionReq": {
+      "required": [
+        "action",
+        "asset_ids"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "批量操作命令.\n* DELETE:删除\n* DELETE_FORCE:强制删除,该模式会立即删除资产\n* RESTORE:恢复\n* UNACTIVE:取消激活\n* ACTIVE:激活\n* SHARE:共享\n* UNSHARE:取消共享",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "DELETE",
+            "DELETE_FORCE",
+            "RESTORE",
+            "UNACTIVE",
+            "ACTIVE",
+            "SHARE",
+            "UNSHARE"
+          ]
+        },
+        "asset_ids": {
+          "type": "array",
+          "description": "资产ID列表",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100,
+          "x-minLength": 0
+        },
+        "params": {
+          "type": "string",
+          "description": "操作参数",
+          "minLength": 0,
+          "maxLength": 4096
+        }
+      },
+      "description": "批量操作请求体"
+    },
+    "BatchAssetActionRsp": {
+      "properties": {
+        "results": {
+          "type": "array",
+          "description": "批量操作结果",
+          "items": {
+            "$ref": "#/definitions/AssetActionResult"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100,
+          "x-minLength": 0
+        }
+      },
+      "description": "批量操作响应"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-App-UserId": {
+      "name": "X-App-UserId",
+      "in": "header",
+      "description": "第三方用户ID。不允许输入中文。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "abcdefg1234567",
+      "x-apig-registered": false
+    }
+  },
+  "host": "metastudio.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

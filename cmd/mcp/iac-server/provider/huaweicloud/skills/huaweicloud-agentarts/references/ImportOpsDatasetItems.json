@@ -1,0 +1,134 @@
+{
+  "name": "ImportOpsDatasetItems",
+  "summary": "评测集导入",
+  "tags": "评测集管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/ops/datasets/{dataset_id}/items/import": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "评测集导入",
+        "description": "该接口用于从本地文件或历史版本中将海量数据批量导入至指定评测集的草稿版本中,支持多种格式解析及灵活的写入模式。\n适用场景:\n- 评测集同步:将存储在OBS(对象存储服务)中的海量生产数据或标注数据自动化同步至评测系统。\n- 评测集更替:利用全量覆盖模式(Overwrite),一键重置当前草稿版本的数据内容。",
+        "operationId": "ImportOpsDatasetItems",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "description": "**参数解释:**\n评测集的唯一标识符(ID)\n**约束限制:**\n由英文、数字、“-”、“_”组成,长度为1到64个字符。\n**取值范围:**\n由英文、数字、连字符(-)、下划线(_)组成的1-64位字符串。\n**默认取值:**\n无。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "source_version_id",
+            "in": "query",
+            "description": "**参数解释:**\n源版本ID。用于指定在数据还原或复制操作中作为参考的基础版本。\n**约束限制:**\n长度为0到100个字符。\n**取值范围:**\n0到100字符。\n**默认取值:**\n不涉及。",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0
+          },
+          {
+            "name": "overwrite",
+            "in": "query",
+            "description": "**参数解释:**\n覆盖模式开关。决定在导入新数据前是否清空草稿版本中的现有数据。\n**约束限制:**\n不涉及。\n**取值范围:**\n- `true`: 覆盖模式,执行清空操作。\n- `false`: 追加模式,保留现有数据。\n**默认取值:**\nfalse。",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "get_obs_url",
+            "in": "query",
+            "description": "**参数解释:**\n获取OBS预签名URL标识。用于确定是否需要系统生成并返回用于大文件直传的临时上传链接。\n**约束限制:**\n仅在不使用 multipart/form-data 模式时启用。\n**取值范围:**\ntrue, false。\n**默认取值:**\nfalse。",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "obs_object_name",
+            "in": "query",
+            "description": "**参数解释:**\nOBS对象名称。指定待导入文件在对象存储(OBS)中的完整存储路径或文件名。\n**约束限制:**\n字符串长度限制为0到10000个字符。\n**取值范围:**\n0到10000 字符。\n**默认取值:**\n不涉及。",
+            "required": false,
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          {
+            "name": "obs_file_hash",
+            "in": "query",
+            "description": "**参数解释:**\n文件哈希值(SHA-256)。用于在服务端进行文件完整性校验,确保上传过程中数据未损坏或被篡改。\n**约束限制:**\n十六进制字符串,最大长度 256 个字符。\n**取值范围:**\n0到256字符。\n**默认取值:**\n不涉及。",
+            "required": false,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "导入任务下发成功",
+            "examples": {
+              "application/json": {
+                "import_task_id": "550e8400-e29b-41d4-a716-446655440001",
+                "obs_url": "http://obs.cn-north-7.ulanqab.huawei.com/doc"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ImportOpsDatasetItemsResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://*.com/agentarts/v1/ops/datasets/7452bf21f819-6f91-4568-9f2f-57ef9562ab7/items/import",
+        "x-request-examples-description-1": "数据批量导入至指定评测集的草稿版本",
+        "x-request-examples-text-1": "\n\n\n",
+        "x-request-examples-1": "\n\n\n",
+        "x-open-api": true,
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L4"
+      }
+    }
+  },
+  "definitions": {
+    "ImportOpsDatasetItemsResponseBody": {
+      "type": "object",
+      "properties": {
+        "import_task_id": {
+          "type": "string",
+          "example": "550e8400-e29b-41d4-a716-446655440001",
+          "description": "**参数解释:**\n系统为本次导入操作生成的异步任务唯一标识符。\n**取值范围:**\n符合通用唯一识别码(UUID)标准的字符串。",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "obs_url": {
+          "type": "string",
+          "example": "http://obs.cn-north-7.ulanqab.huawei.com/doc",
+          "description": "**参数解释:**\n用于将本地数据文件直接上传至对象存储(OBS)的预签名 URL 地址。\n**取值范围:**\n合法的 HTTP/HTTPS 协议 URL 字符串。",
+          "minLength": 0,
+          "maxLength": 10000
+        }
+      },
+      "description": "**参数解释:**\n导入评测集条目的响应体。\n**取值范围:**\n不涉及。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,163 @@
+{
+  "name": "ShowQuotas",
+  "summary": "查询配额",
+  "tags": "配额管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/quotas": {
+      "get": {
+        "tags": [
+          "配额管理"
+        ],
+        "operationId": "ShowQuotas",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "summary": "查询配额",
+        "description": "查询单租户在GeminiDB服务下的资源配额。",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "datastore_type",
+            "in": "query",
+            "required": false,
+            "description": "数据库类型。\n取值为“cassandra”,表示查询GeminiDB Cassandra数据库实例配额。\n取值为“mongodb”,表示GeminiDB Mongo查询数据库实例配额。\n取值为“influxdb”,表示查询GeminiDB Influx数据库实例配额。\n取值为“redis”,表示查询GeminiDB Redis数据库实例配额。\n如果不传该参数,表示查询所有数据库实例配额。",
+            "type": "string"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "description": "实例类型。\n  - 取值为“Cluster”,表示GeminiDB Cassandra、GeminiDB Influx、GeminiDB Redis Proxy经典部署模式集群实例类型。\n  - 取值为“CloudNativeCluster”,表示GeminiDB Cassandra、GeminiDB Influx、GeminiDB Redis云原生部署模式集群实例类型。\n  - 取值为“RedisCluster”,表示GeminiDB Redis Cluster经典部署模式集群实例类型。\n  - 取值为“Replication”,表示GeminiDB Redis经典部署模式主备实例类型。\n  - 取值为“InfluxdbSingle”,表示GeminiDB Influx经典部署模式单节点实例类型。\n  - 取值为“ReplicaSet”,表示GeminiDB Mongo副本集实例类型。\n  - 如果不传datastore_type参数,自动忽略该参数设置。",
+            "type": "string"
+          },
+          {
+            "name": "product_type",
+            "in": "query",
+            "required": false,
+            "description": "产品类型。\n  -  Capacity 容量型\n  -  Standard 标准型\n当查询GeminiDB redis云原生部署模式集群类型配额必传此参数。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ShowQuotasResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "quotas": {
+                  "resources": [
+                    {
+                      "type": "instance",
+                      "quota": 200,
+                      "used": 58
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询配额",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/0549b4a43100d4f32f51c01c2fe4acdb/quotas?mode=InfluxdbSingle&datastore_type=influxdb"
+      }
+    }
+  },
+  "definitions": {
+    "ShowQuotasResponseBody": {
+      "required": [
+        "quotas"
+      ],
+      "properties": {
+        "quotas": {
+          "type": "object",
+          "description": "配额信息。",
+          "$ref": "#/definitions/ShowResourcesListResponseBody"
+        }
+      }
+    },
+    "ShowResourcesListResponseBody": {
+      "required": [
+        "resources"
+      ],
+      "properties": {
+        "resources": {
+          "type": "array",
+          "description": "资源列表对象",
+          "items": {
+            "$ref": "#/definitions/ShowResourcesDetailResponseBody"
+          }
+        }
+      }
+    },
+    "ShowResourcesDetailResponseBody": {
+      "required": [
+        "type",
+        "quota",
+        "used"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "配额资源类型,当前配额类型仅支持实例类型(instance)。"
+        },
+        "quota": {
+          "type": "integer",
+          "description": "当前配额值。 取值为0时,表示不限制当前配额值。"
+        },
+        "used": {
+          "type": "integer",
+          "description": "已使用的资源数。"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

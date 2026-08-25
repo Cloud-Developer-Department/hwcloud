@@ -1,0 +1,245 @@
+{
+  "name": "ShowPropertyValues",
+  "summary": "查询设备属性最新状态值",
+  "tags": "设备存储数据查询",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/data-stores/{data_store_id}/property-values/query-last": {
+      "post": {
+        "tags": [
+          "DataStoreQuery"
+        ],
+        "summary": "查询设备属性最新状态值",
+        "description": "查询设备属性最新状态值",
+        "operationId": "ShowPropertyValues",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[-a-zA-Z0-9]{1,128}$"
+          },
+          {
+            "name": "data_store_id",
+            "in": "path",
+            "description": "存储ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[-a-zA-Z0-9]{1,64}$"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户鉴权Token",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "minLength": 1,
+            "x-maxLength": 65535
+          },
+          {
+            "in": "body",
+            "name": "ShowPropertyValuesRequestBody",
+            "description": "设备属性最新状态值查询参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GetPropertyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetPropertyResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99000010",
+                "error_msg": "参数错误"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99000003",
+                "error_msg": "未授权"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99000007",
+                "error_msg": "未开通数据分析服务"
+              },
+              "application/json-2": {
+                "error_code": "IoTA.99000008",
+                "error_msg": "数据分析服务被冻结"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000007",
+              "IoTA.99000008"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json-1": {
+                "error_code": "IoTA.99999999",
+                "error_msg": "服务内部错误"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<GetPropertyResponse>",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-externalAPI": "YES",
+        "x-open-for-HCS": "Y",
+        "x-open-for-CLOUD": "Y",
+        "x-iftype": "OpenAPI"
+      }
+    }
+  },
+  "definitions": {
+    "GetPropertyRequest": {
+      "type": "object",
+      "required": [
+        "tags"
+      ],
+      "properties": {
+        "tags": {
+          "$ref": "#/definitions/TagFilter"
+        },
+        "property_names": {
+          "type": "array",
+          "example": [
+            "prop_1",
+            "prop_2"
+          ],
+          "description": "查询设备的属性名称",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]{1,64}$"
+          },
+          "maxItems": 500,
+          "minItems": 0
+        }
+      },
+      "description": "查询属性值请求"
+    },
+    "TagFilter": {
+      "type": "object",
+      "description": "对property按指定tags标签进行过滤查询,填入设备标签与标签值,不可为空,例如 {\"deviceId\": \"id0001\"}",
+      "example": {
+        "deviceId": "IA2006300"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "description": "设备标签过滤值"
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "GetPropertyResponse": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "array",
+          "description": "查询设备的属性值",
+          "items": {
+            "$ref": "#/definitions/PropertyValue"
+          },
+          "maxItems": 500,
+          "minItems": 0
+        }
+      },
+      "description": "查询设备属性值的响应"
+    },
+    "PropertyValue": {
+      "type": "object",
+      "properties": {
+        "property_name": {
+          "type": "string",
+          "example": "prop_1",
+          "description": "属性名称",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$"
+        },
+        "value": {
+          "type": "object",
+          "example": 1.0,
+          "description": "属性值",
+          "properties": {}
+        },
+        "timestamp": {
+          "type": "string",
+          "example": "2021-01-08T02:03:41.907Z",
+          "description": "属性值最后更新时间",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

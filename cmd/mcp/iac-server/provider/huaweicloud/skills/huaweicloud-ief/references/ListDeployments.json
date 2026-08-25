@@ -1,0 +1,980 @@
+{
+  "name": "ListDeployments",
+  "summary": "查询部署列表",
+  "tags": "部署管理",
+  "productshort": "IEF",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v3/{project_id}/edgemgr/deployments": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "ief_02_0083",
+        "tags": [
+          "部署管理"
+        ],
+        "summary": "查询部署列表",
+        "description": "查询部署列表",
+        "operationId": "ListDeployments",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Content-Type"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/IEF-Instance-Id"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "每页显示的条目数量,最大100,默认值10",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "查询的起始位置,默认值0",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "查询结果排序,如按照创建时间降序排序为created_at:desc,升序排序为created_at:asc",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "description": "deployment名称(支持模糊匹配)",
+            "type": "string"
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "required": false,
+            "description": "节点ID,查询部署在该节点下的应用列表,和group_id不可同时请求",
+            "type": "string"
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": false,
+            "description": "节点组ID,查询部署在该节点组的应用列表,和node_id不可同时请求",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/DeploymentListResp"
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "deployments": [
+                  {
+                    "id": "3e64d98a-37c5-43a6-9bfe-052b9083e362",
+                    "name": "app-test",
+                    "replicas": 1,
+                    "ready_replicas": 1,
+                    "description": "this is a test app",
+                    "group_id": "",
+                    "node_ids": [
+                      "29d20c18-c20c-4a45-a087-42c766fc5d97"
+                    ],
+                    "tags": [
+                      {
+                        "key": "app",
+                        "value": "test"
+                      }
+                    ],
+                    "api_version": "v3",
+                    "source": "userdefine",
+                    "project_id": "bcd83056c918480f8f190844bd425b23",
+                    "created_at": "2019-10-10T02:20:40.630Z",
+                    "updated_at": "2019-10-10T02:20:40.630Z",
+                    "template": {
+                      "configs": {
+                        "host_network": true,
+                        "host_pid": true,
+                        "migration": true,
+                        "restart_policy": "Always",
+                        "toleration_seconds": 300
+                      },
+                      "init_containers": [],
+                      "containers": [
+                        {
+                          "name": "container-0",
+                          "image_url": "nginx:latest",
+                          "args": [
+                            "-c",
+                            "sleep 1000"
+                          ],
+                          "command": [
+                            "/bin/bash"
+                          ],
+                          "resources": {
+                            "limits": {
+                              "cpu": "0.25",
+                              "memory": "500",
+                              "gpu": "500"
+                            },
+                            "requests": {
+                              "cpu": "0.25",
+                              "memory": "500",
+                              "gpu": "500"
+                            }
+                          },
+                          "envs": [
+                            {
+                              "name": "CERT_PATH",
+                              "value": "/opt/cert"
+                            }
+                          ],
+                          "ports": [
+                            {
+                              "container_port": 80,
+                              "host_port": 80
+                            }
+                          ],
+                          "privileged": true,
+                          "readiness_probe": {
+                            "http_get": {
+                              "path": "/",
+                              "port": 80,
+                              "scheme": "http"
+                            },
+                            "initial_delay_seconds": 10,
+                            "timeout_seconds": 10
+                          },
+                          "liveness_probe": {
+                            "http_get": {
+                              "path": "/",
+                              "port": 80,
+                              "scheme": "http"
+                            },
+                            "initial_delay_seconds": 10,
+                            "timeout_seconds": 10
+                          },
+                          "version": "1.0",
+                          "npu_type": "",
+                          "volumes": [
+                            {
+                              "name": "log-volume",
+                              "type": "hostPath",
+                              "read_only": false,
+                              "source": "/var/IEF",
+                              "destination": "/var/IEF"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "IEF.100001",
+                "error_msg": "PROJECT_ID not found"
+              }
+            }
+          },
+          "500": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "IEF.100158",
+                "error_msg": "Fail to extract gpu infomation"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ConfigsMap": {
+      "description": "环境变量引用配置项时使用。",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "配置项的名称"
+        },
+        "key": {
+          "type": "string",
+          "description": "配置项的属性名"
+        }
+      },
+      "required": [
+        "name",
+        "key"
+      ]
+    },
+    "MatchExpression": {
+      "description": "匹配规则表达式",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "规则的标签"
+        },
+        "operator": {
+          "type": "string",
+          "description": "操作符,取值如下:\n- In:标签值需要在values的列表中\n- NotIn:标签的值不在某个列表中\n- Exists:某个标签存在\n- DoesNotExist:某个标签不存在\n- Gt:标签的值大于某个值(字符串比较)\n- Lt:标签的值小于某个值(字符串比较)"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "一组标签值。\n- 如果运算符为In或NotIn,则值数组必须非空。\n- 如果运算符为Exists 或DoesNotExist,则值数组必须为空。\n- 如果运算符是Gt或Lt,则值数组必须具有单个元素,该元素将被解释为整数。"
+        }
+      }
+    },
+    "Exec": {
+      "required": [
+        "command"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "探针执行命令,最大长度10240个字符"
+        }
+      }
+    },
+    "Secrets": {
+      "description": "环境变量引用密钥时使用。使用ValueFrom时,secret与configmap必须二选一。",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "密钥的名称"
+        },
+        "key": {
+          "type": "string",
+          "description": "密钥的属性名"
+        }
+      },
+      "required": [
+        "name",
+        "key"
+      ]
+    },
+    "LabelSelector": {
+      "description": "标签选择器",
+      "properties": {
+        "matchExpressions": {
+          "items": {
+            "$ref": "#/definitions/MatchExpression"
+          },
+          "description": "匹配规则表达式",
+          "type": "array"
+        },
+        "matchLabels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "匹配的标签,格式为key:value键值对。\n单个键值对相当于matchExpressions的一个元素,key字段为key,操作符为In,values数组中只有value。"
+        }
+      }
+    },
+    "PreferredSchedulingTerm": {
+      "description": "优先使用定义的规则调度,且不会影响已经在节点上运行的Pod。即优先选择调度到满足规则的节点,但也可能会调度到不满足规则的节点。",
+      "properties": {
+        "preference": {
+          "description": "与相应权重关联的节点选择器项。",
+          "properties": {
+            "matchExpressions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MatchExpression"
+              },
+              "description": "匹配规则表达式"
+            }
+          }
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32",
+          "description": "权重,范围为1-100"
+        }
+      }
+    },
+    "Volumes": {
+      "description": "卷配置",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "卷名称,小写字母或数字,最长63个字符"
+        },
+        "type": {
+          "type": "string",
+          "description": "卷的类型,支持configMap,secret,emptyDir,hostPath"
+        },
+        "source": {
+          "type": "string",
+          "description": "卷来源,type为hostPath时输入路径,要求以/开头,后面可包含中划线,反斜杠,下划线,点号,字母,数字; secret时输入secret名称,configMap时输入configMap名称,emptyDir时输入disk或memory"
+        },
+        "destination": {
+          "type": "string",
+          "description": "卷挂载路径,必须是合法的路径"
+        },
+        "read_only": {
+          "type": "boolean",
+          "description": "读写权限,configMap和secret类型只支持读权限"
+        },
+        "default_mode": {
+          "type": "integer",
+          "format": "int32",
+          "description": "挂载的文件权限,仅configMap和secret类型生效,填写值为十进制表示的linux文件权限,默认为420(对应权限644)"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "source",
+        "destination"
+      ],
+      "type": "object"
+    },
+    "PodRequest": {
+      "description": "应用部署模板",
+      "properties": {
+        "configs": {
+          "$ref": "#/definitions/PodConfigs"
+        },
+        "affinity": {
+          "$ref": "#/definitions/Affinity"
+        },
+        "init_containers": {
+          "items": {
+            "$ref": "#/definitions/ContainerDef"
+          },
+          "type": "array",
+          "description": "应用部署init业务容器"
+        },
+        "containers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContainerDef"
+          },
+          "description": "应用部署业务容器"
+        }
+      },
+      "required": [
+        "configs",
+        "containers"
+      ]
+    },
+    "PodConfigs": {
+      "description": "应用实例配置",
+      "properties": {
+        "host_network": {
+          "type": "boolean",
+          "description": "应用实例是否启用主机网络,不启用则使用端口映射,默认值false"
+        },
+        "host_pid": {
+          "type": "boolean",
+          "description": "应用实例是否与主机共PID命名空间,默认值false"
+        },
+        "migration": {
+          "type": "boolean",
+          "description": "应用实例故障是否迁移,指定节点组部署时必选,默认值false"
+        },
+        "restart_policy": {
+          "type": "string",
+          "description": "应用实例重启策略,可选值Always、OnFailure、Never"
+        },
+        "toleration_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "应用实例故障容忍时间,容忍时间到达后迁移应用实例,只在指定节点组部署时生效"
+        },
+        "dns_policy": {
+          "type": "string",
+          "description": "应用实例DNS策略,可选值Default、ClusterFirst、ClusterFirstWithHostNet,默认为Default。应用实例启用主机网络时只能选填Default、ClusterFirstWithHostNet,不启用主机网络时只能选填Default、ClusterFirst"
+        }
+      },
+      "required": [
+        "restart_policy"
+      ],
+      "type": "object"
+    },
+    "WeightPodAffinityTerms": {
+      "description": "优先使用定义的规则调度,且不会影响已经在节点上运行的Pod。即优先选择调度到满足规则的节点,但也可能会调度到不满足规则的节点。",
+      "properties": {
+        "podAffinityTerm": {
+          "description": "Pod亲和规则",
+          "properties": {
+            "labelSelector": {
+              "$ref": "#/definitions/LabelSelector"
+            },
+            "namespaces": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "命名空间"
+            },
+            "topologyKey": {
+              "type": "string",
+              "description": "拓扑标签。先圈定topologyKey指定的范围,然后再选择labelSelector定义的内容,即亲和调度只会在有topologyKey指定的标签节点上调度。"
+            }
+          }
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32",
+          "description": "权重,范围为1-100"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "description": "响应Body参数",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息"
+        }
+      }
+    },
+    "ContainerDef": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "容器名称,只允许英文小写字母、数字、中划线,最大长度32, 英文小写字母或数字开头和结尾"
+        },
+        "image_url": {
+          "type": "string",
+          "description": "容器镜像URL"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "容器启动参数,字符总长度最大为65536"
+        },
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "容器启动命令,字符总长度最大为65536。\ncommand支持使用数组定义多条命令,但在IEF控制台界面只会显示第一条命令。"
+        },
+        "resources": {
+          "$ref": "#/definitions/DeploymentResources"
+        },
+        "envs": {
+          "items": {
+            "$ref": "#/definitions/Env"
+          },
+          "description": "环境变量",
+          "type": "array"
+        },
+        "ports": {
+          "items": {
+            "$ref": "#/definitions/HostContainerPortMapping"
+          },
+          "description": "容器端口映射值",
+          "type": "array"
+        },
+        "privileged": {
+          "type": "boolean",
+          "description": "是否启用特权容器,默认值false"
+        },
+        "run_as_user": {
+          "type": "integer",
+          "description": "容器运行用户ID,输入范围为0~65534的整数"
+        },
+        "readiness_probe": {
+          "$ref": "#/definitions/Probe"
+        },
+        "liveness_probe": {
+          "$ref": "#/definitions/Probe"
+        },
+        "version": {
+          "type": "string",
+          "description": "容器镜像版本"
+        },
+        "volumes": {
+          "items": {
+            "$ref": "#/definitions/Volumes"
+          },
+          "description": "卷配置",
+          "type": "array"
+        },
+        "npu_type": {
+          "type": "string",
+          "description": "NPU类型,支持D310、D310B,支持填写:\n- D310:D310类型\n- D310B:D310B类型\n- 空值:D310类型。"
+        }
+      },
+      "required": [
+        "name",
+        "image_url"
+      ],
+      "type": "object"
+    },
+    "HttpGetDetail": {
+      "description": "执行http探测",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "必须要以/开头,构造结果为:协议类型://主机地址:端口路径"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "探测的http端口,1到65535之间的整数"
+        },
+        "host": {
+          "type": "string",
+          "description": "请求的主机地址,默认为容器IP"
+        },
+        "scheme": {
+          "type": "string",
+          "description": "协议类型,HTTP或HTTPS,默认HTTP"
+        }
+      },
+      "required": [
+        "path",
+        "port"
+      ]
+    },
+    "ValueFrom": {
+      "properties": {
+        "secret": {
+          "$ref": "#/definitions/Secrets"
+        },
+        "configmap": {
+          "$ref": "#/definitions/ConfigsMap"
+        }
+      }
+    },
+    "HostContainerPortMapping": {
+      "description": "容器端口映射值",
+      "properties": {
+        "container_port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "构成一堆映射的容器端口"
+        },
+        "host_port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "构成一对映射的物理机对应网卡端口"
+        },
+        "host_ip": {
+          "type": "string",
+          "description": "对应网卡地址"
+        },
+        "host_port_range": {
+          "$ref": "#/definitions/HostPortRange"
+        }
+      },
+      "required": [
+        "container_port"
+      ]
+    },
+    "RequiredDuringScheduling": {
+      "description": "强制使用定义的规则调度,且不会影响已经在节点上运行的Pod。即强制选择调度到满足规则的节点,不会调度到不满足规则的节点。",
+      "properties": {
+        "nodeSelectorTerms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MatchExpressions"
+          },
+          "description": "节点选择规则"
+        }
+      }
+    },
+    "Probe": {
+      "properties": {
+        "exec": {
+          "description": "执行命令检查,与http_get二选一",
+          "$ref": "#/definitions/Exec"
+        },
+        "http_get": {
+          "description": "执行http探测",
+          "$ref": "#/definitions/HttpGetDetail"
+        },
+        "initial_delay_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "表示从工作负载启动后从多久开始探测,大于0且不大于3600的整数,默认为10"
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "表示探测超时时间,大于0且不大于3600的整数,默认为1"
+        }
+      },
+      "description": "探针配置"
+    },
+    "Attributes": {
+      "description": "节点属性",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "节点属性的key值,长度取值范围为1~128, 仅允许大小写英文字母、数字、下划线、中划线"
+        },
+        "value": {
+          "type": "string",
+          "description": "节点属性的value值,长度取值范围为1~256, 仅允许大小写英文字母、数字、下划线、中划线"
+        }
+      }
+    },
+    "MatchExpressions": {
+      "description": "匹配规则表达式",
+      "properties": {
+        "matchExpressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MatchExpression"
+          },
+          "description": "匹配规则表达式"
+        }
+      }
+    },
+    "DeploymentResources": {
+      "properties": {
+        "limits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "- 允许容器使用的最大资源,key值支持填写:cpu, memory, gpu, npu。\n- 申请NPU资源时可填写指定的NPU芯片类型,支持填写:D310、D310B。注意:key值填写为npu时,默认使用npu_type字段指定的芯片类型。如果npu_type字段为空,默认使用D310芯片类型。"
+        },
+        "requests": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "- 容器需要使用的最小资源,key值支持填写:cpu, memory, gpu, npu\n- 申请NPU资源时可填写指定的NPU芯片类型,支持填写:D310、D310B。注意:key值填写为npu时,默认使用npu_type字段指定的芯片类型。如果npu_type字段为空,默认使用D310芯片类型。"
+        }
+      },
+      "description": "创建容器时使用的资源",
+      "type": "object"
+    },
+    "Env": {
+      "description": "环境变量",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "环境变量的key,由大小写字母或下划线开头,由数字、大小写字母、下划线组成,最大长度2048个字符,不允许重复"
+        },
+        "value": {
+          "type": "string",
+          "description": "环境变量的value,最大长度20480个字符。value、value_from和field_path必须三选一使用。"
+        },
+        "value_from": {
+          "description": "环境变量可使用配置项和密钥导入",
+          "$ref": "#/definitions/ValueFrom"
+        },
+        "field_path": {
+          "type": "string",
+          "description": "该参数目前只支持赋值\"status.hostIP\",即引用边缘节点的IP地址作为环境变量。"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Affinity": {
+      "description": "应用实例亲和性规则,仅铂金版支持",
+      "properties": {
+        "nodeAffinity": {
+          "description": "节点亲和规则",
+          "properties": {
+            "preferredDuringSchedulingIgnoredDuringExecution": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PreferredSchedulingTerm"
+              },
+              "description": "优先使用定义的规则调度,且不会影响已经在节点上运行的Pod。即优先选择调度到满足规则的节点,但也可能会调度到不满足规则的节点。"
+            },
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "$ref": "#/definitions/RequiredDuringScheduling"
+            }
+          }
+        },
+        "podAffinity": {
+          "description": "Pod亲和规则",
+          "properties": {
+            "preferredDuringSchedulingIgnoredDuringExecution": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/WeightPodAffinityTerms"
+              },
+              "description": "优先使用定义的规则调度,且不会影响已经在节点上运行的Pod。即优先选择调度到满足规则的节点,但也可能会调度到不满足规则的节点。"
+            },
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PodAffinityTerm"
+              },
+              "description": "强制使用定义的规则调度,且不会影响已经在节点上运行的Pod。即强制选择调度到满足规则的节点,不会调度到不满足规则的节点。"
+            }
+          }
+        },
+        "podAntiAffinity": {
+          "description": "Pod反亲和规则",
+          "properties": {
+            "preferredDuringSchedulingIgnoredDuringExecution": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/WeightPodAffinityTerms"
+              },
+              "description": "优先使用定义的规则调度,且不会影响已经在节点上运行的Pod。即优先选择调度到满足规则的节点,但也可能会调度到不满足规则的节点。"
+            },
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PodAffinityTerm"
+              },
+              "description": "强制使用定义的规则调度,且不会影响已经在节点上运行的Pod。即强制选择调度到满足规则的节点,不会调度到不满足规则的节点。"
+            }
+          }
+        }
+      }
+    },
+    "DeploymentListResp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "应用部署总数"
+        },
+        "deployments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DeploymentResp"
+          },
+          "description": "应用部署列表"
+        }
+      },
+      "required": [
+        "count",
+        "deployments"
+      ]
+    },
+    "HostPortRange": {
+      "description": "主机端口范围,在范围内为应用实例自动分配主机端口;与主机端口参数二选一;仅铂金版可用",
+      "properties": {
+        "min_port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主机端口下限制,1到65535之间的整数"
+        },
+        "max_port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主机端口上限值,1到65535之间的整数;max_port需大于min_port"
+        }
+      },
+      "required": [
+        "min_port",
+        "max_port"
+      ]
+    },
+    "Annotations": {
+      "description": "应用扩展功能配置选项",
+      "properties": {
+        "ring_controller": {
+          "type": "string",
+          "description": "生成ranktablefile。该参数目前只支持赋值\"ascend-1980\"。"
+        },
+        "autonomy_edge_selector": {
+          "type": "string",
+          "description": "离线自愈功能配置字段,须填写调度的节点组id"
+        }
+      }
+    },
+    "DeploymentResp": {
+      "description": "部署参数配置",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "应用部署uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "应用部署名称,只允许英文小写字母、数字、中划线,最大长度32, 英文小写字母或数字开头和结尾"
+        },
+        "replicas": {
+          "type": "integer",
+          "format": "int32",
+          "description": "应用部署总副本数"
+        },
+        "ready_replicas": {
+          "type": "integer",
+          "format": "int32",
+          "description": "应用部署正常副本数"
+        },
+        "description": {
+          "type": "string",
+          "description": "应用部署描述,最大长度255,不允许^ ~ # $ % & * < > ( ) [ ] { } ' \" \\"
+        },
+        "group_id": {
+          "type": "string",
+          "description": "应用部署到指定节点组,与node_ids二选一"
+        },
+        "node_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "应用部署到指定节点,当前只支持一个边缘节点"
+        },
+        "tags": {
+          "items": {
+            "$ref": "#/definitions/Attributes"
+          },
+          "description": "节点属性",
+          "type": "array"
+        },
+        "api_version": {
+          "type": "string",
+          "description": "应用部署版本"
+        },
+        "source": {
+          "type": "string",
+          "description": "应用部署来源:边缘市场(iem)或自定义(userdefined)"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "项目ID"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "应用部署创建时间"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "应用部署更新时间"
+        },
+        "template": {
+          "$ref": "#/definitions/PodRequest"
+        },
+        "state": {
+          "type": "string",
+          "description": "应用状态,仅包括冻结(FREEZE)、删除中(PENDING_DELETE)、删除失败(DELETE_FAILED),保留字段"
+        },
+        "source_id": {
+          "type": "string",
+          "description": "预留字段"
+        },
+        "annotations": {
+          "$ref": "#/definitions/Annotations"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "node_ids",
+        "template"
+      ]
+    },
+    "PodAffinityTerm": {
+      "description": "Pod亲和规则",
+      "properties": {
+        "labelSelector": {
+          "description": "标签选择器",
+          "properties": {
+            "matchExpressions": {
+              "items": {
+                "$ref": "#/definitions/MatchExpression"
+              },
+              "description": "匹配规则表达式",
+              "type": "array"
+            },
+            "matchLabels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "匹配的标签,格式为key:value键值对。\n单个键值对相当于matchExpressions的一个元素,key字段为key,操作符为In,values数组中只有value。"
+            }
+          }
+        },
+        "namespaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "命名空间"
+        },
+        "topologyKey": {
+          "type": "string",
+          "description": "拓扑标签。先圈定topologyKey指定的范围,然后再选择labelSelector定义的内容,即亲和调度只会在有topologyKey指定的标签节点上调度。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "IEF-Instance-Id": {
+      "in": "header",
+      "required": false,
+      "description": "铂金版实例ID,专业版实例为空值",
+      "type": "string",
+      "name": "ief-instance-id"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "Content-Type": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": true,
+      "description": "消息体的类型(格式),默认取值为“application/json”",
+      "type": "string"
+    }
+  },
+  "host": "ief.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

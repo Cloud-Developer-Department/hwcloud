@@ -1,0 +1,240 @@
+{
+  "name": "ListLiveSampleLogs",
+  "summary": "获取直播播放日志",
+  "tags": "日志管理",
+  "productshort": "Live",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v1/{project_id}/logs": {
+      "get": {
+        "tags": [
+          "日志管理"
+        ],
+        "summary": "获取直播播放日志",
+        "operationId": "ListLiveSampleLogs",
+        "description": "获取直播播放日志,基于域名以5分钟粒度进行打包,日志内容以 \"|\" 进行分隔。",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "x-interface-frequency": "HIGH",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。使用Token鉴权方式时必选。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+          },
+          {
+            "name": "X-Sdk-Date",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "20191115T033655Z"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-live/live_03_0023.html)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "play_domain",
+            "in": "query",
+            "description": "播放域名。",
+            "required": true,
+            "type": "string",
+            "x-example": "play.example.huawei.com"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "查询开始时间,UTC时间:YYYY-MM-DDTHH:mm:ssZ,如北京时间2020年3月4日16点00分00秒可表示为2020-03-04T08:00:00Z。仅支持查询最近3个月内的数据。",
+            "required": true,
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 25,
+            "format": "date-time",
+            "x-example": "2020-03-04T08:00:00Z"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "查询结束时间,UTC时间:YYYY-MM-DDTHH:mm:ssZ,如北京时间2020年3月4日16点00分00秒可表示为2020-03-04T08:00:00Z。查询时间跨度不能大于7天。",
+            "required": true,
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 25,
+            "format": "date-time",
+            "x-example": "2020-03-04T09:00:00Z"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "直播播放日志获取成功",
+            "schema": {
+              "$ref": "#/definitions/UserSampleLogResp"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "domain": "play.example.huawei.com",
+                "logs": [
+                  {
+                    "name": "play.example.huawei.com_20200304160000.log.gz",
+                    "url": "https://xxxxxxxxx/play.example.huawei.com_20200304160000.log.gz",
+                    "size": 600,
+                    "start_time": "2020-03-04T16:00:00+08:00",
+                    "end_time": "2020-03-04T16:04:59+08:00"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/logs?play_domain=play.example.huawei.com&start_time=2020-03-04T08:00:00Z&end_time=2020-03-04T09:00:00Z"
+      }
+    }
+  },
+  "definitions": {
+    "UserSampleLogResp": {
+      "required": [
+        "total",
+        "domain",
+        "logs"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "符合查询条件的总条目数",
+          "maximum": 2016,
+          "minimum": 0
+        },
+        "domain": {
+          "type": "string",
+          "description": "播放域名",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "logs": {
+          "type": "array",
+          "description": "日志信息列表",
+          "items": {
+            "$ref": "#/definitions/LogInfo"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "LogInfo": {
+      "required": [
+        "name",
+        "url",
+        "size",
+        "start_time",
+        "end_time"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "日志文件名,打包文件名格式:{Domain}_{logStartTimeStamp}.log.gz",
+          "example": "play.example.huawei.com_20200304160000.log.gz",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "url": {
+          "type": "string",
+          "description": "日志下载链接",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "size": {
+          "type": "integer",
+          "description": "日志文件大小",
+          "format": "int64",
+          "minimum": 0
+        },
+        "start_time": {
+          "type": "string",
+          "description": "日志文件中日志开始时间,北京时间",
+          "example": "2020-03-04T16:00:00+08:00",
+          "minLength": 20,
+          "maxLength": 25
+        },
+        "end_time": {
+          "type": "string",
+          "description": "日志文件中日志结束时间,北京时间",
+          "example": "2020-03-04T16:04:59+08:00",
+          "minLength": 20,
+          "maxLength": 25
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

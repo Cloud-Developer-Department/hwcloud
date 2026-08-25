@@ -1,0 +1,212 @@
+{
+  "name": "ListFailedTask",
+  "summary": "查询失败的任务信息",
+  "tags": "密钥对任务管理",
+  "productshort": "KPS",
+  "region_id": "ap-southeast-5",
+  "paths": {
+    "/v3/{project_id}/failed-tasks": {
+      "get": {
+        "tags": [
+          "密钥对任务管理"
+        ],
+        "operationId": "ListFailedTask",
+        "summary": "查询失败的任务信息",
+        "description": "查询绑定、解绑等操作失败的任务信息。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 64,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的条目数量。默认值1000。",
+            "type": "integer",
+            "required": false,
+            "x-example": "1000",
+            "maximum": 1000,
+            "minimum": 1
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100000,
+            "default": 0,
+            "description": "失败的任务信息列表的偏移量"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListFailedTaskResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "tasks": [
+                  {
+                    "task_id": "aee8d2fe-5484-4753-9177-5a38dc15546c",
+                    "operate_type": "RUNNING_RESET",
+                    "task_time": "1523342130000",
+                    "task_error_code": null,
+                    "task_error_msg": "Update public key error",
+                    "server_name": "Test",
+                    "server_id": "c9aa197b-a6b6-4c33-b3a6-fa0b4ec50006",
+                    "keypair_name": "KeyPair-xt"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "KPS.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "x-order": 5
+      }
+    }
+  },
+  "definitions": {
+    "ListFailedTaskResponseBody": {
+      "description": "查询失败任务响应信息。",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "失败任务总数。"
+        },
+        "tasks": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "description": "失败的任务列表",
+          "items": {
+            "$ref": "#/definitions/FailedTasks"
+          }
+        }
+      }
+    },
+    "FailedTasks": {
+      "description": "失败的任务详细信息。",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "虚拟机ID",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "operate_type": {
+          "type": "string",
+          "description": "任务的操作类型。\n- FAILED_RESET 重置\n- FAILED_REPLACE 替换\n- FAILED_UNBIND 解绑",
+          "enum": [
+            "FAILED_RESET",
+            "FAILED_REPLACE",
+            "FAILED_UNBIND"
+          ]
+        },
+        "task_time": {
+          "type": "string",
+          "description": "任务时间",
+          "minLength": 0,
+          "maxLength": 13
+        },
+        "task_error_code": {
+          "type": "string",
+          "description": "任务失败错误码",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "task_error_msg": {
+          "type": "string",
+          "description": "任务失败错误码",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "server_name": {
+          "type": "string",
+          "description": "虚拟机名称",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "server_id": {
+          "type": "string",
+          "description": "虚拟机ID",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "keypair_name": {
+          "type": "string",
+          "description": "密钥对名称",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ap-southeast-5.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

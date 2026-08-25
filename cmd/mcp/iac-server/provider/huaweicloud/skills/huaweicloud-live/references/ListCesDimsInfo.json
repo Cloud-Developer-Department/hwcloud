@@ -1,0 +1,244 @@
+{
+  "name": "ListCesDimsInfo",
+  "summary": "维度配置信息查询",
+  "tags": "CES查询",
+  "productshort": "Live",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/ott/dims-info": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "N",
+        "tags": [
+          "CES查询"
+        ],
+        "summary": "维度配置信息查询",
+        "description": "新增维度配置信息查询API",
+        "operationId": "ListCesDimsInfo",
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "required": true,
+            "description": "命名空间,如 SYS.LIVE,与服务上报指标时使用的namespace一致。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/CesQueryResp"
+            }
+          },
+          "400": {
+            "description": "请求参数校验失败",
+            "schema": {
+              "$ref": "#/definitions/CesErrorResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CesDimsItem": {
+      "type": "object",
+      "required": [
+        "params",
+        "display"
+      ],
+      "properties": {
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "id"
+          ],
+          "description": "查询参数",
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "display": {
+          "description": "展示内容",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "description": "查询ID",
+              "required": [
+                "zh-cn",
+                "en-us"
+              ],
+              "properties": {
+                "zh-cn": {
+                  "type": "string",
+                  "example": "音频",
+                  "description": "中文名称",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "en-us": {
+                  "type": "string",
+                  "example": "Audio",
+                  "description": "英文名称",
+                  "minLength": 1,
+                  "maxLength": 256
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "CES查询维度信息"
+    },
+    "CesQueryResp": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "properties": {
+            "medialive_mpc": {
+              "description": "媒体直播转码服务",
+              "$ref": "#/definitions/CesDimsItem"
+            },
+            "pipeline": {
+              "description": "通道",
+              "$ref": "#/definitions/CesDimsItem"
+            },
+            "audio": {
+              "description": "音频",
+              "$ref": "#/definitions/CesDimsItem"
+            },
+            "medialive_cdn": {
+              "description": "媒体直播CDN服务",
+              "$ref": "#/definitions/CesDimsItem"
+            },
+            "medialive_package": {
+              "description": "媒体直播打包服务",
+              "$ref": "#/definitions/CesDimsItem"
+            },
+            "medialive_connect": {
+              "description": "媒体直播收发流服务",
+              "$ref": "#/definitions/CesDimsItem"
+            },
+            "medialive_tailor": {
+              "description": "媒体直播广告服务",
+              "$ref": "#/definitions/CesDimsItem"
+            },
+            "region": {
+              "description": "**参数解释**:\nregion维度",
+              "$ref": "#/definitions/CesDimsItem"
+            }
+          },
+          "description": "ces查询响应内容",
+          "required": [
+            "medialive_mpc",
+            "pipeline",
+            "audio",
+            "medialive_cdn",
+            "medialive_package",
+            "medialive_connect",
+            "medialive_tailor",
+            "region"
+          ]
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "description": "维度配置信息查询响应"
+    },
+    "CesErrorResp": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误内容",
+          "minLength": 0,
+          "maxLength": 128
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "用户Token,使用Token鉴权方式时必填。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。",
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

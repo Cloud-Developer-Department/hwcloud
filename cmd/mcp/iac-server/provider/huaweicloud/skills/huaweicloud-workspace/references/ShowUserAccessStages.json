@@ -1,0 +1,225 @@
+{
+  "name": "ShowUserAccessStages",
+  "summary": "查询接入云桌面或云应用各阶段时长数据",
+  "tags": "报表统计",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/statistics/metrics/access-stages": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "查询接入云桌面或云应用各阶段时长数据",
+        "description": "查询接入云桌面或云应用各阶段时长数据。",
+        "operationId": "ShowUserAccessStages",
+        "consumes": [
+          "application/json;charset=UTF-8"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "transaction_id",
+            "in": "query",
+            "description": "事务id。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "TID-xxx"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功。",
+            "examples": {
+              "application/json": {
+                "username": "user001",
+                "biz_type": "APP",
+                "stages": [
+                  {
+                    "stage": "LOGIN",
+                    "duration": 500,
+                    "is_success": true,
+                    "start_time": 1724328355052,
+                    "end_time": 1724328355052,
+                    "error_code": "WKS.00000000",
+                    "error_msg": "OK"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowUserAccessStagesRsp"
+            }
+          },
+          "400": {
+            "description": "客户端请求有误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"GetUserAccessStages\")",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction =  \"workspace:statistics:getUserAccessStages\",  authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, rbac = {\"te_admin\", \"wks_adm\"})"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "UserAccessStage": {
+      "properties": {
+        "stage": {
+          "type": "string",
+          "example": "LOGIN",
+          "description": "接入阶段 | LOGIN - 登录 PRECONNECT - 预连接 CONNECT - 正式连接 MAIN_AUTH - 主认证 MFA_AUTH - 辅助认证 CLICK_ICON - 点击应用/桌面。",
+          "readOnly": true,
+          "enum": [
+            "LOGIN",
+            "PRECONNECT",
+            "CONNECT",
+            "MAIN_AUTH",
+            "MFA_AUTH",
+            "CLICK_ICON"
+          ]
+        },
+        "duration": {
+          "type": "integer",
+          "example": 500,
+          "description": "花费时长,单位:ms。",
+          "readOnly": true
+        },
+        "is_success": {
+          "type": "boolean",
+          "example": true,
+          "description": "接入阶段是否成功。",
+          "readOnly": true
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1724328355052,
+          "description": "开始时间戳。",
+          "readOnly": true
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1724328355052,
+          "description": "结束时间戳。",
+          "readOnly": true
+        },
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00000000",
+          "description": "错误码。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "OK",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      }
+    },
+    "ShowUserAccessStagesRsp": {
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "user001",
+          "description": "用户名。",
+          "readOnly": true
+        },
+        "biz_type": {
+          "type": "string",
+          "example": "APP",
+          "description": "接入阶段 | APP、SHARE_APP - 应用 DESKTOP、VDI - 桌面。",
+          "readOnly": true,
+          "enum": [
+            "APP",
+            "DESKTOP",
+            "SHARE_APP",
+            "VDI"
+          ]
+        },
+        "stages": {
+          "type": "array",
+          "description": "接入各阶段详情。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/UserAccessStage"
+          }
+        }
+      },
+      "description": "接入云桌面或云应用各阶段时长数据。"
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

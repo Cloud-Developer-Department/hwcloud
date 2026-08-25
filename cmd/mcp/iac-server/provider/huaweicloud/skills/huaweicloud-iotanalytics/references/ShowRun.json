@@ -1,0 +1,288 @@
+{
+  "name": "ShowRun",
+  "summary": "查询离线作业运行详情",
+  "tags": "离线分析作业运行管理",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/batch/jobs/{job_id}/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "run"
+        ],
+        "summary": "查询离线作业运行详情",
+        "description": "查询离线作业运行详情。",
+        "operationId": "ShowRun",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "pattern": "^\\S+$",
+            "x-maxLength": 65535
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。获取方式请参考获取项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[a-z0-9]{32}$",
+            "x-maxLength": 32,
+            "x-minLength": 32
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "作业ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "description": "作业运行ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "with_details",
+            "in": "query",
+            "description": "是否查询作业详情。true:查询;false:不查询。details属性为空。默认为false。",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/GetRunResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000001",
+              "IoTA.99000002",
+              "IoTA.99000004",
+              "IoTA.99000005",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.04010109",
+              "IoTA.04010201"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "security": [
+          {
+            "iota_auth": [
+              "write:iota",
+              "read:iota"
+            ]
+          }
+        ],
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "GetRunResponseBody": {
+      "type": "object",
+      "required": [
+        "job_id",
+        "job_type",
+        "run_id",
+        "status"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "作业运行ID。"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "作业ID。"
+        },
+        "job_type": {
+          "type": "string",
+          "description": "作业类型。"
+        },
+        "status": {
+          "type": "string",
+          "description": "此作业的当前状态,包含提交(LAUNCHING)、运行中(RUNNING)、完成(FINISHED)、失败(FAILED)、取消(CANCELLED)。"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建运行时间。"
+        },
+        "message": {
+          "type": "string",
+          "description": "系统提示信息。运行失败时,失败原因。"
+        },
+        "details": {
+          "type": "array",
+          "description": "作业运行详情。",
+          "items": {
+            "$ref": "#/definitions/RunDetail"
+          }
+        }
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "RunDetail": {
+      "type": "object",
+      "required": [
+        "detail_id"
+      ],
+      "properties": {
+        "detail_id": {
+          "type": "string",
+          "description": "作业运行详情ID。"
+        },
+        "status": {
+          "type": "string",
+          "description": "此作业的当前状态,包含提交(LAUNCHING)、运行中(RUNNING)、完成(FINISHED)、失败(FAILED)、取消(CANCELLED)。"
+        },
+        "sql_job": {
+          "$ref": "#/definitions/SqlJobRunDetail"
+        }
+      }
+    },
+    "SqlJobRunDetail": {
+      "type": "object",
+      "properties": {
+        "sql_type": {
+          "type": "string",
+          "description": "作业类型。"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "作业开始的时间。时间格式为ISO日期时间格式yyyy-MM-dd'T'HH:mm:ss'Z'"
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业运行时长,单位毫秒。"
+        },
+        "input_row_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Insert作业执行过程中扫描的记录条数。"
+        },
+        "bad_row_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Insert作业执行过程中扫描到的错误记录数。"
+        },
+        "input_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业执行过程中扫描文件的大小。"
+        },
+        "result_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "当前作业返回的结果总条数或insert作业插入的总条数。"
+        },
+        "table_name": {
+          "type": "string",
+          "description": "记录其操作的表名称。类型为Import和Export作业才有“table_name”属性。"
+        },
+        "with_column_header": {
+          "type": "boolean",
+          "description": "Import类型的作业,记录其导入的数据是否包括列名。"
+        },
+        "detail": {
+          "type": "string",
+          "description": "SQL查询的相关列信息的Json字符串。"
+        },
+        "statement": {
+          "type": "string",
+          "description": "作业执行的SQL语句。"
+        },
+        "message": {
+          "type": "string",
+          "description": "系统提示信息。运行失败时,失败原因。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,153 @@
+{
+  "name": "ListIpBlacklist",
+  "summary": "获取导入的IP黑名单列表信息",
+  "tags": "流量过滤",
+  "productshort": "CFW",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/ptf/ip-blacklist": {
+      "get": {
+        "tags": [
+          "流量过滤"
+        ],
+        "summary": "获取导入的IP黑名单列表信息",
+        "description": "获取防火墙实例中已经导入的IP黑名单信息,标准版防火墙只会显示一条EIP的记录,专业版防火墙可能显示EIP、NAT或EIP和NAT的记录,根据导入的情况确定。",
+        "operationId": "ListIpBlacklist",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以通过调用API获取,也可以从控制台获取。[项目ID获取方式](cfw_02_0015.xml)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fw_instance_id",
+            "in": "query",
+            "description": "防火墙ID,可通过[防火墙ID获取方式](cfw_02_0028.xml)获取",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "在分页查询的情况下,每页查询的记录条数,范围为1-1024",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "数据查询的偏移量,在分页查询的时候使用,指定查询记录的起始位置,必须为数字,取值范围为大于等于0",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": "查询成功的示例:\n{\n  \"data\": {\n    \"limit\": 50,\n    \"offset\": 0,\n    \"records\": [\n      {\n        \"name\": \"ip-blacklist-eip.txt\",\n        \"effect_scope\": [\n          1 ],\n        \"import_status\": 1,\n        \"import_time\": 1740995060000,\n        \"error_message\": \"time out\"\n      }\n    ],\n    \"total\": 1\n  }\n}"
+            },
+            "schema": {
+              "$ref": "#/definitions/HttpQueryIpBlacklistsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized,错误的请求",
+            "schema": {}
+          },
+          "403": {
+            "description": "Forbidden,禁止访问",
+            "schema": {}
+          }
+        },
+        "x-request-examples-url-1": "https://{Endpoint}/v1/eefb11b22d5944f2aa067954516df1cf/ptf/ip-blacklist?fw_instance_id=812f478c-940e-4e00-824f-7287250d76dc&limit=50&offset=0",
+        "x-request-examples-description-1": "查询项目ID为eefb11b22d5944f2aa067954516df1cf,防火墙实例ID为812f478c-940e-4e00-824f-7287250d76dc的防火墙上已经导入的IP黑名单列表信息。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "PageDataIpBlacklistsVo": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "一次查询返回的记录条数,调用接口时赋值"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本次查询结果返回后下次查询的偏移"
+        },
+        "records": {
+          "type": "array",
+          "description": "查询出的IP黑名单列表信息",
+          "items": {
+            "$ref": "#/definitions/IpBlacklistVO"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "防火墙实例中IP黑名单的总数"
+        }
+      },
+      "description": "查询出的IP黑名单列表信息,total字段表示已经导入的IP黑名单条数,如果没有导入过则total字段为0条,最大为2条。\nrecords字段中保存了返回的IP黑名单列表信息。"
+    },
+    "IpBlacklistVO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "IP黑名单的文件名,对应导出时的文件名"
+        },
+        "effect_scope": {
+          "type": "array",
+          "description": "IP黑名单的生效范围,1表示EIP,2表示NAT",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "import_status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "IP黑名单的导入状态,有三种状态:2:生成中、1:成功、0:失败。"
+        },
+        "import_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "IP黑名单的导入时间"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "导入失败的错误信息"
+        }
+      },
+      "description": "一条IP黑名单的导入信息,包括文件名称、生效范围、导入状态、导入时间和导入失败的错误信息。"
+    },
+    "HttpQueryIpBlacklistsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "description": "查询IP黑名单列表信息的HTTP响应",
+          "$ref": "#/definitions/PageDataIpBlacklistsVo"
+        }
+      },
+      "description": "此数据类型为查询IP黑名单的返回信息,通过data字段包含了已经导入的IP列表信息。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cfw.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

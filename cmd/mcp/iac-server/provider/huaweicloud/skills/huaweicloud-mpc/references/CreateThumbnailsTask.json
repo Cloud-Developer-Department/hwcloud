@@ -1,0 +1,411 @@
+{
+  "name": "CreateThumbnailsTask",
+  "summary": "新建截图任务",
+  "tags": "抽帧截图接口",
+  "productshort": "MPC",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/thumbnails": {
+      "post": {
+        "x-navigation-title": "抽帧截图接口",
+        "description": "新建截图任务,视频截图将从首帧开始,按设置的时间间隔截图,最后截取末帧。\n待截图的视频文件需要存储在与媒体处理服务同区域的OBS桶中,且该OBS桶已授权。\n\n约束:\n  暂只支持生成JPG格式的图片文件。",
+        "summary": "新建截图任务",
+        "x-publishpath": "mpc_04_0034",
+        "operationId": "CreateThumbnailsTask",
+        "x-open-region-cloud": "hcso,hc,hk,g42",
+        "x-external-api": true,
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-since": "1.0.0",
+        "x-since-memo": "1.0.0 initial",
+        "x-modifier-memo": "版本 | 修改日期 | 修改说明 | 修改者\n------------ | ------------- | ------------- | -------------\n1.0.0 | 2018/3/28 |新增此接口。 | 吴晓瑜\n",
+        "tags": [
+          "ThumbnailsTask"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/authorization"
+          },
+          {
+            "$ref": "#/parameters/xProjectId"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](mpc_04_0064.xml)",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "in": "header",
+            "name": "x-vod-projectId",
+            "x-inner-field": true,
+            "x-is_inner_param": "true",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "VOD调用MPC携带的客户projectId"
+          },
+          {
+            "in": "body",
+            "name": "CreateThumbnailsTaskRequestBody",
+            "description": "创建截图任务请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateThumbReq"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "新建截图任务成功。",
+            "schema": {
+              "$ref": "#/definitions/CreateThumbnailsTaskRsp"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": 100211
+              }
+            }
+          },
+          "400": {
+            "description": "新建截图任务失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "MPC.10202",
+                "error_msg": "Invalid request parameter"
+              }
+            }
+          }
+        },
+        "x-request-examples-1": "POST https://{endpoint}/v1/{project_id}/thumbnails\n {\n    \"input\": {\n               \"bucket\": \"example-bucket\",\n               \"location\": \"region1\",\n               \"object\": \"/VOD/input/sample.MP4\"\n    },\n    \"output\": {\n               \"bucket\": \"example-bucket\",\n               \"location\": \"region1\",\n               \"object\": \"/VOD/output/\"\n    },\n\n    \"tar\" : 1,\n    \"thumbnail_para\": {\n        \"time\":2,\n        \"format\":1,\n        \"max_length\":480\n    }\n    }\n\n  }\n",
+        "x-response-example": "{\n     \"task_id\": 100211\n}\n"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "CreateThumbnailsTaskRsp": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "任务ID。"
+        },
+        "status": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "任务状态"
+        },
+        "create_time": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "任务创建时间"
+        },
+        "output": {
+          "$ref": "#/definitions/ObsObjInfo",
+          "description": "输出文件信息"
+        },
+        "output_file_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647,
+          "description": "截图文件名称"
+        },
+        "thumbnail_time": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "指定的截图时间点"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "截图任务描述,当截图出现异常时,此字段为异常的原因"
+        }
+      }
+    },
+    "ObsObjInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "bucket",
+        "location",
+        "object"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "OBS的bucket名称。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "location": {
+          "description": "OBS桶所在的区域,且必须与使用的MPC区域保持一致。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "object": {
+          "description": "OBS对象路径,遵守OSS Object定义。\n\n- 当用于指示input时,需要指定到具体对象。\n- 当用于指示output时, 只需指定到转码结果期望存放的路径。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647,
+          "description": "文件名,仅用于转封装指定输出名称。\n\n- 当指定了此参数时,输出的对象名为object/file_name 。\n- 当不指定此参数时,输出的对象名为object/xxx,其中xxx由MPC指定。"
+        }
+      }
+    },
+    "CreateThumbReq": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "input",
+        "output",
+        "thumbnail_para"
+      ],
+      "properties": {
+        "input": {
+          "description": "源文件地址。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "output": {
+          "description": "输出地址。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "user_data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65535,
+          "description": "用户自定义数据。"
+        },
+        "thumbnail_para": {
+          "description": "截图参数",
+          "$ref": "#/definitions/ThumbnailPara"
+        },
+        "tar": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "int32",
+          "description": "是否压缩抽帧图片生成tar包。\n\n取值如下:\n- 0:压缩。\n- 1:不压缩\n默认值:1",
+          "default": 1
+        },
+        "sync": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "int32",
+          "description": "是否同步处理,同步处理是指不下载全部文件,快速定位到截图位置进行截图。\n\n取值如下:\n- 0:排队处理。\n- 1:同步处理,暂只支持按时间点截单张图。\n默认值:0",
+          "default": 0
+        },
+        "original_dir": {
+          "x-inner-field": true,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "int32",
+          "description": "是否使用原始输出目录。\n\n取值如下:\n- 0:不使用原始输出目录,下发的输出目录后面追加随机目录,防止截图文件outputUri相同被覆盖。\n- 1:使用原始输出目录。\n默认值:0",
+          "default": 0
+        }
+      }
+    },
+    "ThumbnailPara": {
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.Range;",
+      "properties": {
+        "type": {
+          "description": "采样类型。\n\n取值如下:\n- \"TIME\":根据时间间隔采样截图。\n- \"DOTS\":指定时间点截图。选择同步截图时,需指定此类型。\n- \"DOTS_MS\":同步截图指定时间点毫秒值。\n\n默认值:\"TIME\"",
+          "type": "string",
+          "enum": [
+            "TIME",
+            "DOTS",
+            "DOTS_MS"
+          ],
+          "default": "TIME"
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int32",
+          "default": 0,
+          "description": "黑点比例大于等于此值认为是黑帧。"
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "format": "int32",
+          "default": 32,
+          "description": "像素值小于此值认为是黑点。"
+        },
+        "time": {
+          "description": "采样截图的时间间隔值。\n\n默认值:12。\n\n单位:秒",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int32",
+          "default": 12
+        },
+        "start_time": {
+          "description": "采样类型为“TIME”模式的开始时间,和“time”配合使用。\n\n默认值:0。\n\n单位:秒。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "x-annotations": null,
+          "default": 0
+        },
+        "duration": {
+          "description": "采样类型为“TIME”模式的持续时间,和“time”、“start_time”配合使用,表示从视频文件的第“start_time”开始,持续时间为“duration”,每间隔“time”生成一张截图。\n取值范围:[数字,ToEND]。“ToEND”表示持续到视频结束。\n\n默认值: ToEND。\n\n单位:秒。\n> “duration”必须大于等0,若设置为0,则截图持续时间从“start_time”到视频结束。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32"
+        },
+        "dots": {
+          "description": "指定时间截图时的时间点数组,最多支持10个。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "type": "integer"
+          }
+        },
+        "dots_ms": {
+          "description": "同步截图下,指定时间截图的时间点数组,单位毫秒\n\n例如输入[1000],截取视频第1000毫秒位置的图像帧,仅支持一个时间点",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "output_filename": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "截图输出文件名。\n\n- 如果只抽一张图(即:按DOTS方式,指定1个时间点)则按该指定文件名输出图片。\n\n- 如果抽多张图(即:按DOTS方式指定多个时间点或按TIME间隔截图)则输出图片名在该指定文件名基础上在增加时间点(示例:output_filename_10.jpg)。\n\n- 如果指定了压缩抽帧图片生成tar包,则tar包按该指定文件名输出。"
+        },
+        "format": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "截图文件格式。\n\n取值如下:\n\n1:表示jpg格式",
+          "default": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3840,
+          "description": "图片宽度\n\n取值范围:(96,3840]\n\n单位:px"
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2160,
+          "description": "图片高度\n\n取值范围:(96,2160]\n\n单位:px"
+        },
+        "max_length": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 3840,
+          "description": "截图最长边的尺寸。宽边尺寸按照该尺寸与原始视频像素等比缩放计算。\n\n\n取值范围:[240,3840]\n\n默认值:480\n\n单位:像素\n\n>\n该参数和width/height选择使用,以width/height优先,若width/height都不等于0,则图片尺寸按width/height得出;反之,则图片尺寸按\nmax_length 得出。\n\n> 若该参数和width/height都未选择,则按源片源宽高输出截图",
+          "x-annotations": null,
+          "default": 480
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xProjectId": {
+      "name": "X-Project_Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "mpc.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

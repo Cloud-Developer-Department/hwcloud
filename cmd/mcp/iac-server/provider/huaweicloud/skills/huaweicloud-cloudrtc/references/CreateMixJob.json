@@ -1,0 +1,624 @@
+{
+  "name": "CreateMixJob",
+  "summary": "启动合流任务",
+  "tags": "合流任务管理",
+  "productshort": "CloudRTC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/apps/{app_id}/mix-stream-jobs": {
+      "post": {
+        "tags": [
+          "合流任务管理"
+        ],
+        "summary": "启动合流任务",
+        "consumes": [
+          "application/json;charset=utf-8"
+        ],
+        "description": "调用此接口创建合流转码任务。\n\n支持纯音频录制和音视频录制:\n\n- 纯音频录制\n\n  encode_template填audio_only,音频合流会动态选择最大三方的声音。\n\n  layout_template、layout_panes以及其他视频相关参数都不填,填就忽略。\n\n- 音视频录制(包括共享桌面)\n\n  encode_template非audio_only,layout_template、layout_panes必须非空。\n\n  音频合流会动态选择最大三方的声音。\n\n  API触发合流录制流名规则:{jobtype}\\_{jobid}\\_{roomid},其中jobtype取值为'm'代表合流录制。",
+        "operationId": "CreateMixJob",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "内容类型。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "default": "application/json;charset=UTF-8"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。使用Token鉴权方式时必选。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+          },
+          {
+            "name": "X-Sdk-Date",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "20191115T033655Z"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "app_id",
+            "in": "path",
+            "description": "应用id",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          {
+            "name": "CreateMixJobRequestBody",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MixJobReq"
+            },
+            "description": "启动合流转码参数",
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "任务创建成功,返回job的概要信息",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/MixJob"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "607824b4fa163e19fe301cc817dda855",
+                "stream_name": "m_607824b4fa163e19fe301cc817dda855_gigu",
+                "app_id": "123456789abcdefghijklmno",
+                "room_id": "gigu",
+                "mix_param": {
+                  "room_id": "gigu",
+                  "encode_template": "1920x1080_30_4620",
+                  "max_idle_time": 0,
+                  "layout_template": "nine_grids_view"
+                },
+                "record_param": {
+                  "record_rule_id": "5f5e172b9016ed5b0961a43"
+                },
+                "create_time": "2021-04-16T16:22:44Z",
+                "update_time": "2021-04-16T16:22:44Z",
+                "state": "INIT",
+                "start_time": "2021-04-16T16:22:44Z",
+                "stop_time": "0001-01-01T00:00:00Z"
+              }
+            }
+          },
+          "400": {
+            "description": "创建合流任务失败,语义有误,当前请求无法被服务器理解,或参数有误",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CommonRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "RTC.00001003",
+                "error_msg": "InvalidParameterValue"
+              }
+            }
+          },
+          "404": {
+            "description": "app编号不存在",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CommonRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "RTC.00001003",
+                "error_msg": "InvalidParameterValue"
+              }
+            }
+          },
+          "500": {
+            "description": "创建合流任务失败,服务器错误",
+            "headers": {
+              "X-request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CommonRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "RTC.00002xxx",
+                "error_msg": "InternalError"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "九宫格录制请求样例",
+        "x-request-examples-url-1": "POST https://rtc-api.myhuaweicloud.com/v2/apps/{app_id}/mix-stream-jobs",
+        "x-request-examples-1": {
+          "mix_param": {
+            "room_id": "room001",
+            "encode_template": "1280x720_15_2260",
+            "max_idle_time": 30,
+            "layout_template": "nine_grids_view"
+          },
+          "record_param": {
+            "record_rule_id": "5f5e172b9016ed5b0961a43"
+          }
+        },
+        "x-request-examples-description-2": "共享屏幕录制请求样例--主视窗显示共享屏幕",
+        "x-request-examples-url-2": "POST https://rtc-api.myhuaweicloud.com/v2/apps/{app_id}/mix-stream-jobs",
+        "x-request-examples-2": {
+          "mix_param": {
+            "room_id": "room001",
+            "encode_template": "1280x720_15_2260",
+            "max_idle_time": 30,
+            "layout_template": "screen_share_right",
+            "layout_panes": [
+              {
+                "id": 1,
+                "user_id": "",
+                "video_type": "SCREENSTREAM",
+                "filling_policy": "SHARED_SCREEN"
+              }
+            ]
+          },
+          "record_param": {
+            "record_rule_id": "5f5e172b9016ed5b0961a43"
+          }
+        },
+        "x-request-examples-description-3": "共享屏幕录制请求样例--主视窗显示摄像头",
+        "x-request-examples-url-3": "POST https://rtc-api.myhuaweicloud.com/v2/apps/{app_id}/mix-stream-jobs",
+        "x-request-examples-3": {
+          "mix_param": {
+            "room_id": "room001",
+            "encode_template": "1280x720_15_2260",
+            "max_idle_time": 30,
+            "layout_template": "screen_share_right",
+            "layout_panes": [
+              {
+                "id": 1,
+                "user_id": "user1",
+                "video_type": "CAMERASTREAM",
+                "filling_policy": "FIXED_USER"
+              }
+            ]
+          },
+          "record_param": {
+            "record_rule_id": "5f5e172b9016ed5b0961a43"
+          }
+        },
+        "x-request-examples-description-4": "自定义布局录制请求样例",
+        "x-request-examples-url-4": "POST https://rtc-api.myhuaweicloud.com/v2/apps/{app_id}/mix-stream-jobs",
+        "x-request-examples-4": {
+          "mix_param": {
+            "room_id": "room001",
+            "encode_template": "1280x720_15_2260",
+            "max_idle_time": 30,
+            "layout_template": "custom",
+            "layout_panes": [
+              {
+                "id": 1,
+                "user_id": "user1",
+                "video_type": "CAMERASTREAM",
+                "x": 0,
+                "y": 0,
+                "width": 0.666,
+                "height": 0.333,
+                "crop_mode": "KEEP_RATIO_CROP"
+              },
+              {
+                "id": 2,
+                "user_id": "user2",
+                "video_type": "CAMERASTREAM",
+                "x": 0.666,
+                "y": 0,
+                "width": 0.333,
+                "height": 0.666,
+                "crop_mode": "KEEP_RATIO_CROP"
+              }
+            ]
+          },
+          "record_param": {
+            "record_rule_id": "5f5e172b9016ed5b0961a43"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MixJob": {
+      "properties": {
+        "job_id": {
+          "description": "任务编号,可以用于修改、查看和停止合流任务",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "stream_name": {
+          "description": "流名",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "app_id": {
+          "description": "应用id",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "room_id": {
+          "description": "房间id",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "mix_param": {
+          "description": "合流参数",
+          "$ref": "#/definitions/MixParam"
+        },
+        "record_param": {
+          "description": "录制参数",
+          "$ref": "#/definitions/RecordParam"
+        },
+        "create_time": {
+          "description": "任务创建的时间,形如“2006-01-02T15:04:05.075Z”,时区为:UTC",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "update_time": {
+          "description": "任务中的布局更新的时间,形如“2006-01-02T15:04:05.075Z”,时区为:UTC",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "state": {
+          "description": "任务状态。\n\n- INIT:任务正在初始化\n- RUNNING:任务正在运行\n- STOPPED:任务已停止",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "INIT",
+            "RUNNING",
+            "STOPPED"
+          ]
+        },
+        "stop_reason": {
+          "description": "任务结束原因\n- TENANT_STOP\n- EXCEED_MAX_IDLE_TIME\n- INTERNAL_ERROR",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "TENANT_STOP",
+            "EXCEED_MAX_IDLE_TIME",
+            "INTERNAL_ERROR"
+          ]
+        },
+        "description": {
+          "description": "状态描述,对state字段的一些补充说明,可用于人工查阅。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "start_time": {
+          "description": "任务开始时间,形如“2006-01-02T15:04:05.075Z”,时区为:UTC",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "stop_time": {
+          "description": "任务结束时间,形如“2006-01-02T15:04:05.075Z”,时区为:UTC",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "CommonRsp": {
+      "description": "通用返回",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "MixJobReq": {
+      "description": "合流任务参数,转推和录制至少选一个",
+      "required": [
+        "mix_param"
+      ],
+      "properties": {
+        "mix_param": {
+          "description": "合流参数",
+          "$ref": "#/definitions/MixParam"
+        },
+        "record_param": {
+          "description": "录制参数",
+          "$ref": "#/definitions/RecordParam"
+        }
+      },
+      "example": {
+        "mix_param": {
+          "room_id": "room001",
+          "max_idle_time": 30,
+          "encode_template": "1280x720_30_3420",
+          "layout_template": "nine_grids_view"
+        },
+        "record_param": {
+          "record_rule_id": "5f5e172b9016ed5b0961a43"
+        }
+      }
+    },
+    "MixUserBackgroundImage": {
+      "description": "指定用户的背景图,优先级大于default_user_background_image",
+      "properties": {
+        "user_id": {
+          "description": "需要设置背景图的用户ID",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "image_uri": {
+          "description": "需要设置背景图的地址,图片先上传obs,格式s3://bucket/object",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "user_id",
+        "image_uri"
+      ]
+    },
+    "MixParam": {
+      "description": "合流参数\n\n- 纯音频录制\n\nencode_template 填 audio_only,音频合流会动态选择最大三方的声音。\n\nlayout_template、layout_panes 以及其他视频相关参数都不填,填就忽略。\n\n- 音视频录制(包括共享桌面)\n\nencode_template 非 audio_only,layout_template必须非空。\n\n音频合流会动态选择最大三方的声音",
+      "required": [
+        "room_id",
+        "encode_template"
+      ],
+      "properties": {
+        "room_id": {
+          "description": "房间id",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "encode_template": {
+          "description": "输出编码模板名称\n- 1920*1080_30_4620:输出流是1080p,帧率30,码率4.62Mbps\n- 1920*1080_30_3150:输出流是1080p,帧率30,码率3.15Mbps\n- 1920*1080_15_3460:输出流是1080p,帧率15,码率3.46Mbps\n- 1920*1080_15_2080:输出流是1080p,帧率15,码率2.08Mbps\n- 1280*720_30_3420:输出流是720p,帧率30,码率3.42Mbps\n- 1280*720_30_1710:输出流是720p,帧率30,码率1.71Mbps\n- 1280*720_15_2260:输出流是720p,帧率15,码率2.26Mbps\n- 1280*720_15_1130:输出流是720p,帧率15,码率1.13Mbps\n- 640*480_30_1500:输出流是480p,帧率30,码率1.50Mbps\n- 640*480_15_500:输出流是480p,帧率15,码率500Kbps\n- 640*480_30_1000 输出流是480p,帧率30,码率1000Kbps\n- 480*360_30_490:输出流是360p,帧率30,码率490Kbps\n- 480*360_15_320:输出流是360p,帧率15,码率320Kbps",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "enum": [
+            "1920*1080_30_4620",
+            "1920*1080_30_3150",
+            "1920*1080_15_3460",
+            "1920*1080_15_2080",
+            "1280*720_30_3420",
+            "1280*720_30_1710",
+            "1280*720_15_2260",
+            "1280*720_15_1130",
+            "640*480_30_1000",
+            "640*480_30_1500",
+            "640*480_15_500",
+            "480*360_30_490",
+            "480*360_15_320"
+          ]
+        },
+        "max_idle_time": {
+          "description": "最长空闲频道时间。\n\n取值范围:[5,43200],默认值为30。\n\n单位:秒。\n\n如果频道内无连麦方的状态持续超过该时间,录制程序会自动退出。退出后,再次调用start请求,会产生新的录制任务。\n\n连麦方指:joiner或者publisher的用户。",
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 43200,
+          "default": 30
+        },
+        "layout_template": {
+          "description": "视频布局模板编号,不混视频的时候,不需要带。\n- nine_grids_view:九宫格模板(自适应模板)\n- screen_share_left:主视图在左边的屏幕共享模板(自适应模板)\n- screen_share_right:主视图在右边的屏幕共享模板(自适应模板)\n- custom:自定义布局",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "default_user_background_image": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "默认用户背景图地址,图片先上传obs,格式s3://bucket/object。默认使用等比缩放裁剪,保证铺满。"
+        },
+        "screen_background_image": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "共享屏幕的背景图地址,图片先上传obs,格式s3://bucket/object。\n\n在一大多小的布局场景下,无论大窗是显示非指定用户(屏幕共享人的桌面)还是指定用户的共享桌面,都通过该字段指定背景图。"
+        },
+        "background_image": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "画布背景图地址,图片先上传obs,格式s3://bucket/object。默认使用等比缩放裁剪,保证铺满。"
+        },
+        "layout_panes": {
+          "description": "需要混流的视频列表。若不需要混流视频,则可不传递该参数。\n\nnine_grids_view模板不需要填写本字段。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 25,
+          "items": {
+            "$ref": "#/definitions/MixLayoutPane"
+          }
+        },
+        "user_background_images": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 25,
+          "description": "指定用户背景图,优先级大于default_user_background_image",
+          "items": {
+            "$ref": "#/definitions/MixUserBackgroundImage"
+          }
+        }
+      }
+    },
+    "RecordParam": {
+      "description": "录制参数",
+      "required": [
+        "record_rule_id"
+      ],
+      "properties": {
+        "record_rule_id": {
+          "description": "录制规则id。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "MixLayoutPane": {
+      "description": "录制视频混流参数。\n\n用法如下:\n\n如果某窗格需要展示某个固定用户的视频:\n\n例如:{ \"id\": 1, \"user_id\": \"user001\", \"video_type\": \"CAMERASTREAM\" }\n\n如果某窗格需要展示某个固定用户的共享屏幕:\n\n例如:{ \"id\": 1, \"user_id\": \"user001\", \"video_type\": \"SCREENSTREAM\" }\n\n如果某窗格需要展示共享桌面,不特定用户:\n\n例如:{ \"id\": 1,  \"video_type\": \"SCREENSTREAM\"}",
+      "properties": {
+        "id": {
+          "description": "窗口id,从1开始编号",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 25
+        },
+        "user_id": {
+          "description": "加入房间的用户id",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "video_type": {
+          "description": "标识视频流的类型,可选摄像头流或者屏幕分享流。\n\n- CAMERASTREAM:摄像头视频流\n- SCREENSTREAM:屏幕分享视频流\n\n默认为CAMERASTREAM。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "enum": [
+            "CAMERASTREAM",
+            "SCREENSTREAM"
+          ],
+          "default": "CAMERASTREAM"
+        },
+        "x": {
+          "description": "坐标x,归一化百分比,画布上该画面左上角的横坐标的相对值,范围是 [0.0,1.0]。从左到右布局,0.0在最左端,1.0在最右端,小数取值范围在float内,自定义布局场景下填写本字段。",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "float"
+        },
+        "y": {
+          "description": "坐标y,归一化百分比,画布上该画面左上角的纵坐标的相对值,范围是 [0.0,1.0]。从上到下布局,0.0在最上端,1.0在最下端,小数取值范围在float内,自定义布局场景下填写本字段。",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "float"
+        },
+        "width": {
+          "description": "窗格宽,归一化百分比,小数取值范围在float内,自定义布局场景下填写本字段。",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "float"
+        },
+        "height": {
+          "description": "窗格高,归一化百分比,小数取值范围在float内,自定义布局场景下填写本字段。",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "float"
+        },
+        "zorder": {
+          "description": "叠放顺序,0为最底层,1层在0层之上,以此类推,最大支持25层,自定义布局场景下填写本字段。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "format": "int32"
+        },
+        "crop_mode": {
+          "description": "裁剪模式,自定义布局场景下填写本字段,支持两种模式:\n  - KEEP_RATIO_PADDING :保持比例留边。\n  - KEEP_RATIO_CROP :保持比例裁剪。",
+          "type": "string",
+          "enum": [
+            "KEEP_RATIO_PADDING",
+            "KEEP_RATIO_CROP"
+          ],
+          "default": "KEEP_RATIO_PADDING"
+        },
+        "filling_policy": {
+          "description": "填充策略,仅限屏幕共享模板(包括screen_share_right、screen_share_left)场景下填写本字段,支持两种模式:\n  - FIXED_USER :固定用户填充。\n  - SHARED_SCREEN :共享屏幕填充。",
+          "type": "string",
+          "enum": [
+            "FIXED_USER",
+            "SHARED_SCREEN"
+          ],
+          "default": "SHARED_SCREEN"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rtc-api.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

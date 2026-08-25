@@ -1,0 +1,285 @@
+{
+  "name": "CreateSpecialThrottlingConfigurationV2",
+  "summary": "创建特殊设置",
+  "tags": "设置特殊流控",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/throttles/{throttle_id}/throttle-specials": {
+      "post": {
+        "summary": "创建特殊设置",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-order": 1,
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "流控策略可以限制一段时间内可以访问API的最大次数,也可以限制一段时间内单个租户和单个APP可以访问API的最大次数。\n\n如果想要对某个特定的APP进行特殊设置,例如设置所有APP每分钟的访问次数为500次,但想设置APP1每分钟的访问次数为800次,可以通过在流控策略中设置特殊APP来实现该功能。\n\n为流控策略添加一个特殊设置的对象,可以是APP,也可以是租户。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "设置特殊流控"
+        ],
+        "operationId": "CreateSpecialThrottlingConfigurationV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_throttle_id"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ThrottleSpecialCreate"
+            },
+            "in": "body",
+            "name": "CreateSpecialThrottlingConfigurationV2RequestBody",
+            "description": "创建特殊设置的请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "为指定流控策略创建特殊设置,特殊设置对象为集成应用",
+        "x-request-examples-1": {
+          "call_limits": 150,
+          "object_id": "356de8eb7a8742168586e5daf5339965",
+          "object_type": "APP"
+        },
+        "responses": {
+          "201": {
+            "schema": {
+              "$ref": "#/definitions/ThrottleSpecialInfo"
+            },
+            "examples": {
+              "application/json": {
+                "call_limits": 150,
+                "app_name": "app_demo",
+                "object_name": "app_demo",
+                "object_id": "356de8eb7a8742168586e5daf5339965",
+                "throttle_id": "3437448ad06f4e0c91a224183116e965",
+                "apply_time": "2020-08-04T02:40:56.717710961Z",
+                "id": "a3e9ff8db55544ed9db91d8b048770c0",
+                "app_id": "356de8eb7a8742168586e5daf5339965",
+                "object_type": "APP"
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2003",
+                "error_msg": "The parameter value is too large,parameterName:call_limits. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3004",
+                "error_msg": "App 356de8eb7a8742168586e5daf5339965 does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ThrottleSpecialBase": {
+      "properties": {
+        "id": {
+          "description": "特殊配置的编号",
+          "type": "string"
+        },
+        "call_limits": {
+          "description": "特殊对象在流控时间内能够访问API的最大次数限制",
+          "type": "integer",
+          "format": "int32"
+        },
+        "apply_time": {
+          "description": "设置时间",
+          "type": "string",
+          "format": "date-time"
+        },
+        "app_name": {
+          "description": "作用的APP名称",
+          "type": "string"
+        },
+        "app_id": {
+          "description": "作用的APP编号",
+          "type": "string"
+        }
+      }
+    },
+    "ThrottleSpecialInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ThrottleSpecialBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "object_id": {
+              "description": "特殊对象的身份标识",
+              "type": "string"
+            },
+            "object_type": {
+              "description": "特殊对象类型:APP、USER",
+              "type": "string"
+            },
+            "object_name": {
+              "description": "作用的APP或租户的名称",
+              "type": "string"
+            },
+            "throttle_id": {
+              "description": "流控策略编号",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "ThrottleSpecialCreate": {
+      "required": [
+        "call_limits",
+        "object_id",
+        "object_type"
+      ],
+      "properties": {
+        "call_limits": {
+          "description": "流控时间内特殊对象能够访问API的最大次数限制",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "example": 150
+        },
+        "object_id": {
+          "description": "特殊APP的编号或特殊租户的帐号ID",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65,
+          "pattern": "^[a-zA-Z0-9-_]{0,64}$",
+          "example": "98efd77d10b54eca8170ed30a4a286a4"
+        },
+        "object_type": {
+          "description": "特殊对象类型",
+          "type": "string",
+          "enum": [
+            "APP",
+            "USER"
+          ],
+          "example": "APP"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_throttle_id": {
+      "name": "throttle_id",
+      "in": "path",
+      "type": "string",
+      "description": "流控策略的编号",
+      "required": true,
+      "x-example": "3437448ad06f4e0c91a224183116e965"
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,350 @@
+{
+  "name": "ShowMetricsData",
+  "summary": "查询监控数据",
+  "tags": "监控",
+  "productshort": "AOM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/ams/metricdata": {
+      "post": {
+        "x-request-examples-description-1": "查询指标名称\"cpuUsage\"且所属命名空间为\"PAAS.CONTAINER\"的指标在最近5分钟的监控数据。",
+        "x-request-examples-url-1": "https://{Endpoint}/v1/{project_id}/ams/metricdata",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-text-1": {
+          "metrics": [
+            {
+              "dimensions": [
+                {
+                  "name": "appName",
+                  "value": "aomApp"
+                }
+              ],
+              "metricName": "cpuUsage",
+              "namespace": "PAAS.CONTAINER"
+            }
+          ],
+          "period": 60,
+          "statistics": [
+            "maximum",
+            "minimum",
+            "sum"
+          ],
+          "timerange": "-1.-1.5"
+        },
+        "x-hybridcloud": true,
+        "tags": [
+          "监控"
+        ],
+        "operationId": "ShowMetricsData",
+        "summary": "查询监控数据",
+        "description": "该接口用于查询指定时间范围内指标的监控数据,可以通过参数指定需要查询的数据维度,数据周期等。",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的projectid,一般为32位字符串。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "fillValue",
+            "in": "query",
+            "description": "用于对查询到的监控数据进行断点插值,默认值为-1。\n-1:断点处使用-1进行表示。\n0 :断点处使用0进行表示。\nnull:断点处使用null进行表示。\naverage:断点处使用前后邻近的有效数据的平均值进行表示,如果不存在有效数据则使用null进行表示。",
+            "required": false,
+            "type": "string",
+            "default": "-1",
+            "enum": [
+              "-1",
+              "0",
+              "null",
+              "average"
+            ]
+          },
+          {
+            "name": "queryMetricDataParam",
+            "in": "body",
+            "description": "查询指标所需参数。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QueryMetricDataParam"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。",
+            "type": "string"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "指定类型为application/json。",
+            "type": "string",
+            "enum": [
+              "application/json"
+            ]
+          }
+        ],
+        "x-request-examples-1": {
+          "metrics": [
+            {
+              "dimensions": [
+                {
+                  "name": "appName",
+                  "value": "aomApp"
+                }
+              ],
+              "metricName": "cpuUsage",
+              "namespace": "PAAS.CONTAINER"
+            }
+          ],
+          "period": 60,
+          "statistics": [
+            "maximum",
+            "minimum",
+            "sum"
+          ],
+          "timerange": "-1.-1.5"
+        },
+        "responses": {
+          "200": {
+            "description": "OK 请求执行完成。",
+            "examples": {
+              "application/json": {
+                "errorCode": "SVCSTG_AMS_2000000",
+                "errorMessage": "success",
+                "metrics": [
+                  {
+                    "metric": {
+                      "namespace": "PAAS.CONTAINER",
+                      "metricName": "cpuUsage",
+                      "dimensions": [
+                        {
+                          "name": "appName",
+                          "value": "aomApp"
+                        }
+                      ]
+                    },
+                    "dataPoints": [
+                      {
+                        "timestamp": "1467892800000",
+                        "unit": "Percent",
+                        "statistics": [
+                          {
+                            "statistic": "maximum",
+                            "value": "23"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CalcAPIMetricDataResponse"
+            }
+          },
+          "400": {
+            "description": "BadRequest 非法请求。建议直接修改该请求,不要重试该请求。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized  在客户端提供认证信息后,返回该状态码,表明服务端指出客户端所提供的认证信息不正确或非法。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden 请求被拒绝访问。返回该状态码,表明请求能够到达服务端,且服务端能够理解用户请求,但是拒绝做更多的事情,因为该请求被设置为拒绝访问,建议直接修改该请求,不要重试该请求。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "InternalServerError  表明服务端能被请求访问到,但是不能理解用户的请求。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "503": {
+            "description": "ServiceUnavailable 被请求的服务无效。建议直接修改该请求,不要重试该请求。",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StatisticValue": {
+      "description": "统计结果",
+      "type": "object",
+      "properties": {
+        "statistic": {
+          "type": "string",
+          "description": "统计方式。"
+        },
+        "value": {
+          "type": "number",
+          "description": "统计结果。",
+          "format": "double"
+        }
+      }
+    },
+    "QueryMetricDataParam": {
+      "description": "该参数用来指定需要查询的数据维度,数据周期等。",
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "description": "指标对象列表。\n取值范围\nJSON数组大小不超过20",
+          "items": {
+            "$ref": "#/definitions/MetricQueryMetricParam"
+          }
+        },
+        "period": {
+          "type": "integer",
+          "description": "监控数据粒度。取值范围(枚举):60(表示粒度为1分钟),300(表示粒度为5分钟),900(表示粒度为15分钟),3600(表示粒度为1小时)。",
+          "format": "int32"
+        },
+        "statistics": {
+          "type": "array",
+          "description": "统计方式。\n取值范围\nmaximum,minimum,sum,average,sampleCount",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timerange": {
+          "type": "string",
+          "description": "timeRange用于指标查询时间范围,主要用于解决客户端时间和服务端时间不一致情况下,查询最近N分钟的数据。另可用于精确查询某一段时间的数据。\n\n\n如:\n\n\n- -1.-1.60(表示最近60分钟),不管当前客户端是什么时间,都以服务端时间为准查询最近60分钟。\n\n\n- 1650852000000.1650852300000.5(表示GMT+8 2022-04-25 10:00:00至2022-04-25\n10:05:00指定的5分钟)\n\n\n格式:\n\n\nstartTimeInMillis.endTimeInMillis.durationInMinutes\n\n\n参数解释:\n\n\n- startTimeInMillis: 查询的开始时间,格式为UTC毫秒,如果指定为-1,服务端将按(endTimeInMillis -\ndurationInMinutes * 60 *\n1000)计算开始时间。如-1.1650852300000.5,则相当于1650852000000.1650852300000.5\n\n\n- endTimeInMillis: 查询的结束时间,格式为UTC毫秒,如果指定为-1,服务端将按(startTimeInMillis +\ndurationInMinutes * 60 *\n1000)计算结束时间,如果计算出的结束时间大于当前系统时间,则使用当前系统时间。如1650852000000.-1.5,则相当于1650852000000.1650852300000.5\n\n\n- durationInMinutes:查询时间的跨度分钟数。 取值范围大于0并且大于等于(endTimeInMillis -\nstartTimeInMillis) / (60 * 1000) -\n1。当开始时间与结束时间都设置为-1时,系统会将结束时间设置为当前时间UTC毫秒值,并按(endTimeInMillis -\ndurationInMinutes * 60 * 1000)计算开始时间。如:-1.-1.60(表示最近60分钟)\n\n\n约束:\n\n\n单次请求中,查询时长与周期需要满足以下条件: durationInMinutes * 60 / period <= 1440"
+        }
+      },
+      "required": [
+        "metrics",
+        "period",
+        "statistics",
+        "timerange"
+      ],
+      "type": "object"
+    },
+    "CalcAPIMetricDataResponse": {
+      "description": "响应结果。",
+      "type": "object",
+      "properties": {
+        "errorCode": {
+          "type": "string",
+          "description": "响应码。"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "响应信息描述。"
+        },
+        "metrics": {
+          "type": "array",
+          "description": "指标对象列表。",
+          "items": {
+            "$ref": "#/definitions/MetricDataValue"
+          }
+        }
+      }
+    },
+    "MetricDataPoints": {
+      "description": "查询重点指标。",
+      "properties": {
+        "statistics": {
+          "type": "array",
+          "description": "统计方式。",
+          "items": {
+            "$ref": "#/definitions/StatisticValue"
+          }
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "时间戳。",
+          "format": "int64"
+        },
+        "unit": {
+          "type": "string",
+          "description": "时间序列单位。"
+        }
+      }
+    },
+    "MetricDataValue": {
+      "description": "查询结果详细。",
+      "properties": {
+        "dataPoints": {
+          "type": "array",
+          "description": "重点指标。",
+          "items": {
+            "$ref": "#/definitions/MetricDataPoints"
+          }
+        },
+        "metric": {
+          "$ref": "#/definitions/MetricQueryMetricParam"
+        }
+      }
+    },
+    "MetricQueryMetricParam": {
+      "description": "查询参数集",
+      "properties": {
+        "dimensions": {
+          "type": "array",
+          "description": "指标维度列表。取值范围:数组不能为空,同时数组中任何一个dimension对象name和value属性的值也不能为空。",
+          "items": {
+            "$ref": "#/definitions/Dimension"
+          }
+        },
+        "metricName": {
+          "type": "string",
+          "description": "指标名称。名称长度取值范围为1~255个字符。取值范围:AOM提供的基础指标,cpuUsage、cpuCoreUsed等cpuUsage:cpu使用率;cpuCoreUsed:cpu内核占用;用户上报的自定义指标名称。"
+        },
+        "namespace": {
+          "description": "指标命名空间。取值范围:PAAS.CONTAINER:组件指标、实例指标、进程指标和容器指标的命名空间,PAAS.NODE: 主机指标、网络指标、磁盘指标和文件系统指标的命名空间,PAAS.SLA:SLA指标的命名空间,PAAS.AGGR:集群指标的命名空间,CUSTOMMETRICS:默认的自定义指标的命名空间。",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dimensions",
+        "metricName",
+        "namespace"
+      ],
+      "type": "object"
+    },
+    "Dimension": {
+      "description": "指标维度。",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "维度名称。"
+        },
+        "value": {
+          "type": "string",
+          "description": "维度取值。"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "aom.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

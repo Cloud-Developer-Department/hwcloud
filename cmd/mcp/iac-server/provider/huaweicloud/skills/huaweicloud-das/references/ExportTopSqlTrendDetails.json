@@ -1,0 +1,225 @@
+{
+  "name": "ExportTopSqlTrendDetails",
+  "summary": "导出SQL执行耗时区间数据",
+  "tags": "云DBA",
+  "productshort": "DAS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/top-sql-trend": {
+      "get": {
+        "x-request-examples-description-1": "导出SQL执行耗时区间数据",
+        "x-request-examples-url-1": "GET https://das.cn-north-1.myhuaweicloud.com/v3/054c630ff780d4cc2f40c00d7f6fb21d/instances/6243b3fcf2f948578d46ed4c52fb54eein01/top-sql-trend?start_at=1611975464337&end_at=1611979064337&datastore_type=MySQL&node_id=fec05693c76c4f389561051db430324cno01",
+        "x-das-is-publish": "#ExportTopSqlTrendDetails_Placeholder#",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "云DBA"
+        ],
+        "summary": "导出SQL执行耗时区间数据",
+        "description": "TopSQL开关打开后,导出SQL执行耗时区间数据。该功能仅支持付费实例。查询时间间隔最长六小时。",
+        "operationId": "ExportTopSqlTrendDetails",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID。"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例ID。"
+          },
+          {
+            "name": "start_at",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64",
+            "description": "开始时间(Unix timestamp),单位:毫秒。"
+          },
+          {
+            "name": "end_at",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64",
+            "description": "结束时间(Unix timestamp),单位:毫秒。"
+          },
+          {
+            "name": "datastore_type",
+            "in": "query",
+            "required": true,
+            "description": "数据库类型。支持MySQL和GaussDB(for MySQL)。",
+            "type": "string"
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "节点ID。"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。",
+            "type": "string",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/TopSqlTrendDetailsResp"
+            },
+            "examples": {
+              "application/json": {
+                "top_sql_trend_items": [
+                  {
+                    "execute_at": 1666702330000,
+                    "query_time_over_1s": 1,
+                    "query_time_in_100ms": 3,
+                    "query_time_in_1s": 0,
+                    "query_time_in_500ms": 0
+                  },
+                  {
+                    "execute_at": 1666702340000,
+                    "query_time_over_1s": 2,
+                    "query_time_in_100ms": 2,
+                    "query_time_in_1s": 0,
+                    "query_time_in_500ms": 0
+                  }
+                ],
+                "interval_millis": 10000,
+                "total_count": 2
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-order": 25
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    },
+    "TopSqlTrendDetailsResp": {
+      "type": "object",
+      "required": [
+        "interval_millis",
+        "top_sql_trend_items",
+        "total_count"
+      ],
+      "properties": {
+        "interval_millis": {
+          "type": "integer",
+          "format": "int64",
+          "description": "返回列表两个时间点之间的时间间隔。总查询时长一小时之内间隔10s,一小时到六小时范围内间隔60s。单位为毫秒。"
+        },
+        "top_sql_trend_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TopSqlTrendItem"
+          },
+          "description": "SQL执行耗时区间数据。"
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "耗时区间数据总数。"
+        }
+      }
+    },
+    "TopSqlTrendItem": {
+      "type": "object",
+      "required": [
+        "execute_at",
+        "query_time_in_100ms",
+        "query_time_in_500ms",
+        "query_time_in_1s",
+        "query_time_over_1s"
+      ],
+      "properties": {
+        "execute_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行时间点,毫秒时间戳。表示统计数据的时间范围为execute_at到execute_at + interval_millis。"
+        },
+        "query_time_in_100ms": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行耗时小于100ms。"
+        },
+        "query_time_in_500ms": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行耗时100ms-500ms。"
+        },
+        "query_time_in_1s": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行耗时500ms-1000ms"
+        },
+        "query_time_over_1s": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行耗时大于1000ms。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "das.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

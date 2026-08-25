@@ -1,0 +1,449 @@
+{
+  "name": "BatchAssociateInstances",
+  "summary": "预批量分配用户",
+  "tags": "桌面",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktops/pre-batch-attach": {
+      "post": {
+        "tags": [
+          "Desktop"
+        ],
+        "summary": "预批量分配用户",
+        "description": "预批量将桌面分配给用户。",
+        "operationId": "BatchAssociateInstances",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "BatchAssociateInstancesRequestBody",
+            "description": "预批量将桌面分配给用户请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PreBatchAttachInstancesReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "预批量分配云桌面响应。",
+            "examples": {
+              "application/json": {
+                "assign_dimension": "USER",
+                "desktop": [],
+                "user": [
+                  {
+                    "user_name": "user1",
+                    "user_id": "21bb9f13e6ff42fb96cd62489c446935",
+                    "desktop_num": 1,
+                    "desktop_name": "MARKETNOUSER17"
+                  },
+                  {
+                    "user_name": "user2",
+                    "user_id": "3f6cc4c5d1ff4a79ab826b7964e9ff5d",
+                    "desktop_num": 1,
+                    "desktop_name": "MARKETNOUSER18"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/PreBatchAttachInstancesRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "desktops": [
+            {
+              "desktop_id": "b41a8cc1-4813-47a0-bf3a-7800fcd5b581"
+            },
+            {
+              "desktop_id": "5f4ed564-14eb-44fd-8ff7-0483725a532b"
+            },
+            {
+              "desktop_id": "dfdddcf4-f943-43b4-987b-e5785022d6c5"
+            }
+          ],
+          "users": [
+            {
+              "user_id": "3f6cc4c5d1ff4a79ab826b7964e9ff5d",
+              "user_name": "user1",
+              "user_group": "administrators"
+            },
+            {
+              "user_id": "21bb9f13e6ff42fb96cd62489c446935",
+              "user_name": "user2",
+              "user_group": "administrators"
+            }
+          ],
+          "assign_model": {
+            "assign_dimension": "USER",
+            "priority_strategy": "USER_NO_DESKTOP",
+            "desktop_assigin_user_num": 2
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceField = \"desktops.![desktopId]\")",
+          "@WksDependIamAuthMeta(resourceParamSpEL = {\"USER:name:users.![userName]\"})",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"workspace:desktops:prepAttachUsers\",  needApigwJwtAuthCheck = false, authContextInitializerName = \"workspaceInstanceListAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"preBatchAttachDesktops\")"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "internal_token,public",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "PreBatchAttachInstancesReq": {
+      "properties": {
+        "desktops": {
+          "type": "array",
+          "description": "桌面信息列表。",
+          "items": {
+            "$ref": "#/definitions/AttachInstancesDesktopInfo"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100,
+          "x-minLength": 1
+        },
+        "users": {
+          "type": "array",
+          "description": "用户信息列表。",
+          "items": {
+            "$ref": "#/definitions/AttachInstancesUserInfo"
+          },
+          "maxItems": 100,
+          "minItems": 0,
+          "x-maxLength": 100,
+          "x-minLength": 0
+        },
+        "assign_model": {
+          "$ref": "#/definitions/AssignModelInfo"
+        }
+      },
+      "description": "分配用户请求。"
+    },
+    "UserDimensionAttachInfo": {
+      "properties": {
+        "user_name": {
+          "type": "string",
+          "description": "用户名称。",
+          "readOnly": true
+        },
+        "user_id": {
+          "type": "string",
+          "description": "桌面id。",
+          "readOnly": true
+        },
+        "desktop_num": {
+          "type": "integer",
+          "description": "计划分配桌面数。",
+          "readOnly": true
+        },
+        "desktop_name": {
+          "type": "string",
+          "description": "计划分配桌面名称,如果有多个用逗号隔开。",
+          "readOnly": true
+        }
+      },
+      "description": "用户维度关联关系。"
+    },
+    "AssignModelInfo": {
+      "properties": {
+        "assign_dimension": {
+          "type": "string",
+          "description": "分配的维度,当前支持\n\n- USER: “用户为维度”\n- DESKTOP:“桌面为维度”两种。",
+          "enum": [
+            "USER",
+            "DESKTOP"
+          ]
+        },
+        "priority_strategy": {
+          "type": "string",
+          "description": "优先分配的策略,策略名为规则为{维度}_{子策略}\n\n- USER_NO_DESKTOP:  用户维度-无桌面\n- USER_FIXED_DESKTOP_NUM: 用户维度-桌面个数固定\n- DESKTOP_ASSIGN_USER_PRIORITY: 桌面维度-用户优先\n- DESKTOP_ASSIGN_FIXED_USER: 桌面维度-固定用户\n- DESKTOP_ASSIGN_USERS_OR_GROUPS: 桌面维度-为每台桌面分配所选的所有用户(组)\n- FIXED_RELATION: 使用参数中的固定分配关系",
+          "enum": [
+            "USER_NO_DESKTOP",
+            "USER_FIXED_DESKTOP_NUM",
+            "DESKTOP_ASSIGN_USER_PRIORITY",
+            "DESKTOP_ASSIGN_FIXED_USER",
+            "DESKTOP_ASSIGN_USERS_OR_GROUPS",
+            "FIXED_RELATION"
+          ]
+        },
+        "desktop_assigin_user_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "每个桌面自动分配的用户数,当子策略为 DESKTOP_ASSIGN_FIXED_USER 必填。",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 1
+        },
+        "user_assigin_desktop_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "每个用户自动分配桌面数,当子策略为 USER_NO_DESKTOP、USER_FIXED_DESKTOP_NUM必填。",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 1
+        },
+        "desktop_name_policy_id": {
+          "type": "string",
+          "description": "策略id,用于指定生成桌面名称策略,如果指定了桌面名称则优先使用指定的桌面名称。",
+          "minLength": 0,
+          "maxLength": 36
+        }
+      },
+      "description": "批量分配桌面策略。"
+    },
+    "DesktopDimensionAttachInfo": {
+      "properties": {
+        "desktop_name": {
+          "type": "string",
+          "description": "桌面名称。",
+          "readOnly": true
+        },
+        "desktop_id": {
+          "type": "string",
+          "description": "桌面id。",
+          "readOnly": true
+        },
+        "user_num": {
+          "type": "integer",
+          "description": "计划分配用户数。",
+          "readOnly": true
+        },
+        "user_name": {
+          "type": "string",
+          "description": "计划分配用户名称,如果有多个用逗号隔开。",
+          "readOnly": true
+        }
+      },
+      "description": "桌面维度关联关系。"
+    },
+    "AttachInstancesDesktopInfo": {
+      "properties": {
+        "desktop_id": {
+          "type": "string",
+          "description": "待分配的桌面ID。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "user_name": {
+          "type": "string",
+          "description": "桌面所属的用户,当桌面分配成功后此用户可以登录该桌面。只允许输入大写字母、小写字母、数字、中划线(-)和下划线(_)。域类型为LITE_AD时,使用小写字母或者大写字母开头,长度范围为[1-20]。当域类型为LOCAL_AD时,用户名可以使用小写字母或者大写字母或者数字开头,长度范围为[1-32]。Windows桌面用户最长支持20个字符,Linux桌面用户最长支持32个字符。用户名不能与分配的机器名重名。 attach_user_infos为空时,必填,attach_user_infos优先级更高",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-isSensitive": true
+        },
+        "user_id": {
+          "type": "string",
+          "description": "用户id。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "user_email": {
+          "type": "string",
+          "description": "合法用户邮箱,桌面分配成功后系统会通过发送邮件的方式通知用户。",
+          "minLength": 0,
+          "maxLength": 255,
+          "x-isSensitive": true
+        },
+        "user_group": {
+          "type": "string",
+          "description": "桌面用户所属的用户组,attach_user_infos为空时,必填,attach_user_infos优先级更高。\n\n- sudo:Linux管理员组。\n- default:Linux默认用户组。\n- administrators:Windows管理员组。管理员拥有对该桌面的完全访问权,可以做任何需要的更改(禁用操作除外)。\n- users:Windows标准用户组。标准用户可以使用大多数软件,并可以更改不影响其他用户的系统设置。",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^(sudo|default|administrators|users)?$"
+        },
+        "computer_name": {
+          "type": "string",
+          "description": "桌面名,桌面名必须保证唯一。只允许输入大写字母、小写字母、数字、中划线(-)和下划线(_);以字母开头且不允许以中划线(-)结尾;长度范围为[1-15]。",
+          "minLength": 1,
+          "maxLength": 15
+        },
+        "is_clear_data": {
+          "type": "boolean",
+          "description": "该字段只有当解绑和绑定为同一个用户时生效。表示绑定时是否清理桌面数据,true:清理,false:不清理,默认值为true。",
+          "default": true
+        },
+        "attach_user_infos": {
+          "type": "array",
+          "description": "待分配的用户信息列表,只有多用户桌面分配多人时有效。",
+          "items": {
+            "$ref": "#/definitions/AttachInstancesUserInfo"
+          },
+          "maxItems": 500,
+          "minItems": 0,
+          "x-maxLength": 500,
+          "x-minLength": 0
+        }
+      },
+      "description": "分配用户请求桌面信息,单人专属桌面只能分配给一个用户;多人共享桌面可以分配给多个用户或用户组,具体分配信息见字段attach_user_infos说明。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    },
+    "AttachInstancesUserInfo": {
+      "required": [
+        "user_group",
+        "user_name"
+      ],
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "当type字段为USER时,填写用户id;当type字段为GROUP时,填写用户组id,后端服务会校验组id是否存在;",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "user_name": {
+          "type": "string",
+          "description": "桌面分配对象的名称,当type类型USER时填写用户名字;当type类型GROUP时填写用户组名称。\n- 当type类型USER时:桌面所属的用户,当桌面分配成功后此用户可以登录该桌面。只允许输入大写字母、小写字母、数字、中划线(-)和下划线(_)。域类型为LITE_AD时,使用小写字母或者大写字母开头,长度范围为[1-20]。当域类型为LOCAL_AD时,用户名可以使用小写字母或者大写字母或者数字开头,长度范围为[1-64]。Windows桌面用户最长支持20个字符,Linux桌面用户最长支持64个字符。后端服务会校验用户名是否存在,并且用户名不能与机器名重复。\n- 当type类型GROUP时:只能为中文、字母、数字及特殊符号-_。",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-isSensitive": true
+        },
+        "domain": {
+          "type": "string",
+          "description": "用户所属域。"
+        },
+        "user_group": {
+          "type": "string",
+          "description": "桌面用户所属的用户组。\n- sudo:Linux管理员组。\n- default:Linux默认用户组。\n- administrators:Windows管理员组。管理员拥有对该桌面的完全访问权,可以做任何需要的更改(禁用操作除外)。\n- users:Windows标准用户组。标准用户可以使用大多数软件,并可以更改不影响其他用户的系统设置。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "type": {
+          "type": "string",
+          "description": "对象类型,可选值为,默认值为USER:\n- USER:用户。\n- GROUP:用户组。",
+          "minLength": 1,
+          "maxLength": 20,
+          "default": "USER",
+          "enum": [
+            "USER",
+            "GROUP"
+          ]
+        }
+      },
+      "description": "桌面分配用户信息。"
+    },
+    "PreBatchAttachInstancesRsp": {
+      "properties": {
+        "assign_dimension": {
+          "type": "string",
+          "description": "分配的维度,当前支持“用户为维度”、“桌面为维度”两种。",
+          "readOnly": true
+        },
+        "desktop": {
+          "type": "array",
+          "description": "桌面维度结果,如果assign_dimension为DEKSTOP,那么取这个结果。",
+          "items": {
+            "$ref": "#/definitions/DesktopDimensionAttachInfo"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "user": {
+          "type": "array",
+          "description": "用户维度结果,如果assign_dimension为USER,那么取这个结果。",
+          "items": {
+            "$ref": "#/definitions/UserDimensionAttachInfo"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "desktops_attach_infos": {
+          "type": "array",
+          "description": "桌面分配关系。",
+          "items": {
+            "$ref": "#/definitions/AttachInstancesDesktopInfo"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        }
+      },
+      "description": "预分配桌面用户响应。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

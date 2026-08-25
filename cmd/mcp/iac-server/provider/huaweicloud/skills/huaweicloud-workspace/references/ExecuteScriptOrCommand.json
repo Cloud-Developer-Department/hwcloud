@@ -1,0 +1,355 @@
+{
+  "name": "ExecuteScriptOrCommand",
+  "summary": "批量执行脚本或命令",
+  "tags": "脚本",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/script-executions": {
+      "post": {
+        "tags": [
+          "Script"
+        ],
+        "summary": "批量执行脚本或命令",
+        "description": "批量执行脚本或命令。",
+        "operationId": "ExecuteScriptOrCommand",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "ExecuteScriptOrCommandRequestBody",
+            "description": "批量执行脚本请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ExecuteScriptOrCommandReq"
+            }
+          }
+        ],
+        "security": [
+          {
+            "apig-auth-iam-used-authn5": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "批量执行脚本响应。",
+            "examples": {
+              "application/json": {
+                "task_id": "0000000059071dbc01591661d3990019"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ExecuteScriptsResp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BadRequestErrorResp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedErrorResp"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/ForbiddenErrorResp"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/NotFoundErrorResp"
+            }
+          },
+          "405": {
+            "description": "请求中指定的方法不被允许。",
+            "schema": {
+              "$ref": "#/definitions/MethodNotAllowedErrorResp"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerErrorResp"
+            }
+          },
+          "503": {
+            "description": "服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/ServiceUnavailableErrorResp"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "resource_type": "DESKTOP",
+          "resource_ids": [
+            "eb4ccd3e-170f-48ec-9715-ec0457df376f"
+          ],
+          "script_ids": [
+            "923438311391891456"
+          ],
+          "execution_timeout": 10
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-ratelimit": "workspace_default_operate",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "public,internal_token",
+        "x-support-apig-group": "workspace",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apigateway-backend": {
+          "type": "HTTP-VPC",
+          "httpVpcEndpoints": {
+            "name": "wks-appcenter-lb",
+            "description": "",
+            "method": "GET",
+            "path": "/v2/{project_id}/script-executions",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "header",
+              "name": "X-Auth-Token",
+              "origin": "request",
+              "value": "X-Auth-Token"
+            },
+            {
+              "description": "",
+              "in": "path",
+              "name": "project_id",
+              "origin": "request",
+              "value": "project_id"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ExecuteScriptOrCommandReq": {
+      "properties": {
+        "gray_count": {
+          "type": "integer",
+          "example": 0,
+          "description": "灰度资源数量。"
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "资源类型,如桌面(DESKTOP)。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "gray_resource_ids": {
+          "type": "array",
+          "description": "灰度执行脚本的资源列表。",
+          "items": {
+            "type": "string",
+            "description": "资源ID。",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "maxItems": 1000,
+          "minItems": 0,
+          "x-annotations": "@Size(max = 1000, min = 0)"
+        },
+        "gray_fail_threshold": {
+          "type": "integer",
+          "example": 0,
+          "description": "灰度失败阈值,达到阈值后停止进行下一批资源执行脚本,小于gray_count。"
+        },
+        "resource_ids": {
+          "type": "array",
+          "description": "执行脚本的资源列表。",
+          "items": {
+            "type": "string",
+            "description": "资源ID。",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "maxItems": 1000,
+          "minItems": 0,
+          "x-annotations": "@Size(max = 1000, min = 0)"
+        },
+        "script_ids": {
+          "type": "array",
+          "description": "执行的脚本列表。",
+          "items": {
+            "type": "string",
+            "description": "脚本ID。",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "maxItems": 10,
+          "minItems": 0,
+          "x-annotations": "@Size(max = 10, min = 0)"
+        },
+        "execution_timeout": {
+          "type": "integer",
+          "description": "执行脚本的超时时间,单位分钟。",
+          "minimum": 0,
+          "maximum": 600
+        }
+      },
+      "description": "批量执行脚本请求体。"
+    },
+    "InternalServerErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211401",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The requested operation failed. Please try again later.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ServiceUnavailableErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00050902",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The service is now unavailable to process the request.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ExecuteScriptsResp": {
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "执行脚本的任务ID。",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "description": "批量执行脚本响应。"
+    },
+    "ForbiddenErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00081102",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "User does not have permission to access this resource.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "UnauthorizedErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211302",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "User authorization error.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "NotFoundErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211902",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The application does not exist",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "MethodNotAllowedErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00000405",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The method specified in the request is not allowed for this resource.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "BadRequestErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211102",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The parameter is invalid.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

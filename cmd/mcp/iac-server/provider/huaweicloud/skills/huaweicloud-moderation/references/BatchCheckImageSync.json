@@ -1,0 +1,422 @@
+{
+  "name": "BatchCheckImageSync",
+  "summary": "图像审核批量同步接口",
+  "tags": "图像审核批量同步接口",
+  "productshort": "Moderation",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v3/{project_id}/moderation/image/batch": {
+      "post": {
+        "x-publishpath": "moderation-image-v3-batch-sync",
+        "x-external-review": "Y",
+        "tags": [
+          "图像审核批量同步接口"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/{project_id}/moderation/image/batch",
+        "x-request-examples-description-1": "使用图片的url",
+        "x-request-examples-text-1": {
+          "event_type": "comment",
+          "categories": [
+            "string"
+          ],
+          "image_text_config": {
+            "black_glossary_names": [
+              "string"
+            ],
+            "white_glossary_names": [
+              "string"
+            ]
+          },
+          "urls": [
+            {
+              "url": "http://xxxxxx.com/qweqeqeqz.jpg",
+              "data_id": "1234"
+            }
+          ],
+          "language": "zh"
+        },
+        "x-request-examples-1": {
+          "event_type": "comment",
+          "categories": [
+            "string"
+          ],
+          "image_text_config": {
+            "black_glossary_names": [
+              "string"
+            ],
+            "white_glossary_names": [
+              "string"
+            ]
+          },
+          "urls": [
+            {
+              "url": "http://xxxxxx.com/qweqeqeqz.jpg",
+              "data_id": "1234"
+            }
+          ],
+          "language": "zh"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v3/{project_id}/moderation/image/batch",
+        "x-request-examples-description-2": "使用bizType",
+        "x-request-examples-text-2": {
+          "urls": [
+            {
+              "url": "http://xxxxxx.com/qweqeqeqz.jpg",
+              "data_id": "1234"
+            }
+          ],
+          "language": "zh",
+          "biz_type": "test_type"
+        },
+        "x-request-examples-2": {
+          "urls": [
+            {
+              "url": "http://xxxxxx.com/qweqeqeqz.jpg",
+              "data_id": "1234"
+            }
+          ],
+          "language": "zh",
+          "biz_type": "test_type"
+        },
+        "operationId": "BatchCheckImageSync",
+        "summary": "图像审核批量同步接口",
+        "description": "图像审核批量同步接口",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-open-region-cloud": "hc",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目id。获取方法详见获取项目ID。"
+          },
+          {
+            "in": "body",
+            "name": "BatchCheckImageSyncRequestBody",
+            "description": "图像审核批量同步接口请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImageBatchSyncReq"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。用于获取操作API的权限。获取方法请参见获取Token接口,响应消息头中X-Subject-Token的值即为Token。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "图像审核批量同步接口响应体",
+            "schema": {
+              "$ref": "#/definitions/ImageBatchSyncResponse"
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "AIS.0402",
+                "error_msg": "The image format is not supported."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ImageBatchSyncResponse": {
+      "type": "object",
+      "required": [
+        "request_id"
+      ],
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "description": "本次请求的唯一标识,用于问题排查,建议保存。"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageBatchSyncDetectionResult"
+          },
+          "description": "调用结果。"
+        }
+      }
+    },
+    "ImageDetectionResultDetail": {
+      "properties": {
+        "suggestion": {
+          "type": "string",
+          "description": "审核结果是否通过。\nblock:包含敏感信息,不通过\nreview:需要人工复检"
+        },
+        "category": {
+          "type": "string",
+          "description": "检测结果的一级标签。\n支持category列表如下:\nterrorism: 暴恐\nporn: 色情\nimage_text: 图文审核"
+        },
+        "confidence": {
+          "type": "number",
+          "format": "float",
+          "description": "置信度,可选值在0-1之间,值越大,可信度越高。"
+        },
+        "face_location": {
+          "$ref": "#/definitions/FaceLocationDetail",
+          "description": "人物位置信息,该数组有四个值,分别代表左上角的坐标和右下角的坐标。例如[207,522,340,567],207代表的是左上角的横坐标,522代表左上角的纵坐标,340代表的是右下角的横坐标,567代表的是右下角的纵坐标。"
+        },
+        "qr_location": {
+          "$ref": "#/definitions/QRLocationDetail",
+          "x-open-region-cloud": "hc",
+          "description": "二维码位置信息,该数组有四个值,分别代表左上角的坐标和右下角的坐标。例如[207,522,340,567],207代表的是左上角的横坐标,522代表左上角的纵坐标,340代表的是右下角的横坐标,567代表的是右下角的纵坐标。"
+        },
+        "qr_content": {
+          "type": "string",
+          "description": "图片中二维码指向的链接,当请求参数categories中包含image_text时存在。",
+          "x-open-region-cloud": "hc"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/definitions/OCRTextDetail"
+          },
+          "description": "image_text场景下命中的文本片段。",
+          "x-open-region-cloud": "hc",
+          "type": "array"
+        },
+        "label": {
+          "type": "string",
+          "description": "识别的详细标签。"
+        }
+      },
+      "description": "返回结果的详细内容。",
+      "required": [
+        "suggestion",
+        "category",
+        "confidence"
+      ]
+    },
+    "ImageBatchSyncReq": {
+      "type": "object",
+      "description": "图像审核批量同步接口请求参数Body体",
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "example": "comment",
+          "description": "事件类型。可选值如下:\n- head_image:头像\n- album:相册\n- dynamic:动态\n- article:帖子\n- comment:评论\n- room_cover:房间封面\n- group_message:群聊图片\n- message:私聊图片\n- product:商品图片"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "string"
+          ],
+          "description": "检测场景。可添加的检测场景如下:\n- terrorism:暴恐元素的检测。\n- porn:涉黄元素的检测。\n- image_text:广告图文的检测。\n可通过配置上述场景,来完对应场景元素的检测。每个检测场景的检测次数会分类统计。"
+        },
+        "image_text_config": {
+          "description": "图文审核黑白词库配置。",
+          "properties": {
+            "black_glossary_names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "string"
+              ],
+              "description": "检测时使用的自定义黑名单词库列表。"
+            },
+            "white_glossary_names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "string"
+              ],
+              "description": "检测时使用的自定义白名单词库列表。"
+            }
+          }
+        },
+        "urls": {
+          "type": "array",
+          "items": {
+            "required": [
+              "url",
+              "data_id"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "图片url,目前支持:公网HTTP/HTTPS URL。"
+              },
+              "data_id": {
+                "type": "string",
+                "description": "图片唯一标识。同一次请求中不可重复,由大小写英文字母、数字、下划线(_)、中划线(-)组成,不超过30个字符。"
+              }
+            }
+          },
+          "example": [
+            "http://xxxxxx.com/qweqeqeqz.jpg",
+            "http://xxxxxx.com/zxfdwef.jpg"
+          ],
+          "description": "图片url列表。"
+        },
+        "language": {
+          "type": "string",
+          "example": "zh",
+          "description": "指定图片中文字语种类型。\n- zh: 中文\n- en: 英文\n默认值为zh,中国站仅支持zh。"
+        },
+        "biz_type": {
+          "type": "string",
+          "example": "test_type",
+          "description": "用户在控制台界面创建的自定义审核策略名称。\n- 如果请求参数中包含biz_type则优先使用biztype。\n- 如果未传biz_type则event_type和categories为必传参数。"
+        }
+      },
+      "required": [
+        "urls"
+      ]
+    },
+    "FaceLocationDetail": {
+      "properties": {
+        "top_left_x": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出人脸的左上角横坐标。"
+        },
+        "top_left_y": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出人脸的左上角纵坐标。"
+        },
+        "bottom_right_x": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出人脸的右下角横坐标。"
+        },
+        "bottom_right_y": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出人脸的右下角纵坐标。"
+        }
+      },
+      "type": "object"
+    },
+    "QRLocationDetail": {
+      "properties": {
+        "top_left_x": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出的二维码左上角横坐标。"
+        },
+        "top_left_y": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出的二维码左上角纵坐标。"
+        },
+        "bottom_right_x": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出的二维码右下角横坐标。"
+        },
+        "bottom_right_y": {
+          "type": "integer",
+          "format": "int32",
+          "description": "检测出的二维码右下角纵坐标。"
+        }
+      },
+      "type": "object"
+    },
+    "OCRTextDetail": {
+      "properties": {
+        "segment": {
+          "type": "string",
+          "description": "命中的风险片段"
+        },
+        "glossary_name": {
+          "type": "string",
+          "description": "命中的自定义词库名称。\n命中自定义词库时,才会返回当前字段。"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "调用失败时的错误码,具体请参见错误码。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "调用失败时的错误信息。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "ImageBatchSyncDetectionResult": {
+      "type": "object",
+      "properties": {
+        "suggestion": {
+          "type": "string",
+          "description": "审核结果是否通过。\n- block:包含敏感信息,不通过。\n- pass:不包含敏感信息,通过 。\n- review:需要人工复检。"
+        },
+        "category": {
+          "type": "string",
+          "description": "检测结果的一级标签。支持category列表如下:\n- terrorism: 暴恐\n- porn: 色情\n- image_text: 图文审核"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageDetectionResultDetail"
+          },
+          "description": "检测详情。"
+        },
+        "ocr_text": {
+          "type": "string",
+          "description": "图文审核检测出的文本,只有在category参数配置image_text且检测出文本时展示该字段。"
+        },
+        "data_id": {
+          "type": "string",
+          "description": "图片唯一标识。同一次请求中不可重复,由大小写英文字母、数字、下划线(_)、中划线(-)组成,不超过30个字符。"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "调用失败时的错误码,具体请参见错误码。 调用成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败时的错误信息。 调用成功时无此字段。"
+        }
+      },
+      "required": [
+        "data_id"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "moderation.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

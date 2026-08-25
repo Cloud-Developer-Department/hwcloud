@@ -1,0 +1,609 @@
+{
+  "name": "ShowTask",
+  "summary": "查询服务作业",
+  "tags": "服务作业管理",
+  "productshort": "CampusGo",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/{project_id}/services/{service_name}/tasks/{task_id}": {
+      "get": {
+        "tags": [
+          "服务作业管理"
+        ],
+        "operationId": "ShowTask",
+        "summary": "查询服务作业",
+        "description": "该接口用于查询服务作业",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{1,64}$",
+            "description": "用户项目ID"
+          },
+          {
+            "name": "service_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "pattern": "^[a-z][a-z-]{0,98}[a-z]$",
+            "description": "服务名称"
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}|task\\w{8}$",
+            "description": "指定的服务作业ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取服务作业信息成功",
+            "schema": {
+              "$ref": "#/definitions/ShowTaskResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TaskInput": {
+      "description": "作业的输入配置",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "作业的输入类型,必填。可选类型有obs(对象存储服务存储的文件),vis(视频接入服务的视频流),url(指定的文件地址或取流地址),edgecamera(绑定在IEF的边缘摄像头),edgerestful(从自定义的流媒体服务器通过Restful接口获取取流地址),vcn(VCN设备)。",
+          "type": "string",
+          "enum": [
+            "obs",
+            "vis",
+            "url",
+            "edgecamera",
+            "edgerestful",
+            "vcn"
+          ],
+          "example": "obs"
+        },
+        "data": {
+          "description": "作业的输入详情,针对不同的输入类型有不同的配置。创建时允许填写多路输入,但更新时,obs以外其余的输入类型只允许填写一路输入",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskInputData"
+          },
+          "minItems": 1,
+          "maxItems": 50
+        },
+        "vcn": {
+          "$ref": "#/definitions/TaskInputVcn"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ]
+    },
+    "TaskOutputForDisplay": {
+      "description": "作业的输出配置展示",
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 5,
+      "properties": {
+        "obs": {
+          "$ref": "#/definitions/TaskOutputObs"
+        },
+        "dis": {
+          "$ref": "#/definitions/TaskOutputDis"
+        },
+        "webhook": {
+          "$ref": "#/definitions/TaskOutputWebhook"
+        },
+        "localpath": {
+          "$ref": "#/definitions/TaskOutputLocalpath"
+        }
+      }
+    },
+    "TaskDetails": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}|task\\w{8}$",
+          "description": "作业ID",
+          "example": "839ceexxxxxxxxxxxxxxxxxxxx7dbd4f"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_-]{1,100}$",
+          "description": "作业的名称",
+          "example": "task-test"
+        },
+        "creator": {
+          "type": "string",
+          "pattern": "^.{1,100}$",
+          "description": "作业创建者的用户名",
+          "example": "user_test"
+        },
+        "project_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-]{1,64}$",
+          "description": "作业创建者的项目ID",
+          "example": "8deadcxxxxxxxxxxxxxxxxxxxx4b7249"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 500,
+          "description": "作业的描述",
+          "example": "hello world!"
+        },
+        "service_name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "pattern": "^[a-z][a-z-]{0,98}[a-z]$",
+          "description": "作业对应服务的名称"
+        },
+        "service_version": {
+          "type": "string",
+          "pattern": "^\\d{1,3}\\.\\d{1,3}$",
+          "description": "作业对应服务的版本号",
+          "example": "1.0"
+        },
+        "service_title": {
+          "type": "object",
+          "description": "作业对应服务的标题",
+          "properties": {
+            "zh": {
+              "type": "string",
+              "pattern": "^[a-zA-Z\\d一-龥_-][a-zA-Z\\s\\d一-龥_-]{0,98}[a-zA-Z\\d一-龥_-]$",
+              "description": "作业对应服务的中文标题",
+              "example": "边缘人流量检测"
+            },
+            "en": {
+              "type": "string",
+              "pattern": "^[a-zA-Z\\d_-][a-zA-Z\\s\\d_-]{0,98}[a-zA-Z\\d_-]$",
+              "description": "作业对应服务的英文标题",
+              "example": "c-FlowCount-Edge"
+            }
+          }
+        },
+        "edge_pool_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}|edgestreampool\\w{8}$",
+          "description": "仅边缘作业会出现,作业运行所在的边缘运行池ID",
+          "example": "6be5aaxxxxxxxxxxxxxxxxxxxxde56ac"
+        },
+        "resource_order_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "description": "作业指定的算法能力包包周期订单ID",
+          "example": "da64bexxxxxxxxxxxxxxxxxxxxeca64f"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "作业创建的时间",
+          "example": "2020-01-01T08:00:00Z"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "作业最近一次状态更新的时间",
+          "example": "2020-01-01T08:00:00Z"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "RECOVERING",
+            "STARTING",
+            "UPGRADING",
+            "CREATE_FAILED",
+            "START_FAILED",
+            "RUNNING",
+            "STOPPING",
+            "STOPPED",
+            "ABNORMAL",
+            "SUCCEEDED",
+            "FAILED",
+            "DELETING",
+            "FREEZING",
+            "FROZEN"
+          ],
+          "description": "作业当前的状态,分别为PENDING(等待中),RECOVERING(恢复中),STARTING(启动中),UPGRADING(升级中),CREATE_FAILED(创建失败),START_FAILED(启动失败),RUNNING(运行中),STOPPING(停止中),STOPPED(已停止),ABNORMAL(异常),SUCCEEDED(运行成功),FAILED(运行失败),DELETING(删除中),FREEZING(冻结中),FROZEN(已冻结)",
+          "example": "RUNNING"
+        },
+        "status": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "作业状态的详情信息,仅部分状态会有详情信息",
+          "example": "Waiting for available computing resource."
+        },
+        "error": {
+          "type": "object",
+          "description": "作业运行失败时收集到的错误信息",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "算法服务定义的错误码",
+              "example": "ALG.002",
+              "minLength": 2,
+              "maxLength": 100
+            },
+            "message": {
+              "type": "string",
+              "description": "算法服务反馈的错误信息",
+              "example": "test",
+              "minLength": 2,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/TaskInput"
+        },
+        "output": {
+          "$ref": "#/definitions/TaskOutputForDisplay"
+        },
+        "service_config": {
+          "$ref": "#/definitions/TaskServiceConfig"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "creator",
+        "project_id",
+        "service_name",
+        "service_version",
+        "service_title",
+        "created_at",
+        "updated_at",
+        "state",
+        "input",
+        "output"
+      ]
+    },
+    "TaskServiceConfig": {
+      "description": "作业运行时指定的算法配置参数,见园区智能体API参考文档[API参考文档](https://support.huaweicloud.com/api-campusgo/campusgo_03_0013.html)",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "common": {
+          "description": "根据不同服务,填写对应的服务配置参数json结构体",
+          "type": "object",
+          "example": {
+            "line_count_interval": 2,
+            "region_count_interval": 2,
+            "line_detection_sw": 1,
+            "region_detection_sw": 1,
+            "attribute_detection_sw": 1,
+            "target_roi": null,
+            "heatmap_detection_sw": 0,
+            "heatmap_detection_interval": 60,
+            "heatmap_point_interval": 4
+          }
+        }
+      }
+    },
+    "TaskInputVcn": {
+      "type": "object",
+      "description": "VCN服务器信息,只有输入为vcn时才可以且必须使用",
+      "properties": {
+        "ip": {
+          "type": "string",
+          "format": "ipv4",
+          "description": "VCN服务器的IP地址",
+          "example": "10.10.10.10"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 65535,
+          "description": "VCN服务器的端口号",
+          "example": 60
+        },
+        "username": {
+          "type": "string",
+          "pattern": "^.{1,100}$",
+          "description": "VCN服务器的账号名",
+          "example": "user_test"
+        },
+        "password": {
+          "type": "string",
+          "format": "password",
+          "pattern": "^.{1,1000}$",
+          "description": "VCN服务器的与账号对应的密码",
+          "example": "password@test"
+        }
+      },
+      "required": [
+        "ip",
+        "port",
+        "username",
+        "password"
+      ]
+    },
+    "TaskOutputWebhook": {
+      "type": "object",
+      "description": "输出为webhook类型时的配置信息",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^(https?|rtsp|rtmp|ftp|file):\\/\\/[-A-Za-z0-9+&@*#/%?=~_|!:,.;]+[-A-Za-z0-9+&@*#/%=~_|]$",
+          "maxLength": 1000,
+          "description": "结果回调地址",
+          "example": "https://api.huawei.com/v1/tasks"
+        },
+        "headers": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 10,
+          "description": "结果回调时需要携带的请求头",
+          "example": {
+            "appKey": "24bnaxxxxxxxxxxxxxxxj9sdf",
+            "appId": "10000000"
+          }
+        },
+        "data_category": {
+          "type": "array",
+          "description": "作业输出数据类别的列表,当输出类型下有这个列表时,表示希望这个输出类型下存放dataCategory列表内的数据,部分服务需要",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "minItems": 0,
+          "maxItems": 10,
+          "example": [
+            "FaceImage"
+          ]
+        }
+      },
+      "required": [
+        "url",
+        "headers"
+      ]
+    },
+    "ShowTaskResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/TaskDetails"
+        }
+      ]
+    },
+    "ErrorResponseBody": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "服务内部错误码",
+          "type": "string",
+          "pattern": "^IVA.\\d{4}$",
+          "example": "IVA.0004"
+        },
+        "error_msg": {
+          "description": "错误信息",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "example": "The request param is invalid."
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ]
+    },
+    "TaskOutputDis": {
+      "type": "object",
+      "description": "输出为dis类型时的配置信息",
+      "properties": {
+        "stream_name": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[-A-Za-z0-9_]{1,64}$",
+          "description": "DIS流名称",
+          "example": "dis-test"
+        },
+        "data_category": {
+          "type": "array",
+          "description": "作业输出数据类别的列表,当输出类型下有这个列表时,表示希望这个输出类型下存放dataCategory列表内的数据,部分服务需要",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 10,
+          "uniqueItems": true,
+          "example": [
+            "FaceImage"
+          ]
+        }
+      },
+      "required": [
+        "stream_name"
+      ]
+    },
+    "TaskInputData": {
+      "type": "object",
+      "description": "输入数据的配置信息",
+      "properties": {
+        "stream_name": {
+          "type": "string",
+          "description": "VIS的视频流名称,当输入为vis类型时必选",
+          "pattern": "^[-A-Za-z0-9_]{1,80}$",
+          "example": "stream-test"
+        },
+        "bucket": {
+          "type": "string",
+          "description": "OBS桶名,当输入为obs类型是必选",
+          "maxLength": 63,
+          "pattern": "^[a-z0-9](?!.*[-.][-.].*)([a-z0-9-.]{1,61})[a-z0-9]$",
+          "example": "obs-iva"
+        },
+        "path": {
+          "type": "string",
+          "description": "OBS的路径,当输入为obs类型时必选",
+          "maxLength": 1023,
+          "pattern": "^(?![/.\\s])(?!.*//.*)([^:*?\"<>|\\\\]{0,1023})(?<![.\\s])$",
+          "example": "/input/test.mp4"
+        },
+        "url": {
+          "type": "string",
+          "description": "url输入源的地址或者获取视频流地址的restful请求地址,当输入为url或者edgerestful类型时必选",
+          "format": "uri",
+          "pattern": "^(https?|rtsp|rtmp|ftp|file):\\/\\/[-A-Za-z0-9+&@*#/%?=~_|!:,.;]+[-A-Za-z0-9+&@*#/%=~_|]$",
+          "maxLength": 1000,
+          "example": "https://livestream.com/live/stream-test"
+        },
+        "headers": {
+          "type": "object",
+          "description": "获取视频流的restful请求携带的请求头,当输入为edgerestful类型时可选",
+          "minProperties": 1,
+          "maxProperties": 10,
+          "example": {
+            "Content-Type": "application/json"
+          }
+        },
+        "certificate_check": {
+          "description": "是否需要对https请求进行证书校验,当输入为edgerestful类型时必选",
+          "type": "boolean",
+          "example": false
+        },
+        "rtsp_path_in_response": {
+          "description": "restful请求返回的body中,视频流地址的路径,当输入为edgerestful类型时必选",
+          "type": "string",
+          "maxLength": 1024,
+          "pattern": "^([-A-Za-z0-9+&?=~_][-A-Za-z0-9+&/?=~_]+[-A-Za-z0-9+&/?=~_]|[A-Za-z]+)$",
+          "example": "data/url"
+        },
+        "device_id": {
+          "type": "string",
+          "description": "VCN设备ID,当输入为vcn类型时必选",
+          "pattern": "^([0-9]{20}[#]{1}[a-zA-Z0-9]{32})|([0-9]{20}[#]{1}[0-9]{1,10}[#]{1}[a-zA-Z0-9]{32})$",
+          "example": "46459876132169871364#abb6541c6d546c65ffee16ebaf5ce9ca"
+        },
+        "stream_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "准备进行分析的码流,其中1代表主码流,2代表子码流1,3代表子码流2,当输入为vcn类型时可选",
+          "minimum": 1,
+          "maximum": 3,
+          "example": 1
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "IEF挂载的边缘设备的ID,当输入为edgecamera类型时必选",
+          "maxLength": 63,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$",
+          "example": "dd8xxxxx-xxxx-xxxx-xxxx-xxxxxx2f5bcb"
+        },
+        "index": {
+          "type": "integer",
+          "description": "可选,当前输入的序号,从0开始递增,不可重复",
+          "minimum": 0,
+          "maximum": 49
+        }
+      }
+    },
+    "TaskOutputObs": {
+      "type": "object",
+      "description": "输出为obs类型时的配置信息",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "maxLength": 63,
+          "pattern": "^[a-z0-9](?!.*[-.][-.].*)([a-z0-9-.]{1,61})[a-z0-9]$",
+          "description": "OBS桶名",
+          "example": "obs-iva"
+        },
+        "path": {
+          "type": "string",
+          "maxLength": 1023,
+          "pattern": "^(?![/.\\s])(?!.*//.*)([^:*?\"<>|\\\\]{0,1023})(?<![.\\s])$",
+          "description": "OBS的路径",
+          "example": "output/"
+        },
+        "data_category": {
+          "type": "array",
+          "description": "作业输出数据类别的列表,当输出类型下有这个列表时,表示希望这个输出类型下存放dataCategory列表内的数据,部分服务需要",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 10,
+          "uniqueItems": true,
+          "example": [
+            "FaceImage"
+          ]
+        }
+      },
+      "required": [
+        "bucket",
+        "path"
+      ]
+    },
+    "TaskOutputLocalpath": {
+      "type": "object",
+      "description": "输出为localpath类型时的配置信息",
+      "properties": {
+        "mount_source_path": {
+          "type": "string",
+          "pattern": "^(/[\\w-.]+)+/?$",
+          "maxLength": 255,
+          "description": "挂载的源路径,存放作业运行结果的路径,必须为linux路径",
+          "example": "/usr/local/"
+        },
+        "data_category": {
+          "type": "array",
+          "description": "作业输出数据类别的列表,当输出类型下有这个列表时,表示希望这个输出类型下存放dataCategory列表内的数据,部分服务需要",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 10,
+          "uniqueItems": true,
+          "example": [
+            "FaceImage"
+          ]
+        }
+      },
+      "required": [
+        "mount_source_path"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iva.cn-south-1.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

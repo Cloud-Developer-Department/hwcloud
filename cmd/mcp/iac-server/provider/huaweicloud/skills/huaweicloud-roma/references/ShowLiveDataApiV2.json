@@ -1,0 +1,455 @@
+{
+  "name": "ShowLiveDataApiV2",
+  "summary": "查询后端API详情",
+  "tags": "自定义后端服务",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/livedata-apis/{ld_api_id}": {
+      "get": {
+        "tags": [
+          "自定义后端服务"
+        ],
+        "summary": "查询后端API详情",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-order": 4,
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "查询后端API的详细信息。",
+        "operationId": "ShowLiveDataApiV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_ld_api_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/LdApiInfo"
+            },
+            "examples": {
+              "application/json": {
+                "content_type": "json",
+                "created_time": "2020-09-18T09:25:59Z",
+                "description": "",
+                "id": "bd42841c20184da6bbf457c6d8a06e37",
+                "instance": "f0fa1789-3b76-433b-a787-9892951c620e",
+                "method": "GET",
+                "modified_time": "2020-09-18T09:25:59Z",
+                "name": "livedata_api_demo",
+                "parameters": [],
+                "path": "/test/function",
+                "return_format": false,
+                "roma_app_id": "98df09fb-d459-4cbf-83a7-2b55ca6f3d5d",
+                "scripts": [],
+                "status": 1,
+                "type": "",
+                "version": "1.0.1"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2011",
+                "error_msg": "Invalid parameter value,parameterName:instance_id. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3084",
+                "error_msg": "The livedata API does not exist, id: bd42841c20184da6bbf457c6d8a06e37"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LdApiScriptBase": {
+      "required": [
+        "content",
+        "object_name"
+      ],
+      "properties": {
+        "ds_id": {
+          "description": "数据源编号,当api_type = data时,必选",
+          "type": "string"
+        },
+        "ds_name": {
+          "description": "数据源名称",
+          "type": "string"
+        },
+        "ds_type": {
+          "type": "string",
+          "description": "数据源类型:\n\n- oracle:oracle数据源类型\n\n- mysql:mysql数据源类型\n\n- mongodb:mongodb数据源类型\n\n- redis:redis数据源类型\n\n- postgresql:postgresql/opengauss数据源类型\n\n- hive:hive数据源类型\n\n- mssql:sqlserver数据源类型\n\n- sqlserver:sqlserver数据源类型\n\n- dws:dws数据源类型\n\n- gauss100:gauss100数据源类型\n\n- zenith:zenith数据源类型",
+          "enum": [
+            "oracle",
+            "mysql",
+            "mongodb",
+            "redis",
+            "postgresql",
+            "hive",
+            "mssql",
+            "sqlserver",
+            "dws",
+            "gauss100",
+            "zenith"
+          ]
+        },
+        "type": {
+          "description": "脚本类型\n- SQL:sql语句\n- SP:存储过程",
+          "type": "string"
+        },
+        "object_name": {
+          "description": "返回对象。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^([A-Za-z])([A-Za-z0-9_-]){0,31}$"
+        },
+        "content": {
+          "description": "API脚本内容\n\n请对脚本进行base64编码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100000
+        },
+        "enable_result_paging": {
+          "description": "数据脚本是否结果分页,当api_type = data时有效",
+          "type": "boolean",
+          "default": false
+        },
+        "enable_preparestatement": {
+          "description": "数据脚本是否预编译,当api_type = data时有效",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "LdApiParameter": {
+      "description": "后端API请求参数",
+      "required": [
+        "name",
+        "in"
+      ],
+      "properties": {
+        "name": {
+          "description": "参数名称:\n- 参数位于Headers、 Parameters时,用户自行定义,支持英文、数字、点、中划线、下划线,且需要英文开头,不区分大小写。\n- 参数位于Body时候,参数以application/json、application/xml、application/text为名,但实际是以请求body里的键值对作为参数名和参数值,比如请求消息样例,参数名为application/json,参数值为{\\\"table\\\":\\\"apic01\\\",\\\"id\\\":\\\"1\\\"},后端取table:apic01,id:1这两个键值对作为入参。\n- 注意:定义参数不要重名,否则会覆盖掉,当Headers、Parameters重复时候,Parameters会被覆盖,当Parameters和Body里的键值对重复时候,Parameters会被覆盖。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z][a-zA-Z0-9._\\\\/-]{0,31}$"
+        },
+        "in": {
+          "description": "该参数在调用API时候所放的位置:\n- Headers :放于请求头\n- Parameters :放于请求参数\n- Body:放于请求体",
+          "type": "string",
+          "enum": [
+            "Headers",
+            "Parameters",
+            "Body"
+          ]
+        },
+        "default": {
+          "description": "参数默认值",
+          "type": "string",
+          "maxLength": 4000
+        },
+        "description": {
+          "description": "参数描述\n\n不支持<,>字符",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "required": {
+          "description": "参数是否必须。true:必须,false:不必须",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "LdApiInfo": {
+      "description": "后端API详情",
+      "allOf": [
+        {
+          "$ref": "#/definitions/LdApiCreate"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "后端API编号",
+              "type": "string"
+            },
+            "instance": {
+              "description": "后端API所属实例编号",
+              "type": "string"
+            },
+            "type": {
+              "description": "后端API类型:\n- data:数据后端\n- function: 函数后端",
+              "enum": [
+                "data",
+                "function"
+              ],
+              "type": "string"
+            },
+            "status": {
+              "description": "后端API状态:\n- 1:待开发\n- 3:开发中\n- 4:已部署",
+              "enum": [
+                1,
+                3,
+                4
+              ],
+              "type": "integer",
+              "format": "int32"
+            },
+            "created_time": {
+              "description": "后端API创建时间",
+              "type": "string",
+              "format": "date-time"
+            },
+            "modified_time": {
+              "description": "后端API修改时间",
+              "type": "string",
+              "format": "date-time"
+            },
+            "scripts": {
+              "description": "后端API脚本信息",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LdApiScript"
+              }
+            },
+            "roma_app_name": {
+              "description": "后端API归属的集成应用名称",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "LdApiScript": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/LdApiScriptBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "created_time": {
+              "description": "后端API脚本创建时间",
+              "type": "string",
+              "format": "date-time"
+            },
+            "modified_time": {
+              "description": "后端API脚本修改时间",
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    },
+    "LdApiCreate": {
+      "required": [
+        "name",
+        "path",
+        "method",
+        "version",
+        "content_type",
+        "roma_app_id"
+      ],
+      "properties": {
+        "name": {
+          "description": "后端API名称。\n\n支持汉字、英文、数字、中划线、下划线、点、斜杠、中英文格式下的小括号和冒号、中文格式下的顿号,且只能以英文、汉字和数字开头。",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 100,
+          "pattern": "^([a-zA-Z0-9]|[\\一-\\龥])([a-zA-Z0-9:._()\\\\//-]|[\\一-\\龥\\（\\）\\：\\、]){2,99}$"
+        },
+        "path": {
+          "description": "后端API请求路径。\n\n支持英文、数字、中划线、下划线、点等,且以斜杠(/)开头。\n\n更新后端API时,status=4为后端API的已部署状态,该状态下后端API请求路径不能修改。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 256,
+          "pattern": "^\\\\/[\\\\/\\\\.a-zA-Z0-9_-]{1,255}$"
+        },
+        "method": {
+          "description": "后端API请求方法。\n\n支持GET、PUT、POST、DELETE\n\n更新后端API时,status=4为后端API的已部署状态,该状态下后端API请求方法不能修改。",
+          "enum": [
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE"
+          ],
+          "type": "string"
+        },
+        "description": {
+          "description": "后端API描述。\n\n不支持<,>字符",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "version": {
+          "description": "后端API版本\n\n支持英文,数字,下划线,中划线,点。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-zA-Z0-9_.-]{1,63}$"
+        },
+        "content_type": {
+          "description": "后端API返回类型",
+          "type": "string",
+          "enum": [
+            "json",
+            "xml",
+            "stream"
+          ],
+          "default": "json"
+        },
+        "api_signature_id": {
+          "description": "后端API为签名认证时绑定的签名密钥编号",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9-_]{0,63}$"
+        },
+        "roma_app_id": {
+          "description": "后端API归属的集成应用编号\n\n更新后端API时,status=4为后端API的已部署状态,该状态下后端API归属的集成应用编号不能修改。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65,
+          "pattern": "^[a-zA-Z0-9-_]{0,64}$"
+        },
+        "return_format": {
+          "description": "API响应信息是否格式化\n\ntrue: 对响应信息进行格式化\n\nfalse:对响应信息格式化不进行格式化",
+          "type": "boolean",
+          "default": false
+        },
+        "parameters": {
+          "description": "后端API的请求参数列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LdApiParameter"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_ld_api_id": {
+      "name": "ld_api_id",
+      "in": "path",
+      "type": "string",
+      "description": "后端API的编号",
+      "required": true,
+      "x-example": "bd42841c20184da6bbf457c6d8a06e37"
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,211 @@
+{
+  "name": "ShowStarRocksDatabaseUser",
+  "summary": "查询数据库账户",
+  "tags": "HTAP-标准版",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/starrocks/users": {
+      "get": {
+        "x-request-examples-url-1": "GET  https://{endpoint}/v3/23a50154cf494ec9ad6883979a12db0a/instances/54e42160670e48e789af7075e1efea1fin16/starrocks/users?limit=10",
+        "x-request-examples-description-1": "查询数据库10个账号信息。",
+        "tags": [
+          "HTAP-标准版"
+        ],
+        "operationId": "ShowStarRocksDatabaseUser",
+        "summary": "查询数据库账户",
+        "description": "查询StarRocks数据库账户。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "StarRocks实例ID,严格匹配UUID规则。"
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "description": "数据库账户。",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "description": "查询记录数,不能为负数,最小值为1,最大值为100。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。\n\n通过调用IAM服务[获取用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取。\n\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。默认en-us。\n取值范围:\n- en-us\n- zh-cn",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ShowStarRocksDatabaseUsers"
+            },
+            "examples": {
+              "application/json": {
+                "user_details": [
+                  {
+                    "user_name": "root",
+                    "databases": [
+                      "*"
+                    ],
+                    "dml": 2,
+                    "ddl": 0
+                  },
+                  {
+                    "user_name": "user_test",
+                    "databases": [
+                      "*"
+                    ],
+                    "dml": 2,
+                    "ddl": 0
+                  }
+                ],
+                "total_count": 2
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ShowStarRocksDatabaseUsers": {
+      "type": "object",
+      "required": [
+        "user_details",
+        "total_count"
+      ],
+      "properties": {
+        "user_details": {
+          "type": "array",
+          "items": {
+            "required": [
+              "user_name",
+              "data_bases",
+              "dml",
+              "ddl"
+            ],
+            "properties": {
+              "user_name": {
+                "type": "string",
+                "description": "数据库账户名。",
+                "example": "user_test"
+              },
+              "data_bases": {
+                "type": "array",
+                "description": "已授权数据库。",
+                "example": [
+                  "INFORMATION_SCHEMA",
+                  "default"
+                ],
+                "items": {
+                  "example": "default",
+                  "type": "string"
+                }
+              },
+              "dml": {
+                "type": "integer",
+                "format": "int32",
+                "description": "DML授权。\n- 0:读写权限\n- 1:只读权限\n- 2:只读和设置权限\n- 3:读写和设置权限",
+                "example": 2
+              },
+              "ddl": {
+                "type": "integer",
+                "format": "int32",
+                "description": "DDL授权。\n- 0:无DDL权限\n- 1:有DDL权限",
+                "example": 0
+              }
+            }
+          },
+          "description": "数据库账户信息。",
+          "example": ""
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "数据库账户数量。",
+          "example": 2
+        }
+      },
+      "description": "查询数据库账号"
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.280292"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "example": "数据库用户名非法"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

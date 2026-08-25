@@ -1,0 +1,243 @@
+{
+  "name": "ListDesktopPoolAuthorizedObjects",
+  "summary": "查询桌面池授权的用户、用户组",
+  "tags": "桌面池",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktop-pools/{pool_id}/users": {
+      "get": {
+        "tags": [
+          "DesktopPool"
+        ],
+        "summary": "查询桌面池授权的用户、用户组",
+        "description": "该接口用于查询指定桌面池授权的用户、用户组。",
+        "operationId": "ListDesktopPoolAuthorizedObjects",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "pool_id",
+            "in": "path",
+            "description": "桌面池ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31e-d520xxxx-xxebedb6-e57xxxxxx"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "用于分页查询,查询的起始记录序号,从0开始。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 10000,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "用于分页查询,返回桌面数量限制。取值范围0-100,默认值是10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询桌面池授权的用户、用户组响应。",
+            "examples": {
+              "application/json": {
+                "objects": [
+                  {
+                    "object_type": "USER",
+                    "object_id": "object_id",
+                    "object_name": "2b31e-d520xxxx-xxebedb6-e57xxxxxx",
+                    "user_group": "administrators",
+                    "created_at": "2022-05-11T11:45:42.000Z"
+                  }
+                ],
+                "total_count": 1
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/QueryDesktopPoolAuthorizedObjectsRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "409": {
+            "description": "操作冲突。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceType=ResourceType.DESKTOP_POOL, resourceField=\"pool_id\")",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE, abacAction = \"workspace:desktopPools:listUsers\", needApigwJwtAuthCheck = false, authContextInitializerName = \"workspaceInstanceAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"listDesktopPoolAuthorizedObjects\", traceNameCn = \"查询桌面池授权的用户、用户组\")"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "GET /v2/bcae3e673fd04716a3b9dacdf58ca336/desktop-pools/a130ab3a-72bf-4b71-baa9-af4987c8e338/users",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-support-hcs": "Y",
+        "x-apig-group": "public,internal_token"
+      }
+    }
+  },
+  "definitions": {
+    "QueryDesktopPoolAuthorizedObjectsRsp": {
+      "properties": {
+        "objects": {
+          "type": "array",
+          "description": "授权对象。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/AuthorizedObjects"
+          }
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "满足条件的用户、用户组总数。",
+          "readOnly": true
+        }
+      },
+      "description": "查询桌面池授权的用户、用户组响应。"
+    },
+    "AuthorizedObjects": {
+      "required": [
+        "object_id",
+        "object_name",
+        "object_type",
+        "user_group"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "description": "绑定对象类型枚举。\n\n- USER:用户\n- USER_GROUP:用户组",
+          "minLength": 1,
+          "maxLength": 100,
+          "enum": [
+            "USER",
+            "USER_GROUP"
+          ]
+        },
+        "object_id": {
+          "type": "string",
+          "description": "用户/用户组id。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "object_name": {
+          "type": "string",
+          "description": "用户/用户组名称。",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "domain": {
+          "type": "string",
+          "description": "用户/用户组所属域名。"
+        },
+        "user_group": {
+          "type": "string",
+          "description": "桌面用户所属的用户权限组。\n\n- sudo:Linux管理员组。\n- default:Linux默认用户组。\n- administrators:Windows管理员组。管理员拥有对该桌面的完全访问权,可以做任何需要的更改(禁用操作除外)。\n- users:Windows标准用户组。标准用户可以使用大多数软件,并可以更改不影响其他用户的系统设置。",
+          "minLength": 1,
+          "maxLength": 55
+        },
+        "created_at": {
+          "type": "string",
+          "description": "创建时间。",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "description": "查询桌面池授权的用户、用户组响应的用户/用户组信息。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,184 @@
+{
+  "name": "CreateSecurityGroupRule",
+  "summary": "创建安全组规则(FusionCompute)",
+  "tags": "VRM云服务",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/orchestration/v3.0/fcvpc/securitygroups/{security_group_id}/security-group-rules": {
+      "post": {
+        "summary": "创建安全组规则(FusionCompute)",
+        "x-resource": "虚拟私有云",
+        "description": "创建安全组规则。",
+        "x-filter": "ManageOne,interservice,openapi",
+        "x-plane": "Tenant",
+        "tags": [
+          "VRM云服务"
+        ],
+        "operationId": "CreateSecurityGroupRule",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户带有project信息的Token (vdc_adm或vdc_user角色的用户token)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言信息。",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "security_group_id",
+            "in": "path",
+            "description": "安全组ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "description": "创建安全组规则的请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FCCreateSecurityGroupRuleReq"
+            }
+          }
+        ],
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > VRM云服务”章节。\n",
+        "responses": {
+          "200": {
+            "description": "创建安全组规则成功。",
+            "schema": {
+              "$ref": "#/definitions/FCCreateSecurityGroupRuleResp"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": "4724276009111655000"
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口没找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/orchestration/v3.0/fcvpc/securitygroups/1000000000000000070/security-group-rules",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "cloud_infra_id": "cn-global-1",
+          "security_group_rule": [
+            {
+              "ip_protocol": "tcp",
+              "ip_ranges": "",
+              "allowed_sg_id": "1000000000000000070",
+              "from_port": "15",
+              "to_port": "20",
+              "direction": "0"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FCCreateSecurityGroupRuleReq": {
+      "required": [
+        "cloud_infra_id",
+        "security_group_rule"
+      ],
+      "description": "创建安全组规则请求。",
+      "properties": {
+        "cloud_infra_id": {
+          "description": "云资源池 ID。",
+          "type": "string"
+        },
+        "security_group_rule": {
+          "description": "创建安全组规则请求详情。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/FCCreateSecurityGroupRuleReqDetail"
+          }
+        }
+      }
+    },
+    "FCCreateSecurityGroupRuleResp": {
+      "required": [
+        "task_id"
+      ],
+      "description": "创建安全组规则响应。",
+      "properties": {
+        "task_id": {
+          "description": "任务id。",
+          "type": "string"
+        }
+      }
+    },
+    "FCCreateSecurityGroupRuleReqDetail": {
+      "required": [
+        "ip_protocol",
+        "ip_ranges",
+        "from_port",
+        "to_port",
+        "direction"
+      ],
+      "description": "创建安全组规则请求详情。",
+      "properties": {
+        "ip_protocol": {
+          "description": "协议类型,取值范围:\n* icmp\n* tcp\n* udp \n* any,表示支持所有协议。\n\n协议类型为icmp时,起始端口值和结束端口值取值范围如下(格式:icmp协议类型名称(from_port, to_port)):\n* Any(-1, -1)\n* Echo(8, 0)\n* Echo reply(0, 0)\n* Fragment need DF set(3, 4)\n* Host redirect(5, 1)\n* Host TOS redirect(5, 3)\n* Host unreachable(3, 1)\n* Information reply(16, 0)\n* Information request(15, 0)\n* Net redirect(5, 0)\n* Net TOS redirect(5, 2)\n* Net unreachable(3, 0)\n* Parameter problem(12, 0)\n* Port unreachable(3, 3)\n* Protocol unreachable(3, 2)\n* Reassembly timeout(11, 1)\n* Source quench(4, 0)\n* Source route failed(3, 5)\n* Timestamp reply(14, 0)\n* Timestamp request(13, 0)\n* TTL exceeded(11, 0)",
+          "type": "string"
+        },
+        "ip_ranges": {
+          "description": "远端IP地址,和remote_group_id互斥,取值范围:子网格式,或者IP段格式。\n* IPv4示例:子网格式:192.168.5.0/255.255.255.0;IP段格式:192.168.5.0-192.168.5.255",
+          "type": "string"
+        },
+        "allowed_sg_id": {
+          "description": "对端安全组ID和ip_ranges互斥。(预留)",
+          "type": "string"
+        },
+        "from_port": {
+          "description": "起始端口值\n* 取值范围:0~65535\n* 协议类型为icmp时:必须为protocol字段说明中定义的特定端口值\n* 协议类型为tcp或udp时:取值不能大于to_port的值\n* 协议类型为any时:取值必须为-1",
+          "type": "string"
+        },
+        "to_port": {
+          "description": "结束端口值\n* 取值范围:0~65535\n* 协议类型为icmp时:必须为protocol字段说明中定义的特定端口值\n* 协议类型为tcp或udp时:取值不能小于from_port的值\n* 协议类型为any时:取值必须为-1",
+          "type": "string"
+        },
+        "direction": {
+          "description": "出入控制方向,当前仅支持入方向。取值范围:\n* 1:出方向(预留)\n* 0:入方向",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,179 @@
+{
+  "name": "CreateFsDir",
+  "summary": "创建目录",
+  "tags": "目录管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir": {
+      "post": {
+        "tags": [
+          "目录管理"
+        ],
+        "operationId": "CreateFsDir",
+        "summary": "创建目录",
+        "description": "创建目录",
+        "x-constraint": "如果文件系统协议类型为SMB协议,创建的目录会初始化权限为everyone完全控制权限,则指定的属主用户ID、属主用户组ID、目录权限不生效。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "x-open-region-cloud": "hws,hws_hk,ctc,sbc,hcs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "description": "账号的token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "description": "MIME类型",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "share_id",
+            "description": "文件系统ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "CreateFsDirRequestBody",
+            "description": "文件系统目录",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateFsDirRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "创建目录成功"
+          },
+          "400": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0122",
+                "errMsg": "invalid mode"
+              }
+            }
+          },
+          "409": {
+            "description": "错误响应,目录冲突",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0114",
+                "errMsg": "path already exist"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "Internal server error"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "创建一个目录,目录的全路径是“/date/test”。",
+        "x-request-examples-1": {
+          "path": "/date/test"
+        },
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "CreateFsDirRequestBody": {
+      "description": "创建目录请求",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "description": "合法的的目录全路径",
+          "type": "string"
+        },
+        "mode": {
+          "description": "目录权限,默认值是755,取值范围是0到777。第一位表示目录所有者的权限,取值范围是0到7;第二位表示目录所属用户组的权限,取值范围是0到7;第三位表示其他用户的权限,取值范围是0到7。目录所有者由uid指定,目录所属用户组由gid指定,不是目录所有者且不在目录所属用户组的用户为其他用户。例如:755中第一位7代表该目录所有者对该目录具有读、写、执行权限;第二位5代表该目录所属用户组对该目录具有读、执行权限;第三位5代表其他用户对该目录具有读、执行权限。",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "x-open-region-cloud": "hws,hws_hk,hws_eu,dt,sbc"
+        },
+        "uid": {
+          "description": "目录所有者的用户id,默认值是0,取值范围是0到4,294,967,294(即2^32-2)。",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "x-open-region-cloud": "hws,hws_hk,hws_eu,dt,sbc"
+        },
+        "gid": {
+          "description": "目录所属用户组id,默认值是0,取值范围是0到4,294,967,294(即2^32-2)。",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "x-open-region-cloud": "hws,hws_hk,hws_eu,dt,sbc"
+        }
+      }
+    },
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,459 @@
+{
+  "name": "ListAimSendTasks",
+  "summary": "查询智能信息发送任务",
+  "tags": "智能信息发送",
+  "productshort": "KooMessage",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/aim/send-tasks": {
+      "get": {
+        "tags": [
+          "AIMSendTask"
+        ],
+        "summary": "查询智能信息发送任务",
+        "description": "\n根据用户提供的过滤条件查询智能信息发送任务列表,包括:发送任务名称、智能信息模板ID等。",
+        "operationId": "ListAimSendTasks",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "task_id",
+            "in": "query",
+            "description": "智能信息发送任务ID。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "task_name",
+            "in": "query",
+            "description": "智能信息发送任务名称。",
+            "required": false,
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 0
+          },
+          {
+            "name": "tpl_id",
+            "in": "query",
+            "description": "智能信息模板ID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 9,
+            "minLength": 0
+          },
+          {
+            "name": "tpl_name",
+            "in": "query",
+            "description": "智能信息模板名称。",
+            "required": false,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          {
+            "name": "begin_time",
+            "in": "query",
+            "description": "智能信息发送任务创建开始时间。样例:2019-10-12T07:20:50.522Z。\n\n> 需同时传入end_time才能生效,单独传begin_time不会作为过滤条件。缺省:查询最近7天(168小时)数据。\n>\n> 仅支持查询最近1年内创建的智能信息发送任务。\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "智能信息发送任务创建结束时间。样例:2019-10-12T07:20:50.522Z。\n\n> 需同时传入begin_time才能生效,单独传end_time不会作为过滤条件。缺省:查询最近7天(168小时)数据。\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "task_status",
+            "in": "query",
+            "description": "智能信息发送任务状态。 \n- Success:创建成功 \n- Fail:创建失败\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询,offset大于等于0。\n\n>为提高查询效率,offset+limit须小于等于10000,超出范围查询为空。\n",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 1000000,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的条目数量。\n",
+            "required": false,
+            "type": "integer",
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回信息。",
+            "examples": {
+              "application/json": {
+                "aim_send_tasks": [
+                  {
+                    "task_id": "7cc198c3-91d3-425b-9226-54c27cd7cccc",
+                    "task_name": "智能信息发送-动态参数",
+                    "task_state": "Success",
+                    "submission_count": 2,
+                    "send_count": 2,
+                    "resolve_count": 1,
+                    "support_resolve_count": -1,
+                    "sms_channel": {
+                      "sms_sign": "华为云KooMessage"
+                    },
+                    "creation_time": "2022-07-19T14:57:20.00Z",
+                    "failed_short_chains": null,
+                    "success_number": 2
+                  }
+                ],
+                "page_info": {
+                  "offset": 0,
+                  "limit": 2,
+                  "total": 1
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListAimSendTasksRsp"
+            }
+          },
+          "400": {
+            "description": "非法参数。",
+            "schema": {
+              "$ref": "#/definitions/AimErrorMsg"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/AimErrorMsg"
+            }
+          }
+        },
+        "x-opseverity": "Info",
+        "x-apigateway-request-type": "Public",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-description-1": "查询智能信息发送任务。",
+        "x-request-examples-url-1": "https://koomessage.myhuaweicloud.com/v1/aim/send-tasks?offset=0&limit=2"
+      }
+    }
+  },
+  "definitions": {
+    "AIMSendTaskInfo": {
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "example": "短信发送",
+          "description": "智能信息发送任务名称。"
+        },
+        "sms_channel": {
+          "$ref": "#/definitions/AIMSendTaskSmsChannel"
+        },
+        "resolve_task": {
+          "description": "短链生成配置。\n\n> 预留字段,暂时为空。\n",
+          "$ref": "#/definitions/AIMResolveTaskMode"
+        }
+      },
+      "description": "发送任务消息体。"
+    },
+    "CreateResolveTaskParamMode": {
+      "type": "object",
+      "properties": {
+        "cust_flag": {
+          "type": "string",
+          "example": "130****0001",
+          "description": "创建解析任务时填写用户唯一标识,手机号码或者任何的唯一标识,唯一标识不超过64个字符。 发送智能信息时则必须填客户的手机号码。样例为:130****0001。"
+        },
+        "cust_id": {
+          "type": "string",
+          "example": "231724915a62455ca356e10a085c0000",
+          "description": "租户ID。"
+        },
+        "dync_params": {
+          "type": "object",
+          "description": "动态参数。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "custom_url": {
+          "type": "string",
+          "description": "自定义跳转地址。\n> - 未填时,终端用户点击访问短信原文中的短链,跳转智能信息H5页\n> - 已填时,终端用户点击访问短信原文中的短链,跳转客户填写的链接落地页,填写时必须为http或https作为前缀\n"
+        },
+        "aim_url": {
+          "type": "string",
+          "example": "aim6.cn/asides",
+          "description": "完整的短链连接地址,通过自己的短信渠道发送时,需要把该短链添加到短信模板中,并确保发送短信时的签名与创建短链时的签名保持一致。样例:km2g.cn/PDiWqc。"
+        },
+        "aim_code": {
+          "type": "string",
+          "example": "asides",
+          "description": "智能信息编码,样例:PDiWqc。"
+        },
+        "ext_data": {
+          "type": "string",
+          "description": "自定义扩展参数。\n\n>预留字段。\n"
+        },
+        "result_code": {
+          "type": "string",
+          "example": "0",
+          "description": "短链申请结果返回码。\n- 0:成功\n- 非0:失败,具体请参见错误码\n"
+        },
+        "error_message": {
+          "type": "string",
+          "example": "成功",
+          "description": "短链申请结果错误描述。\n"
+        },
+        "generate_date": {
+          "type": "string",
+          "example": "2019-10-12T07:20:50",
+          "description": "短链生成时间。样例为:2019-10-12T07:20:50Z。"
+        },
+        "expire_date": {
+          "type": "string",
+          "example": "2019-10-12T07:20:50",
+          "description": "短链到期时间。样例为:2019-10-12T07:20:50Z。"
+        },
+        "resolved_date": {
+          "type": "string",
+          "example": "2019-10-12T07:20:50",
+          "description": "解析时间。样例为:2019-10-12T07:20:50Z。\n\n>预留字段。\n"
+        },
+        "resolved_times": {
+          "type": "integer",
+          "example": 1,
+          "description": "短链实际解析次数。\n\n>预留字段。\n"
+        },
+        "custom_short_code": {
+          "type": "string",
+          "description": "自定义短码,支持长度为3到10位的数字或大小写字母。样例为:aDC123。"
+        }
+      },
+      "description": "生成短链的响应参数对象。"
+    },
+    "AIMSendTasksMode": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AIMSendTaskInfo"
+        },
+        {
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "description": "任务ID。"
+            },
+            "task_state": {
+              "type": "string",
+              "description": "任务状态。\n\n- Success:发送成功\n- Failed:发送失败\n\n> 此状态仅代表任务提交状态,不代表智能信息发送结果。用户手机接收智能信息结果请以收到的回执结果为准,也可通过查询智能信息发送明细API获取或登录KooMessage控制台查看。\n"
+            },
+            "creation_time": {
+              "type": "string",
+              "format": "date-time",
+              "description": "创建时间。样例:2019-10-12T07:20:50.522Z。"
+            },
+            "submission_count": {
+              "type": "integer",
+              "description": "提交的手机号码总数。"
+            },
+            "send_count": {
+              "type": "integer",
+              "description": "发送数量。"
+            },
+            "resolve_count": {
+              "type": "integer",
+              "description": "智能信息解析成功的手机号码总数。"
+            },
+            "support_resolve_count": {
+              "type": "integer",
+              "description": "支持智能信息解析的手机号码总数。\n\n>通过API发送的智能信息任务不做解析能力判断,返回-1作为标识。\n"
+            },
+            "failed_short_chains": {
+              "description": "短链生成失败列表。\n\n> 预留字段。\n",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CreateResolveTaskParamMode"
+              }
+            },
+            "success_number": {
+              "type": "integer",
+              "description": "发送成功的智能信息数。"
+            }
+          }
+        }
+      ],
+      "description": "智能信息发送任务。"
+    },
+    "ResolveTaskParam": {
+      "type": "object",
+      "required": [
+        "cust_flag"
+      ],
+      "properties": {
+        "cust_flag": {
+          "type": "string",
+          "example": "130****0001",
+          "description": "创建解析任务时填写用户唯一标识,手机号码或者任何的唯一标识,唯一标识不超过64个字符。 发送智能信息时则必须填客户的手机号码。样例为:130****0001。"
+        },
+        "dync_params": {
+          "type": "object",
+          "description": "动态参数。\n> 使用动态参数模板时,aim_code_type字段只能为individual。\n",
+          "additionalProperties": {
+            "type": "string",
+            "example": "param"
+          }
+        },
+        "custom_url": {
+          "type": "string",
+          "example": "https://www.xxxx.com",
+          "description": "自定义跳转地址。长度要求不超过2048。\n> - 未填时,终端用户点击短信原文中的短链后,跳转智能信息模板H5页\n> - 已填时,终端用户点击短信原文中的短链后,跳转该字段对应的页面,填写时必须为http或https作为前缀\n> - 使用自定义跳转链接功能请联系KooMessage运营人员进行域名备案\n",
+          "pattern": "^http[s]{0,1}://([\\w-]+\\.)+[\\w-]+(/[\\w-./?%&=]*)?$"
+        }
+      },
+      "description": "生成短链的参数对象。"
+    },
+    "Page": {
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "example": 1,
+          "description": "偏移量,表示从此偏移量开始查询,offset大于等于0。"
+        },
+        "limit": {
+          "type": "integer",
+          "example": 20,
+          "description": "每页显示的条目数量。"
+        },
+        "total": {
+          "type": "integer",
+          "example": 222,
+          "description": "总条数。"
+        }
+      },
+      "description": "分页信息。"
+    },
+    "AIMSendTaskSmsChannel": {
+      "properties": {
+        "channel_number": {
+          "type": "string",
+          "example": "600000000",
+          "description": "短信通道号。\n\n> 预留字段,暂时为空。\n"
+        },
+        "sms_tpl_id": {
+          "type": "string",
+          "example": "6000002",
+          "description": "短信模板ID。"
+        },
+        "sms_sign": {
+          "type": "string",
+          "example": "华为云",
+          "description": "短信签名。"
+        },
+        "sms_app_name": {
+          "type": "string",
+          "example": "APaas",
+          "description": "短信应用名称。\n\n> 预留字段,暂时为空。\n"
+        }
+      },
+      "description": "查询智能信息发送任务响应体。"
+    },
+    "AimErrorMsg": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "结果状态码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "结果详情。"
+        },
+        "error_message": {
+          "description": "结果详情。\n\n> 该字段在以后可能会废弃,建议使用error_msg字段对接。\n"
+        }
+      },
+      "description": "错误模型。"
+    },
+    "ListAimSendTasksRsp": {
+      "properties": {
+        "aim_send_tasks": {
+          "type": "array",
+          "description": "短信记录查询结果列表。",
+          "items": {
+            "$ref": "#/definitions/AIMSendTasksMode"
+          },
+          "maxItems": 100
+        },
+        "page_info": {
+          "description": "分页信息。",
+          "$ref": "#/definitions/Page"
+        }
+      },
+      "description": "查询智能信息发送任务列表响应。"
+    },
+    "AIMResolveTaskMode": {
+      "properties": {
+        "tpl_id": {
+          "type": "string",
+          "example": "600000000",
+          "description": "智能信息模板ID,由9位数字组成。"
+        },
+        "resolve_times": {
+          "type": "integer",
+          "example": 10000,
+          "description": "短链的最大解析次数。"
+        },
+        "aim_code_type": {
+          "type": "string",
+          "example": "group",
+          "description": "智能信息编码类型。\n- group:群发\n- individual:个性化\n"
+        },
+        "domain": {
+          "type": "string",
+          "example": "km2n.cn",
+          "description": "自定义短链域名,由大小写字母和数字组成的二级域名。",
+          "pattern": "[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\\.?"
+        },
+        "expiration_time": {
+          "type": "integer",
+          "example": 7,
+          "description": "失效时间(天)。"
+        },
+        "params": {
+          "type": "array",
+          "description": "短链解析详情列表。一次请求最多100个短链。",
+          "items": {
+            "$ref": "#/definitions/ResolveTaskParam"
+          },
+          "maxItems": 100
+        }
+      },
+      "description": "查询发送任务短链请求信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koomessage.myhuaweicloud.cn",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

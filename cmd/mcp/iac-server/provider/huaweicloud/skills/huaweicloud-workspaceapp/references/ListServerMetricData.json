@@ -1,0 +1,494 @@
+{
+  "name": "ListServerMetricData",
+  "summary": "查询指定时间范围指定指标的指定粒度的监控数据",
+  "tags": "服务器管理",
+  "productshort": "WorkspaceApp",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/app-servers/server-metric-data/{server_id}": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "查询指定时间范围指定指标的指定粒度的监控数据",
+        "description": "查询指定时间范围指定指标的指定粒度的监控数据,可以通过参数指定需要查询的数据维度。",
+        "operationId": "ListServerMetricData",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 2147483647,
+            "minLength": 1,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目唯一标识。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "server_id",
+            "in": "path",
+            "description": "服务器唯一标识。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "description": "服务的命名空间:例如 \"SYS.ECS/AGT.ECS\",当namespace为AGT.ECS,则查询GPU监控指标:  - SYS.ECS:弹性云服务器的基础监控指标。  - AGT.ECS:弹性云服务器操作系统监控的监控指标(GPU指标)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 3,
+            "pattern": "^(SYS.ECS|AGT.ECS)?$"
+          },
+          {
+            "name": "metric_name",
+            "in": "query",
+            "description": "监控查询指标名称:  - SYS.ECS命名空间的指标名称,请参考帮助文档:“[弹性云服务器支持的基础监控指标](https://support.huaweicloud.com/usermanual-ecs/ecs_03_1002.html)”。  - AGT.ECS命名空间的指标名称,请参考帮助文档:“[操作系统监控指标:GPU](https://support.huaweicloud.com/usermanual-ecs/ecs_03_1003.html#section11)”。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "查询数据起始时间,UNIX时间戳,单位毫秒。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": 1691671739879
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "查询数据截止时间UNIX时间戳,单位毫秒。from必须小于to。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": 1691671739879
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "description": "监控数据粒度。 取值范围:  - 1: 实时数据。  - 300: 5分钟粒度。  - 1200: 20分钟粒度。  - 3600: 1小时粒度。  - 14400: 4小时粒度。  - 86400: 1天粒度。",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 300
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "数据聚合方式,支持的聚合方式如下:  - average:聚合周期内指标数据的平均值。  - max:聚合周期内指标数据的最大值。  - min:聚合周期内指标数据的最小值。  - sum:聚合周期内指标数据的求和值。  - variance:聚合周期内指标数据的方差。",
+            "required": true,
+            "type": "string",
+            "pattern": "^(average|max|min|sum|variance)?$",
+            "x-example": "average"
+          }
+        ],
+        "security": [
+          {
+            "apig-auth-iam-used-authn5": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "examples": {
+              "application/json": {
+                "server_metrics": [
+                  {
+                    "datapoints": [
+                      {
+                        "average": 0.23,
+                        "timestamp": 1442341200000,
+                        "unit": "%"
+                      }
+                    ],
+                    "metric_name": "gpu_usage_encoder",
+                    "dimension_value": "2e84018fc8b4484b94e89aae212fe615"
+                  },
+                  {
+                    "datapoints": [
+                      {
+                        "average": 0.23,
+                        "timestamp": 1442341200000,
+                        "unit": "%"
+                      }
+                    ],
+                    "metric_name": "gpu_usage_encoder",
+                    "dimension_value": "7784018fc8b4484b94e89aae212fe455"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListServerMetricDataResp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BadRequestErrorResp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedErrorResp"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/ForbiddenErrorResp"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/NotFoundErrorResp"
+            }
+          },
+          "405": {
+            "description": "请求中指定的方法不被允许。",
+            "schema": {
+              "$ref": "#/definitions/MethodNotAllowedErrorResp"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerErrorResp"
+            }
+          },
+          "503": {
+            "description": "服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/ServiceUnavailableErrorResp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET /v1/a4da8115c9d8464ead3a38309130523f/app-servers/server-metric-data/8115c9d8464ead3a38309130?namespace=AGT.ECS&metric_name=cpu_util&from=1691671739879&to=1691671739872&period=1&filter=average",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-ratelimit": "workspace_default_get",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "internal,public",
+        "x-apigateway-backend": {
+          "type": "HTTP-VPC",
+          "httpVpcEndpoints": {
+            "name": "wks-apsmanager-lb",
+            "description": "",
+            "method": "get",
+            "path": "/v1/{project_id}/app-servers/server-metric-data/{server_id}",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-Auth-Token",
+              "value": "X-Auth-Token",
+              "description": "请求头。",
+              "origin": "request"
+            },
+            {
+              "in": "path",
+              "name": "project_id",
+              "value": "project_id",
+              "description": "租户id。",
+              "origin": "request"
+            },
+            {
+              "in": "path",
+              "name": "server_id",
+              "value": "server_id",
+              "description": "服务器id。",
+              "origin": "request"
+            },
+            {
+              "in": "query",
+              "name": "namespace",
+              "value": "namespace",
+              "description": "服务的命名空间。",
+              "origin": "request"
+            },
+            {
+              "in": "query",
+              "name": "metric_name",
+              "value": "metric_name",
+              "description": "指标名称。",
+              "origin": "request"
+            },
+            {
+              "in": "query",
+              "name": "from",
+              "value": "from",
+              "description": "查询数据起始时间,UNIX时间戳,单位毫秒。",
+              "origin": "request"
+            },
+            {
+              "in": "query",
+              "name": "to",
+              "value": "to",
+              "description": "查询数据截止时间UNIX时间戳,单位毫秒。from必须小于to。",
+              "origin": "request"
+            },
+            {
+              "in": "query",
+              "name": "period",
+              "value": "period",
+              "description": "监控数据粒度。",
+              "origin": "request"
+            },
+            {
+              "in": "query",
+              "name": "filter",
+              "value": "filter",
+              "description": "数据聚合方式。",
+              "origin": "request"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ServerDataPoints": {
+      "properties": {
+        "average": {
+          "type": "number",
+          "format": "double",
+          "example": 10.740412979351031,
+          "description": "聚合周期内指标数据的平均值。",
+          "readOnly": true
+        },
+        "max": {
+          "type": "number",
+          "format": "double",
+          "example": 10.740412979351031,
+          "description": "聚合周期内指标数据的最大值。",
+          "readOnly": true
+        },
+        "min": {
+          "type": "number",
+          "format": "double",
+          "example": 10.740412979351031,
+          "description": "聚合周期内指标数据的最小值。",
+          "readOnly": true
+        },
+        "sum": {
+          "type": "number",
+          "format": "double",
+          "example": 10.740412979351031,
+          "description": "聚合周期内指标数据的求和值。",
+          "readOnly": true
+        },
+        "variance": {
+          "type": "number",
+          "format": "double",
+          "example": 10.740412979351031,
+          "description": "聚合周期内指标数据的方差。",
+          "readOnly": true
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1655986862000,
+          "description": "指标采集时间,UNIX时间戳,单位毫秒。",
+          "readOnly": true
+        },
+        "unit": {
+          "type": "string",
+          "example": "%",
+          "description": "指标单位。",
+          "readOnly": true
+        }
+      },
+      "description": "指标数据结构。"
+    },
+    "ServerMetricData": {
+      "properties": {
+        "metric_name": {
+          "type": "string",
+          "example": "cpu_util",
+          "description": "监控指标名称。",
+          "readOnly": true
+        },
+        "datapoints": {
+          "type": "array",
+          "description": "指标数据列表。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/ServerDataPoints"
+          }
+        },
+        "dimension_value": {
+          "type": "string",
+          "example": "2e84018fc8b4484b94e89aae212fe615",
+          "description": "维度值,仅查询GPU监控信息时有值。",
+          "readOnly": true
+        }
+      },
+      "description": "监控信息。"
+    },
+    "InternalServerErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211401",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The requested operation failed. Please try again later.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ServiceUnavailableErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00050902",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The service is now unavailable to process the request.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ForbiddenErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00081102",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "User does not have permission to access this resource.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "UnauthorizedErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211302",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "User authorization error.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "NotFoundErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211902",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The application does not exist",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "MethodNotAllowedErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00000405",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The method specified in the request is not allowed for this resource.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ListServerMetricDataResp": {
+      "properties": {
+        "server_metrics": {
+          "type": "array",
+          "description": "监控数据。",
+          "items": {
+            "$ref": "#/definitions/ServerMetricData"
+          }
+        }
+      },
+      "description": "监控信息集合,GPU服务器可能会有多个显卡的情况。"
+    },
+    "BadRequestErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211102",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The parameter is invalid.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

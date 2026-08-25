@@ -1,0 +1,275 @@
+{
+  "name": "UpdateCacheRules",
+  "summary": "设置缓存规则",
+  "tags": "域名配置",
+  "productshort": "CDN",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1.0/cdn/domains/{domain_id}/cache": {
+      "put": {
+        "deprecated": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "description": "设置CDN节点上缓存资源的缓存策略。",
+        "summary": "设置缓存规则",
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "description": "加速域名ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "当用户开启企业项目功能时,该参数生效,表示修改当前企业项目下加速域名的配置,\"all\"代表所有项目。注意:当使用子帐号调用接口时,该参数必传。\n\n您可以通过调用企业项目管理服务(EPS)的查询企业项目列表接口(ListEnterpriseProject)查询企业项目id。",
+            "type": "string"
+          },
+          {
+            "name": "cache_config",
+            "in": "body",
+            "description": "This is a auto create Body Object\n",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CacheConfigRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "cache_config": {
+                  "rules": [
+                    {
+                      "rule_type": 1,
+                      "content": ".jpg;.png",
+                      "ttl": 30,
+                      "ttl_type": 3,
+                      "priority": 1
+                    },
+                    {
+                      "rule_type": 0,
+                      "content": "",
+                      "ttl": 600,
+                      "ttl_type": 1,
+                      "priority": 1
+                    }
+                  ],
+                  "ignore_url_parameter": false,
+                  "follow_origin": false,
+                  "compress": {
+                    "compress_switch": 1,
+                    "compress_rules": [
+                      {
+                        "compress_type": "gzip",
+                        "compress_file_type": ".js|.html|.css|.xml|.json|.shtml|.htm"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CacheConfigBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "PUT https://cdn.myhuaweicloud.com/v1.0/cdn/domains/ff808***********************2d71/cache?enterprise_project_id=0",
+        "x-request-examples-1": {
+          "cache_config": {
+            "ignore_url_parameter": false,
+            "follow_origin": false,
+            "compress": {
+              "compress_switch": 1
+            },
+            "rules": [
+              {
+                "rule_type": 1,
+                "content": ".jpg;.png",
+                "ttl": 30,
+                "ttl_type": 3,
+                "priority": 1
+              }
+            ]
+          }
+        },
+        "operationId": "UpdateCacheRules",
+        "tags": [
+          "域名配置"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "CompressRules": {
+      "properties": {
+        "compress_type": {
+          "type": "string",
+          "description": "GZIP压缩类型(目前只支持 gzip)"
+        },
+        "compress_file_type": {
+          "type": "string",
+          "description": "GZIP压缩文件类型(文件后缀竖线分割,如:.js|.html|.css|.xml)"
+        }
+      }
+    },
+    "CacheConfigRequestBody": {
+      "description": "This is a auto create Body Object",
+      "required": [
+        "cache_config"
+      ],
+      "properties": {
+        "cache_config": {
+          "description": "缓存配置。",
+          "$ref": "#/definitions/CacheConfigRequest"
+        }
+      }
+    },
+    "CompressResponse": {
+      "required": [
+        "compress_switch"
+      ],
+      "properties": {
+        "compress_switch": {
+          "type": "integer",
+          "format": "int32",
+          "description": "GZIP压缩开关。0关闭。1打开"
+        },
+        "compress_rules": {
+          "type": "array",
+          "description": "GZIP压缩规则",
+          "items": {
+            "$ref": "#/definitions/CompressRules"
+          }
+        }
+      }
+    },
+    "CacheConfig": {
+      "properties": {
+        "ignore_url_parameter": {
+          "type": "boolean",
+          "description": "是否忽略url中的参数。"
+        },
+        "follow_origin": {
+          "type": "boolean",
+          "description": "缓存规则是否遵循源站。"
+        },
+        "compress": {
+          "description": "GZIP压缩。",
+          "$ref": "#/definitions/CompressResponse"
+        },
+        "rules": {
+          "type": "array",
+          "description": "缓存规则,将覆盖之前的规则配置。规则为空重置为默认规则。",
+          "maxItems": 20,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Rules"
+          }
+        }
+      }
+    },
+    "CacheConfigBody": {
+      "description": "This is a auto create Body Object",
+      "required": [
+        "cache_config"
+      ],
+      "properties": {
+        "cache_config": {
+          "description": "缓存配置。",
+          "$ref": "#/definitions/CacheConfig"
+        }
+      }
+    },
+    "Rules": {
+      "required": [
+        "rule_type",
+        "ttl",
+        "ttl_type",
+        "priority"
+      ],
+      "properties": {
+        "rule_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "0:全部类型,表示匹配所有文件,默认值。  1:文件类型,表示按文件后缀匹配。  2:文件夹类型,表示按目录匹配。  3:文件全路径类型,表示按文件全路径匹配。 5:缓存首页。"
+        },
+        "content": {
+          "type": "string",
+          "description": "缓存匹配设置。  当rule_type为0时,为空。 \n当rule_type为1时,为文件后缀,输入首字符为“.”,以“;”进行分隔,如.jpg;.zip;.exe,并且输入的文件名后缀总数不超过20个。\n当rule_type为2时,为目录,输入要求以“/”作为首字符,以“;”进行分隔,如/test/folder01;/test/folder02,并且输入的目录路径总数不超过20个。\n当rule_type为3时,为全路径,输入要求以“/”作为首字符,支持匹配指定目录下的具体文件,或者带通配符“\\*”的文件,如/test/index.html或/test/\\*.jpg。"
+        },
+        "ttl": {
+          "type": "integer",
+          "format": "int32",
+          "description": "缓存时间。最大支持365天。"
+        },
+        "ttl_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "缓存时间单位。1:秒;2:分;3:小时;4:天。"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32",
+          "description": "此条配置的优先级, 默认值1,数值越大,优先级越高。取值范围为1-100,优先级不能相同。"
+        }
+      }
+    },
+    "CacheConfigRequest": {
+      "properties": {
+        "ignore_url_parameter": {
+          "type": "boolean",
+          "description": "是否忽略url中的参数。"
+        },
+        "follow_origin": {
+          "type": "boolean",
+          "description": "缓存规则是否遵循源站。"
+        },
+        "compress": {
+          "description": "GZIP压缩。",
+          "$ref": "#/definitions/CompressRequest"
+        },
+        "rules": {
+          "type": "array",
+          "description": "缓存规则,将覆盖之前的规则配置。规则为空重置为默认规则。",
+          "maxItems": 20,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Rules"
+          }
+        }
+      }
+    },
+    "CompressRequest": {
+      "properties": {
+        "compress_switch": {
+          "type": "integer",
+          "format": "int32",
+          "description": "GZIP压缩开关。0关闭。1打开。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cdn.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

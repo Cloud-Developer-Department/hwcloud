@@ -1,0 +1,213 @@
+{
+  "name": "BatchImportCloudPhoneData",
+  "summary": "恢复云手机数据",
+  "tags": "手机实例管理",
+  "productshort": "CPH",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/{project_id}/cloud-phone/phones/batch-restore": {
+      "post": {
+        "x-order": 11,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk,cmcc,fcs,ctc",
+        "x-apiexplorer-hide": false,
+        "x-source": "SelfDeveloped",
+        "x-is-registered": "Y",
+        "x-first-open-time": "2019-3-30",
+        "x-publishpath": "cph_api_0539",
+        "x-hybridcloud": false,
+        "x-request-examples-url-1": "POST https://{CPH Endpoint}/v1/{project_id}/cloud-phone/phones/batch-restore",
+        "x-request-examples-description-1": "将数据从obs桶恢复到云机",
+        "x-request-examples-text-1": {
+          "restore_infos": [
+            {
+              "phone_id": "1234567b8bab40ffb711234cb80d0234",
+              "bucket_name": "mybucket",
+              "object_path": "myimage/v1/xxxx.tar"
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "restore_infos": [
+            {
+              "phone_id": "1234567b8bab40ffb711234cb80d0234",
+              "bucket_name": "mybucket",
+              "object_path": "myimage/v1/xxxx.tar"
+            }
+          ]
+        },
+        "operationId": "BatchImportCloudPhoneData",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "request_id": "6837531fd3f54550927b930180a706bf",
+                "jobs": [
+                  {
+                    "phone_id": "1234567b8bab40ffb711234cb80d0234",
+                    "job_id": "1564567b8bab40f34711234cb80d0123"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchImportCloudPhoneDataResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "BatchImportCloudPhoneDataRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "导入数据请求体",
+            "schema": {
+              "$ref": "#/definitions/BatchImportCloudPhoneDataRequestBody"
+            }
+          }
+        ],
+        "tags": [
+          "手机实例管理"
+        ],
+        "summary": "恢复云手机数据",
+        "description": "批量恢复数据到云手机中。该接口为异步接口。接口调用前请先确保已完成CPH服务操作OBS桶的委托授权。委托CPH操作OBS桶请参见[委托CPH操作OBS桶](https://support.huaweicloud.com/bestpractice-cph/cph_bp_0050.html)。\n\n高版本手机导出的数据无法在低版本手机内恢复。低版本手机导出的数据可以在高版本手机内恢复,但可能会在极少数场景下有不兼容的风险。因此推荐您在同版本手机间进行导出与恢复。\n\n手机在运行状态会有数据缓存,直接运行恢复的文件可能带来访问失败、应用崩溃等现象,建议在还原成功后重启手机,以保证云手机稳定运行。"
+      }
+    }
+  },
+  "definitions": {
+    "PhoneJob": {
+      "type": "object",
+      "description": "云手机任务。",
+      "properties": {
+        "phone_id": {
+          "type": "string",
+          "description": "云手机的唯一标识ID,云手机相关任务包含此字段。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务的唯一标识。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误说明。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "RestoreInfo": {
+      "type": "object",
+      "description": "待重建数据的云手机信息。",
+      "required": [
+        "phone_id",
+        "bucket_name",
+        "object_path"
+      ],
+      "properties": {
+        "phone_id": {
+          "type": "string",
+          "description": "云手机ID。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "bucket_name": {
+          "type": "string",
+          "description": "导出数据存储的OBS桶名。\n合法的OBS桶名,3-63个字符,只能由小写字母、数字、中划线(-)和小数点(.)组成。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "object_path": {
+          "type": "string",
+          "description": "导出数据存储的OBS路径名。\n符合OBS的路径名规范,最大长度1024字符。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "BatchImportCloudPhoneDataRequestBody": {
+      "required": [
+        "restore_infos"
+      ],
+      "properties": {
+        "restore_infos": {
+          "items": {
+            "$ref": "#/definitions/RestoreInfo"
+          },
+          "description": "待导入数据的云手机信息。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 8096
+        }
+      },
+      "type": "object",
+      "description": "导入云手机数据请求体。"
+    },
+    "BatchImportCloudPhoneDataResponseBody": {
+      "type": "object",
+      "description": "批量导入云手机数据响应体。",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "description": "请求的唯一标识ID。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "jobs": {
+          "items": {
+            "$ref": "#/definitions/PhoneJob"
+          },
+          "description": "任务信息。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 8096
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目id。",
+      "type": "string",
+      "minLength": 32,
+      "maxLength": 32
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 8096
+    }
+  },
+  "host": "cph.ap-southeast-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

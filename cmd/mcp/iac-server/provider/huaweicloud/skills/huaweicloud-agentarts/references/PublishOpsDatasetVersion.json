@@ -1,0 +1,222 @@
+{
+  "name": "PublishOpsDatasetVersion",
+  "summary": "发布评测集版本",
+  "tags": "评测集管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/ops/datasets/{dataset_id}/versions": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "发布评测集版本",
+        "description": "该接口用于将当前处于草稿状态的数据内容固化,生成一个不可变的历史快照版本,并分配唯一版本ID以确保数据在后续调用中的可追溯性。\n适用场景:\n- 版本固化:在完成评测集条目的增删改等一系列调整后,通过发布版本将当前数据状态锁定。\n- 评测任务关联:为模型评测或训练任务提供一个静态的数据输入源,防止因草稿内容变动导致实验结果不可复现。",
+        "operationId": "PublishOpsDatasetVersion",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "description": "**参数解释:**\n评测集的唯一标识符(ID)\n**约束限制:**\n由英文、数字、“-”、“_”组成,长度为1到64个字符。\n**取值范围:**\n由英文、数字、连字符(-)、下划线(_)组成的1-64位字符串。\n**默认取值:**\n无。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "in": "body",
+            "name": "PublishOpsDatasetVersionRequestBody",
+            "description": "**参数解释:**\n发布评测集版本的请求主体。用于将当前的草稿状态或指定数据状态正式固化为一个不可变的历史版本,通常包含版本号、版本说明等元数据。\n**约束限制:**\n符合JSON格式规范。\n**取值范围:**\n符合评测集版本发布规范的JSON对象。\n**默认取值:**\n不涉及。",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/PublishOpsDatasetVersionRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "发布成功",
+            "examples": {
+              "application/json": {
+                "id": "550e8400-e29b-41d4-a716-446655440001",
+                "version": "v1",
+                "version_num": 1,
+                "description": "初始版本",
+                "item_count": 100,
+                "schema_snapshot": [
+                  {
+                    "id": "550e8400-e29b-41d4-a716-446655440000",
+                    "name": "input",
+                    "type": "String",
+                    "description": "用户输入内容",
+                    "is_required": true
+                  }
+                ],
+                "created_at": "2024-01-15T10:30:00Z"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/OpsVersionDetail"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://*.com/agentarts/v1/ops/datasets/dcacda233/versions",
+        "x-request-examples-description-1": "发布评测集",
+        "x-request-examples-text-1": "\n{\n  \"description\": \"修复了数据质量问题,新增100条测试用例\",\n  \"version_name\": \"string\"\n}\n",
+        "x-request-examples-1": "\n{\n  \"description\": \"修复了数据质量问题,新增100条测试用例\",\n  \"version_name\": \"string\"\n}\n",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-open-api": true,
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L4"
+      }
+    }
+  },
+  "definitions": {
+    "OpsVersionDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "550e8400-e29b-41d4-a716-446655440001",
+          "description": "**参数解释:**\n版本的内部唯一标识符。\n**取值范围:**\n符合通用唯一识别码(UUID)标准的字符串。",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "version": {
+          "type": "string",
+          "example": "v1",
+          "description": "**参数解释:**\n发布的版本显示名称。\n**取值范围:**\n自定义字符串。",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "version_num": {
+          "type": "integer",
+          "example": 1,
+          "description": "**参数解释:**\n系统生成的递增版本序号。\n**取值范围:**\n0到2147483647。",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "description": {
+          "type": "string",
+          "example": "初始版本",
+          "description": "**参数解释:**\n该版本的详细备注说明。\n**取值范围:**\n任意字符串。",
+          "minLength": 0,
+          "maxLength": 10000
+        },
+        "item_count": {
+          "type": "integer",
+          "example": 100,
+          "description": "**参数解释:**\n该版本快照中包含的数据条目总数。\n**取值范围:**\n0到2147483647。",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "schema_snapshot": {
+          "type": "array",
+          "description": "**参数解释:**\n发布该版本时的数据结构定义快照。\n**取值范围:**\nOpsSchemaInfo 对象列表。",
+          "items": {
+            "$ref": "#/definitions/OpsSchemaInfo"
+          },
+          "maxItems": 10000,
+          "minItems": 0
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-15T10:30:00Z",
+          "description": "**参数解释:**\n版本的正式发布时间。\n**取值范围:**\nUTC 时间字符串。"
+        }
+      },
+      "description": "**参数解释:**\n特定版本的详细信息快照。\n**取值范围:**\n不涉及。"
+    },
+    "PublishOpsDatasetVersionRequestBody": {
+      "type": "object",
+      "required": [
+        "version_name"
+      ],
+      "properties": {
+        "version_name": {
+          "type": "string",
+          "example": "v1.0",
+          "description": "**参数解释:**\n用户定义的版本标签或编号。\n**约束限制:**\n建议长度不超过 100 字符。\n**取值范围:**\n字符串,如 \"v1.0\"、\"20240413_test\"。\n**默认取值:**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "example": "修复了数据质量问题",
+          "description": "**参数解释:**\n该版本的变更摘要或备注信息。\n**约束限制:**\n可选参数;长度0到200字符。\n**取值范围:**\n中英文及常见符号。\n**默认取值:**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 200
+        }
+      },
+      "description": "**参数解释:**\n发布评测集新版本的请求体。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+    },
+    "OpsSchemaInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "550e8400-e29b-41d4-a716-446655440000",
+          "description": "**参数解释:**\n字段的唯一标识符。\n**取值范围:**\n符合通用唯一识别码(UUID)标准的字符串。",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "name": {
+          "type": "string",
+          "example": "input",
+          "description": "**参数解释:**\n字段的键名(Key),用于在数据条目中作为属性名。\n**取值范围:**\n建议符合变量命名规范的字符串。",
+          "minLength": 0,
+          "maxLength": 10000
+        },
+        "type": {
+          "type": "string",
+          "example": "String",
+          "description": "**参数解释:**\n字段的数据类型,定义数据的存储和解析方式。\n**取值范围:**\n支持String, Integer, Float, Boolean, Object, Array<String>,Array<Integer>,Array<Float>,Array<Boolean>,Array<Object> 以及Trajectory。",
+          "enum": [
+            "String",
+            "Integer",
+            "Float",
+            "Boolean",
+            "Object",
+            "Array<String>",
+            "Array<Integer>",
+            "Array<Float>",
+            "Array<Boolean>",
+            "Array<Object>",
+            "Trajectory"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "example": "用户输入内容",
+          "description": "**参数解释:**\n对该字段业务含义或用途的详细文字说明。\n**取值范围:**\n描述字段的业务含义或用途的文本,最大长度10000字符。",
+          "minLength": 0,
+          "maxLength": 10000
+        },
+        "is_required": {
+          "type": "boolean",
+          "example": true,
+          "description": "**参数解释:**\n标识该字段在数据条目中是否为必须存在的必填项。\n**取值范围:**\n- true:必填\n- false:选填"
+        }
+      },
+      "description": "**参数解释:**\n评测集的Schema字段信息定义。\n**取值范围:**\n不涉及。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

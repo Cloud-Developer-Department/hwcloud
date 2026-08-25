@@ -1,0 +1,298 @@
+{
+  "name": "CheckGrowCluster",
+  "summary": "集群扩容前检查",
+  "tags": "节点变更",
+  "productshort": "DWS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/clusters/{cluster_id}/grow-check": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-scope": "Commercial",
+        "x-hc": "Y",
+        "x-support-sdk": "Y",
+        "description": "集群扩容前检查,提前识别子网不足、权限不足等问题导致的扩容失败。",
+        "x-ctc": "Y",
+        "x-hk": "Y",
+        "operationId": "CheckGrowCluster",
+        "summary": "集群扩容前检查",
+        "x-tlf": "Y",
+        "x-obc": "Y",
+        "tags": [
+          "节点变更"
+        ],
+        "x-name": "扩容集群前检查",
+        "x-otc": "Y",
+        "x-request-examples-description-1": "扩容集群新增3节点,检查是否存在配额或权限等问题。",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v2/89cd04f168b84af6be287f71730fdb4b/clusters/4ca46bf1-5c61-48ff-b4f3-0ad4e5e3ba90/grow-check",
+        "x-request-examples-1": {
+          "scale_out": {
+            "count": 3
+          }
+        },
+        "x-request-examples-text-1": {
+          "scale_out": {
+            "count": 3
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "请求下发成功。",
+            "examples": {
+              "application/json": {
+                "note": {
+                  "bucket_split_info": {
+                    "current_dn_num": 6,
+                    "after_scale_out_bucket_num": 32,
+                    "is_bucket_split": false,
+                    "after_scale_out_dn_num": 9,
+                    "bucket_tilt_rate": "16.67%",
+                    "after_scale_out_bucket_tilt_rate": "25.00%"
+                  }
+                },
+                "data": [
+                  {
+                    "pass": false,
+                    "reason": "子网IP超过配额:需要量 3,使用量 249 / 251",
+                    "required": true,
+                    "desc": "子网IP检查",
+                    "type": "配额"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/GrowCheckResponse"
+            }
+          },
+          "400": {
+            "description": "请求错误。"
+          },
+          "401": {
+            "description": "鉴权失败。"
+          },
+          "403": {
+            "description": "没有操作权限。"
+          },
+          "404": {
+            "description": "找不到资源。"
+          },
+          "500": {
+            "description": "服务内部错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cluster_id",
+            "description": "**参数解释**:\n集群ID。获取方法请参见[获取集群ID](dws_02_00068.xml)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "type": "string",
+            "required": true,
+            "x-order": 2,
+            "minLength": 32,
+            "maxLength": 64
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "**参数解释**:\n项目ID。获取方法请参见[获取项目ID](dws_02_0011.xml)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "type": "string",
+            "required": true,
+            "x-order": 1,
+            "minLength": 32,
+            "maxLength": 64
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ResizeClusterRequestBody"
+            },
+            "in": "body",
+            "name": "CheckGrowClusterRequestBody",
+            "description": "**参数解释**:\n扩容/添加空闲节点操作请求体。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "required": true
+          }
+        ],
+        "x-order": 10
+      }
+    }
+  },
+  "definitions": {
+    "GrowCheckResponse": {
+      "type": "object",
+      "description": "**参数解释**:\n扩容前检查响应体。\n**取值范围**:\n不涉及。",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GrowCheckResult"
+          },
+          "description": "**参数解释**:\n扩容前检查信息。\n**取值范围**:\n不涉及。"
+        },
+        "note": {
+          "description": "**参数解释**:\n扩容前提示信息。\n**取值范围**\n不涉及。",
+          "$ref": "#/definitions/NoteInfo"
+        }
+      }
+    },
+    "ScaleOut": {
+      "description": "**参数解释**:\n扩容集群详情。\n**取值范围**:\n不涉及。",
+      "properties": {
+        "count": {
+          "format": "int32",
+          "description": "**参数解释**:\n扩容节点数。\n**取值范围**:\n大于等于3。",
+          "type": "integer",
+          "example": 3
+        },
+        "subnet_id": {
+          "description": "**参数解释**:\n子网ID。\n**取值范围**:\n同VPC下有效的子网ID。",
+          "type": "string"
+        }
+      },
+      "required": [
+        "count"
+      ]
+    },
+    "RedisConfReq": {
+      "type": "object",
+      "description": "重分布配置请求信息",
+      "properties": {
+        "redis_mode": {
+          "description": "**参数解释**:\n重分布模式,不同模式对业务影响不同,修改建议联系运维人员评估后再决定。\n**约束限制**:\n必须是有效的dws集群ID。\n**取值范围**:\nonline或offLine:在线模式。\noffline或offLine:离线模式。\n**默认取值**:\noffLine",
+          "type": "string"
+        },
+        "parallel_jobs": {
+          "description": "**参数解释**:\n并行作业数量,默认4。\n**约束限制**:\n不涉及。\n**取值范围**:\n1~200\n**默认取值**:\n4",
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "redis_mode",
+        "parallel_jobs"
+      ]
+    },
+    "BucketSplitInfo": {
+      "type": "object",
+      "description": "**参数解释**:\n桶分裂信息,仅在从集群外部扩容到已有的逻辑集群场景下才会返回。\n**取值范围**:\n不涉及。",
+      "properties": {
+        "current_dn_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n当前DN数。\n**取值范围**:\n不涉及。"
+        },
+        "after_scale_out_dn_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n扩容后DN数。\n**取值范围**:\n不涉及。"
+        },
+        "current_bucket_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n当前bucket数。\n**取值范围**:\n不涉及。"
+        },
+        "after_scale_out_bucket_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n扩容后bucket数。\n**取值范围**:\n不涉及。"
+        },
+        "is_bucket_split": {
+          "type": "boolean",
+          "description": "**参数解释**:\n扩容是否涉及bucket分裂。\n**取值范围**:\n不涉及。"
+        },
+        "bucket_tilt_rate": {
+          "type": "string",
+          "description": "**参数解释**:\nbucket DN倾斜率,用于衡量bucket在DN节点上不均衡程度。\n**取值范围**:\n不涉及。"
+        },
+        "after_scale_out_bucket_tilt_rate": {
+          "type": "string",
+          "description": "**参数解释**:\n扩容后 bucket DN倾斜率,用于衡量扩容后bucket在DN节点上不均衡程度。\n**取值范围**:\n不涉及。"
+        }
+      }
+    },
+    "NoteInfo": {
+      "type": "object",
+      "description": "**参数解释**:\n扩容前提示信息。\n**取值范围**\n不涉及。",
+      "properties": {
+        "bucket_split_info": {
+          "description": "**参数解释**:\n桶分裂信息,仅在从集群外部扩容到已有的逻辑集群场景下才会返回。\n**取值范围**:\n不涉及。",
+          "$ref": "#/definitions/BucketSplitInfo"
+        }
+      }
+    },
+    "ResizeClusterRequestBody": {
+      "description": "**参数解释**:\n扩容/添加空闲节点操作请求体。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "scale_out": {
+          "description": "**参数解释**:\n扩容/添加空闲节点操作,节点信息请求体。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "$ref": "#/definitions/ScaleOut"
+        },
+        "logical_cluster_name": {
+          "type": "string",
+          "description": "**参数解释**:\n逻辑集群名字,扩容到逻辑集群时,需要填写。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+        },
+        "create_node_only": {
+          "type": "boolean",
+          "description": "**参数解释**:\n当前是否仅添加空闲节点。\n**约束限制**:\n不涉及。\n**取值范围**:\ntrue:仅添加节点,如需扩容则需要单独操作\nfalse:添加节点并扩容集群\n**默认取值**:\nfalse"
+        },
+        "waiting_for_killing": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n自动查杀作业等待时间。\n**约束限制**:\nguestAgent插件版本8.2.1及以上才支持。\n**取值范围**:\n30~1200\n**默认取值**:\n0,即不限制。"
+        },
+        "auto_redistribute": {
+          "type": "boolean",
+          "description": "**参数解释**:\n扩容完成后是否自动启动重分布,默认是。如果设置为false,扩容后不进行重分布,此时集群任务信息处于“待重分布”状态,无法进行其他操作。\n**约束限制**:\n不涉及。\n**取值范围**:\n- true:扩容后立即重分布。\n- false:扩容后不进行重分布,此时集群任务信息处于“待重分布”状态。\n\n**默认取值**:\ntrue"
+        },
+        "mode": {
+          "type": "string",
+          "description": "**参数解释**:\n扩容模式,分为在线和离线。在线扩容过程中,支持数据增删改查及部分DDL语法,其余不支持的语法将会报错。在线扩容对业务影响更小,离线模式存在短暂的中断,数据库不可用。\n**约束限制**:\n不涉及。\n**取值范围**:\n- insert:在线模式。\n- read-only:离线模式。\n\n**默认取值**:\nread-only"
+        },
+        "redis_conf": {
+          "description": "**参数解释**:\n重分布配置,默认离线模式。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "$ref": "#/definitions/RedisConfReq"
+        }
+      },
+      "type": "object",
+      "required": [
+        "scale_out"
+      ]
+    },
+    "GrowCheckResult": {
+      "type": "object",
+      "description": "**参数解释**:\n扩容前检查响应体。\n当请求header中x-language字段为zh_cn时返回中文描述、类型信息。\n当请求header中x-language字段为en_us时返回英文描述、类型信息。\n**取值范围**:\n不涉及。",
+      "properties": {
+        "pass": {
+          "type": "boolean",
+          "description": "**参数解释**:\n检查是否通过,检查通过项默认不展示。\n**取值范围**:\ntrue/false"
+        },
+        "reason": {
+          "type": "string",
+          "description": "**参数解释**:\n检查不通过的原因描述。\n**取值范围**:\n不涉及。"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否必须检查项。\n**取值范围**:\n- true:必须,校验不通过时不允许扩容,继续扩容也会失败\n- false:非必须,校验不通过时允许扩容,仅做提示告知风险"
+        },
+        "desc": {
+          "type": "string",
+          "description": "**参数解释**:\n描述信息。\n**取值范围**:\n不涉及。"
+        },
+        "type": {
+          "type": "string",
+          "description": "**参数解释**:\n分类。\n**取值范围**:\n配额、权限、版本、状态"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dws.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

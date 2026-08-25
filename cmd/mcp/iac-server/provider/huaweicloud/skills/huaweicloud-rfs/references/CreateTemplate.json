@@ -1,0 +1,303 @@
+{
+  "name": "CreateTemplate",
+  "summary": "创建模板",
+  "tags": "资源编排-模板管理",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/templates": {
+      "post": {
+        "tags": [
+          "Template Management"
+        ],
+        "summary": "创建模板",
+        "description": "创建模板(CreateTemplate)\n\n此API用于创建一个带有版本的模板\n\n  * 请求中必须包括template_uri或是template_body。前者为模板内容obs链接,后者为模板内容\n  * 模板管理名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的模板,删除,再重新创建一个同名模板\n  * 模板创建时,会自动生成模板版本号为V1的模板版本\n  * 模板必须存在一个或多个模板版本,即不存在没有模板版本的模板",
+        "operationId": "CreateTemplate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9-]{35,127}$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]{3,64}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "in": "body",
+            "name": "createTemplateRequestBody",
+            "description": "create-template request parameters",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTemplateRequestBody"
+            }
+          }
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建模板成功",
+            "examples": {
+              "application/json": {
+                "template_id": "69f8d5ea-eaa4-4a3b-a96d-bae9230e97c8",
+                "version_id": "V1"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateTemplateResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "409": {
+            "description": "创建冲突,同名的模板已经存在",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apigateway-backend": {
+          "httpVpcEndpoints": {
+            "description": "",
+            "name": "template",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "PATH",
+              "origin": "REQUEST",
+              "value": "project_id"
+            }
+          ],
+          "type": "HTTP-VPC"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-query-string-encode": "DISABLE",
+        "x-apigateway-request-type": "public",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/c364070ab35041ddae68cf8b4839b60f/templates",
+        "x-request-examples-description-1": "通过template_body传入Terraform模板创建模板",
+        "x-request-examples-1": {
+          "template_name": "huaweicloud_vpc_template",
+          "template_body": "terraform {\n  required_providers {\n    huaweicloud = {\n      source = \"huawei.com/provider/huaweicloud\"\n      version = \"1.41.0\"\n    }\n  }\n}\n\nprovider \"huaweicloud\" {\n  insecure = true\n  cloud = \"{cloud_name}\"\n  region = \"{region}\"\n  endpoints = {\n    iam = \"{iam_endpoint}\"\n  }\n}\n\nresource \"huaweicloud_vpc\" \"vpc\" {\n  cidr = \"172.16.0.0/16\"\n  name = \"my_vpc\"\n}"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/c364070ab35041ddae68cf8b4839b60f/templates",
+        "x-request-examples-description-2": "通过template_uri引用华为云OBS存储的模板文件创建模板",
+        "x-request-examples-2": {
+          "template_name": "huaweicloud_vpc_template_obs",
+          "template_uri": "https://{bucket_name}.{region}.myhuaweicloud.com/terraform-templates/vpc-base.tf"
+        },
+        "x-imports": [
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth;",
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta;",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel;",
+          "com.huawei.clouds.wushan.auth.IamAuthParam;",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta;"
+        ],
+        "x-method-annotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(abacAction = \"rf:privateTemplate:create\", authLevel = IamAuthLevel.INSTANCE, needAbacResourceCheck = true, needApigwJwtAuthCheck = true, authContextInitializerName = \"defaultIamAuthContextInitializer\")",
+          "@CtsMeta(resourceType = \"rf-template\", traceName = \"createTemplate\", operationId = \"CreateTemplate\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "CreateTemplateResponseBody": {
+      "type": "object",
+      "required": [
+        "template_id",
+        "version_id"
+      ],
+      "properties": {
+        "template_id": {
+          "type": "string",
+          "example": "69f8d5ea-eaa4-4a3b-a96d-bae9230e97c8",
+          "description": "模板的唯一ID,由模板服务随机生成",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9\\-]{36}$"
+        },
+        "version_id": {
+          "type": "string",
+          "example": "V1",
+          "description": "模板模板版本ID",
+          "minLength": 2,
+          "maxLength": 11,
+          "pattern": "^V[1-9][0-9]{0,9}$"
+        }
+      },
+      "description": "CreateTemplate API的返回体",
+      "example": {
+        "template_id": "69f8d5ea-eaa4-4a3b-a96d-bae9230e97c8",
+        "version_id": "V10"
+      }
+    },
+    "BaseTemplateBody": {
+      "type": "object",
+      "properties": {
+        "version_description": {
+          "type": "string",
+          "description": "模板版本的描述。可用于客户识别自己的模板版本",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "template_body": {
+          "type": "string",
+          "description": "HCL模板,描述了模板中使用的资源 template_body 和 template_uri 有且仅有一个存在"
+        },
+        "template_uri": {
+          "type": "string",
+          "description": "HCL模板的obs链接,该模板描述了资源的目标状态\n\n对应的文件应该是纯tf文件或zip压缩包\n\n纯tf文件需要以`.tf`或者`.tf.json`结尾,并遵守hcl语法\n\n压缩包目前只支持zip格式,文件需要以\".zip\"结尾。解压后的文件不得包含\".tfvars\"文件\n\ntemplate_body 和 template_uri 有且仅有一个存在",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(.tf|.tf.json|.zip){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "version_description": "version description",
+        "template_uri": "https://test.obs.cn-north-7.ulanqab.huawei.com/test.tf.json",
+        "graph_body": "Demo template graph body"
+      }
+    },
+    "CreateTemplateRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseTemplateBody"
+        },
+        {
+          "type": "object",
+          "required": [
+            "template_name"
+          ],
+          "properties": {
+            "template_name": {
+              "type": "string",
+              "description": "模板(Template)的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[\\一-\\龥A-Za-z][\\一-\\龥A-Za-z0-9_-]{0,127}$"
+            },
+            "template_description": {
+              "type": "string",
+              "description": "模板的描述。可用于客户识别自己的模板",
+              "minLength": 0,
+              "maxLength": 1024
+            }
+          },
+          "description": "模板内容",
+          "example": {
+            "template_name": "my_first_template",
+            "template_description": "template description"
+          }
+        }
+      ],
+      "description": "CreateTemplate API的响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "失败时返回的错误对象"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,188 @@
+{
+  "name": "UpdateQueueProperty",
+  "summary": "更新队列属性",
+  "tags": "队列相关API",
+  "productshort": "DLI",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/queues/{queue_name}/properties": {
+      "put": {
+        "tags": [
+          "队列相关API"
+        ],
+        "summary": "更新队列属性",
+        "description": "更新队列属性",
+        "operationId": "UpdateQueueProperty",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID, 用于资源隔离",
+            "pattern": "^[A-Za-z0-9_]+$",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "queue_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "队列名称",
+            "pattern": "^(?!_)(?![0-9]+$)[A-Za-z0-9_]*$",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "校验token",
+            "type": "string"
+          },
+          {
+            "name": "UpdateQueuePropertyRequestBody",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateQueuePropertyRequestBody"
+            },
+            "description": "待更新队列属性"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回结果, is_success=true代表更新成功",
+            "schema": {
+              "$ref": "#/definitions/SuccessResponse"
+            }
+          },
+          "400": {
+            "description": "错误类型及描述",
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            }
+          },
+          "500": {
+            "description": "服务器错误",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-order": 8,
+        "deprecated": false,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hws_hk"
+      }
+    }
+  },
+  "definitions": {
+    "FailResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息。"
+        }
+      },
+      "type": "object"
+    },
+    "AdvancedQueueProperty": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonQueueProperty"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "network.cidrInVpc": {
+              "type": "string",
+              "description": "设置队列网段"
+            },
+            "job.saveJobResultToJobBucket": {
+              "type": "string",
+              "description": "是否使用作业桶保存SQL查询结果"
+            }
+          }
+        }
+      ]
+    },
+    "SuccessResponse": {
+      "properties": {
+        "is_success": {
+          "type": "boolean",
+          "description": "执行请求是否成功。“true”表示请求执行成功。"
+        },
+        "message": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,信息可能为空。"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateQueuePropertyRequestBody": {
+      "type": "object",
+      "description": "队列待更新属性",
+      "properties": {
+        "properties": {
+          "description": "待更新属性",
+          "$ref": "#/definitions/AdvancedQueueProperty"
+        }
+      },
+      "example": {
+        "properties": {
+          "computeEngine.maxInstance": 2,
+          "job.maxConcurrent": 32,
+          "computeEngine.maxPrefetchInstance": 1
+        }
+      }
+    },
+    "CommonQueueProperty": {
+      "type": "object",
+      "properties": {
+        "computeEngine.maxInstance": {
+          "type": "integer",
+          "format": "int32",
+          "description": "队列能启动的最大spark driver数量",
+          "example": 2
+        },
+        "job.maxConcurrent": {
+          "type": "integer",
+          "format": "int32",
+          "description": "单个spark driver能同时运行的最大任务数量",
+          "example": 32,
+          "minimum": 1,
+          "maximum": 32
+        },
+        "computeEngine.maxPrefetchInstance": {
+          "type": "integer",
+          "format": "int32",
+          "description": "队列预先启动的最大spark driver数量",
+          "example": 1
+        },
+        "computeEngine.spark.nativeEnabled": {
+          "type": "string",
+          "description": "是否使用DLI Native。当前只涉及开启两种算子:Scan 和 Filter。修改现有队列的本属性,需要重启队列才会生效。",
+          "example": "true"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dli.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

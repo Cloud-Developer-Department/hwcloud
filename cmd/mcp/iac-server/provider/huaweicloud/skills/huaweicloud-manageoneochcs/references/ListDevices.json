@@ -1,0 +1,265 @@
+{
+  "name": "ListDevices",
+  "summary": "查询资源设备列表",
+  "tags": "自动化运维",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/moautoops/v1/resource-types/{resourceType}/devices": {
+      "post": {
+        "summary": "查询资源设备列表",
+        "description": "查询资源设备列表。\n|SLA项|定义|\n|-----|-----|\n|请求成功率| ≥99.9%|\n|可用性|Tier 1|\n|数据一致性|最终一致,不一致时长<1min|\n|吞吐量|60次/分钟|\n|TP50请求时延|500 ms|\n|TP99.9请求时延|1000 ms|",
+        "x-filter": "ManageOne,irservice,openapi,cloudservice",
+        "x-plane": "OM",
+        "x-precautions": "1.权限码:(自动作业-配置-查询Agent) moocapp:moautoops-agent:view; \n2.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > ManageOne运维面错误码说明 > 自动化运维”章节。\n",
+        "tags": [
+          "自动化运维"
+        ],
+        "operationId": "ListDevices",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "resourceType",
+            "in": "path",
+            "description": "资源类型。可取值为:\n* cloud_vm  (弹性云服务器)\n* cloud_bms(裸金属服务器)\n* SYS_X86Server(服务器)\n* sys_vm(管理虚拟机)\n* all(所有资源设备)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "condition",
+            "in": "body",
+            "description": "查询条件。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceListRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询资源设备列表结果。",
+            "schema": {
+              "$ref": "#/definitions/DeviceListResponse"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "devices": [
+                  {
+                    "id": "ecs9",
+                    "name": "ecs9",
+                    "ip": "192.168.0.1",
+                    "osType": "linux",
+                    "deviceType": "cloud_vm",
+                    "agentStatus": "install",
+                    "runningStatus": "online",
+                    "bizRegionName": "华东",
+                    "resourcePoolName": "pool1",
+                    "azoneName": "az1",
+                    "clusterName": "cescloud",
+                    "vdcName": "vdc1",
+                    "updateTime": 0
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "鉴权失败。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/moautoops/v1/resource-types/{resourceType}/devices",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "agentStatus": "install",
+          "runningStatus": "all",
+          "offset": 0,
+          "limit": 10
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DeviceListRequest": {
+      "description": "查询资源设备列表请求。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/DeviceInfo"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sort": {
+              "description": "排序字段。可取值为:\n* name\n* ip\n* eip\n* createTime",
+              "type": "string"
+            },
+            "limit": {
+              "description": "数量,最大值为1000。",
+              "type": "integer",
+              "format": "int32"
+            },
+            "offset": {
+              "description": "偏移。",
+              "type": "integer",
+              "format": "int32"
+            },
+            "deviceIds": {
+              "description": "设备id集合,最大长度5000。",
+              "type": "array",
+              "maxItems": 5000,
+              "items": {
+                "type": "string"
+              }
+            },
+            "regionIds": {
+              "description": "Region id集合,填写region在资源管理(CMDB)中的resId,最大长度5000。",
+              "type": "array",
+              "maxItems": 5000,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "DeviceListResponse": {
+      "description": "查询资源设备列表响应。",
+      "properties": {
+        "total": {
+          "description": "返回数据总数。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "devices": {
+          "description": "资源设备总列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DeviceInfo"
+          }
+        }
+      }
+    },
+    "DeviceInfo": {
+      "description": "资源设备列表。",
+      "properties": {
+        "id": {
+          "description": "设备Id,最大长度128。",
+          "type": "string"
+        },
+        "name": {
+          "description": "资源设备名称,最大长度64。",
+          "type": "string"
+        },
+        "ip": {
+          "description": "IP,最大长度128。",
+          "type": "string"
+        },
+        "mgmtIp": {
+          "description": "内部浮动ip,最大长度128。",
+          "type": "string"
+        },
+        "osType": {
+          "description": "设备操作系统类型,最大长度64。",
+          "type": "string"
+        },
+        "deviceType": {
+          "description": "设备类型。可取值为:\n* cloud_vm  (弹性云服务器)\n* cloud_bms(裸金属服务器)\n* SYS_UNITY_HOST(服务器)\n* sys_vm(管理虚拟机)\n* all(所有资源设备)",
+          "type": "string"
+        },
+        "agentStatus": {
+          "description": "agent状态。可取值为:\n* install  (已安装)\n* uninstall(未安装)\n* installing(安装中)\n* install_fail(安装失败)\n* uninstalling (卸载中)\n* all(所有)",
+          "type": "string"
+        },
+        "runningStatus": {
+          "description": "运行状态。可取值为:\n* online  (在线)\n* offline  (离线)\n* all  (所有)",
+          "type": "string"
+        },
+        "bizRegionName": {
+          "description": "区域名称,最大长度64。",
+          "type": "string"
+        },
+        "bizRegionId": {
+          "description": "区域id,最大长度64。",
+          "type": "string"
+        },
+        "resourcePoolName": {
+          "description": "资源池名称,最大长度64。",
+          "type": "string"
+        },
+        "azoneName": {
+          "description": "可用分区名称,最大长度256。",
+          "type": "string"
+        },
+        "clusterName": {
+          "description": "集群名称,最大长度64。",
+          "type": "string"
+        },
+        "vdcName": {
+          "description": "VDC名称,最大长度64。",
+          "type": "string"
+        },
+        "updateTime": {
+          "description": "更新时间戳,最大长度14。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "osVersion": {
+          "description": "设备操作系统版本,最大长度64。",
+          "type": "string"
+        },
+        "eip": {
+          "description": "设备弹性ip,最大长度128。",
+          "type": "string"
+        },
+        "agentId": {
+          "description": "agent id,最大长度128。",
+          "type": "string"
+        },
+        "createTime": {
+          "description": "创建时间戳,最大长度14。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "deployable": {
+          "description": "是否支持卸载和安装。",
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

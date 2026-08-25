@@ -1,0 +1,208 @@
+{
+  "name": "ContinueRollbackStack",
+  "summary": "继续回滚资源栈",
+  "tags": "资源编排-资源栈",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/rollbacks": {
+      "post": {
+        "tags": [
+          "Stack"
+        ],
+        "summary": "继续回滚资源栈",
+        "description": "继续回滚资源栈(ContinueRollbackStack)\n\n此API用于继续回滚一个已有的资源栈\n\n如果资源栈开启了自动回滚,在部署失败的时候则会自动回滚。但是自动回滚依然有可能失败,用户可以根据错误信息修复后,调用ContinueRollbackStack触发继续回滚,即重试回滚\n\n* 如果资源栈当前可以回滚,即处于`ROLLBACK_FAILED`,则返回202与对应生成的deploymentId,否则将不允许回滚并返回响应的错误码\n* 继续回滚也有可能会回滚失败。如果失败,用户可以从ListStackEvents获取对应的log,解决后可再次调用ContinueRollbackStack去继续触发回滚",
+        "operationId": "ContinueRollbackStack",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "in": "body",
+            "name": "ContinueRollbackStackRequestBody",
+            "description": "ContinueRollbackStack API的请求Body体",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/ContinueRollbackStackRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "接受请求,正在继续回滚资源栈",
+            "examples": {
+              "x-response-examples-1": {
+                "deployment_id": "8592967b-18b0-421b-b6c1-079c9ded3931"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ContinueRollbackStackResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 资源栈状态非法,不允许继续回滚\n2. 用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源栈不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "继续回滚冲突,另一个请求正在操作此资源栈",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/rollbacks",
+        "x-request-examples-description-1": "继续回滚资源栈",
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/rollbacks",
+        "x-request-examples-description-2": "继续回滚资源栈,并提供资源栈id以校验是否与当前资源栈匹配",
+        "x-request-examples-2": {
+          "stack_id": "8592967b-18b0-421b-b6c1-079c9ded3931"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StackIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_id": {
+          "type": "string",
+          "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400"
+        }
+      },
+      "example": {
+        "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "ContinueRollbackStackResponseBody": {
+      "type": "object",
+      "properties": {
+        "deployment_id": {
+          "type": "string",
+          "description": "继续回滚触发部署生成的唯一的deployment_id,由资源编排服务生成,通常为UUID\n\n接受请求,进行异步处理。可以调用GetStackMetadata来获取异步请求的部署状态\n\n**注意:**\n* 资源编排服务最终会将异步部署请求排队,在服务端空闲的情况下逐个处理。用户最大等待时长为6小时"
+        }
+      },
+      "description": "ContinueRollbackStack API的响应Body体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "ContinueRollbackStackRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StackIdPrimitiveTypeHolder"
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

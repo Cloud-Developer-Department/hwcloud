@@ -1,0 +1,183 @@
+{
+  "name": "ResizeInstance",
+  "summary": "实例规格变更",
+  "tags": "规格变更管理",
+  "productshort": "RocketMQ",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{engine}/{project_id}/instances/{instance_id}/extend": {
+      "post": {
+        "tags": [
+          "规格变更管理"
+        ],
+        "summary": "实例规格变更",
+        "x-name": "实例规格变更",
+        "description": "实例规格变更。\n\n**当前通过调用API,只支持按需实例进行实例规格变更。**",
+        "operationId": "ResizeInstance",
+        "parameters": [
+          {
+            "name": "engine",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:\n消息引擎的类型。支持的类型为rocketmq。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:\n项目ID,获取方式请参见[获取项目ID](hrm-api-0011.xml)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:\n实例ID。获取方法如下:调用“查询所有实例列表”接口,从响应体中获取实例ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+          },
+          {
+            "name": "ResizeInstanceRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "请求消息。",
+            "schema": {
+              "$ref": "#/definitions/ResizeEngineInstanceReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实例规格变更成功。",
+            "schema": {
+              "$ref": "#/definitions/ResizeInstanceResp"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "93b94287-728d-4bb1-a158-cb66cb0854e7"
+              }
+            }
+          }
+        },
+        "x-produc-type": "rocketmq",
+        "x-order": 1,
+        "x-hybridcloud": true,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-region-cloud": "hws,hws_hk,ctc,hws_eu,hws_ocb,ocb,g42,hk_g42,tm,sbc,hk_sbc,cmcc,hk_tm,hcs,fcs,hcs_oemout,ax,srg",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/rocketmq/{project_id}/instances/{instance_id}/extend",
+        "x-request-examples-tags-1": "hws,hws_hk,ctc,hws_eu,hws_ocb,ocb,g42,hk_g42,tm,sbc,hk_sbc,cmcc,hk_tm,fcs,ax,srg",
+        "x-request-examples-1": {
+          "oper_type": "horizontal",
+          "new_product_id": "rocketmq.b2.large.8"
+        },
+        "x-request-examples-tags-2": "hcs",
+        "x-request-examples-2": {
+          "oper_type": "horizontal",
+          "new_broker_num": 4,
+          "new_storage_space": 2400
+        },
+        "schemes": [
+          "https"
+        ],
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#dms_endpoint#",
+            "description": "",
+            "method": "POST",
+            "path": "/v2/rocketmq/{project_id}/instances/{instance_id}/extend",
+            "scheme": "https",
+            "timeout": 60000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "path",
+              "name": "instance_id",
+              "origin": "REQUEST",
+              "value": "instance_id"
+            },
+            {
+              "description": "",
+              "in": "path",
+              "name": "project_id",
+              "origin": "REQUEST",
+              "value": "project_id"
+            }
+          ],
+          "type": "HTTP"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-ratelimit": "dms01",
+        "x-apigateway-request-type": "public"
+      }
+    }
+  },
+  "definitions": {
+    "ResizeEngineInstanceReq": {
+      "type": "object",
+      "required": [
+        "oper_type"
+      ],
+      "properties": {
+        "oper_type": {
+          "type": "string",
+          "example": "[vertical](tag:hws,hws_eu,hws_hk,ocb,hws_ocb,ctc,g42,hk_g42,tm,sbc,hk_sbc,hk_tm,fcs,dt,cmcc,ax,srg)[horizontal](tag:hcs,fcs,hcs_oemout)",
+          "description": "**参数解释**:\n变更类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n- storage:存储空间扩容,节点数量不变。\n- horizontal:RocketMQ 5.x为实例规格扩容。RocketMQ 4.8.0为代理数扩容。\n- vertical:垂直扩容,broker的底层虚机规格变更,代理数量和存储空间不变,仅RocketMQ 4.8.0支持。\n**默认取值**:\n不涉及。"
+        },
+        "new_storage_space": {
+          "type": "integer",
+          "format": "int32",
+          "example": 600,
+          "description": "**参数解释**:\n新存储规格\n**约束限制**:\n当oper_type类型是storage时,该参数有效且必填。\n\n- 当oper_type类型是storage时,每个broker存储空间最少扩容100GB。\n\n- 当oper_type类型是horizontal时,每个broker的存储空间不变。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+        },
+        "new_product_id": {
+          "type": "string",
+          "example": "c6.4u8g.cluster",
+          "x-no-support-region": "hcs",
+          "description": "**参数解释**:\n新产品ID\n**约束限制**:\n - RocketMQ 5.x:当oper_type类型是horizontal时该参数有效且必填,规格变更仅限于集群实例。\n- RocketMQ 4.8.0:当oper_type类型是vertical时该参数有效且必填,规格变更仅限于集群实例。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+        },
+        "new_broker_num": {
+          "x-no-support-region": "dt",
+          "type": "integer",
+          "format": "int32",
+          "example": 5,
+          "description": "**参数解释**:\n代理数量\n**约束限制**:\n当oper_type参数为horizontal时,该参数必填。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+        },
+        "publicip_id": {
+          "type": "string",
+          "example": "********-88fc-4a8c-86d0-************,********-16af-455d-8d54-************,********-3d69-4367-95ab-************",
+          "description": "**参数解释**:\n实例绑定的弹性IP地址的ID。以英文逗号隔开多个弹性IP地址的ID。\n**约束限制**:\n 当oper_type参数为horizontal且开启了公网访问时,此参数必填。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+        }
+      },
+      "x-request-examples-tags-1": "hws,hws_eu,hws_hk,ocb,hws_ocb,ctc,g42,hk_g42,tm,sbc,hk_sbc,hk_tm,fcs,dt,cmcc,ax,srg",
+      "x-request-examples-1": {
+        "oper_type": "vertical",
+        "new_product_id": "c6.4u8g.cluster"
+      },
+      "x-request-examples-tags-2": "hcs",
+      "x-request-examples-2": {
+        "oper_type": "horizontal",
+        "new_broker_num": 4,
+        "new_storage_space": 2400
+      }
+    },
+    "ResizeInstanceResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "**参数解释**:\n规格变更任务ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

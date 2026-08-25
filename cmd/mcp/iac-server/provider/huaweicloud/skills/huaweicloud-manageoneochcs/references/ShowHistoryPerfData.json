@@ -1,0 +1,368 @@
+{
+  "name": "ShowHistoryPerfData",
+  "summary": "查询历史性能数据",
+  "tags": "性能监控",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/performance/v1/data-svc/history-data/action/query": {
+      "post": {
+        "summary": "查询历史性能数据",
+        "description": "查询历史性能数据,根据传入参数中的\"range\"字段所取的枚举值或从开始到结束时间范围内的查询数据。有汇聚数据情况下,返回结果序列是平均值序列,并包含最大值、最小值以及对应时间戳。\n\n  |SLA项|定义|\n  |-----|-----|\n  |请求成功率|≥99.9%|\n  |可用性|Tier1|\n  |数据一致性|最终一致,不一致时长<1 min|\n  |吞吐量|700 次/分钟|\n  |TP50请求时延|500 ms|\n  |TP99.9请求时延|2000 ms|",
+        "x-filter": "manageone,interservice,openapi,cloudservice",
+        "x-plane": "OM",
+        "tags": [
+          "性能监控"
+        ],
+        "operationId": "ShowHistoryPerfData",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "x-precautions": "每次传入的监控对象乘以指标数不超过100。\n错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 性能监控特性”章节。\n",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "IAM_OP token、SSO token。"
+          },
+          {
+            "name": "param",
+            "in": "body",
+            "description": "HistoryPerfDataRequest对象,JSON格式。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HistoryPerfDataRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询历史性能数据返回结果成功。",
+            "schema": {
+              "$ref": "#/definitions/HistoryPerfDataResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status_code": 200,
+                "error_code": 0,
+                "error_msg": "Successful",
+                "data": {
+                  "47FEBD5002AB344D90EC6CFCD6127BA3": {
+                    "1407379178651656": {
+                      "series": [
+                        {
+                          "1552480500000": "80.0"
+                        },
+                        {
+                          "1552480800000": "80.0"
+                        }
+                      ],
+                      "min": {
+                        "1552480740000": "80.0"
+                      },
+                      "max": {
+                        "1552480740000": "80.0"
+                      },
+                      "avg": {
+                        "1552480943834": "80.0"
+                      }
+                    },
+                    "1407379178586113": {
+                      "series": [
+                        {
+                          "1552480500000": "49.0"
+                        },
+                        {
+                          "1552480800000": "48.42857142857143"
+                        }
+                      ],
+                      "min": {
+                        "1552480890000": "48.0"
+                      },
+                      "max": {
+                        "1552480740000": "49.0"
+                      },
+                      "avg": {
+                        "1552480943834": "48.55555555555556"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/performance/v1/data-svc/history-data/action/query",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "obj_type_id": 1407379178520576,
+          "indicator_ids": [
+            1407379178586113,
+            1407379178651656
+          ],
+          "obj_ids": [
+            "47FEBD5002AB344D90EC6CFCD6127BA3"
+          ],
+          "interval": "MINUTE",
+          "range": "LAST_5_MINUTE",
+          "begin_time": "1552477343834",
+          "end_time": "1552480943834"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RestResponse": {
+      "description": "公共返回结果基类。",
+      "type": "object",
+      "properties": {
+        "status_code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态码。",
+          "default": 200
+        },
+        "error_code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "错误码。",
+          "default": 0
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息。",
+          "default": "Successful."
+        }
+      }
+    },
+    "HistoryPerfData": {
+      "description": "历史性能数据。",
+      "type": "object",
+      "properties": {
+        "series": {
+          "type": "array",
+          "description": "满足条件的历史数据值序列,按时间升序排列。如果是汇聚数据,则序列值来自平均值汇聚表。",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "min": {
+          "type": "object",
+          "description": "满足条件的历史数据值序列中最小值。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "max": {
+          "type": "object",
+          "description": "满足条件的历史数据值序列中最大值。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "avg": {
+          "type": "object",
+          "description": "满足条件的历史数据值序列平均值。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "BaseQueryRequest": {
+      "description": "基础查询性能数据请求对象。",
+      "type": "object",
+      "properties": {
+        "obj_type_id": {
+          "description": "监控对象类型标识。监控对象类型标识获取参考“性能监控”章节中“获取所有监控对象类型”接口,接口url为“/rest/performance/v1/mgr-svc/obj-types”,具体值为响应示例中“obj_type_id”。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "obj_type": {
+          "description": "监控对象类型。",
+          "type": "string"
+        },
+        "projectIds": {
+          "description": "租户项目ID列表。",
+          "maxItems": 1000,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "indicator_ids": {
+          "description": "监控指标标识列表。监控指标标识列表获取参考“性能监控”章节中“获取监控对象类型支持的监控指标”接口,接口url为“/rest/performance/v1/mgr-svc/obj-types/{obj-type-id}/indicators”,具体值为响应示例中“indicator_ids”。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "indicators": {
+          "description": "监控指标列表。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "obj_ids": {
+          "description": "监控对象标识列表,对应资源管理实例ID。管理实例ID获取参考“资源管理”章节中“查询指定资源类型的所有实例”接口,接口url为“/rest/cmdb/v1/instances/{className}”或 “租户保障”章节中“租户资源查询接口”接口,接口url为“/rest/tenant-resource/v1/tenant/resources/{class-name}”,管理实例ID的具体值为响应示例中“objList” 中“resId”。 查询资源管理实例ID前需要调用“性能监控”章节“获取所有监控对象类型”接口查询“obj_type_id”和“resource_category”的对应关系。如果“obj_type_id”对应的“resource_category”值为“CLOUD_BANDWIDTHS”,“CLOUD_BMS”,“CLOUD_DCS”,“CLOUD_ELB”,“CLOUD_FLOATING_IPS”、“CLOUD_HOST_NIC”、“CLOUD_LISTENER”、“CLOUD_NODE”、“CLOUD_OBS”、“CLOUD_ODS_CDB”、“CLOUD_ODS_PDB”、“CLOUD_RDS”、“CLOUD_SFS_SHARE”、“CLOUD_TASK”、“CLOUD_VM”、“CLOUD_VM_NIC”、“CLOUD_VOLUME”、“CLOUD_VSM”则查询接口“/rest/tenant-resource/v1/tenant/resources/{class-name}”,调用接口时“class-name”的值传“resource_category”的值。如果“obj_type_id”对应的“resource_category”为“SYS_BigDataCluster”、“SYS_BigDataHost”、“SYS_CHSM”、“SYS_Cluster”、“SYS_Controller”、“SYS_FCSwitch”、“SYS_FCSwitchPort”、“SYS_Lun”、“SYS_NPU”、“SYS_NetworkDevice”、“SYS_NetworkDeviceBoard”、“SYS_NetworkDevicePort”、“SYS_OpticalTerminationPoint”、“SYS_PhysicalHost”、“SYS_PhysicalServer”、“SYS_Psu”、“SYS_StorDevice”、“SYS_StorageDisk”、“SYS_StoragePool”、“SYS_StoragePort”、“SYS_VM”、“SYS_VM_NIC”、“SYS_X86Server”则查询接口“/rest/cmdb/v1/instances/{className}”,调用接口时“className”的值传“resource_category”的值。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "ext_dimensions": {
+          "description": "扩展维度信息列表。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/ExtendSimpleDimension"
+          }
+        }
+      },
+      "required": [
+        "obj_type_id",
+        "indicator_ids",
+        "obj_ids"
+      ]
+    },
+    "ExtendSimpleDimension": {
+      "description": "扩展维度信息。",
+      "properties": {
+        "field": {
+          "description": "性能指标维度的名称。",
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "description": "性能指标维度的值。"
+        }
+      },
+      "required": [
+        "field",
+        "value"
+      ]
+    },
+    "HistoryPerfDataRequest": {
+      "description": "历史性能数据请求。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseQueryRequest"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "interval": {
+              "type": "string",
+              "description": "间隔粒度枚举字符串,要求全大写",
+              "enum": [
+                "ORIGINAL",
+                "ONE_MINUTE",
+                "MINUTE",
+                "HALF_HOUR",
+                "HOUR",
+                "DAY",
+                "WEEK",
+                "MONTH"
+              ]
+            },
+            "range": {
+              "type": "string",
+              "description": "时间范围枚举字符串,要求全大写。",
+              "enum": [
+                "LAST_5_MINUTE",
+                "LAST_1_HOUR",
+                "LAST_1_DAY",
+                "LAST_1_WEEK",
+                "LAST_1_MONTH",
+                "LAST_1_QUARTER",
+                "HALF_1_YEAR",
+                "LAST_1_YEAR",
+                "BEGIN_END_TIME",
+                "INVALID"
+              ],
+              "default": "INVALID"
+            },
+            "begin_time": {
+              "type": "integer",
+              "format": "int64",
+              "description": "查询开始时刻,必须比 end_time 小,仅 range 为 BEGIN_END_TIME 时生效。"
+            },
+            "end_time": {
+              "type": "integer",
+              "format": "int64",
+              "description": "查询结束时刻,必须比 begin_time 大,仅 range 为 BEGIN_END_TIME 时生效。"
+            }
+          }
+        }
+      ]
+    },
+    "HistoryPerfDataResponse": {
+      "description": "历史性能数据响应。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/RestResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "object",
+              "description": "历史数据查询结果。",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/definitions/HistoryPerfData"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

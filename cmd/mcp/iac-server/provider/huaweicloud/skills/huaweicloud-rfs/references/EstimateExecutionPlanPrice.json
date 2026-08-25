@@ -1,0 +1,409 @@
+{
+  "name": "EstimateExecutionPlanPrice",
+  "summary": "预估执行计划价格",
+  "tags": "资源编排-执行计划",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/execution-plans/{execution_plan_name}/prices": {
+      "get": {
+        "tags": [
+          "Execution Plan"
+        ],
+        "summary": "预估执行计划价格",
+        "description": "预估执行计划价格(EstimateExecutionPlanPrice)\n\n此API可以基于一份已有的执行计划中增量的资源进行询价,当前支持询价的计费模式有包周期计费、按需计费、免费,暂不支持其他形式的计费模式,例如竞价计费模式等。\n\n注:\n  * 由于某些资源的属性值含有默认值,且该属性和询价参数相关。如果用户的模板中描述的资源没有声明这些属性,则询价结果可能存在偏差。\n  * 询价结果仅为预估结果,具体请以实际为准。\n  * 如果用户在模板中使用了depends_on参数,如A资源询价必要字段依赖于B资源的创建,则A资源不支持询价。\n  * 暂不支持传入data sources的flavor.id的场景的询价。\n  * 暂不支持镜像询价。\n  * 如果A资源的询价必要字段设置了sensitive = true,则A资源不支持询价。\n  * 模板中询价的资源的个数是有限制的。当前一个模板中最多支持12个包周期计费资源和24个按需计费资源。\n  * 支持询价的资源列表和询价必要参数\n      * huaweicloud_cce_cluster: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_css_cluster:\n          * 支持的计费模式:按需\n      * huaweicloud_evs_volume: \n          * 支持的计费模式:包周期、按需\n          * 询价必要参数:size(磁盘规格)\n      * huaweicloud_compute_instance: \n          * 支持的计费模式:包周期、按需\n          * 询价必要参数:flavor_id(规格ID)、flavor_name(规格名称,flavor_id和flavor_name至少给出一个)、system_disk_size(系统磁盘大小)\n      * huaweicloud_vpc_bandwidth:\n          * 支持的计费模式:包周期、按需\n          * 询价必要参数:charge_mode仅支持bandwidth\n      * huaweicloud_vpc_eip: \n          * 支持的计费模式:包周期、按需\n          * 询价必要参数:bandwidth.size(带宽大小)\n      * huaweicloud_gaussdb_redis_instance: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_nat_gateway: \n          * 支持的计费模式:按需\n      * huaweicloud_rds_instance: \n          * 支持的计费模式:包周期、按需\n          * 支持的数据库类型:MySQL、PostgreSQL、Microsoft SQL Server      \n      * huaweicloud_sfs_turbo: \n          * 支持的计费模式:按需\n          * 询价必要参数:share_type(文件系统类型)\n      * huaweicloud_dms_kafka_instance: \n          * 支持的计费模式:按需\n          * 询价必要参数:flavor_id(规格ID)、product_id(产品ID。flavor_id和product_id至少给出一个。)、storage_space(存储容量)\n      * huaweicloud_dcs_instance: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_gaussdb_mysql_instance: \n          * 支持的计费模式:包周期、按需\n          * 询价必要参数:proxy_node_number(代理节点数量)、volume_size(挂载卷的存储空间)\n      * huaweicloud_vpc: \n          * 支持的计费模式:免费\n      * huaweicloud_drs_job: \n          * 支持的计费模式:按需\n      * huaweicloud_apig_instance: \n          * 支持的计费模式:按需\n      * huaweicloud_dms_rabbitmq_instance: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_hss_quota: \n          * 支持的计费模式:包周期\n      * huaweicloud_hss_host_protection: \n          * 支持的计费模式:按需\n      * huaweicloud_cbr_vault: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_cbh_instance: \n          * 支持的计费模式:包周期\n      * huaweicloud_cbh_ha_instance: \n          * 支持的计费模式:包周期\n      * huaweicloud_waf_cloud_instance: \n          * 支持的计费模式:包周期\n      * huaweicloud_lb_loadbalancer: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_elb_loadbalancer: \n          * 支持的计费模式:按需\n      * huaweicloud_modelarts_resource_pool: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_cnad_advanced_black_white_list: \n          * 支持的计费模式:免费\n      * huaweicloud_cnad_advanced_policy: \n          * 支持的计费模式:免费\n      * huaweicloud_cnad_advanced_protected_object: \n          * 支持的计费模式:免费\n      * huaweicloud_antiddos_basic: \n          * 支持的计费模式:免费\n      * huaweicloud_obs_bucket: \n          * 支持的计费模式:免费\n      * huaweicloud_obs_bucket_replication: \n          * 支持的计费模式:免费\n      * huaweicloud_workspace_desktop: \n          * 支持的计费模式:按需\n      * huaweicloud_dws_cluster: \n          * 支持的计费模式:按需\n      * huaweicloud_dws_ext_data_source: \n          * 支持的计费模式:免费\n      * huaweicloud_dws_snapshot: \n          * 支持的计费模式:免费\n      * huaweicloud_dds_instance: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_rds_read_replica_instance: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_cce_node: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_dms_rocketmq_instance: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_gaussdb_opengauss_instance: \n          * 支持的计费模式:包周期、按需\n      * huaweicloud_vpcep_endpoint: \n          * 支持的计费模式:按需\n      * huaweicloud_kms_key: \n          * 支持的计费模式:按需\n      * huaweicloud_elb_listener:\n          * 支持的计费模式:免费\n      * huaweicloud_elb_monitor:\n          * 支持的计费模式:免费\n      * huaweicloud_elb_pool:\n          * 支持的计费模式:免费\n      * huaweicloud_elb_member:\n          * 支持的计费模式:免费\n      * huaweicloud_vpc_subnet:\n          * 支持的计费模式:免费\n      * huaweicloud_networking_secgroup:\n          * 支持的计费模式:免费\n      * huaweicloud_iec_security_group:\n          * 支持的计费模式:免费\n      * huaweicloud_dns_zone:\n          * 支持的计费模式:免费\n      * huaweicloud_enterprise_project:\n          * 支持的计费模式:免费\n      * huaweicloud_er_instance:\n          * 支持的计费模式:免费\n      * huaweicloud_lts_group:\n          * 支持的计费模式:免费\n      * huaweicloud_smn_topic:\n          * 支持的计费模式:免费\n      * huaweicloud_smn_subscription:\n          * 支持的计费模式:免费\n      * huaweicloud_cc_connection:\n          * 支持的计费模式:免费\n      * huaweicloud_cc_network_instance:\n          * 支持的计费模式:免费",
+        "operationId": "EstimateExecutionPlanPrice",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "execution_plan_name",
+            "in": "path",
+            "description": "执行计划的名称。此名字在domain_id+区域+project_id+stack_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "stack_id",
+            "in": "query",
+            "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          },
+          {
+            "name": "execution_plan_id",
+            "in": "query",
+            "description": "执行计划(execution_plan)的唯一ID。\n\n此ID由资源编排服务在生成执行计划的时候生成,为UUID。\n\n由于执行计划名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的执行计划,删除,再重新创建一个同名执行计划。\n\n对于团队并行开发,用户可能希望确保,当前我操作的执行计划就是我认为的那个,而不是其他队友删除后创建的同名执行计划。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的执行计划所对应的ID都不相同,更新不会影响ID。如果给予的execution_plan_id和当前执行计划的ID不一致,则返回400",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "询价成功",
+            "schema": {
+              "$ref": "#/definitions/EstimateExecutionPlanPriceResponseBody"
+            },
+            "x-response-examples-tags-1": "hws",
+            "x-response-examples-1": {
+              "application/json": {
+                "currency": "CNY",
+                "items": [
+                  {
+                    "resource_type": "huaweicloud_vpc",
+                    "resource_name": "vpc",
+                    "resource_price": [
+                      {
+                        "charge_mode": "FREE",
+                        "discount": 0,
+                        "original_price": 0,
+                        "sale_price": 0
+                      }
+                    ],
+                    "supported": true
+                  }
+                ]
+              }
+            },
+            "x-response-examples-tags-2": "hws_hk",
+            "x-response-examples-2": {
+              "application/json": {
+                "currency": "USD",
+                "items": [
+                  {
+                    "resource_type": "huaweicloud_vpc",
+                    "resource_name": "vpc",
+                    "resource_price": [
+                      {
+                        "charge_mode": "FREE",
+                        "discount": 0,
+                        "original_price": 0,
+                        "sale_price": 0
+                      }
+                    ],
+                    "supported": true
+                  }
+                ]
+              }
+            },
+            "x-response-examples-tags-3": "hws_eu",
+            "x-response-examples-3": {
+              "application/json": {
+                "currency": "USD",
+                "items": [
+                  {
+                    "resource_type": "huaweicloud_vpc",
+                    "resource_name": "vpc",
+                    "resource_price": [
+                      {
+                        "charge_mode": "FREE",
+                        "discount": 0,
+                        "original_price": 0,
+                        "sale_price": 0
+                      }
+                    ],
+                    "supported": true
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "执行计划不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans/my_first_execution_plan/prices",
+        "x-request-examples-description-1": "预估执行计划价格,该执行计划中包含了一个新创建的vpc资源",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans/my_first_execution_plan/prices?stack_id=ea6a4f0e-ee8a-494e-b12a-8be4a1e65af2&execution_plan_id=fb5e781e-a27d-46e2-9954-242753857a9f",
+        "x-request-examples-description-2": "预估执行计划价格,该执行计划中包含了一个新创建的vpc资源,并提供资源栈id和执行计划id以校验是否与当前资源栈和执行计划匹配"
+      }
+    }
+  },
+  "definitions": {
+    "ResourcePriceResponse": {
+      "type": "object",
+      "properties": {
+        "charge_mode": {
+          "type": "string",
+          "description": "计费模式\n\n* `PRE_PAID` - 包周期计费\n* `POST_PAID` - 按需计费\n* `FREE` - 免费",
+          "enum": [
+            "PRE_PAID",
+            "POST_PAID",
+            "FREE"
+          ]
+        },
+        "sale_price": {
+          "type": "number",
+          "format": "double",
+          "description": "该资源最终优惠后的金额(只考虑官网折扣、商务折扣以及伙伴折扣,不包含促销折扣及优惠券),保留小数点后2位,向上取整,默认单位是元。",
+          "x-omitempty": false
+        },
+        "discount": {
+          "type": "number",
+          "format": "double",
+          "description": "该资源的总优惠额,保留小数点后2位,向上取整,默认单位是元。",
+          "x-omitempty": false
+        },
+        "original_price": {
+          "type": "number",
+          "format": "double",
+          "description": "该资源的原价,保留小数点后2位,向上取整,默认单位是元。",
+          "x-omitempty": false
+        },
+        "period_type": {
+          "type": "string",
+          "description": "计费单位\n\n如果该资源支持包周期计费或按需计费,则会返回该字段;如果该资源为免费资源,则不返回该字段。\n\n* `HOUR` - 小时,按需计费的单位\n* `DAY` - 天,按需计费的单位\n* `MONTH` - 月,包周期计费的单位\n* `YEAR` - 年,包周期计费的单位\n* `BYTE` - 字节,按需计费的单位\n* `MB` - 百万字节,包周期计费和按需计费的单位\n* `GB` - 千兆字节,包周期计费和按需计费的单位",
+          "enum": [
+            "HOUR",
+            "DAY",
+            "MONTH",
+            "YEAR",
+            "BYTE",
+            "MB",
+            "GB"
+          ],
+          "x-omitempty": true
+        },
+        "period_count": {
+          "type": "integer",
+          "description": "该资源的计费数量,需要和period_type搭配使用\n\n如果该资源支持包周期计费或按需计费,则会返回该字段;如果该资源为免费资源,则不返回该字段。\n\n* 对于按需计费资源,此值默认返回1,代表在1个计费单位下,该资源的价格\n* 对于包周期计费资源,此值与模板中该资源的period字段保持一致",
+          "x-omitempty": true
+        },
+        "best_discount_type": {
+          "type": "integer",
+          "description": "该资源的最优折扣类型\n\n对于按需计费资源的折扣类型\n合同商务优惠类型:605 (华为云商务-折扣率,一口价,华为云用户)、606 (渠道商务-折扣率,一口价,BP用户)\n伙伴折扣优惠类型:607 (合作伙伴授予折扣-折扣率)\n\n对于包周期计费资源的折扣类型\n合同商务折扣:605(华为云BE场景下的合同商务折扣)、606(分销商BE场景下的合同商务折扣)\n伙伴授予折扣:607\n促销折扣:700\n\n如果该资源存在折扣,则返回该字段;如果该资源不存在折扣,则不返回该字段。",
+          "x-omitempty": true
+        },
+        "best_discount_price": {
+          "type": "number",
+          "format": "double",
+          "description": "最优折扣优惠额,保留小数点后2位,向上取整,默认单位是元。\n\n如果该资源存在折扣,则返回该字段;如果该资源不存在折扣,则不返回该字段。",
+          "x-omitempty": true
+        },
+        "official_website_discount_price": {
+          "type": "number",
+          "format": "double",
+          "description": "官网价优惠额,保留小数点后2位,向上取整,默认单位是元。\n\n如果该资源存在官网价优惠额,则返回该字段;如果该资源不存在官网价优惠额,则不返回该字段。",
+          "x-omitempty": true
+        }
+      }
+    },
+    "IndexPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "string",
+          "description": "资源的索引,如果用户在模板中使用了count或for_each则会返回index。如果index出现,则resource_name + index可以作为该资源的一种标识\n\n如果用户在模板中使用count,则index为从0开始的数字\n\n以HCL格式的模板为例,用户在模板中可以通过`huaweicloud_vpc.my_hello_world_vpc[0]`和`huaweicloud_vpc.my_hello_world_vpc[1]`标识两个资源\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  count = 2\n  name = \"test_vpc\"\n}\n```\n\n以json格式的模板为例,用户在模板中可以通过`huaweicloud_vpc.my_hello_world_vpc[0]`和`huaweicloud_vpc.my_hello_world_vpc[1]`标识两个资源\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"name\": \"test_vpc\",\n        \"count\": 2\n      }\n    }\n  }\n}\n```\n\n如果用户在模板中使用for_each,则index为用户自定义的字符串\n\n以HCL格式的模板为例,用户在模板中可以通过`huaweicloud_vpc.my_hello_world_vpc[\"vpc1\"]`和`huaweicloud_vpc.my_hello_world_vpc[\"vpc2\"]`标识两个资源\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  for_each = {\n    \"vpc1\" = \"test_vpc\"\n    \"vpc2\" = \"test_vpc\"\n  }\n  name = each.value\n}\n```\n\n以json格式的模板为例,用户在模板中可以通过`huaweicloud_vpc.my_hello_world_vpc[\"vpc1\"]`和`huaweicloud_vpc.my_hello_world_vpc[\"vpc2\"]`标识两个资源\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"for_each\": {\n          \"vpc1\": \"test_vpc\",\n          \"vpc2\": \"test_vpc\"\n        }\n        \"name\": \"${each.value}\"\n      }\n    }\n  }\n}\n```",
+          "x-omitempty": true
+        }
+      }
+    },
+    "ItemsResponse": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceTypePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ResourceNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/IndexPrimitiveTypeHolder"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "module_address": {
+              "type": "string",
+              "description": "该资源的模块地址",
+              "x-omitempty": true
+            },
+            "supported": {
+              "type": "boolean",
+              "description": "该资源或该资源当前所给予的参数是否支持进行询价",
+              "x-omitempty": false
+            },
+            "unsupported_message": {
+              "type": "string",
+              "description": "该资源不支持询价的具体原因",
+              "x-omitempty": true
+            },
+            "resource_price": {
+              "type": "array",
+              "description": "该资源的询价信息\n\n如果该资源支持包周期计费或按需计费,或者该资源为免费资源,则返回该字段;如果该资源不支持询价,则不返回该字段。",
+              "items": {
+                "$ref": "#/definitions/ResourcePriceResponse"
+              },
+              "x-omitempty": true
+            }
+          }
+        }
+      ]
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "EstimateExecutionPlanPriceResponseBody": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "type": "string",
+          "description": "币种,枚举值\n  * `CNY` - 元,中国站返回的币种"
+        },
+        "items": {
+          "type": "array",
+          "description": "执行计划中所有资源的询价结果",
+          "items": {
+            "$ref": "#/definitions/ItemsResponse"
+          }
+        }
+      }
+    },
+    "ResourceNamePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "resource_name": {
+          "type": "string",
+          "description": "资源的名称,默认为资源的逻辑名称\n\n以HCL格式的模板为例,resource_name 为 my_hello_world_vpc\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  name = \"test_vpc\"\n}\n```\n\n以json格式的模板为例,resource_name 为 my_hello_world_vpc\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"name\": \"test_vpc\"\n      }\n    }\n  }\n}\n```"
+        }
+      },
+      "example": {
+        "resource_name": "my_hello_world_vpc"
+      }
+    },
+    "ResourceTypePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "resource_type": {
+          "type": "string",
+          "description": "资源的类型\n\n以HCL格式的模板为例,resource_type 为 huaweicloud_vpc\n\n```hcl\nresource \"huaweicloud_vpc\" \"my_hello_world_vpc\" {\n  name = \"test_vpc\"\n}\n```\n\n以json格式的模板为例,resource_type 为 huaweicloud_vpc\n\n```json\n{\n  \"resource\": {\n    \"huaweicloud_vpc\": {\n      \"my_hello_world_vpc\": {\n        \"name\": \"test_vpc\"\n      }\n    }\n  }\n}\n```"
+        }
+      },
+      "example": {
+        "resource_type": "huaweicloud_vpc"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

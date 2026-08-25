@@ -1,0 +1,239 @@
+{
+  "name": "CreateAssetEditTask",
+  "summary": "创建编辑任务",
+  "tags": "媒资编辑管理",
+  "productshort": "VOD",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v1/{project_id}/asset/editing/tasks": {
+      "post": {
+        "description": "创建编辑任务",
+        "summary": "创建编辑任务",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "operationId": "CreateAssetEditTask",
+        "tags": [
+          "媒资编辑管理"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 64,
+            "pattern": "^([0-9a-zA-Z]+)$",
+            "description": "项目ID"
+          },
+          {
+            "name": "CreateAssetEditTaskRequestBody",
+            "in": "body",
+            "description": "创建编辑任务",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateAssetEditTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "schema": {
+              "$ref": "#/definitions/CreateAssetEditTaskRsp"
+            }
+          },
+          "400": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "VodEditingSetting": {
+      "type": "object",
+      "properties": {
+        "resolution_adaptation": {
+          "type": "boolean",
+          "description": "分辨率自适应策略, 选值:true, false(默认true)\n输入为true时,width表示长边,height表示短边\n输入为false时,width表示宽度,height表示长度\n",
+          "default": true
+        },
+        "resolution_upsample": {
+          "type": "boolean",
+          "description": "分辨率上采样开关, 选值:true, false(默认false),若为false则按照原片源输出,分辨率不会上浮。\n",
+          "maxLength": 32,
+          "default": false
+        },
+        "format": {
+          "type": "string",
+          "description": "输出封装格式,HLS、MP4(默认MP4)、MP3、MOV、FLV、AVI。\n不支持将视频文件输出成音频封装格式。\n",
+          "minLength": 0,
+          "maxLength": 32,
+          "default": "MP4",
+          "enum": [
+            "MP4",
+            "HLS",
+            "MP3",
+            "MOV",
+            "AVI",
+            "FLV"
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "description": "输出宽或长边,整型,输入小数向下取整,默认0,按源\n\n- 当width、height均为0,则分辨率取片源分辨率;\n- 当width为0,height非0,则width按片源分辨率比例缩放;\n- 当width非0,height为0,则height按片源分辨率比例缩放;\n- 当width、height均非0,则分辨率按用户指定。\n- 当视频编码为H.264时,则width最小值为32,最大值为4096。\n- 当视频编码为H.265,则width最小值为160,最大值为4096。\n",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 4096,
+          "default": 0
+        },
+        "height": {
+          "type": "integer",
+          "description": "输出高或短边,整型,输入小数向下取整,默认0,按源\n\n- 当Width、Height均为0,则分辨率取片源分辨率;\n- 当Width为0,Height非0,则Width按片源分辨率比例缩放;\n- 当Width非0,Height为0,则Height按片源分辨率比例缩放;\n- 当Width、Height 均非0,则分辨率按用户指定。\n- 当视频编码为H.264时,则height最小值为32,最大值为2880。\n- 当视频编码为H.265,则height最小值为160,最大值为2880。\n",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2880,
+          "default": 0
+        },
+        "reference": {
+          "type": "string",
+          "description": "输出参考基准,可选,默认为NONE\n\n- NONE 输出分辨率按输入的第一个片源为主,码率按输出分辨率自适应\n- MAX_BITRATE 按码率最大的输入片源参数为基准\n- MAX_RESOLUTION 按分辨率最大的输入片源参数为基准\n",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "NONE",
+            "MAX_BITRATE",
+            "MAX_RESOLUTION"
+          ]
+        },
+        "video_codec": {
+          "type": "integer",
+          "description": "视频编码格式。\n取值如下:\n- 1:VIDEO_CODEC_H264\n- 2:VIDEO_CODEC_H265\n",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 2,
+          "default": 1
+        }
+      }
+    },
+    "EditInput": {
+      "type": "object",
+      "required": [
+        "asset_id",
+        "timeline_start",
+        "timeline_end"
+      ],
+      "properties": {
+        "asset_id": {
+          "description": "媒资ID\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "timeline_start": {
+          "description": "剪切开始时间,单位:秒,最大长度支持32。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "timeline_end": {
+          "description": "剪切结束时间,单位:秒,最大长度支持32。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      }
+    },
+    "CreateAssetEditTaskReq": {
+      "type": "object",
+      "required": [
+        "inputs"
+      ],
+      "properties": {
+        "inputs": {
+          "description": "待编辑媒资列表,最多支持20个。\n",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/EditInput"
+          }
+        },
+        "editing_settings": {
+          "description": "剪辑配置\n",
+          "$ref": "#/definitions/VodEditingSetting"
+        }
+      }
+    },
+    "CreateAssetEditTaskRsp": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "description": "编辑任务ID\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "asset_id": {
+          "description": "媒资ID\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,481 @@
+{
+  "name": "CreateFepJob",
+  "summary": "创建自由能微扰作业",
+  "tags": "自由能微扰作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/fep": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-exclude": true,
+        "x-interface-name": "IFepJobController",
+        "tags": [
+          "自由能微扰作业管理"
+        ],
+        "summary": "创建自由能微扰作业",
+        "description": "创建自由能微扰作业",
+        "operationId": "CreateFepJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreateFepJobRequestBody",
+            "description": "CreateFepJobRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateFepJobReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "schema": {
+              "$ref": "#/definitions/DrugJobIdRsp"
+            },
+            "x-response-examples-1": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1"
+              }
+            },
+            "x-response-examples-description-1": "创建自由能微扰作业成功",
+            "x-response-examples-2": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                "limit_concurrency": 50
+              }
+            },
+            "x-response-examples-description-2": "创建自由能微扰作业成功,当前运行作业数已达配额限制,此作业会等待"
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/fep",
+        "x-request-examples-description-1": "创建自由能微扰作业,作业名称为demo-job,受体文件为project:/dir/file,配体分别为GLY:A:514和UNK1,路径图的中心配体为GLY:A:514,配体对分别为GLY:A:514和DrugBank:UNK1,预平衡步数为5000,平衡步数为50000,时间步长为0.002,lambda的个数为20",
+        "x-request-examples-1": {
+          "basic_info": {
+            "name": "demo-job",
+            "labels": [
+              "labelA"
+            ]
+          },
+          "receptor": {
+            "source": "PRIVATE",
+            "url": "project:/dir/file"
+          },
+          "ligands": [
+            {
+              "name": "GLY:A:514",
+              "smiles": "C1CCCCC1",
+              "index": 0,
+              "file": {
+                "source": "RAW",
+                "format": "PDB",
+                "data": "MODEL1.xxxxxxx.END"
+              }
+            },
+            {
+              "name": "UNK1",
+              "smiles": "c1ccccc1",
+              "index": 0,
+              "file": {
+                "source": "PRIVATE",
+                "url": "project:/dir/file"
+              }
+            }
+          ],
+          "graph": {
+            "center_id": "GLY:A:514",
+            "pairs": [
+              {
+                "ligand_ids": [
+                  "GLY:A:514",
+                  "DrugBank:UNK1"
+                ]
+              }
+            ]
+          },
+          "params": {
+            "num_pre_equilibrium_steps": 50000,
+            "num_equilibrium_steps": 500000,
+            "timestep_size": 0.002,
+            "num_lambda": 20
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FepGraphDto": {
+      "type": "object",
+      "required": [
+        "center_id",
+        "pairs"
+      ],
+      "properties": {
+        "center_id": {
+          "type": "string",
+          "example": "GLY:A:514",
+          "description": "中心配体名称",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "pairs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SimilarityDto"
+          },
+          "minItems": 1,
+          "maxItems": 100,
+          "description": "配体对列表"
+        }
+      }
+    },
+    "CreateFepJobReq": {
+      "type": "object",
+      "required": [
+        "basic_info",
+        "receptor",
+        "ligands",
+        "graph",
+        "params"
+      ],
+      "properties": {
+        "basic_info": {
+          "$ref": "#/definitions/CreateDrugJobBasicInfo"
+        },
+        "receptor": {
+          "$ref": "#/definitions/ReceptorDrugFile",
+          "description": "受体文件"
+        },
+        "add_membrane": {
+          "type": "boolean",
+          "description": "是否加膜处理",
+          "default": false
+        },
+        "ligands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LigandPreviewDto"
+          },
+          "minItems": 2,
+          "maxItems": 101,
+          "description": "配体列表"
+        },
+        "graph": {
+          "$ref": "#/definitions/FepGraphDto",
+          "description": "路径图"
+        },
+        "params": {
+          "$ref": "#/definitions/FepParamDto",
+          "description": "FEP设置参数"
+        }
+      },
+      "description": "创建自由能微扰作业请求体"
+    },
+    "FepParamDto": {
+      "description": "自由能微扰任务的参数,预平衡时长、平衡时长和预平衡步数、平衡步数二者都存在时以预平衡时长、平衡时长为准。",
+      "type": "object",
+      "properties": {
+        "pre_equilibrium_time": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "maximum": 200.0,
+          "exclusiveMinimum": true,
+          "description": "预平衡时长,单位ps,范围为0-200,不包含0,默认为100ps"
+        },
+        "equilibrium_time": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "maximum": 10.0,
+          "exclusiveMinimum": true,
+          "description": "平衡时长,单位ns,范围为0-10,不包含0,默认为1ns"
+        },
+        "num_pre_equilibrium_steps": {
+          "type": "integer",
+          "format": "int32",
+          "description": "预平衡步数,默认为50000",
+          "example": 50000,
+          "minimum": 1,
+          "maximum": 200000
+        },
+        "num_equilibrium_steps": {
+          "type": "integer",
+          "format": "int32",
+          "description": "平衡步数,默认为500000",
+          "example": 50000,
+          "minimum": 1,
+          "maximum": 10000000
+        },
+        "timestep_size": {
+          "type": "number",
+          "format": "float",
+          "description": "时间步长,单位ps,取值范围:大于0,小于等于0.005",
+          "default": 0.002,
+          "example": 0.002,
+          "minimum": 0.001,
+          "maximum": 0.005
+        },
+        "num_lambda": {
+          "type": "integer",
+          "format": "int32",
+          "description": "lambda个数",
+          "default": 20,
+          "example": 20,
+          "minimum": 2,
+          "maximum": 30
+        }
+      }
+    },
+    "DrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ],
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "CreateDrugJobBasicInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "description": "创建药物作业基本信息",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "minLength": 5,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9A-Z]+[a-z0-9A-Z-_\\s]+$",
+          "x-pattern-message": "The name format does not match.",
+          "description": "作业的名称,取值范围:[5,64],允许大小写字母、数字、空格、下划线(_)和中划线(-),只能以数字或字母开头"
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "标签,取值范围[0,5],单个标签最大长度32字符,支持中文、字母、数字、空格、下划线和中划线,且不能以空格开头或者结尾。",
+          "items": {
+            "type": "string",
+            "pattern": "^[\\一-\\龥A-Za-z0-9-_]+(\\s+[\\一-\\龥A-z0-9-_]+)*$",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-pattern-message": "The label name format does not match"
+          },
+          "minItems": 0,
+          "maxItems": 5
+        },
+        "upstream_job_info": {
+          "type": "string",
+          "maxLength": 10240,
+          "minLength": 1,
+          "example": "{\"job_id\":\"demo-job-id\",\"job_name\":\"demo-job-name\"}",
+          "description": "**参数解释**:\n上游作业信息。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1-10240]个字符。\n**默认取值**:\n不涉及"
+        }
+      }
+    },
+    "ReceptorDrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ]
+        }
+      }
+    },
+    "DrugJobIdRsp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "limit_concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "example": 50,
+          "description": "限制的并发量"
+        }
+      }
+    },
+    "SimilarityDto": {
+      "type": "object",
+      "required": [
+        "ligand_ids"
+      ],
+      "properties": {
+        "ligand_ids": {
+          "type": "array",
+          "description": "配体对",
+          "example": [
+            "GLY:A:514",
+            "DrugBank:UNK1"
+          ],
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    },
+    "LigandPreviewDto": {
+      "type": "object",
+      "required": [
+        "index",
+        "file",
+        "name",
+        "smiles"
+      ],
+      "description": "配体预览信息",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 99,
+          "description": "配体索引(从0起编号)"
+        },
+        "file": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "配体文件"
+        },
+        "name": {
+          "type": "string",
+          "description": "配体名称,若无名称则自动命名,格式为UNK+索引(从1起编号)",
+          "minLength": 1,
+          "maxLength": 32,
+          "example": "UNK1"
+        },
+        "smiles": {
+          "type": "string",
+          "description": "分子SMILES表达式",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "CC"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

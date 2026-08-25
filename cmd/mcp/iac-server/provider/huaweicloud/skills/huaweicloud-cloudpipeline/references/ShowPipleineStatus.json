@@ -1,0 +1,341 @@
+{
+  "name": "ShowPipleineStatus",
+  "summary": "获取流水线状态",
+  "tags": "流水线管理",
+  "productshort": "CloudPipeline",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v3/pipelines/{pipeline_id}/status": {
+      "get": {
+        "tags": [
+          "流水线管理"
+        ],
+        "summary": "获取流水线状态",
+        "description": "获取流水线状态,阶段及任务信息",
+        "operationId": "ShowPipleineStatus",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "path",
+            "name": "pipeline_id",
+            "description": "要获取状态的流水线ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "x-example": "8025ba36a87a4dd5af496708c2961817"
+          },
+          {
+            "in": "query",
+            "name": "build_id",
+            "description": "要获取状态的执行ID",
+            "required": false,
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
+            "x-example": "2"
+          }
+        ],
+        "x-apigateway-backend": {
+          "type": "HTTP",
+          "httpEndpoints": {
+            "address": "10.63.38.190:40115",
+            "description": "",
+            "method": "GET",
+            "path": "/CloudPipelineServer/v3/pipelines/{pipeline_id}/status",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "name": "pipeline_id",
+              "description": "流水线ID",
+              "in": "PATH",
+              "origin": "REQUEST",
+              "type": "string"
+            },
+            {
+              "name": "build_id",
+              "description": "流水线执行ID",
+              "in": "QUERY",
+              "origin": "REQUEST",
+              "type": "string"
+            }
+          ]
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PipelineStatusDetail"
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-name": "查看流水线状态",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/pipelines/8025ba36a87a4dd5af496708c2961817/status?build_id=2"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        }
+      },
+      "example": {
+        "error_msg": "The format of message is error",
+        "error_code": "DEVCP.00000001"
+      }
+    },
+    "PipelineStateStatus": {
+      "required": [
+        "id",
+        "name",
+        "type",
+        "start_time",
+        "end_time",
+        "elapsed_time",
+        "status",
+        "outcome",
+        "error_code",
+        "error_msg",
+        "children",
+        "detail_url"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "阶段或任务标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "阶段或任务名称"
+        },
+        "type": {
+          "type": "string",
+          "description": "类别(阶段/任务)"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "执行开始时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "执行结束时间"
+        },
+        "elapsed_time": {
+          "type": "string",
+          "description": "运行耗时"
+        },
+        "status": {
+          "type": "string",
+          "description": "运行状态"
+        },
+        "outcome": {
+          "type": "string",
+          "description": "运行结果"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        },
+        "children": {
+          "type": "array",
+          "description": "子任务运行信息(对任务来说是空的)",
+          "items": {
+            "$ref": "#/definitions/PipelineStateStatus"
+          }
+        },
+        "detail_url": {
+          "type": "string",
+          "description": "任务运行记录跳转链接"
+        }
+      },
+      "example": {
+        "id": "initial",
+        "name": "源代码",
+        "type": "stage",
+        "status": "completed",
+        "outcome": "success",
+        "children": [],
+        "start_time": "2020-06-09 15:18:04",
+        "end_time": "2020-06-09 15:18:04",
+        "elapsed_time": "0",
+        "error_code": null,
+        "error_msg": null
+      }
+    },
+    "PipelineParameter": {
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "参数名称"
+        },
+        "value": {
+          "type": "string",
+          "description": "参数值"
+        }
+      },
+      "example": {
+        "name": "serviceName",
+        "value": "pipeline-20200424154438"
+      }
+    },
+    "PipelineStatusDetail": {
+      "required": [
+        "pipeline_id",
+        "pipeline_name",
+        "executor",
+        "build_id",
+        "start_time",
+        "end_time",
+        "elapsed_time",
+        "status",
+        "outcome",
+        "detail_url",
+        "parameters",
+        "states"
+      ],
+      "properties": {
+        "pipeline_id": {
+          "type": "string",
+          "description": "流水线ID"
+        },
+        "pipeline_name": {
+          "type": "string",
+          "description": "流水线名称"
+        },
+        "executor": {
+          "type": "string",
+          "description": "执行人"
+        },
+        "build_id": {
+          "type": "string",
+          "description": "流水线执行ID"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "开始执行时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束执行时间"
+        },
+        "parameters": {
+          "type": "array",
+          "description": "流水线参数",
+          "items": {
+            "$ref": "#/definitions/PipelineParameter"
+          }
+        },
+        "states": {
+          "type": "array",
+          "description": "流水线执行情况",
+          "items": {
+            "$ref": "#/definitions/PipelineStateStatus"
+          }
+        },
+        "elapsed_time": {
+          "type": "string",
+          "description": "执行耗时"
+        },
+        "status": {
+          "type": "string",
+          "description": "流水线运行状态"
+        },
+        "outcome": {
+          "type": "string",
+          "description": "流水线执行结果"
+        },
+        "detail_url": {
+          "type": "string",
+          "description": "流水线详情页地址"
+        }
+      },
+      "example": {
+        "executor": "devcloud_devcloud_h00485561_01",
+        "status": "waiting",
+        "outcome": "error",
+        "pipeline_id": "36ec78d912d6428bbe4a3a8ed357d176",
+        "pipeline_name": "pipeline-202004241544382",
+        "build_id": "22",
+        "start_time": "2020-06-11 11:54:08",
+        "end_time": "2020-06-11 11:54:23\"",
+        "elapsed_time": "14",
+        "detail_url": "https://alpha.devcloud.inhuawei.com/pipeline/detail/36ec78d912d6428bbe4a3a8ed357d176",
+        "parameters": [
+          {
+            "$ref": "#/definitions/PipelineParameter/example"
+          }
+        ],
+        "states": [
+          {
+            "$ref": "#/definitions/PipelineStateStatus/example"
+          }
+        ]
+      },
+      "description": "根据流水线ID和执行ID获取流水线运行状态信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cloudpipeline-ext.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

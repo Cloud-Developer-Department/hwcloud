@@ -1,0 +1,204 @@
+{
+  "name": "ShowGaussMySqlQuotas",
+  "summary": "查询租户基于企业项目的资源配额",
+  "tags": "配额管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/quotas": {
+      "get": {
+        "tags": [
+          "配额管理"
+        ],
+        "operationId": "ShowGaussMySqlQuotas",
+        "summary": "查询租户基于企业项目的资源配额",
+        "description": "获取指定企业项目的资源配额。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。\n\n取值范围:0 - 10000",
+            "required": false,
+            "type": "string",
+            "x-example": "10"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询记录数。默认为10,不能为负数,最小值为1,最大值为100。",
+            "required": false,
+            "type": "string",
+            "x-example": "10"
+          },
+          {
+            "name": "enterprise_project_name",
+            "in": "query",
+            "description": "企业项目名称。",
+            "required": false,
+            "type": "string",
+            "x-example": "default"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ShowQuotasResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "quota_list": [
+                  {
+                    "enterprise_project_id": "0",
+                    "enterprise_project_name": "default",
+                    "instance_quota": 20,
+                    "vcpus_quota": 20,
+                    "ram_quota": 40,
+                    "availability_instance_quota": 1,
+                    "availability_vcpus_quota": 4,
+                    "availability_ram_quota": 8
+                  }
+                ],
+                "total_count": 1
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "获取资源配额。",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/quotas"
+      }
+    }
+  },
+  "definitions": {
+    "ShowQuotasResponseBody": {
+      "properties": {
+        "quota_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/quota"
+          },
+          "description": "资源列表对象。"
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "配额记录的条数。"
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    },
+    "quota": {
+      "required": [
+        "enterprise_project_id",
+        "enterprise_project_name",
+        "instance_quota",
+        "vcpus_quota",
+        "ram_quota",
+        "availability_instance_quota",
+        "availability_vcpus_quota ",
+        "availability_ram_quota"
+      ],
+      "properties": {
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。"
+        },
+        "enterprise_project_name": {
+          "type": "string",
+          "description": "企业项目名称。"
+        },
+        "instance_quota": {
+          "type": "integer",
+          "format": "int32",
+          "description": "实例个数配额。"
+        },
+        "vcpus_quota": {
+          "type": "integer",
+          "format": "int32",
+          "description": "CPU核数配额。"
+        },
+        "ram_quota": {
+          "type": "integer",
+          "format": "int32",
+          "description": "内存使用配额,单位为GB。"
+        },
+        "availability_instance_quota": {
+          "type": "integer",
+          "format": "int32",
+          "description": "实例剩余配额。"
+        },
+        "availability_vcpus_quota": {
+          "type": "integer",
+          "format": "int32",
+          "description": "CPU核数剩余配额。"
+        },
+        "availability_ram_quota": {
+          "type": "integer",
+          "format": "int32",
+          "description": "内存剩余配额。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

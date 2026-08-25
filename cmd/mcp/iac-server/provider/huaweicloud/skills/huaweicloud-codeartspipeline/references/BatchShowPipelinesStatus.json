@@ -1,0 +1,330 @@
+{
+  "name": "BatchShowPipelinesStatus",
+  "summary": "批量获取流水线状态",
+  "tags": "流水线管理",
+  "productshort": "CodeArtsPipeline",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/pipelines/status": {
+      "get": {
+        "tags": [
+          "流水线管理"
+        ],
+        "summary": "批量获取流水线状态",
+        "description": "批量获取流水线状态和阶段信息",
+        "operationId": "BatchShowPipelinesStatus",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "query",
+            "name": "pipeline_ids",
+            "description": "要获取状态的流水线ID,用逗号隔开",
+            "required": true,
+            "type": "string",
+            "maxLength": 3300,
+            "minLength": 0,
+            "x-example": "8025ba36a87a4dd5af496708c2961817,413937e669914f95bed293617886c6c1"
+          }
+        ],
+        "x-apigateway-backend": {
+          "type": "HTTP",
+          "httpEndpoints": {
+            "address": "10.63.38.190:40115",
+            "description": "",
+            "method": "GET",
+            "path": "/CloudPipelineServer/v3/pipelines/status",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "name": "pipeline_ids",
+              "description": "流水线集合,用逗号隔开",
+              "in": "query",
+              "origin": "REQUEST",
+              "type": "string",
+              "value": "pipeline_ids"
+            }
+          ]
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": [
+                {
+                  "result": "error",
+                  "status": "completed",
+                  "stages": [
+                    {
+                      "result": "success",
+                      "status": "completed",
+                      "name": "initial",
+                      "parameters": null,
+                      "order": 1,
+                      "dsl_method": "initial",
+                      "display_name": "源代码"
+                    },
+                    {
+                      "result": "success",
+                      "status": "completed",
+                      "name": "state_3",
+                      "parameters": null,
+                      "order": 2,
+                      "dsl_method": "build",
+                      "display_name": "构建"
+                    }
+                  ],
+                  "executor": "devcloud_devcloud_h00485561_01",
+                  "pipeline_name": "PipelineSvc测试勿删_继续执行",
+                  "pipeline_id": "92a65e2337174fabbdbccda97ab7ffad",
+                  "detail_url": "https://xxxxx",
+                  "modify_url": "https://xxxxxx",
+                  "start_time": "2022-09-09 00:00:00",
+                  "end_time": "2022-09-09 00:00:24",
+                  "build_id": "25"
+                }
+              ]
+            },
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PipelineExecuteStates"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-name": "批量获取流水线状态信息",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/pipelines/status?pipeline_ids=8025ba36a87a4dd5af496708c2961817,413937e669914f95bed293617886c6c1"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:\n错误信息。\n**取值范围**:\n不涉及。"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。\n**取值范围**:\n不涉及。"
+        }
+      },
+      "example": {
+        "error_msg": "The format of message is error",
+        "error_code": "DEVCP.00000001"
+      }
+    },
+    "Stages": {
+      "required": [
+        "result",
+        "status",
+        "name",
+        "parameters",
+        "order",
+        "dsl_method",
+        "display_name"
+      ],
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "阶段执行结果。取值及含义:success:成功;error:失败;aborted:终止"
+        },
+        "status": {
+          "type": "string",
+          "description": "阶段执行状态。取值和含义:waiting:等待;running:执行中;verifying:待审核;suspending:挂起;completed:完成"
+        },
+        "name": {
+          "type": "string",
+          "description": "阶段名字"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "阶段运行参数"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int32",
+          "description": "阶段顺序"
+        },
+        "dsl_method": {
+          "type": "string",
+          "description": "阶段类型"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "阶段显示名称"
+        }
+      },
+      "description": "流水线阶段执行信息",
+      "example": {
+        "result": "success",
+        "status": "completed",
+        "name": "initial",
+        "parameters": {
+          "display": "hidden"
+        },
+        "order": 1,
+        "dsl_method": "initial",
+        "display_name": "源代码"
+      },
+      "type": "object"
+    },
+    "PipelineExecuteStates": {
+      "required": [
+        "result",
+        "status",
+        "stages",
+        "executor",
+        "pipeline_name",
+        "pipeline_id",
+        "build_id",
+        "detail_url",
+        "modify_url",
+        "start_time",
+        "end_time"
+      ],
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "流水线执行结果。取值及含义:success:成功;error:失败;aborted:终止"
+        },
+        "status": {
+          "type": "string",
+          "description": "流水线执行状态。"
+        },
+        "stages": {
+          "type": "array",
+          "description": "阶段执行情况",
+          "items": {
+            "$ref": "#/definitions/Stages"
+          }
+        },
+        "executor": {
+          "type": "string",
+          "description": "执行人"
+        },
+        "pipeline_name": {
+          "type": "string",
+          "description": "流水线名字"
+        },
+        "pipeline_id": {
+          "type": "string",
+          "description": "流水线ID"
+        },
+        "build_id": {
+          "type": "string",
+          "description": "流水线执行ID"
+        },
+        "detail_url": {
+          "type": "string",
+          "description": "流水线详情页URL"
+        },
+        "modify_url": {
+          "type": "string",
+          "description": "流水线编辑页URL"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "开始执行时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束执行时间"
+        }
+      },
+      "description": "流水线执行结果",
+      "example": {
+        "result": "error",
+        "status": "completed",
+        "stages": [
+          {
+            "result": null,
+            "status": null,
+            "name": "initial",
+            "parameters": {
+              "display": "hidden"
+            },
+            "order": 1,
+            "dsl_method": "initial",
+            "display_name": "源代码"
+          },
+          {
+            "result": null,
+            "status": null,
+            "name": "state_3",
+            "parameters": null,
+            "order": 2,
+            "dsl_method": "source",
+            "display_name": "源代码"
+          },
+          {
+            "result": null,
+            "status": null,
+            "name": "state_4",
+            "parameters": null,
+            "order": 3,
+            "dsl_method": "build",
+            "display_name": "构建"
+          }
+        ],
+        "executor": "executor",
+        "pipeline_name": "test",
+        "pipeline_id": "b1c0e2a948614a17af3bf077265f6e80",
+        "build_id": "1",
+        "detail_url": "https://example.com/detail/b1c0e2a948614a17af3bf077265f6e80",
+        "modify_url": "https://example.com/b1c0e2a948614a17af3bf077265f6e80",
+        "start_time": "2020-03-11 18:29:45.0",
+        "end_time": "2020-03-11 18:29:53.0"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "pipeline.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

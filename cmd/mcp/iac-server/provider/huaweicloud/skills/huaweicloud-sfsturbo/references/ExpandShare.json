@@ -1,0 +1,165 @@
+{
+  "name": "ExpandShare",
+  "summary": "扩容文件系统",
+  "tags": "生命周期管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/action": {
+      "post": {
+        "tags": [
+          "生命周期管理"
+        ],
+        "summary": "扩容文件系统",
+        "description": "扩容文件系统。",
+        "operationId": "ExpandShare",
+        "x-version": "v1",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "parameters": [
+          {
+            "description": "账号的token",
+            "in": "header",
+            "name": "X-Auth-Token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "description": "MIME类型",
+            "in": "header",
+            "name": "Content-Type",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "description": "项目ID",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "description": "文件系统ID",
+            "in": "path",
+            "name": "share_id",
+            "required": true,
+            "type": "string",
+            "x-example": "b959dfbb-xxxx-XXXX-xxxx-8930ec3a87b7"
+          },
+          {
+            "description": "扩容请求体",
+            "in": "body",
+            "name": "ExpandShareRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ExpandShareRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "扩容文件系统请求下发成功返回body",
+            "examples": {
+              "application/json": {
+                "id": "67d4bd5e-7b2f-4c24-9a0b-c0038940c6f8",
+                "name": "sfs-turbo-test"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ExpandShareResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "扩容一个文件系统,扩容后的文件系统目标容量是1000GB。",
+        "x-request-examples-1": {
+          "extend": {
+            "new_size": 1000
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BssInfoExtend": {
+      "type": "object",
+      "description": "扩容计费参数详情",
+      "properties": {
+        "is_auto_pay": {
+          "description": "是否自动付款",
+          "type": "integer",
+          "format": "int64",
+          "enum": [
+            0,
+            1
+          ],
+          "x-open-region-cloud": "hws,hws_hk,hws_eu,ctc"
+        }
+      }
+    },
+    "ExpandShareRequestBody": {
+      "type": "object",
+      "properties": {
+        "extend": {
+          "$ref": "#/definitions/Extend",
+          "description": "extend对象。"
+        }
+      },
+      "required": [
+        "extend"
+      ]
+    },
+    "Extend": {
+      "type": "object",
+      "description": "extend对象",
+      "properties": {
+        "new_size": {
+          "description": "扩容后文件系统的新容量,以GiB为单位。\n\nSFS Turbo上一代文件系统规格类型-标准型和性能型,取值范围500~32768 GiB,扩容步长大于等于100 GiB。\n\nSFS Turbo上一代文件系统规格类型-标准型增强版和性能型增强版。容量范围是10240~327680 GiB。扩容步长大于等于100 GiB。\n\n20MB/s/TiB,容量范围是3686~1048576 GiB。容量必须为1.2TiB的倍数,扩容步长需要大于等于1.2TiB,需要将目标容量换算为GiB后需要向下取整。如4.8TiB->4915GiB,8.4TiB->8601GiB。\n\n40MB/s/TiB,容量范围是1228~1048576 GiB。容量必须为1.2TiB的倍数,扩容步长需要大于等于1.2TiB,需要将目标容量换算为GiB后需要向下取整。如4.8TiB->4915GiB,8.4TiB->8601GiB。\n\n125MB/s/TiB、250MB/s/TiB、500MB/s/TiB、1000MB/s/TiB与40MB/s/TiB的容量范围,扩容步长相同。\n\nHPC缓存型文件系统,容量范围是4096~1048576 GiB。扩容步长均为1TiB。需要将目标容量换算为GiB。",
+          "maximum": 1048576,
+          "minimum": 500,
+          "type": "integer"
+        },
+        "new_bandwidth": {
+          "description": "带宽的目标值,单位:GB。仅HPC缓存型支持带宽扩缩。\n支持的带宽值为:2、4、8、16、24、32、48。",
+          "type": "integer",
+          "format": "int64",
+          "x-open-region-cloud": "hws,hws_hk,hws_eu"
+        },
+        "bss_param": {
+          "type": "object",
+          "description": "包周期扩容计费详情",
+          "$ref": "#/definitions/BssInfoExtend",
+          "x-open-region-cloud": "hws,hws_hk,hws_eu,ctc"
+        }
+      },
+      "required": [
+        "new_size"
+      ]
+    },
+    "ExpandShareResponseBody": {
+      "type": "object",
+      "description": "扩容请求返回body",
+      "properties": {
+        "id": {
+          "description": "SFS Turbo文件系统ID。",
+          "type": "string"
+        },
+        "name": {
+          "description": "SFS Turbo文件系统名称。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

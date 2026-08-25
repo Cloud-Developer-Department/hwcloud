@@ -1,0 +1,522 @@
+{
+  "name": "ListClusters",
+  "summary": "查询集群列表",
+  "tags": "集群管理",
+  "productshort": "CDM",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v1.1/{project_id}/clusters": {
+      "get": {
+        "summary": "查询集群列表",
+        "x-name": "查询集群列表",
+        "produces": [],
+        "description": "查询集群列表接口。",
+        "operationId": "ListClusters",
+        "x-support-sdk": "Y",
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/CdmQueryClustersRepsonse"
+            },
+            "examples": {
+              "application/json": {
+                "clusters": [
+                  {
+                    "publicEndpoint": "49.xx.xx.10",
+                    "actionProgress": {},
+                    "created": "2018-09-05T08:38:25",
+                    "name": "cdm-c018",
+                    "statusDetail": "Normal",
+                    "id": "bae65496-643e-47ca-84af-948672de7eeb",
+                    "isFrozen": "0",
+                    "config_status": "In-Sync",
+                    "updated": "2018-09-05T08:38:25",
+                    "status": "200"
+                  }
+                ]
+              }
+            },
+            "description": "ok"
+          },
+          "400": {
+            "description": "请求错误"
+          },
+          "401": {
+            "description": "鉴权失败"
+          },
+          "403": {
+            "description": "没有操作权限"
+          },
+          "404": {
+            "description": "找不到资源"
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参考错误码"
+          },
+          "503": {
+            "description": "服务不可用"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "type": "string",
+            "required": true,
+            "x-order": 1
+          }
+        ],
+        "x-version": "v1.1",
+        "x-order": 1,
+        "consumes": [],
+        "tags": [
+          "集群管理"
+        ],
+        "x-request-examples-url-1": "GET /v1.1/1551c7f6c808414d8e9f3c514a170f2e/clusters"
+      }
+    }
+  },
+  "definitions": {
+    "Datastore": {
+      "description": "cdm信息",
+      "properties": {
+        "type": {
+          "description": "类型,一般为cdm。",
+          "type": "string"
+        },
+        "version": {
+          "description": "集群版本。",
+          "type": "string"
+        }
+      },
+      "example": {
+        "version": "2.9.1.200",
+        "type": "cdm"
+      }
+    },
+    "ActionProgress": {
+      "description": "集群操作进度,任务信息,由key、value组成。key值为正在进行的任务,value值为正在进行任务的进度。示例如 \"action_progress\":{\"SNAPSHOTTING\":\"16%\"}",
+      "properties": {
+        "CREATING": {
+          "description": "创建集群进度,例如:29%",
+          "type": "string",
+          "example": "29%"
+        },
+        "GROWING": {
+          "description": "扩容集群进度,例如:29%",
+          "type": "string",
+          "example": "29%"
+        },
+        "RESTORING": {
+          "description": "恢复集群进度,例如:29%",
+          "type": "string",
+          "example": "29%"
+        },
+        "SNAPSHOTTING": {
+          "description": "集群快照进度,例如:29%",
+          "type": "string",
+          "example": "29%"
+        },
+        "REPAIRING": {
+          "description": "修复集群进度,例如:29%",
+          "type": "string",
+          "example": "29%"
+        }
+      }
+    },
+    "ClusterLinks": {
+      "description": "集群连接信息",
+      "properties": {
+        "rel": {
+          "description": "关系",
+          "type": "string"
+        },
+        "href": {
+          "description": "链接地址",
+          "type": "string"
+        }
+      }
+    },
+    "CdmQueryClustersRepsonse": {
+      "properties": {
+        "clusters": {
+          "description": "集群列表,请参见clusters参数说明",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/clusters"
+          }
+        }
+      },
+      "required": [
+        "clusters"
+      ]
+    },
+    "clusters": {
+      "properties": {
+        "customerConfig": {
+          "type": "object",
+          "$ref": "#/definitions/CustomerConfig"
+        },
+        "datastore": {
+          "type": "object",
+          "$ref": "#/definitions/Datastore"
+        },
+        "instances": {
+          "description": "集群的节点信息,请参见instances参数说明",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ClusterDetailInstance"
+          }
+        },
+        "azName": {
+          "description": "az名称",
+          "type": "string"
+        },
+        "dbuser": {
+          "description": "数据库用户",
+          "type": "string"
+        },
+        "flavorName": {
+          "description": "规格名称",
+          "type": "string"
+        },
+        "recentEvent": {
+          "description": "事件数",
+          "type": "integer",
+          "format": "int32"
+        },
+        "isAutoOff": {
+          "description": "自动关机",
+          "type": "boolean"
+        },
+        "isScheduleBootOff": {
+          "description": "选择是否启用定时开关机功能。定时开关机功能和自动关机功能不可同时开启",
+          "type": "boolean",
+          "example": false
+        },
+        "clusterMode": {
+          "description": "集群模式:sharding(分片集群)",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "命名空间",
+          "type": "string"
+        },
+        "task": {
+          "type": "object",
+          "$ref": "#/definitions/ClusterTask"
+        },
+        "publicEndpoint": {
+          "description": "集群绑定的EIP",
+          "type": "string",
+          "example": "49.xx.xx.10"
+        },
+        "actionProgress": {
+          "type": "object",
+          "$ref": "#/definitions/ActionProgress"
+        },
+        "created": {
+          "description": "集群创建时间,格式为ISO8601:YYYY-MM-DDThh:mm:ssZ",
+          "type": "string",
+          "example": "2018-09-05T08:38:25"
+        },
+        "bakExpectedStartTime": {
+          "description": "开始时间",
+          "type": "string"
+        },
+        "bakKeepDay": {
+          "description": "保留时间",
+          "type": "integer",
+          "format": "int32"
+        },
+        "name": {
+          "description": "集群名称",
+          "type": "string",
+          "example": "cdm-c018"
+        },
+        "statusDetail": {
+          "description": "集群状态描述:Normal(正常)",
+          "type": "string",
+          "example": ""
+        },
+        "id": {
+          "description": "集群ID",
+          "type": "string",
+          "example": "bae65496-643e-47ca-84af-948672de7eeb"
+        },
+        "isFrozen": {
+          "description": "集群是否冻结:0:否 1:是",
+          "type": "string",
+          "example": "0"
+        },
+        "updated": {
+          "description": "集群更新时间,格式为ISO8601:YYYY-MM-DDThh:mm:ssZ",
+          "type": "string",
+          "example": "2018-09-05T08:38:25"
+        },
+        "status": {
+          "description": "集群状态:\n- 100:创建中\n- 200:正常\n- 300:失败\n- 303:创建失败\n- 500:重启中\n- 800:冻结\n- 900:已关机\n- 910:正在关机\n- 920:正在开机",
+          "type": "string",
+          "example": "200"
+        },
+        "failedReasons": {
+          "type": "object",
+          "$ref": "#/definitions/FailedReasons"
+        }
+      },
+      "required": [
+        "version",
+        "updated",
+        "name",
+        "created",
+        "id",
+        "status",
+        "isFrozen"
+      ]
+    },
+    "CustomerConfig": {
+      "description": "用户配置信息",
+      "properties": {
+        "failureRemind": {
+          "description": "失败提醒。",
+          "type": "string"
+        },
+        "clusterName": {
+          "description": "集群类型。",
+          "type": "string"
+        },
+        "serviceProvider": {
+          "description": "服务提供",
+          "type": "string"
+        },
+        "localDisk": {
+          "description": "是否本地磁盘。",
+          "type": "string"
+        },
+        "ssl": {
+          "description": "是否使用ssl。",
+          "type": "string"
+        },
+        "createFrom": {
+          "description": "创建来源",
+          "type": "string"
+        },
+        "resourceId": {
+          "description": "资源ID",
+          "type": "string"
+        },
+        "flavorType": {
+          "description": "规格类型",
+          "type": "string"
+        },
+        "workSpaceId": {
+          "description": "工作空间ID",
+          "type": "string"
+        },
+        "trial": {
+          "description": "适用",
+          "type": "string"
+        }
+      }
+    },
+    "FailedReasons": {
+      "description": "失败原因。集群处于正常状态时不返回。",
+      "type": "object",
+      "properties": {
+        "CREATE_FAILED": {
+          "description": "集群创建失败原因。",
+          "type": "object",
+          "properties": {
+            "errorCode": {
+              "description": "错误码",
+              "type": "string"
+            },
+            "errorMsg": {
+              "description": "失败原因",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "Resource": {
+      "properties": {
+        "resource_id": {
+          "description": "资源id",
+          "type": "string"
+        },
+        "resource_type": {
+          "description": "资源类型:server(服务器)",
+          "type": "string"
+        }
+      }
+    },
+    "ClusterTask": {
+      "description": "任务信息",
+      "properties": {
+        "description": {
+          "description": "任务描述",
+          "type": "string"
+        },
+        "id": {
+          "description": "任务id",
+          "type": "string"
+        },
+        "name": {
+          "description": "任务名称",
+          "type": "string"
+        }
+      }
+    },
+    "ClusterDetailInstance": {
+      "properties": {
+        "flavor": {
+          "description": "节点的虚拟机规格,请参见flavor参数说明(查询集群列表时返回值为null)。",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "节点虚拟机的规格ID。",
+              "type": "string"
+            },
+            "links": {
+              "description": "链接信息",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ClusterLinks"
+              }
+            }
+          }
+        },
+        "volume": {
+          "description": "节点的磁盘信息,请参见volume参数说明(查询集群列表时返回值为null)。",
+          "type": "object",
+          "properties": {
+            "type": {
+              "description": "节点的磁盘类型,只支持本地磁盘",
+              "type": "string"
+            },
+            "size": {
+              "description": "节点磁盘大小,单位G。",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "status": {
+          "description": "节点状态:\n- 100:创建中。\n- 200:正常。\n- 300:失败。\n- 303:创建失败。\n- 400:已删除。\n- 800:冻结。",
+          "type": "string"
+        },
+        "actions": {
+          "description": "节点操作状态列表:\n- REBOOTING:重启中。\n- RESTORING:恢复中。\n- REBOOT_FAILURE:重启失败。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "description": "节点类型,只支持一种类型“cdm”。",
+          "type": "string"
+        },
+        "id": {
+          "description": "节点的虚拟机ID。",
+          "type": "string"
+        },
+        "name": {
+          "description": "节点的虚拟机名称。",
+          "type": "string"
+        },
+        "isFrozen": {
+          "description": "节点是否冻结:0:否。1:是。",
+          "type": "string"
+        },
+        "components": {
+          "description": "组件",
+          "type": "string"
+        },
+        "config_status": {
+          "description": "节点配置状态(查询集群列表时为null):\n- In-Sync:配置已同步。\n- Applying:配置中。\n- Sync-Failure:配置失败。",
+          "type": "string"
+        },
+        "role": {
+          "description": "实例角色",
+          "type": "string"
+        },
+        "group": {
+          "description": "分组",
+          "type": "string"
+        },
+        "links": {
+          "description": "链接信息(查询集群列表时返回值为null)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ClusterLinks"
+          }
+        },
+        "paramsGroupId": {
+          "description": "组件分组id",
+          "type": "string"
+        },
+        "publicIp": {
+          "description": "公网ip",
+          "type": "string"
+        },
+        "manageIp": {
+          "description": "管理ip",
+          "type": "string"
+        },
+        "trafficIp": {
+          "description": "流量ip",
+          "type": "string"
+        },
+        "shard_id": {
+          "description": "分片id",
+          "type": "string"
+        },
+        "manage_fix_ip": {
+          "description": "管理修复ip",
+          "type": "string"
+        },
+        "private_ip": {
+          "description": "私有ip",
+          "type": "string"
+        },
+        "internal_ip": {
+          "description": "内部ip",
+          "type": "string"
+        },
+        "resource": {
+          "description": "资源信息(查询集群列表时返回值为null)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Resource"
+          }
+        }
+      },
+      "required": [
+        "flavor",
+        "volume",
+        "status",
+        "type",
+        "id",
+        "name",
+        "isFrozen"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cdm.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

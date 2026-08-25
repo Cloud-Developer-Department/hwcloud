@@ -1,0 +1,488 @@
+{
+  "name": "CreateImageInSafeMode",
+  "summary": "制作镜像(新)",
+  "tags": "镜像",
+  "productshort": "IMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2.1/cloudimages/action": {
+      "post": {
+        "tags": [
+          "镜像"
+        ],
+        "summary": "制作镜像(新)",
+        "description": "本接口用于制作私有镜像,支持:\n- 使用云服务器制作私有镜像。\n- 使用上传至OBS桶中的外部镜像文件制作私有镜像。\n- 使用数据卷制作系统盘镜像。\n\n作为异步接口,调用成功,只是说明云平台收到了制作请求,镜像是否制作成功需要通过异步任务查询接口查询该任务的执行状态,具体请参考异步任务查询。\n\n不同场景必选参数说明:\n\n- 使用云服务器制作镜像时的请求的必选参数:name,instance_id。\n- 使用上传至OBS桶中的外部镜像文件时的请求必选参数:name,image_url,min_disk。\n- 使用数据卷制作系统盘镜像时的请求必选参数:name,volume_id,os_version",
+        "operationId": "CreateImageInSafeMode",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "ECSbodyparam",
+            "description": "使用云服务器制作镜像时的Request Body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateImageRequestBody"
+            },
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,使用Token认证时该字段必选。",
+            "required": false,
+            "type": "string",
+            "x-order": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常",
+            "examples": {
+              "application/json": {
+                "job_id": "8a12fc664fb4daa3014fb4e581380005"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JobResultBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request  请求错误。",
+            "schema": {
+              "$ref": "#/definitions/FailResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized  鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/FailResponseBody"
+            }
+          },
+          "403": {
+            "description": "Forbidden  没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/FailResponseBody"
+            }
+          },
+          "404": {
+            "description": "Not Found  找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/FailResponseBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error  服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/FailResponseBody"
+            }
+          },
+          "503": {
+            "description": "Service Unavailable  服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/FailResponseBody"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "制作镜像(新)",
+        "x-constraint": "- QCOW2格式的镜像文件必须没有加密属性。\n- 外部镜像文件中必须包含系统盘。\n- 外部镜像文件的大小必须不超过1TB,当镜像文件大于128GB时,需将镜像文件格式换为ZVHD2或RAW格式后才可以使用快速导入功能导入外部镜像文件。\n- 快速导入功能仅支持导入RAW或ZVHD2格式的镜像文件,镜像文件大小不能超过1TB。\n- 使用快速导入功能导入RAW格式镜像文件前,要求镜像文件已完成了镜像优化(优化Windows私有镜像、优化Linux私有镜像),且已生成位表文件。\n- 使用快速导入功能导入ZVHD2格式镜像文件前,要求镜像文件已完成了镜像优化(优化Windows私有镜像、优化Linux私有镜像)。\n- 用于创建私有镜像的源云服务器系统盘大小大于等于40GB且不超过1024GB。\n- Windows操作系统的外部镜像文件必须包含可用的Administrator账户和密码。在创建私有镜像过程中,您可能会使用相应的账户名和密码登录云服务器进行相关配置。\n- 镜像支持IDE设备驱动,并且驱动在系统启动时自动加载。\n- 镜像启动分区和系统分区必须都包含在同一个磁盘中。\n- 镜像引导方式必须为BIOS而不是UEFI的引导方式。\n- 请确保镜像文件中已经设置或包含登录该镜像所创建云主机云服务器的密码或证书,或者在镜像系统中已经安装并配置了cloudbase-init。\n- 为避免使用该镜像文件导出的云服务器被攻击,请确保镜像文件的初始密码至少包含以下4种字符:\n    - 大写字母\n    - 小写字母\n    - 数字\n    - 特殊字符,包括!@$%^-_=+[{}]:,./?\n- 如果外部镜像文件的磁盘采用了特定的加密机制,则可能会导致镜像注册后创建的云服务器无法正常使用。\n- 因为一些默认驱动在云平台无法使用,所以不支持使用包含OEM类的操作系统的外部镜像文件创建私有镜像。\n- 外部镜像文件中的操作系统不可以与特定的硬件绑定。\n- 外部镜像文件中的操作系统必须支持全虚拟化。\n- 上传外部镜像文件到OBS桶时,OBS桶和镜像文件的存储类别必须是OBS标准存储。\n- 如果是使用ISO文件制作镜像,创建的镜像不支持加密、复制、导出功能。\n- 如果是使用ISO文件制作镜像,镜像类型为“IsoImage”,且“os_version”为必选参数。",
+        "x-version": "v2",
+        "x-scope": "Commercial",
+        "x-order": 6,
+        "x-request-examples-description-1": "使用tags参数及云服务器制作镜像",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-1": {
+          "name": "ims_test",
+          "description": "云服务器制作镜像",
+          "instance_id": "877a2cda-ba63-4e1e-b95f-e67e48b6129a",
+          "tags": [
+            "aaa.111",
+            "bbb.333",
+            "ccc.444"
+          ]
+        },
+        "x-request-examples-text-1": "{\n       \"name\": \"ims_test\",\n       \"description\": \"云服务器制作镜像\",\n       \"instance_id\": \"877a2cda-ba63-4e1e-b95f-e67e48b6129a\",\n       \"tags\": [\n             \"aaa.111\",\n             \"bbb.333\",\n             \"ccc.444\"\n         ]\n}\n",
+        "x-request-examples-description-2": "使用image_tags参数及云服务器制作镜像",
+        "x-request-examples-url-2": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-2": {
+          "name": "ims_test",
+          "description": "云服务器制作镜像",
+          "instance_id": "877a2cda-ba63-4e1e-b95f-e67e48b6129a",
+          "image_tags": [
+            {
+              "key": "key2",
+              "value": "value2"
+            },
+            {
+              "key": "key1",
+              "value": "value1"
+            }
+          ]
+        },
+        "x-request-examples-text-2": "{\n       \"name\": \"ims_test\",\n       \"description\": \"云服务器制作镜像\",\n       \"instance_id\": \"877a2cda-ba63-4e1e-b95f-e67e48b6129a\",\n       \"image_tags\": [{\"key\":\"key2\",\"value\":\"value2\"},{\"key\":\"key1\",\"value\":\"value1\"}]\n} \n",
+        "x-request-examples-description-3": "使用image_tags参数及制作数据盘镜像",
+        "x-request-examples-url-3": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-3": {
+          "data_images": [
+            {
+              "name": "ims_data_image_test",
+              "description": "云服务器数据卷制作数据盘镜像",
+              "volume_id": "c5dfbd0c-bf0a-4798-a453-61dc6b54aa30",
+              "image_tags": [
+                {
+                  "key": "key2",
+                  "value": "value2"
+                },
+                {
+                  "key": "key1",
+                  "value": "value1"
+                }
+              ]
+            }
+          ]
+        },
+        "x-request-examples-text-3": "{\n       \"data_images\": [{\"name\": \"ims_data_image_test\",\n       \"description\": \"云服务器数据卷制作数据盘镜像\",\n       \"volume_id\": \"c5dfbd0c-bf0a-4798-a453-61dc6b54aa30\",\n       \"image_tags\": [{\"key\":\"key2\",\"value\":\"value2\"},{\"key\":\"key1\",\"value\":\"value1\"}]\n       }]\n}\n",
+        "x-request-examples-description-4": "使用tags参数及上传至OBS桶中的外部镜像文件制作镜像",
+        "x-request-examples-url-4": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-4": {
+          "name": "ims_test_file",
+          "description": "OBS文件制作镜像",
+          "image_url": "ims-image:centos70.qcow2",
+          "os_version": "CentOS 7.0 64bit",
+          "is_config_init": true,
+          "min_disk": 40,
+          "is_config": true,
+          "tags": [
+            "aaa.111",
+            "bbb.333",
+            "ccc.444"
+          ]
+        },
+        "x-request-examples-text-4": "{\n      \"name\": \"ims_test_file\",\n      \"description\": \"OBS文件制作镜像\",\n      \"image_url\": \"ims-image:centos70.qcow2\",\n      \"os_version\": \"CentOS 7.0 64bit\",\n      \"is_config_init\": true,\n      \"min_disk\": 40,\n      \"is_config\": true,\n      \"tags\": [  \n            \"aaa.111\",  \n            \"bbb.333\",  \n            \"ccc.444\"  \n      ]     \n}\n",
+        "x-request-examples-description-5": "使用tags参数及云服务器制作数据盘镜像",
+        "x-request-examples-url-5": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-5": {
+          "data_images": [
+            {
+              "name": "ims_data_image_test",
+              "description": "云服务器数据卷制作数据盘镜像",
+              "volume_id": "c5dfbd0c-bf0a-4798-a453-61dc6b54aa30",
+              "tags": [
+                "aaa.111",
+                "bbb.333",
+                "ccc.444"
+              ]
+            }
+          ]
+        },
+        "x-request-examples-text-5": "{\n       \"data_images\": [{\"name\": \"ims_data_image_test\",\n       \"description\": \"云服务器数据卷制作数据盘镜像\",\n       \"volume_id\": \"c5dfbd0c-bf0a-4798-a453-61dc6b54aa30\",\n       \"tags\": [\n                  \"aaa.111\",\n                  \"bbb.333\",\n                  \"ccc.444\"\n              ]\n       }]\n}\n",
+        "x-request-examples-description-6": "使用image_tags参数及上传至OBS桶中的外部镜像文件制作镜像",
+        "x-request-examples-url-6": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-6": {
+          "name": "ims_test_file",
+          "description": "OBS文件制作镜像",
+          "image_url": "ims-image:centos70.qcow2",
+          "os_version": "CentOS 7.0 64bit",
+          "is_config_init": true,
+          "min_disk": 40,
+          "image_tags": [
+            {
+              "key": "key2",
+              "value": "value2"
+            },
+            {
+              "key": "key1",
+              "value": "value1"
+            }
+          ]
+        },
+        "x-request-examples-text-6": "{\n       \"name\": \"ims_test_file\",\n       \"description\": \"OBS文件制作镜像\",\n       \"image_url\": \"ims-image:centos70.qcow2\",\n       \"os_version\": \"CentOS 7.0 64bit\",\n       \"is_config_init\": true,\n       \"min_disk\": 40,\n       \"image_tags\": [{\"key\":\"key2\",\"value\":\"value2\"},{\"key\":\"key1\",\"value\":\"value1\"}]    \n}\n",
+        "x-request-examples-description-7": "使用image_tags参数及数据卷创建系统盘镜像",
+        "x-request-examples-url-7": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-7": {
+          "name": "ims_test",
+          "description": "数据卷制作系统盘镜像",
+          "volume_id": "877a2cda-ba63-4e1e-b95f-e67e48b6129a",
+          "type": "ECS",
+          "os_version": "CentOS 7.0 64bit",
+          "image_tags": [
+            {
+              "key": "key2",
+              "value": "value2"
+            },
+            {
+              "key": "key1",
+              "value": "value1"
+            }
+          ]
+        },
+        "x-request-examples-text-7": "{\n        \"name\": \"ims_test\",\n        \"description\": \"数据卷制作系统盘镜像\",\n        \"volume_id\": \"877a2cda-ba63-4e1e-b95f-e67e48b6129a\",\n        \"type\": \"ECS\",\n        \"os_version\": \"CentOS 7.0 64bit\",\n        \"image_tags\": [{\"key\":\"key2\",\"value\":\"value2\"},{\"key\":\"key1\",\"value\":\"value1\"}] \n } \n",
+        "x-request-examples-description-8": "使用tags参数及数据卷制作系统盘镜像",
+        "x-request-examples-url-8": "POST https://{Endpoint}/v2.1/cloudimages/action",
+        "x-request-examples-8": {
+          "name": "ims_test",
+          "description": "数据卷制作系统盘镜像",
+          "volume_id": "877a2cda-ba63-4e1e-b95f-e67e48b6129a",
+          "type": "ECS",
+          "os_version": "CentOS 7.0 64bit",
+          "tags": [
+            "aaa.111",
+            "bbb.333",
+            "ccc.444"
+          ]
+        },
+        "x-request-examples-text-8": "{\n        \"name\": \"ims_test\",\n        \"description\": \"数据卷制作系统盘镜像\",\n        \"volume_id\": \"877a2cda-ba63-4e1e-b95f-e67e48b6129a\",\n        \"type\": \"ECS\",\n        \"os_version\": \"CentOS 7.0 64bit\",\n        \"tags\": [\n                \"aaa.111\",\n                \"bbb.333\",\n                \"ccc.444\" \n           ]\n } \n",
+        "x-flow_control_group": "glance15",
+        "x-apiexplorer-hide": "",
+        "x-tenant_flow_time": 5,
+        "x-hk": "Y",
+        "x-is_registered": "Y",
+        "x-first_open_time": "2016-09-30",
+        "x-tenant_flow_value": 40,
+        "x-source": "SelfDeveloped",
+        "x-source_url": "",
+        "x-timeout": "200s",
+        "x-is_calling": "Y",
+        "x-ctc": "Y",
+        "x-apigateway-auth-type": "IAM",
+        "x-call_frequency": "high",
+        "x-un_cli": "",
+        "x-support-sdk": "Y",
+        "x-publishpath": "",
+        "x-apigateway-match-mode": "NORMAL",
+        "x-otc": "Y",
+        "x-in_cli": "",
+        "x-hcso": "",
+        "x-hybridcloud": true,
+        "x-apigateway-request-type": "public",
+        "x-tlf": "Y",
+        "x-obc": "Y",
+        "x-multi_tenant_flow_time": 5,
+        "x-sbc": "",
+        "x-hc": "Y",
+        "x-multi_tenant_flow_value": 200,
+        "x-open-region-cloud": "hc,hk"
+      }
+    }
+  },
+  "definitions": {
+    "TagKeyValue": {
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "key1",
+          "description": "标签的键"
+        },
+        "value": {
+          "type": "string",
+          "example": "value",
+          "description": "标签的值"
+        }
+      },
+      "description": "镜像标签"
+    },
+    "CreateDataImage": {
+      "required": [
+        "name",
+        "volume_id"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "数据盘镜像名称。"
+        },
+        "volume_id": {
+          "type": "string",
+          "description": "数据盘ID。"
+        },
+        "description": {
+          "type": "string",
+          "description": "数据盘描述。"
+        },
+        "tags": {
+          "type": "array",
+          "description": "数据盘镜像标签。",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "数据盘信息"
+    },
+    "ErrorMessageInfo": {
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "message": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "description": "错误信息"
+    },
+    "CreateImageRequestBody": {
+      "properties": {
+        "data_images": {
+          "type": "array",
+          "description": "需要转换的数据盘信息,其中,当使用云服务器上的数据盘进行私有数据盘镜像创建时,该字段必选。\n如果不是用于制作数据盘镜像,该字段默认为空。",
+          "items": {
+            "$ref": "#/definitions/CreateDataImage"
+          }
+        },
+        "description": {
+          "type": "string",
+          "example": "云服务器制作镜像",
+          "description": "镜像描述信息。支持字母、数字、中文等,不支持回车、<、 >,长度不能超过1024个字符。默认为空。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "表示当前镜像所属的企业项目。取值为0或无该值,表示属于default企业项目。取值为UUID,表示属于该UUID对应的企业项目。"
+        },
+        "image_tags": {
+          "type": "array",
+          "description": "新规范的镜像标签列表。默认为空。tags和image_tags只能使用一个。",
+          "items": {
+            "$ref": "#/definitions/TagKeyValue"
+          }
+        },
+        "instance_id": {
+          "type": "string",
+          "example": "877a2cda-ba63-4e1e-b95f-e67e48b6129a",
+          "description": "需要转换的云服务器ID。使用instance_id字段,从云服务器制作私有镜像时,该字段填写云服务器ID。"
+        },
+        "name": {
+          "type": "string",
+          "example": "ims_test",
+          "description": "镜像名称",
+          "x-huawei-extraAnnotation": ""
+        },
+        "tags": {
+          "type": "array",
+          "description": "镜像标签列表。默认为空。tags和image_tags只能使用一个。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_ram": {
+          "type": "integer",
+          "format": "int32",
+          "description": "表示镜像支持的最大内存,单位为MB。"
+        },
+        "min_ram": {
+          "type": "integer",
+          "format": "int32",
+          "description": "表示镜像支持的最小内存,单位为MB,默认为0,表示不受限制。"
+        },
+        "os_version": {
+          "type": "string",
+          "description": "操作系统版本。\n使用上传至OBS桶中的外部镜像文件制作镜像时生效。\n当“is_quick_import”的值为“true”时,即使用镜像文件快速导入方式导入系统盘镜像,则该参数为必填参数。"
+        },
+        "image_url": {
+          "type": "string",
+          "description": "OBS桶中外部镜像文件地址。\n在使用OBS桶的外部镜像文件制作镜像时生效且为必选字段。格式为<OBS桶名>:<OBS镜像文件名称>。"
+        },
+        "min_disk": {
+          "type": "integer",
+          "description": "最小系统盘大小。\n在使用OBS桶的外部镜像文件制作镜像时生效且为必选字段。取值为40~1024GB。",
+          "minLength": 40,
+          "maxLength": 1024
+        },
+        "is_config": {
+          "type": "boolean",
+          "description": "是否自动配置。\n取值为true或false。\n如果需要后台自动配置,取值为true,否则为false。默认取值为false。",
+          "default": false
+        },
+        "cmk_id": {
+          "type": "string",
+          "description": "创建加密镜像的用户主密钥,具体取值请参考《密钥管理服务用户指南》获取。"
+        },
+        "type": {
+          "type": "string",
+          "description": "镜像的类型。\n取值为ECS、BMS、FusionCompute、Ironic。默认使用“ECS”。\nECS/FusionCompute:表示是ECS服务器的镜像。\nBMS/Ironic:表示是BMS服务器的镜像。",
+          "enum": [
+            "ECS",
+            "BMS",
+            "FusionCompute",
+            "Ironic",
+            "IsoImage"
+          ],
+          "default": "ECS"
+        },
+        "is_quick_import": {
+          "type": "boolean",
+          "description": "是否使用镜像文件快速导入方式,导入系统盘镜像。\n是,配置为true。\n否,配置为false。\n关于镜像文件快速导入的约束与限制请参见镜像文件快速导入。",
+          "default": false
+        },
+        "architecture": {
+          "type": "string",
+          "description": "镜像的架构类型。取值包括:\nx86\narm\n默认使用“x86”。\n当架构类型为arm时,镜像引导方式将自动转为UEFI的引导方式。",
+          "enum": [
+            "x86",
+            "arm"
+          ],
+          "default": "x86"
+        },
+        "volume_id": {
+          "type": "string",
+          "description": "数据盘的卷ID。当数据盘创建系统盘镜像时,该参数必选",
+          "x-huawei-extraAnnotation": ""
+        },
+        "hw_firmware_type": {
+          "type": "string",
+          "description": "云主机云服务器的启动方式。目前支持:\nbios:表示bios引导启动。\nuefi:表示uefi引导启动。",
+          "enum": [
+            "bios",
+            "uefi"
+          ]
+        }
+      },
+      "description": "创建镜像请求参数体"
+    },
+    "JobResultBody": {
+      "required": [
+        "job_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "example": "4010a32b5f909853015f90aaa24b0015",
+          "description": "异步任务ID。"
+        }
+      },
+      "description": "异步任务响应体"
+    },
+    "FailResponseBody": {
+      "required": [
+        "error"
+      ],
+      "properties": {
+        "error": {
+          "example": "{ \"error\": {\"message\": \"string.\", \"code\": \"string\" } }",
+          "description": "请求失败响应体",
+          "$ref": "#/definitions/ErrorMessageInfo"
+        }
+      },
+      "description": "请求失败响应体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ims.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

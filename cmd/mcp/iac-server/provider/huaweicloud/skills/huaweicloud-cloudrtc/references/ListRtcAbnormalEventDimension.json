@@ -1,0 +1,232 @@
+{
+  "name": "ListRtcAbnormalEventDimension",
+  "summary": "查询异常事件用户分布",
+  "tags": "数据统计分析",
+  "productshort": "CloudRTC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/rtc/data/abnormal-event/dimension": {
+      "get": {
+        "tags": [
+          "RtcStatisticsDataApi"
+        ],
+        "summary": "查询异常事件用户分布",
+        "description": "查询指定APP下指定时间内的通话异常明细数据分布情况。\n\n最大查询跨度1天。\n",
+        "operationId": "ListRtcAbnormalEventDimension",
+        "x-support-sdk": "Y",
+        "x-external-api": true,
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。使用Token鉴权方式时必选。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "query",
+            "name": "app",
+            "description": "应用ID\n",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "5fa682b34a974f7ad24d223b"
+          },
+          {
+            "in": "query",
+            "name": "room_id",
+            "description": "房间ID\n",
+            "type": "string",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "6951a79e9f811ebbd2ac58d7ac82553"
+          },
+          {
+            "in": "query",
+            "name": "dimension",
+            "description": "分组类型,支持同时指定两种类型\n- abnormal_type:异常类型\n- abnormal_factor:异常因素\n",
+            "type": "string",
+            "enum": [
+              "abnormal_type",
+              "abnormal_factor"
+            ],
+            "default": "abnormal_factor",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "abnormal_type"
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "description": "查询起始时间。UTC时间,格式:YYYY-MM-DDThh:mm:ssZ,如2020-04-23T06:00:00Z,不填写则默认读取过去1小时数据数据。\n",
+            "type": "string",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "2020-04-23T06:00:00Z"
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "description": "查询结束时间。UTC时间,格式:YYYY-MM-DDThh:mm:ssZ,如2020-04-23T07:00:00Z,不填写则默认为当前时间。\n",
+            "type": "string",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "2020-04-26T06:00:00Z"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功返回。\n",
+            "schema": {
+              "$ref": "#/definitions/RtcAbnormalEventDimensionRsp"
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求的唯一标识"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "dimensions": [
+                  {
+                    "abnormal_type": 2,
+                    "abnormal_type_desc": "视频卡顿",
+                    "abnormal_factor": 14,
+                    "abnormal_factor_desc": "下行视频丢包",
+                    "user_count": 1
+                  },
+                  {
+                    "abnormal_type": 3,
+                    "abnormal_type_desc": "音频卡顿",
+                    "abnormal_factor": 13,
+                    "abnormal_factor_desc": "下行音频丢包",
+                    "user_count": 1
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "查询失败返回",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求的唯一标识"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DATA.100011001",
+                "error_msg": "Required String parameter 'app' is not present"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET /v1/rtc/data/abnormal-event/dimension?app=5f963b4c89ae1628c2568001&room_id=3b48d9db05cc11ecb1e78fe304a40b8f&start_time=2021-08-25T16:00:00Z&end_time=2021-08-25T18:00:00Z"
+      }
+    }
+  },
+  "definitions": {
+    "AbnormalEventDimensionValue": {
+      "type": "object",
+      "required": [
+        "abnormal_type",
+        "abnormal_type_desc",
+        "abnormal_factor",
+        "abnormal_factor_desc",
+        "user_count"
+      ],
+      "properties": {
+        "abnormal_type": {
+          "description": "异常类型:\n- 1:进房慢(5s加入房间失败)\n- 2:视频卡顿\n- 3:音频卡顿\n",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15
+        },
+        "abnormal_type_desc": {
+          "description": "异常类型描述与异常类型对应,支持国际化,取值范围为:\n- 进房慢(5s加入房间失败)\n- 视频卡顿\n- 音频卡顿\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32384
+        },
+        "abnormal_factor": {
+          "description": "异常因素\n当异常类型为1时,异常因素取值范围为:\n- 1:建链失败\n- 2:房间非空闲\n- 3:服务器异常\n- 4:服务器反馈503\n- 5:鉴权失败\n- 6:鉴权重试\n- 7:时钟同步失败\n- 8:url错误\n- 9:终端内部异常\n- 90000004:SDK发出的加入房间信令响应超时\n- 90100009:web侧没有收到MSP下发的配置信息\n- 90100008:websocket链路建链失败\n- 10000001:服务侧返回的异常信息\n- 31000003:服务侧返回的异常信息\n- 32000030:服务侧返回的异常信息\n- 15:浏览器设置sdp异常\n当异常类型为2或者3时,异常因素取值范围为:\n- 1:系统CPU占用高\n- 2:App CPU占用高\n- 3:音频上行网络延时\n- 4:音频上行网络抖动\n- 5:视频上行网络延时\n- 6:视频上行网络抖动\n- 7:音频下行网络延时\n- 8:音频下行网络抖动\n- 9:视频下行网络延时\n- 10:视频下行网络抖动\n- 11:上行音频丢包\n- 12:上行视频丢包\n- 13:下行音频丢包\n- 14:下行视频丢包\n- 15:下行音频无声音\n- 16:其他\n- 17:对端用户离线\n- 18:对端用户无码流\n- 19:对端用户无帧率\n- 20:本端服务器下行无码流\n- 21:本端服务器下行无帧率\n",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15
+        },
+        "abnormal_factor_desc": {
+          "description": "异常因素描述,支持国际化\n当异常类型为1时,异常因素描述与异常因素对应,取值范围为:\n- 建链失败\n- 房间非空闲\n- 服务器异常\n- 服务器反馈503\n- 鉴权失败\n- 鉴权重试\n- 时钟同步失败\n- url错误\n- 终端内部异常\n- SDK发出的加入房间信令响应超时\n- web侧没有收到MSP下发的配置信息\n- websocket链路建链失败\n- 服务侧返回的异常信息\n- 服务侧返回的异常信息\n- 服务侧返回的异常信息\n- 浏览器设置sdp异常\n当异常类型为2或者3时,异常因素描述与异常因素对应,取值范围为:\n- 系统CPU占用高\n- App CPU占用高\n- 音频上行网络延时\n- 音频上行网络抖动\n- 视频上行网络延时\n- 视频上行网络抖动\n- 音频下行网络延时\n- 音频下行网络抖动\n- 视频下行网络延时\n- 视频下行网络抖动\n- 上行音频丢包\n- 上行视频丢包\n- 下行音频丢包\n- 下行视频丢包\n- 下行音频无声音\n- 其他\n- 对端用户离线\n- 对端用户无码流\n- 对端用户无帧率\n- 本端服务器下行无码流\n- 本端服务器下行无帧率\n其他情况,异常因素描述为:其他\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32384
+        },
+        "user_count": {
+          "description": "异常影响的用户数",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 1844674407
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "RtcAbnormalEventDimensionRsp": {
+      "type": "object",
+      "properties": {
+        "dimensions": {
+          "description": "异常体验列表",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 8928,
+          "items": {
+            "$ref": "#/definitions/AbnormalEventDimensionValue"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rtc-api.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

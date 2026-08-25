@@ -1,0 +1,207 @@
+{
+  "name": "ListSlowLogs",
+  "summary": "查询数据库慢日志",
+  "tags": "日志管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/slowlog": {
+      "get": {
+        "tags": [
+          "日志管理"
+        ],
+        "operationId": "ListSlowLogs",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "summary": "查询数据库慢日志",
+        "description": "查询数据库慢日志信息。",
+        "x-constraint": "- 该接口支持GeminiDB Cassandra数据库实例。\n- 在入参start_date和end_date的时间段内最多查询到2000条数据。",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "91f020b75c1c4bdd8d83933033ff9308in02"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "开始时间,格式为“yyyy-mm-ddThh:mm:ssZ”。\n其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。",
+            "required": true,
+            "type": "string",
+            "x-example": "2020-11-14T16:00:00+0800"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "结束时间,格式为“yyyy-mm-ddThh:mm:ssZ”。\n其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。只能查询当前时间前一个月内的慢日志。注:结束时间不能晚于当前时间。",
+            "required": true,
+            "type": "string",
+            "x-example": "2020-11-20T16:00:00+0800"
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "description": "节点ID,取空值,表示查询实例下所有允许查询的节点。\n具体取值请参考查询实例列表和详情接口\"ListInstances\"中nodes字段数据结构说明的“id”。",
+            "type": "string",
+            "x-example": "fea413b892214c53a58e5a529096ed75no02"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "语句类型,取空值,表示查询所有语句类型,也可指定如下日志类型:\n- SELECT",
+            "type": "string",
+            "x-example": "SELECT"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "索引位置,偏移量。取值范围为 [0, 1999]。\n从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。",
+            "type": "integer",
+            "x-example": 0,
+            "minimum": 0,
+            "maximum": 1999
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询记录数。取值范围[1, 100],默认10 (表示默认返回10条数据)。\n注意: limit 与 offset 的和需要满足 <= 2000的条件。",
+            "type": "integer",
+            "x-example": 10,
+            "minimum": 1,
+            "maximum": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ListSlowlogsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total_record": 1,
+                "slow_log_list": [
+                  {
+                    "time": "101 ms",
+                    "query_sample": "SELECT * FROM cassandra.sz_user_hw LIMIT 100;",
+                    "type": "SELECT",
+                    "database": "cassandra",
+                    "start_time": "2020-11-15T22:49:38.643000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/0483b6b16e954cb88930a360d2c4e663/instances/6ade8143870047b8999aba8f1891b48ein02/slowlog?start_date=2018-08-06T10:41:14+0800&end_date=2018-08-07T10:41:14+0800"
+      }
+    }
+  },
+  "definitions": {
+    "SlowlogResult": {
+      "required": [
+        "time",
+        "database",
+        "query_sample",
+        "type",
+        "start_time"
+      ],
+      "properties": {
+        "time": {
+          "type": "string",
+          "description": "执行时间。"
+        },
+        "database": {
+          "type": "string",
+          "description": "所属数据库。",
+          "example": "geography"
+        },
+        "query_sample": {
+          "type": "string",
+          "description": "执行语法。",
+          "example": "testDb"
+        },
+        "type": {
+          "type": "string",
+          "description": "语句类型。",
+          "example": "SELECT"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "发生时间,UTC时间。",
+          "example": "2020-11-15T22:49:38.643000Z"
+        }
+      }
+    },
+    "ListSlowlogsResponseBody": {
+      "required": [
+        "slow_log_list",
+        "total_record"
+      ],
+      "properties": {
+        "slow_log_list": {
+          "description": "具体信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SlowlogResult"
+          }
+        },
+        "total_record": {
+          "description": "数据库版本总记录数。",
+          "type": "integer"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

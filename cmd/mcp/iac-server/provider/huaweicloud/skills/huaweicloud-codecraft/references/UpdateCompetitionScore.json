@@ -1,0 +1,199 @@
+{
+  "name": "UpdateCompetitionScore",
+  "summary": "修改平台提交的作品分数(得分回调)",
+  "tags": "作品管理",
+  "productshort": "CodeCraft",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v5/competitions/scores": {
+      "put": {
+        "tags": [
+          "作品管理"
+        ],
+        "summary": "修改平台提交的作品分数(得分回调)",
+        "description": "针对在大赛平台提交作品的场景:第三方服务对作品完成判分后,根据作品ID调用该接口将作品分数、作品状态等信息返回给大赛平台",
+        "operationId": "UpdateCompetitionScore",
+        "consumes": [
+          "application/json;charset=UTF-8"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "第三方服务token,需要平台配置账号权限",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvIIDgzCCXXXXXX...",
+            "minLength": 1,
+            "maxLength": 99999
+          },
+          {
+            "in": "body",
+            "name": "UpdateCompetitionScoreRequestBody",
+            "description": "UpdateScoreRequestModel",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateScoreRequestModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "分数设置成功"
+          },
+          "400": {
+            "description": "作品不存在",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "CC.0002",
+                "error_msg": "作品不存在"
+              }
+            }
+          },
+          "403": {
+            "description": "用户无权操作",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "CC.0001",
+                "error_msg": "用户无权操作"
+              }
+            }
+          },
+          "500": {
+            "description": "系统繁忙",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "CC.0011",
+                "error_msg": "系统繁忙"
+              }
+            }
+          }
+        },
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#address#",
+            "method": "PUT",
+            "path": "/CompetitionService/v5/competitions/scores",
+            "scheme": "https",
+            "timeout": 30000
+          }
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-is-registered": "Y",
+        "x-name": "作品得分回调接口",
+        "x-support-sdk": "Y",
+        "x-version": "v5",
+        "deprecated": false,
+        "x-request-examples-url-1": "PUT https://{endpoint}/v5/competitions/scores",
+        "x-request-examples-description-1": "请求成功示例,能够正常保存分数",
+        "x-request-examples-text-1": {
+          "works_id": 4056012,
+          "score": 77.77,
+          "status": "success",
+          "message": "对外接口测试用例"
+        },
+        "x-request-examples-url-2": "PUT https://{endpoint}/v5/competitions/scores",
+        "x-request-examples-description-2": "请求失败示例,返回错误码error_code=CC.0002,作品不存在",
+        "x-request-examples-text-2": {
+          "works_id": 9999999,
+          "score": 66.66,
+          "status": "success",
+          "message": "测试对外接口"
+        },
+        "x-request-examples-url-3": "PUT https://{endpoint}/v5/competitions/scores",
+        "x-request-examples-description-3": "请求失败示例,返回错误码error_code=CC.0003,作品已作废",
+        "x-request-examples-text-3": {
+          "works_id": 26880,
+          "score": 66.66,
+          "status": "success",
+          "message": "测试对外接口"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "description": "接口返回异常信息",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "异常错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "异常错误描述"
+        }
+      }
+    },
+    "UpdateScoreRequestModel": {
+      "type": "object",
+      "required": [
+        "works_id",
+        "score",
+        "status"
+      ],
+      "properties": {
+        "works_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "作品ID,大赛平台提供,可以通过接口[ListCompetitionWorks](https://apiexplorer.developer.huaweicloud.com/apiexplorer/doc?product=CodeCraft&api=ListCompetitionWorks)查询作品ID",
+          "example": 4056012,
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "score": {
+          "type": "number",
+          "format": "double",
+          "description": "作品分数,作品状态为failed时传-1,计算长度时包括小数点,小数点后面最多保留四位",
+          "example": 66.66,
+          "minimum": -1,
+          "maximum": 99999999999
+        },
+        "status": {
+          "type": "string",
+          "description": "作品状态success|failed。判题时,需要对上传作品进行检查,当作品不符合要求时,应该返回failed,并将提示信息通过 message显示出来",
+          "example": "success",
+          "minLength": 6,
+          "maxLength": 7,
+          "enum": [
+            "success",
+            "failed"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "作品描述信息",
+          "example": "这是一条描述信息",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "title": "UpdateScoreRequestModel"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "codecraft.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "put",
+  "uri": null
+}

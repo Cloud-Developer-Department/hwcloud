@@ -1,0 +1,244 @@
+{
+  "name": "UpdateSignature",
+  "summary": "修改短信签名",
+  "tags": "短信签名API",
+  "productshort": "MSGSMS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/msgsms/signatures/{id}": {
+      "put": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-internal": false,
+        "x-service": "messageService",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "SignatureManagement"
+        ],
+        "summary": "修改短信签名",
+        "description": "该接口用于用户更新签名信息,目前仅支持审核不通过的短信签名重新修改。",
+        "operationId": "UpdateSignature",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Content-Type"
+          },
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "签名ID",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 64,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "UpdateSignatureRequestBody",
+            "description": "请求Body参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SmsSignatureReq"
+            }
+          }
+        ],
+        "x-imports": [
+          "com.huawei.cloud.common.RestrictCheck;",
+          "com.huawei.cloud.common.operation.*;",
+          "com.huawei.cloud.common.log.SourceType;",
+          "static com.huawei.cloud.common.restrictcheck.RestrictFrozenType.*;"
+        ],
+        "x-methodAnnotations": [
+          "@Operation(name = \"用户修改签名\", action = OperateType.UPDATE, resource = \"console.root.message.signatures\", requireLog = true, source = SourceType.API)",
+          "@RestrictCheck(serviceType = \"hws.service.type.rtcsms\", restrictScene = {TENANT_FROZEN, SERVICE_FROZEN})"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ApiSignatureResponse"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "SmsSignatureReq": {
+      "title": "SmsSignatureReq",
+      "required": [
+        "app_id",
+        "is_involved_third",
+        "signature_name",
+        "signature_source",
+        "signature_type"
+      ],
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": "应用主键ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "9e61f59c-1a6b-4ee5-9651-5bca450694b3"
+        },
+        "apply_desc": {
+          "type": "string",
+          "description": "申请说明",
+          "minLength": 0,
+          "maxLength": 100,
+          "example": "test"
+        },
+        "file_id": {
+          "type": "string",
+          "description": "营业执照文件ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "057a76ab-1390-4268-9463-73db98cdc2e1"
+        },
+        "is_involved_third": {
+          "type": "string",
+          "description": "是否涉及第三方权益\n1. Yes: 是\n2. No: ",
+          "minLength": 1,
+          "maxLength": 16,
+          "x-annotations": "@NotBlank",
+          "example": "No"
+        },
+        "power_attorney_fileid": {
+          "type": "string",
+          "description": "授权委托书文件ID",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "057a76ab-1390-4268-9463-73db98cdc2e2"
+        },
+        "signature_name": {
+          "type": "string",
+          "description": "签名名称",
+          "minLength": 1,
+          "maxLength": 32,
+          "x-annotations": "@NotBlank",
+          "example": "auto_test789"
+        },
+        "signature_source": {
+          "type": "integer",
+          "format": "int32",
+          "description": "签名来源。支持枚举值:\n1. 0:企事业单位的全称或简称\n2. 1:工信部备案网站的全称或简称\n3. 2: APP应用的全称或简称\n4. 3:公众号或小程序的全称或简称\n5. 4:电商平台店铺名的全称或简称\n6. 5:商标名的全称或简称",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "example": 0
+        },
+        "signature_type": {
+          "type": "string",
+          "description": "签名类型。支持枚举值:\n1. VERIFY_CODE_TYPE: 验证码类\n2. PROMOTION_TYPE: 推广类\n3. NOTIFY_TYPE: 通知类",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-annotations": "@NotBlank",
+          "example": "NOTIFY_TYPE"
+        },
+        "source_title_content": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512,
+          "description": "签名来源标题内容"
+        },
+        "qualification_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "pattern": "^$|^[A-Za-z0-9_-]+$",
+          "description": "资质ID ,当前考虑存量应用的接口兼容性,代码未做强制校验,但创建签名时请务必携带资质ID,否则会导致资质审核失败"
+        }
+      }
+    },
+    "ApiSignatureResponse": {
+      "title": "ApiSignatureResponse",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "签名主键ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "07cfacbb-d48c-4c4d-b3da-baa8e4664852"
+        },
+        "signature_id": {
+          "type": "string",
+          "description": "签名ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "******d1-196f-495f-abbe-42240469b8fc"
+        },
+        "signature_name": {
+          "type": "string",
+          "description": "签名名称",
+          "minLength": 1,
+          "maxLength": 32,
+          "example": "auto_test789"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Content-Type": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": true,
+      "description": "请求体参数类型,该字段必须设置为:application/json;charset=utf8",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "default": "application/json;charset=utf8",
+      "x-example": "application/json;charset=utf8"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "type": "string",
+      "maxLength": 32768,
+      "minLength": 1,
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+      "x-example": "******JKoZIhvcNAQcCoIIDgzCCXXXXX"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。获取方法请参见 [获取帐号、用户、项目的名称和ID](https://support.huaweicloud.com/api-msgsms/sms_05_0020.html)。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{1,32}$",
+      "x-example": "******c55c3c4526b2ed7a0213bc9871"
+    }
+  },
+  "host": "msgsms.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

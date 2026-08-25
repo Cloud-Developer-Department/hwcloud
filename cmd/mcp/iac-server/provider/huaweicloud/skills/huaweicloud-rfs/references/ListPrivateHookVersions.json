@@ -1,0 +1,370 @@
+{
+  "name": "ListPrivateHookVersions",
+  "summary": "列举私有hook版本",
+  "tags": "资源编排-Hook",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/private-hooks/{hook_name}/versions": {
+      "get": {
+        "tags": [
+          "Hook"
+        ],
+        "summary": "列举私有hook版本",
+        "description": "列举私有hook版本(ListPrivateHookVersions)\n\n列举所选择的私有hook中所有的hook版本信息。\n\n  * 可以使用sort_key和sort_dir两个关键字对返回结果按创建时间(create_time)进行排序。给予的sort_key和sort_dir数量须一致,否则返回400。如果未给予sort_key和sort_dir,则默认按照创建时间降序排序。\n  * 如果hook_name和hook_id同时存在,则资源编排服务会检查是否两个匹配,如果不匹配则会返回400。\n  * 如果hook下不存在hook版本,则返回空list。\n  * 如果hook不存在则返回404。\n  * 支持分页返回。如果响应中存在next_marker,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null",
+        "operationId": "ListPrivateHookVersions",
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一Id,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "hook_name",
+            "in": "path",
+            "description": "私有hook的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "hook_id",
+            "in": "query",
+            "description": "私有hook(private-hook)的唯一Id。\n\n此Id由资源编排服务在生成私有hook的时候生成,为UUID。\n\n由于私有hook名称仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的私有hook,删除,再重新创建一个同名私有hook。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有hook就是我认为的那个,而不是其他队友删除后创建的同名私有hook。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有hook所对应的Id都不相同,更新不会影响Id。如果给予的hook_id和当前hook的Id不一致,则返回400。",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "description": "排序字段,仅支持给予create_time",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "create_time"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "指定升序还是降序\n  * `asc` - 升序\n  * `desc` - 降序",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页标记。当一页无法返回所有结果,上一次的请求将返回next_marker以指引还有更多页数,用户可以将next_marker中的值放到此处以查询下一页的信息。此marker只能用于与上一请求指定的相同参数的请求。不指定时默认从第一页开始查询。",
+            "required": false,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页返回的最多结果数量",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "maximum": 1000,
+            "minimum": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列举私有hook版本成功",
+            "examples": {
+              "x-response-examples-1": {
+                "versions": [
+                  {
+                    "hook_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+                    "hook_name": "my-hello-world-hook-name",
+                    "hook_version": "3.7.10",
+                    "hook_version_description": "my second hello world private hook version",
+                    "create_time": "2024-01-01T00:00:00.000Z"
+                  },
+                  {
+                    "hook_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+                    "hook_name": "my-hello-world-hook-name",
+                    "hook_version": "3.7.9",
+                    "hook_version_description": "my first hello world private hook version",
+                    "create_time": "2023-01-01T00:00:00.000Z"
+                  }
+                ],
+                "page_info": {
+                  "current_count": 2,
+                  "previous_marker": "zxc1oHc08HcCmypYGTsOoRcvoHUvHRUAW5NOSnc1oHc08HcCPZrwP5NOeTlRiukJgtGxeujJeuGwGIihaIUCmypYGTsOtqvKPr2xmH8fPqpGWyQ0axGwGZp9aqvx8pQ7m5FvGTsJiKk7gtNFiuaxetdRCks="
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListPrivateHookVersionsResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "私有hook不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "Y",
+        "x-rfs-external": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/private-hooks/my-hello-world-hook-name/versions",
+        "x-request-examples-description-1": "获取名为my-hello-world-hook-name的私有hook下的所有版本,以创建时间降序排序",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/private-hooks/my-hello-world-hook-name/versions?sort_key=create_time&sort_dir=asc",
+        "x-request-examples-description-2": "获取名为my-hello-world-hook-name的私有hook下的所有版本,以创建时间升序排序",
+        "x-request-examples-url-3": "GET https://{endpoint}/v1/private-hooks/my-hello-world-hook-name/versions?hook_id=ea6a4f0e-ee8a-494e-b12a-8be4a1e65af2&sort_key=create_time&sort_dir=asc",
+        "x-request-examples-description-3": "获取名为my-hello-world-hook-name的私有hook下的所有版本,并提供hook ID以校验是否与当前私有hook匹配,以创建时间升序排序"
+      }
+    }
+  },
+  "definitions": {
+    "ListPrivateHookVersionsResponseBody": {
+      "type": "object",
+      "properties": {
+        "versions": {
+          "type": "array",
+          "description": "私有hook version的列表。默认以创建时间降序排序。",
+          "items": {
+            "$ref": "#/definitions/PrivateHookVersionSummary"
+          }
+        },
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageInfo"
+        }
+      },
+      "description": "ListPrivateHookVersions API的响应Body体"
+    },
+    "PageInfo": {
+      "type": "object",
+      "properties": {
+        "next_marker": {
+          "type": "string",
+          "description": "向后分页标识符。如果存在,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "向前分页标识符。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "current_count": {
+          "type": "integer",
+          "description": "本页显示的条目数量。",
+          "x-omitempty": false
+        }
+      },
+      "description": "分页信息",
+      "x-isnullable": false
+    },
+    "PrivateHookVersionCreateTimePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "description": "私有Hook Version(private-hook-version)的生成时间,格式为YYYY-MM-DDTHH:mm:ss.SSSZ,精确到毫秒,UTC时区,即,如1970-01-01T00:00:00.000Z。"
+        }
+      },
+      "example": {
+        "create_time": "1970-01-01T00:00:00.000Z"
+      }
+    },
+    "PrivateHookVersionPrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "hook_version"
+      ],
+      "properties": {
+        "hook_version": {
+          "type": "string",
+          "description": "私有hook的版本号。版本号必须遵循语义化版本号(Semantic Version),为用户自定义。",
+          "minLength": 5,
+          "maxLength": 128,
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "hook_version": "1.0.0"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "PrivateHookVersionSummary": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateHookNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateHookIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateHookVersionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateHookVersionDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateHookVersionCreateTimePrimitiveTypeHolder"
+        }
+      ]
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "PrivateHookNamePrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "hook_name"
+      ],
+      "properties": {
+        "hook_name": {
+          "type": "string",
+          "description": "私有hook的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+        }
+      },
+      "example": {
+        "hook_name": "test-limit_vpc_resource-hook"
+      }
+    },
+    "PrivateHookIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "hook_id": {
+          "type": "string",
+          "description": "私有hook(private-hook)的唯一Id。\n\n此Id由资源编排服务在生成私有hook的时候生成,为UUID。\n\n由于私有hook名称仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的私有hook,删除,再重新创建一个同名私有hook。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有hook就是我认为的那个,而不是其他队友删除后创建的同名私有hook。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有hook所对应的Id都不相同,更新不会影响Id。如果给予的hook_id和当前hook的Id不一致,则返回400。",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "hook_id": "77dad9a0-6b11-4bf5-ba62-c7e0029dcb6f"
+      }
+    },
+    "PrivateHookVersionDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "hook_version_description": {
+          "type": "string",
+          "description": "私有hook版本的描述。可用于客户识别创建私有hook的版本。注意:hook版本为不可更新(immutable),所以该字段不可更新,如果需要更新,请删除后重建。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "hook_version_description": "My First Hello World Hook Version Description"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

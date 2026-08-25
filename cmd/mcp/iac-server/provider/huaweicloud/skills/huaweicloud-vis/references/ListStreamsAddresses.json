@@ -1,0 +1,173 @@
+{
+  "name": "ListStreamsAddresses",
+  "summary": "获取视频流地址",
+  "tags": "视频流管理",
+  "productshort": "VIS",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/{project_id}/streams/{stream_name}/endpoint": {
+      "get": {
+        "tags": [
+          "视频流管理"
+        ],
+        "summary": "获取视频流地址",
+        "description": "此接口用于获取指定视频流的地址。该地址用于进行视频流推流或者拉流。\n- 实时视频流,可以通过该接口返回的pull_flow_address参数值获取视频流地址。\n- 如果编码格式是H264、H265,均可通过该接口返回的hls_pull_flow_address和pull_flow_address获取视频流地址。\n- 对于RTMP类型的视频流,该接口可以获取到推流地址(对应push_flow_address参数值),通过该地址,可以将视频流推到VIS中。\n\n当因网络或其它原因,导致视频流中断后自动恢复时,推流地址或拉流地址可能发生变化。请重新调用该接口,并尝试使用新的推流地址再次进行推流。在灾备场景下,拉流地址可能会发生变化,导致已获取的相应地址无效,请重新调用该接口获取新的地址。\n\n为防止接入视频被泄露和盗链,获取的拉流地址中包含防盗链,防盗链的有效期默认为24小时(后续将支持自定义防盗链有效期)。为避免因防盗链超过有效期导致接入视频无法播放,请您在有效期内重新调用该接口获取新的防盗链地址。",
+        "operationId": "ListStreamsAddresses",
+        "consumes": [],
+        "produces": [],
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "description": "视频流名称",
+            "required": true,
+            "type": "string",
+            "x-example": "RTMP******"
+          },
+          {
+            "name": "expire_time",
+            "type": "integer",
+            "description": "获取的视频流拉流地址的有效时间,设置范围为[600,604800],单位:秒。建议设置为8小时以内。\n\n默认值24小时。",
+            "in": "query",
+            "required": false,
+            "x-example": 86400
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常",
+            "examples": {
+              "application/json": {
+                "pull_flow_address": "https://vps-cn-north-7-cloud.hwcloudvis.com/mss-stable-work001/live?app=vis&stream=xxxxn&project_id=aecdc9b7********9fbc5b04f1d9b525&key=8930f********15cd409b1b8fbe9b8cb&t=1629790048",
+                "push_flow_protocol": "HTTP-FLV",
+                "push_flow_address": "100.95.***.222",
+                "hls_pull_flow_address": "https://vps-cn-north-7-cloud.hwcloudvis.com/mss-stable-work001/hls/xxxxn.m3u8?project_id=aecdc9b7********9fbc5b04f1d9b525&key=8930f********15cd409b1b8fbe9b8cb&t=1629790048"
+              },
+              "application/json-1": {
+                "push_flow_protocol": "GB/T28181",
+                "push_flow_address": "100.95.***.93",
+                "hls_pull_flow_address": "https://vps-cn-north-7-cloud.hwcloudvis.com/mss-stable-work002/hls/channel_06640495271320000********.m3u8?project_id=aecdc9b7********9fbc5b04f1d9b525&key=6eeea********db10dcf3fa30c20d249&t=1629789339",
+                "pull_flow_address": "https://vps-cn-north-7-cloud.hwcloudvis.com/mss-stable-work002/live?app=vis&stream=channel_06640495271320000********&project_id=aecdc9b7********9fbc5b04f1d9b525&key=6eeea********db10dcf3fa30c20d249&t=1629789339"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/GetStreamAddressResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "examples": {
+              "application/json": {
+                "error_msg": "Stream is not activated successfully, please retry. Can not get endpoint.",
+                "error_code": "VIS.0204"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "获取视频流地址",
+        "x-request-examples-url-1": "GET /v1/aecdc9b7********9fbc5b04f1d9b525/streams/channel_06640495271320000********/endpoint"
+      }
+    }
+  },
+  "definitions": {
+    "GetStreamAddressResponseBody": {
+      "properties": {
+        "pull_flow_address": {
+          "type": "string",
+          "example": "http://cecb3f14149**********e92f26ca72c.apigw.com/live/work001?app=vis&stream=RTMP******",
+          "description": "拉流地址,视频流编码格式为H264和H265均会返回该字段。如果视频流的共享类型为PRIVATE(非共享),拉流时必须在请求头中添加X-Auth-Token,值为创建视频流的用户的token。"
+        },
+        "push_flow_protocol": {
+          "type": "string",
+          "example": "RTMP",
+          "description": "只有RTMP类型的流,该字段才有实际参考意义,代表推流协议。"
+        },
+        "push_flow_address": {
+          "type": "string",
+          "example": "",
+          "description": "只有RTMP类型的流,该字段才有实际参考意义,代表推流地址。"
+        },
+        "hls_pull_flow_address": {
+          "type": "string",
+          "example": "rtmp://10.104.11.66:64/vis/RTMP******",
+          "description": "HLS(HTTP Live Streaming)拉流地址,视频编码格式为H265和H264均会返回HLS拉流地址。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-vis/vis_03_0005.html)",
+      "minLength": 32,
+      "maxLength": 32,
+      "required": true,
+      "type": "string"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "普通租户的token。",
+      "required": true,
+      "minLength": 1,
+      "maxLength": 10240,
+      "type": "string"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    }
+  },
+  "host": "vis.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

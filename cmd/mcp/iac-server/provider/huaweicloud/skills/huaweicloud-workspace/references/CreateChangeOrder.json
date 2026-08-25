@@ -1,0 +1,250 @@
+{
+  "name": "CreateChangeOrder",
+  "summary": "创建变更订单",
+  "tags": "订单",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/periodic/{desktop_id}/change/order": {
+      "post": {
+        "tags": [
+          "Order"
+        ],
+        "summary": "创建变更订单",
+        "description": "变更规格、扩容磁盘。",
+        "operationId": "CreateChangeOrder",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "desktop_id",
+            "in": "path",
+            "description": "桌面id。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31e-d520xxxx-xxebedb6-e57xxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "CreateChangeOrderRequestBody",
+            "description": "创建变更请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateChangeOrderReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建订单响应体。",
+            "examples": {
+              "application/json": {
+                "order_id": "CS2108102036B2CAI"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateOrderRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "409": {
+            "description": "操作冲突。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:orders:change\",  needApigwJwtAuthCheck = false, needRbacCheck = false, authContextInitializerName = \"changeOrdersAuthContextInitializer\")",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"createChangeOrder\", traceNameCn = \"创建变更订单\")"
+        ],
+        "x-request-examples-url-1": "/v2/0bec5db98280d2d02fd6c00c2de791ce/periodic/f8f7fe7a-9043-44ff-815e-ad20fc779d18/change/order",
+        "x-request-examples-text-1": {
+          "type": "resizeDesktops",
+          "resize_product_id": "workspacehost.k.large4"
+        },
+        "x-request-examples-1": {
+          "type": "resizeDesktops",
+          "resize_product_id": "workspacehost.k.large4"
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-support-isv": "ZR",
+        "x-apig-group": "public,internal_token",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "CreateChangeOrderReq": {
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "类型 resizeDesktops(变更规格)、expandVolumes(扩容磁盘)、meteredToPeriod(按需转包周期)。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "period_type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "周期类型,2:包月;3:包年; type为 meteredToPeriod 并且 is_subscribe == true 时不能为空。",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "period_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "周期数;type为 meteredToPeriod 并且 is_subscribe == true 时不能为空。",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "is_auto_renew": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否自动续费\n*  按需转包周期场景支持自动续费;\n*  0:不自动续费,1:自动续费;\n*  默认值为0,表示不自动续费;",
+          "minimum": 0,
+          "maximum": 255,
+          "default": 0
+        },
+        "resize_product_id": {
+          "type": "string",
+          "description": "变更后规格产品ID,当是resizeDesktops,必传。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "expand_volume_id": {
+          "type": "string",
+          "description": "扩容的云硬盘的ID,当是expandVolumes,必传。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "expand_new_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "扩容后云硬盘的总大小,当是expandVolumes,必传。范围10-32760,大小为10的倍数。",
+          "minimum": 10,
+          "maximum": 32760
+        },
+        "new_quantity": {
+          "type": "integer",
+          "format": "int32",
+          "description": "专享主机变更桌面数后桌面路数的总大小,当是jobType是resizeExclusiveLites,必传。",
+          "minimum": 0,
+          "maximum": 300
+        },
+        "exclusive_lites_product_id": {
+          "type": "string",
+          "description": "专享主机桌面数的productId,当是resizeExclusiveLites,必传。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "extend_param": {
+          "$ref": "#/definitions/OrderExtendParam"
+        }
+      },
+      "description": "创建变更订单请求体。"
+    },
+    "CreateOrderRsp": {
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "订单号,下单成功时返回订单ID。",
+          "readOnly": true
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务id,下单成功时返回的任务ID。",
+          "readOnly": true
+        }
+      },
+      "description": "创建订单响应体。"
+    },
+    "OrderExtendParam": {
+      "properties": {
+        "is_auto_pay": {
+          "type": "string",
+          "description": "是否自动付款。true:自动支付; false:不自动支付;默认false。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "description": "订单的扩展参数。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

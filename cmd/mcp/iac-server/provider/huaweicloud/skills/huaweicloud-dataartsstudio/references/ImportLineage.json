@@ -1,0 +1,286 @@
+{
+  "name": "ImportLineage",
+  "summary": "血缘导入",
+  "tags": "血缘信息",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/lineage/import": {
+      "post": {
+        "tags": [
+          "血缘信息"
+        ],
+        "operationId": "ImportLineage",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "summary": "血缘导入",
+        "description": "血缘查询",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "IAM Token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "workspace",
+            "in": "header",
+            "description": "DataArts Studio工作空间ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "ImportLineageRequestBody",
+            "in": "body",
+            "description": "请求参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImportLineageBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ImportLineageResult"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/DlgErrorResponseVO"
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "TableLineage": {
+      "type": "object",
+      "required": [
+        "name",
+        "input_tables",
+        "output_tables",
+        "source_connection_id"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "作业算子名称"
+        },
+        "input_tables": {
+          "description": "上游血缘表列表,列表大小:1至100",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableInfo"
+          }
+        },
+        "output_tables": {
+          "description": "下游血缘表列表,列表大小:1至100",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableInfo"
+          }
+        },
+        "source_connection_id": {
+          "type": "string",
+          "description": "源数据连接id"
+        },
+        "target_connection_id": {
+          "type": "string",
+          "description": "目标数据连接id"
+        },
+        "column_lineages": {
+          "description": "字段血缘列表,列表大小:0至100",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnLineage"
+          }
+        }
+      },
+      "title": "TableLineage"
+    },
+    "TableInfo": {
+      "type": "object",
+      "properties": {
+        "database": {
+          "type": "string",
+          "description": "数据库名称"
+        },
+        "schema": {
+          "type": "string",
+          "description": "逻辑库名称"
+        },
+        "table": {
+          "type": "string",
+          "description": "表名称"
+        }
+      },
+      "title": "TableInfo"
+    },
+    "ColumnLineage": {
+      "type": "object",
+      "required": [
+        "name",
+        "input_columns",
+        "output_columns"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "作业算子名称"
+        },
+        "input_columns": {
+          "description": "上游血缘字段列表,列表大小:1至100",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnDetails"
+          }
+        },
+        "output_columns": {
+          "description": "下游血缘字段列表,列表大小:1至100",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnDetails"
+          }
+        }
+      },
+      "title": "ColumnLineage"
+    },
+    "ImportLineageBody": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TableLineage"
+      },
+      "description": "血缘信息列表",
+      "example": [
+        {
+          "name": "test1221",
+          "input_tables": [
+            {
+              "database": "wk",
+              "schema": null,
+              "table": "wk_shuju1"
+            }
+          ],
+          "output_tables": [
+            {
+              "database": "wk",
+              "schema": null,
+              "table": "wk_shuju2"
+            }
+          ],
+          "source_connection_id": "aa0e89b9c7c14a6b9737d56a53d7a286",
+          "target_connection_id": "aa0e89b9c7c14a6b9737d56a53d7a286",
+          "column_lineages": []
+        }
+      ],
+      "title": "ImportLineageBody"
+    },
+    "ObjectIdInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "作业算子名称"
+        },
+        "type_name": {
+          "type": "string",
+          "description": "资产类型"
+        },
+        "qualified_name": {
+          "type": "string",
+          "description": "作业资产唯一限定名称"
+        }
+      },
+      "title": "ObjectIdInfo"
+    },
+    "ColumnDetails": {
+      "type": "object",
+      "description": "字段详细信息",
+      "properties": {
+        "database": {
+          "type": "string",
+          "description": "数据库名称"
+        },
+        "schema": {
+          "type": "string",
+          "description": "逻辑库名称"
+        },
+        "table": {
+          "type": "string",
+          "description": "表名称"
+        },
+        "column": {
+          "type": "string",
+          "description": "字段名称"
+        }
+      },
+      "title": "ColumnDetails"
+    },
+    "DlgErrorResponseVO": {
+      "description": "请求失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "ImportLineageResult": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ObjectIdInfo"
+      },
+      "description": "血缘导入结果",
+      "title": "ImportLineageResult"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

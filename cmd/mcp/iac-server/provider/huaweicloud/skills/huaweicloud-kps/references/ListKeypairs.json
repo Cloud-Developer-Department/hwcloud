@@ -1,0 +1,243 @@
+{
+  "name": "ListKeypairs",
+  "summary": "查询SSH密钥对列表",
+  "tags": "密钥对管理",
+  "productshort": "KPS",
+  "region_id": "tr-west-1",
+  "paths": {
+    "/v3/{project_id}/keypairs": {
+      "get": {
+        "tags": [
+          "密钥对管理"
+        ],
+        "operationId": "ListKeypairs",
+        "summary": "查询SSH密钥对列表",
+        "description": "查询SSH密钥对列表",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 64,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页返回的个数。\n默认值:50。\n",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4,
+            "x-example": "50"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页查询起始的资源id,为空时为查询第一页\n",
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,255}$",
+            "x-example": "keypair-0307"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/ListKeypairsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "keypairs": [
+                  {
+                    "keypair": {
+                      "name": "1hprr3TI",
+                      "type": "ssh",
+                      "scope": "user",
+                      "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABjV8GvwpSs.....",
+                      "fingerprint": "65:ca:87:0a:16:86:59:ea:57:ea:18:37:58:e2:04:b0",
+                      "is_key_protection": false,
+                      "frozen_state": 0
+                    }
+                  }
+                ],
+                "page_info": {
+                  "next_marker": "KeyPair-dxxx",
+                  "previous_marker": "KeyPair-xxxx",
+                  "current_count": 49
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "KPS.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PageInfo": {
+      "description": "分页信息",
+      "properties": {
+        "next_marker": {
+          "type": "string",
+          "description": "返回下一页的查询地址",
+          "pattern": "^[a-zA-Z0-9._-]{1,64}$"
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "返回上一页的查询地址",
+          "pattern": "^[a-zA-Z0-9._-]{1,64}$"
+        },
+        "current_count": {
+          "format": "int32",
+          "type": "integer",
+          "description": "返回条目数量",
+          "minimum": 0,
+          "maximum": 1000
+        }
+      }
+    },
+    "ListKeypairs": {
+      "required": [
+        "keypairs"
+      ],
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 1000,
+      "description": "SSH密钥对信息列表",
+      "items": {
+        "$ref": "#/definitions/Keypairs"
+      }
+    },
+    "Keypairs": {
+      "required": [
+        "keypair"
+      ],
+      "properties": {
+        "keypair": {
+          "$ref": "#/definitions/Keypair"
+        }
+      },
+      "type": "object"
+    },
+    "ListKeypairsResponseBody": {
+      "description": "SSH密钥对信息列表",
+      "required": [
+        "keypairs"
+      ],
+      "properties": {
+        "keypairs": {
+          "$ref": "#/definitions/ListKeypairs"
+        },
+        "page_info": {
+          "$ref": "#/definitions/PageInfo"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    },
+    "Keypair": {
+      "description": "密钥对信息",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "SSH密钥对的名称",
+          "pattern": "^[A-Za-z0-9_-]{1,255}$"
+        },
+        "type": {
+          "type": "string",
+          "description": "SSH密钥对的类型,值为“ssh”或“x509”",
+          "enum": [
+            "ssh",
+            "x509"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "description": "租户级或者用户级。domain或user。",
+          "enum": [
+            "domain",
+            "user"
+          ]
+        },
+        "public_key": {
+          "type": "string",
+          "description": "SSH密钥对对应的publicKey信息",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "fingerprint": {
+          "type": "string",
+          "description": "SSH密钥对应指纹信息",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "is_key_protection": {
+          "type": "boolean",
+          "description": "是否托管密钥"
+        },
+        "frozen_state": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "冻结状态\n- 0:正常状态\n- 1:普通冻结\n- 2:公安冻结\n- 3:普通冻结及公安冻结\n- 4:违规冻结\n- 5:普通冻结及违规冻结\n- 6:公安冻结及违规冻结\n- 7:普通冻结、公安冻结及违规冻结\n- 8:未实名认证冻结\n- 9:普通冻结及未实名认证冻结\n- 10:公安冻结及未实名认证冻结"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.tr-west-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,507 @@
+{
+  "name": "ShowMetricValue",
+  "summary": "获取资产属性聚合值",
+  "tags": "资产属性",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/assets/{asset_id}/metrics/query": {
+      "post": {
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-HCS": "Y",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y",
+        "x-imports": [
+          "org.springframework.http.ResponseEntity"
+        ],
+        "operationId": "ShowMetricValue",
+        "tags": [
+          "AssetProperty"
+        ],
+        "summary": "获取资产属性聚合值",
+        "description": "获取资产属性聚合值",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 128,
+            "description": "项目ID"
+          },
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 256,
+            "description": "资产ID"
+          },
+          {
+            "in": "body",
+            "name": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GetMetricsValue"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户Token",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 65535
+          }
+        ],
+        "x-returnType": "ResponseEntity<MetricsResponse>",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/MetricsResponse"
+            },
+            "examples": {
+              "example": {
+                "timestamps": [
+                  "string"
+                ],
+                "metrics": [
+                  {
+                    "metric_name": "string",
+                    "values": [
+                      1,
+                      2
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IoTA.99000010",
+              "IoTA.01010307"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009",
+              "IoTA.99000012"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IoTA.01010202",
+              "IoTA.01010309"
+            ]
+          },
+          "409": {
+            "description": "Conflict",
+            "x-Error": [
+              "IoTA.99000011"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TimeSpanDT": {
+      "type": "object",
+      "description": "起止时间",
+      "properties": {
+        "from": {
+          "description": "起始时间, 使用UTC时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',示例:2021-02-01T00:00:00.123Z",
+          "type": "string",
+          "x-maxLength": 64
+        },
+        "to": {
+          "description": "结束时间,使用UTC时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',示例:2021-02-01T00:00:00.123Z",
+          "type": "string",
+          "x-maxLength": 64
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.TimeSpan"
+    },
+    "AggregateMetricsRequest": {
+      "type": "object",
+      "description": "查询经过聚合计算的序列值定义",
+      "required": [
+        "interval",
+        "metrics"
+      ],
+      "properties": {
+        "time_span": {
+          "$ref": "#/definitions/TimeSpanDT"
+        },
+        "interval": {
+          "description": "聚合时间间隔,正则:\"^[1-9][0-9]*[dhms]$\",示例:\"1d|1h|10m|10s\"",
+          "type": "string",
+          "pattern": "^[1-9][0-9]*[dhms]$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "offset": {
+          "description": "聚合时间偏移量,需要小于interval,正则: \"^[1-9][0-9]*[hms]$\",示例: \"1h|10m|10s\"",
+          "type": "string",
+          "pattern": "^[1-9][0-9]*[hms]$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "tags": {
+          "$ref": "#/definitions/TagFilterDT"
+        },
+        "property_filter": {
+          "type": "array",
+          "description": "属性过滤器,最多5个",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/PropertyFilter"
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "description": "聚合查询指标列表,对资产属性进行聚合查询得到指标",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/DTAggregateMetrics"
+          }
+        },
+        "limit": {
+          "description": "返回值个数限制,最多2000个",
+          "type": "integer",
+          "default": 2000,
+          "maximum": 2000
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.AggregateMetricsRequest"
+    },
+    "MetricInput": {
+      "type": "object",
+      "description": "定义指标计算查询的输入资产属性",
+      "required": [
+        "name",
+        "property_name"
+      ],
+      "properties": {
+        "name": {
+          "description": "指标计算表达式的入参名称",
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$",
+          "x-maxLength": 32,
+          "x-minLength": 1
+        },
+        "property_name": {
+          "description": "入参所对应的资产属性名称",
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$",
+          "x-maxLength": 64,
+          "x-minLength": 1
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.MetricInput"
+    },
+    "PropertyFilter": {
+      "type": "object",
+      "description": "属性过滤器",
+      "required": [
+        "property_name",
+        "operator",
+        "value"
+      ],
+      "properties": {
+        "property_name": {
+          "description": "过滤属性名称,正则:\"^[a-zA-Z0-9_]{1,64}$\"",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$",
+          "x-maxLength": 64,
+          "x-minLength": 1,
+          "type": "string"
+        },
+        "operator": {
+          "description": "过滤操作方式,当前仅支持“=”",
+          "x-minLength": 1,
+          "x-maxLength": 64,
+          "type": "string",
+          "pattern": "="
+        },
+        "value": {
+          "description": "过滤属性值",
+          "type": "object"
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.PropertyFilter"
+    },
+    "TagFilterDT": {
+      "type": "object",
+      "description": "对property按指定tags标签进行过滤查询,填入资产标签属性的属性名与属性值,不可为空,例如 {\"tagPropertyA\": \"id0001\"};注意,标签过滤只对打上标签时刻之后的数据生效,打标签之前的数据不能通过标签过滤",
+      "additionalProperties": {
+        "description": "标签过滤",
+        "type": "object"
+      }
+    },
+    "DTTransformMetrics": {
+      "type": "object",
+      "description": "转换指标列表",
+      "required": [
+        "inputs",
+        "expression",
+        "metric_name"
+      ],
+      "properties": {
+        "inputs": {
+          "description": "定义指标计算查询的输入资产属性列表",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/definitions/MetricInput"
+          }
+        },
+        "expression": {
+          "description": "指标表达式,最多64个字符",
+          "type": "string",
+          "x-maxLength": 64,
+          "x-minLength": 1
+        },
+        "metric_name": {
+          "description": "指标名,指标计算查询的输出指标名称",
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$",
+          "x-maxLength": 64,
+          "x-minLength": 1
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.DTTransformMetrics"
+    },
+    "MetricValue": {
+      "type": "object",
+      "properties": {
+        "metric_name": {
+          "description": "指标名称",
+          "type": "string"
+        },
+        "values": {
+          "description": "计算结果,示例:[1,2]",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 2000,
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.MetricValue"
+    },
+    "GetMetricsValue": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "查询类型,经过转换计算的序列值(transform)、经过聚合计算的序列值(aggregate)",
+          "pattern": "transform|aggregate"
+        },
+        "transform": {
+          "$ref": "#/definitions/TransformMetricsRequest"
+        },
+        "aggregate": {
+          "$ref": "#/definitions/AggregateMetricsRequest"
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.GetMetricsValue",
+      "example": {
+        "type": "transform|aggregate",
+        "transform": {
+          "time_span": {
+            "from": "2021-02-01T00:00:00.123Z",
+            "to": "2021-02-05T20:00:00.100Z"
+          },
+          "tags": {
+            "tagPropertyA": "IA2006300"
+          },
+          "property_filter": [
+            {
+              "property_name": "string",
+              "operator": "=",
+              "value": 1
+            }
+          ],
+          "metrics": [
+            {
+              "inputs": [
+                {
+                  "name": "string",
+                  "property_name": "string"
+                }
+              ],
+              "expression": "floor(pp6)+pp7",
+              "metric_name": "string"
+            }
+          ],
+          "limit": 2000
+        },
+        "aggregate": {
+          "time_span": {
+            "from": "2021-02-01T00:00:00.123Z",
+            "to": "2021-02-05T20:00:00.100Z"
+          },
+          "interval": "1d|1h|10m|10s",
+          "offset": "1h|10m|10s",
+          "tags": {
+            "tagPropertyA": "IA2006300"
+          },
+          "property_filter": [
+            {
+              "property_name": "string",
+              "operator": "=",
+              "value": 1
+            }
+          ],
+          "metrics": [
+            {
+              "inputs": [
+                {
+                  "name": "string",
+                  "property_name": "string"
+                }
+              ],
+              "expression": "log(10,a)+1",
+              "metric_name": "string"
+            }
+          ],
+          "limit": 2000
+        }
+      }
+    },
+    "MetricsResponse": {
+      "description": "属性的聚合与转换查询结果",
+      "type": "object",
+      "properties": {
+        "timestamps": {
+          "description": "时间序列,使用UTC时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',示例:2021-02-01T00:00:00.123Z",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 2000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "metrics": {
+          "description": "指标计算结果列表",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/MetricValue"
+          }
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.MetricsResponse"
+    },
+    "TransformMetricsRequest": {
+      "type": "object",
+      "description": "查询经过转换计算的序列值定义",
+      "required": [
+        "metrics"
+      ],
+      "properties": {
+        "time_span": {
+          "$ref": "#/definitions/TimeSpanDT"
+        },
+        "tags": {
+          "$ref": "#/definitions/TagFilterDT"
+        },
+        "property_filter": {
+          "type": "array",
+          "description": "属性过滤器,最多5个",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/PropertyFilter"
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "description": "转换查询指标列表,对资产属性进行转换查询得到指标",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/DTTransformMetrics"
+          }
+        },
+        "limit": {
+          "description": "返回值个数限制,最多2000个",
+          "type": "integer",
+          "default": 2000,
+          "maximum": 2000
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.TransformMetricsRequest"
+    },
+    "DTAggregateMetrics": {
+      "type": "object",
+      "description": "聚合指标列表",
+      "required": [
+        "inputs",
+        "expression",
+        "metric_name"
+      ],
+      "properties": {
+        "inputs": {
+          "description": "定义指标计算查询的输入资产属性列表",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/definitions/MetricInput"
+          }
+        },
+        "expression": {
+          "description": "指标表达式,最多64个字符",
+          "type": "string",
+          "x-maxLength": 64,
+          "x-minLength": 1
+        },
+        "metric_name": {
+          "description": "指标名,指标计算查询的输出指标名称",
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$",
+          "x-maxLength": 64,
+          "x-minLength": 1
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.DTAggregateMetrics"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,211 @@
+{
+  "name": "ExecuteSql",
+  "summary": "提交SQL语句",
+  "tags": "SQL接口",
+  "productshort": "MRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/clusters/{cluster_id}/sql-execution": {
+      "post": {
+        "tags": [
+          "SQL接口"
+        ],
+        "summary": "提交SQL语句",
+        "description": "在MRS集群中提交并执行一条SQL语句。",
+        "operationId": "ExecuteSql",
+        "x-is-registered": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号。获取方法,请参见[获取项目ID](https://support.huaweicloud.com/api-mrs/mrs_02_0011.html)。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "cluster_id",
+            "in": "path",
+            "description": "集群ID。获取方法,请参见[获取集群ID](https://support.huaweicloud.com/api-mrs/mrs_02_9001.html)。",
+            "required": true,
+            "type": "string",
+            "x-example": "431b135exxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "ExecuteSqlRequestBody",
+            "description": "请求参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SqlExecutionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "提交SQL语句成功",
+            "examples": {
+              "application/json": {
+                "id": "20190909_011820_00151_xxxxx",
+                "statement": "show tables",
+                "status": "FINISHED",
+                "result_location": " obs://my_bucket/uuid_date/xxxx.csv",
+                "content": [
+                  [
+                    "t1",
+                    null
+                  ],
+                  [
+                    null,
+                    "t2"
+                  ],
+                  [
+                    null,
+                    "t3"
+                  ]
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SqlExecutionResult"
+            }
+          },
+          "400": {
+            "description": "提交SQL语句失败",
+            "examples": {
+              "application/json": {
+                "error_code": "MRS.0011",
+                "message": "提交SQL到Executor上失败,集群ID为xxxx"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "提交SQL语句",
+        "x-constraint": "无",
+        "x-version": "v2",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "提交SQL语句请求示例",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/clusters/{cluster_id}/sql-execution",
+        "x-request-examples-1": {
+          "sql_type": "presto",
+          "sql_content": "show tables",
+          "database": "default",
+          "archive_path": "obs://my-bucket/path"
+        },
+        "x-request-examples-text-1": "{\n  \"sql_type\": \"presto\",\n  \"sql_content\": \"show tables\",\n  \"database\": \"default\",\n  \"archive_path\": \"obs://my-bucket/path\"\n}",
+        "x-hk": "Y",
+        "x-is-calling": "Y",
+        "x-ctc": "N",
+        "x-apigateway-auth-type": "IAM",
+        "x-call-frequency": "high",
+        "x-apigateway-match-mode": "NORMAL",
+        "x-otc": "N",
+        "x-hybridcloud": true,
+        "x-apigateway-request-type": "public",
+        "x-tlf": "N",
+        "x-obc": "N",
+        "x-hc": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N"
+      }
+    }
+  },
+  "definitions": {
+    "SqlExecutionResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "SQL的执行id。执行select、show和desc语句时才会生成id,其他操作id为空"
+        },
+        "message": {
+          "type": "string",
+          "description": "错误信息。"
+        },
+        "statement": {
+          "type": "string",
+          "description": "执行的SQL语句。"
+        },
+        "status": {
+          "type": "string",
+          "description": "SQL的执行状态。\n- QUEUED\n- WAITING_FOR_RESOURCES\n- PLANNING\n- STARTING\n- RUNNING\n- FINISHING\n- FINISHED\n- FAILED"
+        },
+        "result_location": {
+          "type": "string",
+          "description": "SQL查询语句的最终结果归档路径。\n说明:\n只有select的语句才会在将SQL的执行结果转储到result_location中。"
+        },
+        "content": {
+          "type": "array",
+          "description": "SQL的执行结果。 说明: 只有非select的语句才会在content中返回结果,如果SQL中没有结果,content为空。",
+          "items": {
+            "type": "array",
+            "description": "SQL的执行结果。",
+            "items": {
+              "type": "string",
+              "description": "SQL的执行结果。"
+            }
+          }
+        }
+      }
+    },
+    "SqlExecutionReq": {
+      "type": "object",
+      "required": [
+        "sql_content",
+        "sql_type"
+      ],
+      "properties": {
+        "sql_type": {
+          "type": "string",
+          "description": "SQL类型。目前仅支持“presto”类型的SQL。\n说明:\n- 只有包含Presto组件的集群才能提交执行presto类型的SQL。\n- 当前仅MRS 2.0.6版本的MRS 2.0.6.1补丁、MRS 2.1.0版本的MRS 2.1.0.7补丁、MRS 3.1.2及之后版本集群支持。"
+        },
+        "sql_content": {
+          "type": "string",
+          "description": "待执行的SQL语句。\n说明:\n目前仅支持执行单条语句,语句中不包含“;”。"
+        },
+        "database": {
+          "type": "string",
+          "description": "执行SQL所在的数据库,默认为default。"
+        },
+        "archive_path": {
+          "type": "string",
+          "description": "SQL执行结果的转储文件夹。\n说明:\n只有select语句才会转储查询的结果。当前仅支持转储到OBS中。"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mrs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

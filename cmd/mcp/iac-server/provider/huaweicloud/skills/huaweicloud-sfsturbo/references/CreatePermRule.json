@@ -1,0 +1,244 @@
+{
+  "name": "CreatePermRule",
+  "summary": "创建权限规则",
+  "tags": "权限管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules": {
+      "post": {
+        "summary": "创建权限规则",
+        "tags": [
+          "权限管理"
+        ],
+        "description": "创建权限规则",
+        "operationId": "CreatePermRule",
+        "x-constraint": "一个文件系统最多可以配置64条权限规则。\n该接口仅适用于NFS文件系统共享协议。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "parameters": [
+          {
+            "description": "账号的token",
+            "in": "header",
+            "name": "X-Auth-Token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "description": "MIME类型",
+            "in": "header",
+            "name": "Content-Type",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "description": "项目ID",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "share_id",
+            "description": "文件系统ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "请求体",
+            "in": "body",
+            "name": "CreatePermRuleRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePermRulesRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "schema": {
+              "$ref": "#/definitions/CreatePermRuleResponseBody"
+            },
+            "x-response-examples-description-1": "创建权限规则的响应示例。",
+            "x-response-examples-1": {
+              "application/json": {
+                "rules": [
+                  {
+                    "id": "1131ed520xxxxxxebedb6e57xxxxxxxx",
+                    "ip_cidr": "192.32.0.0/16",
+                    "rw_type": "rw",
+                    "user_type": "no_root_squash"
+                  },
+                  {
+                    "id": "1131ed520xxxxxxebedb6e57xxxxxxxx",
+                    "ip_cidr": "192.32.0.1",
+                    "rw_type": "rw",
+                    "user_type": "no_root_squash"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0001",
+                "errMsg": "Rules not allowed empty"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "Internal server error"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "创建权限规则的请求示例。",
+        "x-request-examples-1": {
+          "rules": [
+            {
+              "ip_cidr": "192.168.xx.xx/16",
+              "rw_type": "rw",
+              "user_type": "no_root_squash"
+            },
+            {
+              "ip_cidr": "192.32.xx.xx/16",
+              "rw_type": "rw",
+              "user_type": "no_root_squash"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "OnePermRuleResponseInfo": {
+      "required": [
+        "id",
+        "ip_cidr",
+        "rw_type",
+        "user_type"
+      ],
+      "description": "权限规格信息",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "权限规格的id"
+        },
+        "ip_cidr": {
+          "type": "string",
+          "description": "授权对象的IP地址或网段"
+        },
+        "rw_type": {
+          "type": "string",
+          "description": "授权对象的读写权限 \n\n- rw:默认选项,以读写的方式共享 \n\n- ro:以只读的方式共享 \n\n- none: 没有权限"
+        },
+        "user_type": {
+          "type": "string",
+          "description": "授权对象的系统用户对文件系统的访问权限。取值如下:\n\n- no_root_squash:客户端使用的是root用户时,映射到NFS服务器的用户依然为root用户。\n\n- root_squash:客户端使用的是root用户时,映射到NFS服务器的用户为NFS的匿名用户(nfsnobody)。\n\n- all_squash:默认选项。所有访问NFS服务器的客户端的用户都映射为匿名用户。'"
+        }
+      }
+    },
+    "CreatePermRuleResponseBody": {
+      "description": "权限规格信息",
+      "type": "object",
+      "required": [
+        "rules"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "description": "权限规格信息",
+          "items": {
+            "$ref": "#/definitions/OnePermRuleResponseInfo"
+          }
+        }
+      }
+    },
+    "CreatePermRulesRequestBody": {
+      "description": "创建权限请求体",
+      "required": [
+        "rules"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "description": "权限信息,一次最多允许添加5条规则",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/OnePermRuleRequestInfo"
+          }
+        }
+      }
+    },
+    "OnePermRuleRequestInfo": {
+      "required": [
+        "ip_cidr",
+        "rw_type",
+        "user_type"
+      ],
+      "description": "权限规格信息",
+      "properties": {
+        "ip_cidr": {
+          "type": "string",
+          "description": "授权对象的IP地址或网段,设置后不支持修改"
+        },
+        "rw_type": {
+          "type": "string",
+          "description": "授权对象的读写权限 \n\n- rw:默认选项,以读写的方式共享 \n\n- ro:以只读的方式共享 \n\n- none: 没有权限"
+        },
+        "user_type": {
+          "type": "string",
+          "description": "授权对象的系统用户对文件系统的访问权限。取值如下:\n\n- no_root_squash:默认选项。客户端使用包括root用户在内的任何用户,NFS服务器都保持客户端使用的用户,不做映射。\n\n- root_squash:客户端使用的是root用户时,映射到NFS服务器的用户为NFS的匿名用户(nfsnobody)。客户端使用非root用户时,NFS服务器保持客户端使用的用户,不做映射。\n\n- all_squash:所有访问NFS服务器的客户端的用户都映射为匿名用户。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,319 @@
+package native
+
+import (
+	"bufio"
+	"context"
+	"fmt"
+	"io"
+	"log/slog"
+	"os/exec"
+	"strings"
+	"sync/atomic"
+
+	hwcloud "github.com/Cloud-Developer-Department/hwcloud"
+)
+
+// confineAndRun uses Bubblewrap (bwrap) for Linux namespace isolation.
+// bwrap is available on most Linux distros (used by Flatpak) and provides
+// filesystem + network isolation without root or setuid.
+//
+// The ctx deadline only controls how long the caller waits — it does NOT
+// kill the process. When ctx expires the process keeps running (bwrap
+// continues with --die-with-parent, which only triggers when the parent
+// hwcloud exits, not when a single call times out).
+//
+// Falls back to unsandboxed execution with a warning if bwrap is not found
+// or if bwrap fails to start (e.g. "setting up uid map: Permission denied"
+// in containers that block user-namespace setup).
+//
+// When cmd.StdoutW/cmd.StderrW are *os.File (e.g. from process.Manager),
+// they are used directly as the child's stdout/stderr. This avoids OS pipes
+// that would break when the parent Go process exits and ensures output
+// persists even if the parent terminates while the command is still running.
+func (s *Sandbox) confineAndRun(ctx context.Context, cmd hwcloud.Command) (hwcloud.Result, error) {
+	args, ok := s.bwrapArgs(cmd)
+	if !ok {
+		slog.Warn("bwrap not found — sandbox disabled, running unconfined")
+		return s.unconfinedRun(ctx, cmd)
+	}
+
+	c := exec.Command("bwrap", args...)
+	c.Dir = s.workDir
+	for _, e := range cmd.Env {
+		c.Env = append(c.Env, e)
+	}
+	if cmd.Stdin != "" {
+		c.Stdin = strings.NewReader(cmd.Stdin)
+	}
+
+	var co cmdOutput
+	co.configure(c, cmd)
+
+	if err := c.Start(); err != nil {
+		return hwcloud.Result{}, fmt.Errorf("native sandbox (linux): %w", err)
+	}
+
+	waitCh := make(chan error, 1)
+	go func() { waitCh <- c.Wait() }()
+
+	select {
+	case <-ctx.Done():
+		co.readFiles()
+		return co.partialResult(c.Process.Pid), hwcloud.ErrProcessRunning
+
+	case err := <-waitCh:
+		co.readFiles()
+		result := co.result(c.Process.Pid)
+		writeExitCode(err, cmd)
+		if err != nil {
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				// bwrap itself failed to set up the sandbox (not the inner
+				// command failing). Detect by: empty stdout + stderr starts
+				// with "bwrap:" — bwrap's own error messages have that prefix,
+				// while output from the sandboxed command does not.
+				if result.Stdout == "" && strings.HasPrefix(strings.TrimSpace(result.Stderr), "bwrap:") {
+					return s.unconfinedRun(ctx, cmd)
+				}
+				result.ExitCode = exitErr.ExitCode()
+				return result, nil
+			}
+			return result, fmt.Errorf("native sandbox (linux): %w", err)
+		}
+		return result, nil
+	}
+}
+
+func (s *Sandbox) confineAndRunStream(ctx context.Context, cmd *hwcloud.Command) <-chan hwcloud.ToolStreamChunk {
+	ch := make(chan hwcloud.ToolStreamChunk, 16)
+	go func() {
+		defer close(ch)
+
+		args, ok := s.bwrapArgs(*cmd)
+		if !ok {
+			// Fallback: run unconfined.
+			for chunk := range s.unconfinedRunStream(ctx, cmd) {
+				ch <- chunk
+			}
+			return
+		}
+
+		c := exec.Command("bwrap", args...)
+		c.Dir = s.workDir
+		for _, e := range cmd.Env {
+			c.Env = append(c.Env, e)
+		}
+		if cmd.Stdin != "" {
+			c.Stdin = strings.NewReader(cmd.Stdin)
+		}
+
+		// Manual pipes so we can tee to file writers.
+		soutR, soutW := io.Pipe()
+		serrR, serrW := io.Pipe()
+		setupPipeWriters(c, soutW, serrW, cmd.StdoutW, cmd.StderrW)
+
+		if err := c.Start(); err != nil {
+			for chunk := range s.unconfinedRunStream(ctx, cmd) {
+				ch <- chunk
+			}
+			return
+		}
+		cmd.PID = c.Process.Pid
+
+		// Two goroutines race to close pipe writers: one on process
+		// exit, one on ctx timeout. The bwrap check only applies
+		// when the process exits (ctx timeout → already streaming).
+		waitErrCh := make(chan error, 1)
+		go func() {
+			err := c.Wait()
+			// Write exit code so the model can check it via read.
+			if cmd.ExitCodeW != nil {
+				code := 0
+				if ee, ok := err.(*exec.ExitError); ok {
+					code = ee.ExitCode()
+				} else if err != nil {
+					code = -1
+				}
+				fmt.Fprintf(cmd.ExitCodeW, "%d", code)
+			}
+			waitErrCh <- err
+			soutW.Close()
+			serrW.Close()
+		}()
+		go func() {
+			<-ctx.Done()
+			soutW.Close()
+			serrW.Close()
+		}()
+
+		// Read stderr first line early so we can detect bwrap setup
+		// failures (happen before inner command produces any stdout).
+		// If bwrap fails, stderr starts with "bwrap:" and the
+		// process exits immediately with no stdout.
+		done := make(chan struct{}, 2)
+		var firstStderr string
+		firstStderrCh := make(chan string, 1)
+		// Track whether the inner command produced any stdout: a bwrap
+		// setup failure produces none (mirroring the non-streaming path's
+		// result.Stdout == "" check). Without this, a sandboxed command
+		// that prints "bwrap: ..." to stderr and fails would be mistaken
+		// for a setup failure and executed TWICE.
+		var sawStdout atomic.Bool
+		go readLinesWithFirst(serrR, ch, done, firstStderrCh)
+		go readLines(&sawReader{r: soutR, saw: &sawStdout}, ch, done)
+		<-done
+		<-done
+
+		// Get exit status: available when process exited before timeout.
+		var waitErr error
+		select {
+		case waitErr = <-waitErrCh:
+		default:
+		}
+		select {
+		case firstStderr = <-firstStderrCh:
+		default:
+		}
+
+		// Detect bwrap setup failure: no stdout + stderr starts with "bwrap:".
+		if waitErr != nil && !sawStdout.Load() && strings.HasPrefix(firstStderr, "bwrap:") {
+			for chunk := range s.unconfinedRunStream(ctx, cmd) {
+				ch <- chunk
+			}
+			return
+		}
+		if waitErr != nil {
+			ch <- hwcloud.ToolStreamChunk{Error: fmt.Errorf("native sandbox (linux): %w", waitErr)}
+		}
+	}()
+	return ch
+}
+
+// sawReader sets a flag on the first non-empty read — used to distinguish
+// "bwrap setup failed before any output" from "the sandboxed command ran".
+type sawReader struct {
+	r   io.Reader
+	saw *atomic.Bool
+}
+
+func (r *sawReader) Read(p []byte) (int, error) {
+	n, err := r.r.Read(p)
+	if n > 0 {
+		r.saw.Store(true)
+	}
+	return n, err
+}
+
+// readLinesWithFirst is like readLines but also sends the first line it
+// reads to firstCh. Used by confineAndRunStream to detect bwrap setup
+// failures (whose first stderr line starts with "bwrap:").
+func readLinesWithFirst(r io.Reader, ch chan<- hwcloud.ToolStreamChunk, done chan<- struct{}, firstCh chan<- string) {
+	defer func() { done <- struct{}{} }()
+	sc := bufio.NewScanner(r)
+	sc.Buffer(make([]byte, 4096), 1024*1024)
+	first := true
+	for sc.Scan() {
+		line := sc.Text()
+		if first {
+			first = false
+			select {
+			case firstCh <- line:
+			default:
+			}
+		}
+		ch <- hwcloud.ToolStreamChunk{Content: line + "\n"}
+	}
+}
+
+// bwrapArgs builds Bubblewrap arguments for namespace isolation.
+// Returns false if bwrap is not installed.
+//
+// Isolation provided:
+//   - New mount namespace with minimal /usr, /bin, /lib bind mounts
+//   - /workspace bind-mounted (only writable path, plus any WritablePaths)
+//   - New UTS namespace (via --unshare-uts)
+//   - New IPC namespace (via --unshare-ipc)
+//   - User namespace attempted via --unshare-user-try (gracefully skipped
+//     in environments that block user-namespace creation, e.g. some
+//     containers; bwrap would still need CAP_SYS_ADMIN for the other
+//     namespaces in that case — if it can't get them, confineAndRun
+//     falls back to unconfined execution)
+//
+// PID namespace is intentionally NOT unshared so that the model can
+// kill long-running processes by PID from another shell invocation.
+//
+// Network access is governed by s.policy.Network:
+//   - "" or "host"     → host network namespace shared (no --unshare-net)
+//   - "isolated"       → --unshare-net (new, empty network namespace)
+//
+// /etc network configuration files (resolv.conf, hosts, nsswitch.conf)
+// and CA certificates (/etc/ssl) are bind-mounted read-only so that DNS
+// resolution and TLS verification work inside the sandbox. Without these,
+// even with --share-net / no network unshare, curl/wget/etc. fail with
+// "Couldn't resolve host" because glibc can't read resolv.conf.
+func (s *Sandbox) bwrapArgs(cmd hwcloud.Command) ([]string, bool) {
+	if _, err := exec.LookPath("bwrap"); err != nil {
+		return nil, false
+	}
+
+	args := []string{
+		"--unshare-user-try",   // user namespace (graceful: skip if unavailable)
+		"--unshare-ipc",        // IPC namespace
+		"--unshare-uts",        // UTS namespace (hostname/domainname)
+		"--unshare-cgroup-try", // cgroup namespace (graceful)
+		"--new-session",        // new session, no controlling tty
+		"--die-with-parent",    // kill container when parent dies
+		"--proc", "/proc",      // mount proc
+		"--dev", "/dev", // minimal /dev
+		"--ro-bind", "/usr", "/usr",
+		"--ro-bind", "/bin", "/bin",
+		"--ro-bind", "/lib", "/lib",
+		"--ro-bind", "/lib64", "/lib64",
+		// Network configuration: needed for DNS resolution + TLS even
+		// when the network namespace itself is shared with the host.
+		// --ro-bind-try avoids bwrap failure on minimal systems that
+		// lack some of these files.
+		"--ro-bind-try", "/etc/resolv.conf", "/etc/resolv.conf",
+		"--ro-bind-try", "/etc/hosts", "/etc/hosts",
+		"--ro-bind-try", "/etc/nsswitch.conf", "/etc/nsswitch.conf",
+		"--ro-bind-try", "/etc/ssl", "/etc/ssl",
+	}
+
+	// Network: only unshare for the isolated policy. Host/default
+	// policies leave the network namespace shared with the parent
+	// (no flag needed — bwrap shares by default when --unshare-net
+	// is absent).
+	if s.policy.Network == "isolated" {
+		args = append(args, "--unshare-net")
+	}
+
+	// Bind workspace as writable /workspace.
+	args = append(args, "--bind", s.workDir, "/workspace")
+	args = append(args, "--chdir", "/workspace")
+
+	// Extra writable paths (bind-mounted at the same host path).
+	for _, p := range s.policy.WritablePaths {
+		if p == "" {
+			continue
+		}
+		args = append(args, "--bind", p, p)
+	}
+
+	// Extra read-only paths (bind-mounted at the same host path).
+	for _, p := range s.policy.ReadablePaths {
+		if p == "" {
+			continue
+		}
+		args = append(args, "--ro-bind", p, p)
+	}
+
+	// Pass environment variables.
+	for _, e := range cmd.Env {
+		args = append(args, "--setenv", e)
+	}
+
+	// The command to run.
+	args = append(args, "--", cmd.Program)
+	args = append(args, cmd.Args...)
+
+	return args, true
+}

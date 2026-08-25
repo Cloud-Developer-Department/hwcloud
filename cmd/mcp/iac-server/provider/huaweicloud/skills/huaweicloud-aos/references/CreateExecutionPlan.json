@@ -1,0 +1,422 @@
+{
+  "name": "CreateExecutionPlan",
+  "summary": "创建执行计划",
+  "tags": "资源编排-执行计划",
+  "productshort": "AOS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/execution-plans": {
+      "post": {
+        "tags": [
+          "Execution Plan"
+        ],
+        "summary": "创建执行计划",
+        "description": "创建执行计划(CreateExecutionPlan)\n\n此API用于在指定的资源栈下生成一个执行计划,执行计划描述了当前资源栈中记录的资源状态和模板描述的目的资源状态之间的区别(如,资源A将以以下配置文件生成,资源B将以下参数从XXX修改成YYY)\n\n调用此API触发创建执行计划之后,可以通过GetExecutionPlanMetadata来跟踪执行计划的状态\n当执行计划状态为`AVAILABLE`时,可以通过GetExecutionPlan获取本次执行计划的结果\n\n执行计划不会做过多深层的检查和校验,如用户是否有权限生成、修改资源等\n\n**注意:**\n  * 创建执行计划时,指定的资源栈必须存在。如果指定的资源栈不存在,则返回404,用户可通过调用创建资源栈(CreateStack)API来创建资源栈。\n  * 如果请求中不含有template_body和template_uri,则返回400\n  * 如果资源栈进行了某次部署操作,则在该次部署操作前生成的执行计划将全部失效\n  * 执行计划只代表生成时刻的结果,如果执行计划生成后,用户手动修改资源状态,则执行计划不会自动更新\n  * 如果资源栈状态处于`DEPLOYMENT_IN_PROGRESS`、`ROLLBACK_IN_PROGRESS`、`DELETION_IN_PROGRESS`等状态时,则不允许创建执行计划,并返回403",
+        "operationId": "CreateExecutionPlan",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "in": "body",
+            "name": "CreateExecutionPlanRequestBody",
+            "description": "CreateExecutionPlan API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateExecutionPlanRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "请求接受,异步处理",
+            "examples": {
+              "x-response-examples-1": {
+                "execution_plan_id": "fb5e781e-a27d-46e2-9954-242753857a9f"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateExecutionPlanResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 用户无权限调用此API\n2. 执行计划数量达到上限",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "创建冲突,同名的执行计划已经存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans",
+        "x-request-examples-description-1": "通过模板的uri在指定资源栈下创建执行计划",
+        "x-request-examples-1": {
+          "execution_plan_name": "my_first_execution_plan",
+          "template_uri": "https://my_hello_world_bucket.{region}.myhuaweicloud.com/vpc.tf"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/execution-plans",
+        "x-request-examples-description-2": "通过模板内容在指定资源栈下创建执行计划。RFS模板支持HCL语法,同时规定required_providers模块下用于声明provider路径的source字段,需按照huawei.com/provider/{provider_name}的形式拼接,例如huawei.com/provider/huaweicloud",
+        "x-request-examples-2": {
+          "execution_plan_name": "my_second_execution_plan",
+          "template_body": "terraform {\n    required_providers {\n      huaweicloud = {\n        source = \"huawei.com/provider/huaweicloud\"\n        version = \"1.41.0\"\n        }\n    }\n}\nprovider \"huaweicloud\"{\n    insecure = true\n    cloud = \"{cloud_name}\"\n    region = \"{region}\"\n    endpoints = {\n        iam = \"{iam_endpoint}\"\n    }\n}\n\nresource \"huaweicloud_vpc\" \"vpc\" {\n  cidr = \"172.16.0.0/16\"\n  name = \"my_vpc\"\n}"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "VarsStructure": {
+      "type": "object",
+      "required": [
+        "var_key",
+        "var_value"
+      ],
+      "properties": {
+        "var_key": {
+          "type": "string",
+          "description": "参数的名字",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z]+[a-zA-Z0-9-_]*$"
+        },
+        "var_value": {
+          "type": "string",
+          "description": "参数的值。\n\n注意,参数需要以字符串形式存在,如果是数字,也需要以字符串形式存在,如'10'。\n\n如果需要支持不同类型,或者复杂结构,请使用vars_uri或vars_body",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "encryption": {
+          "$ref": "#/definitions/EncryptionStructure"
+        }
+      },
+      "description": "HCL支持参数,即,同一个模板可以给予不同的参数而达到不同的效果。\n\nvar_structure可以允许客户提交最简单的字符串类型的参数\n\n资源编排服务支持vars_structure,vars_body和vars_uri,如果以上三种方式中声明了同一个变量,将报错400\n\nvars_structure中的值只支持简单的字符串类型,如果需要使用其他类型,需要用户自己在HCL引用时转换,\n或者用户可以使用vars_uri、vars_body,vars_uri和vars_body中支持HCL支持的各种类型以及复杂结构\n\n如果vars_structure过大,可以使用vars_uri\n\n注意:vars中不应该传递任何敏感信息,资源编排服务会直接明文使用、log、展示和存储对应的vars"
+    },
+    "ExecutionPlanNamePrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "execution_plan_name"
+      ],
+      "properties": {
+        "execution_plan_name": {
+          "type": "string",
+          "description": "执行计划的名称。此名字在domain_id+区域+project_id+stack_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+        }
+      },
+      "example": {
+        "execution_plan_name": "MyHelloWorldExecutionPlanName"
+      }
+    },
+    "VarsURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_uri": {
+          "type": "string",
+          "description": "HCL参数文件的OBS地址。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n请确保OBS地址所在局点与使用RFS服务局点一致。\n\n* vars_uri需要指向一个OBS的pre-signed URL地址,其他地址暂不支持\n\n* 资源编排服务支持vars_body和vars_uri,如果以上两种方式中声明了同一个变量,将报错400\n\n* vars_uri中的内容使用HCL的tfvars格式,用户可以将“.tfvars”中的内容保存到文件并上传到OBS中,并将OBS pre-signed URL传递给vars_uri\n\n* 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储vars_uri对应的参数文件内容",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.tfvars){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "vars_uri": "https://your-bucket.cn-north-7.myhuaweicloud.com/my-hello-world-vars.tfvars"
+      }
+    },
+    "ExecutionPlanDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "执行计划的描述。可用于客户识别自己的执行计划。",
+          "minLength": 0,
+          "maxLength": 1024,
+          "x-omitempty": true
+        }
+      },
+      "example": {
+        "description": "My First Hello World Execution Plan"
+      }
+    },
+    "EncryptionStructure": {
+      "type": "object",
+      "required": [
+        "kms"
+      ],
+      "properties": {
+        "kms": {
+          "$ref": "#/definitions/KmsStructure"
+        }
+      },
+      "description": "如果用户传递的var_value是已经加密过的,可以通过声明此项以要求资源编排服务在使用前进行解密,目前暂时只支持KMS加解密"
+    },
+    "TemplateBodyPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "template_body": {
+          "type": "string",
+          "description": "HCL模板,描述了资源的目标状态。资源编排服务将比较此模板与当前远程资源的状态之间的区别。\n\ntemplate_body和template_uri 必须有且只有一个存在\n\n**注意:**\n  * 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储对应的template_body",
+          "minLength": 0,
+          "maxLength": 51200
+        }
+      },
+      "example": {
+        "template_body": ""
+      }
+    },
+    "TemplateURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "template_uri": {
+          "type": "string",
+          "description": "HCL模板的OBS地址,该模板描述了资源的目标状态。资源编排服务将比较此模板与当前远程资源的状态之间的区别\n\n请确保OBS地址所在局点与使用RFS服务局点一致。\n\n对应的文件应该是纯tf文件或zip压缩包\n\n纯tf文件需要以“.tf”或者“.tf.json”结尾,并遵守HCL语法,且文件的编码格式须为UTF-8\n\n压缩包目前只支持zip格式,文件需要以\".zip\"结尾。解压后的文件不得包含\".tfvars\"文件。解压前最大支持1MB,解压后最大支持1MB。zip压缩包文件数量不能超过100个\n\ntemplate_body和template_uri 必须有且只有一个存在\n\n**注意:**\n  * 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储template_uri对应的模板文件内容。\n  * template_uri对应的模板文件如果为zip类型,则内部的文件或文件夹名称长度不得超过255个字节,最深路径长度不得超过2048字节,zip包大小不得超过1MB",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.tf|\\.tf.json|\\.zip){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "template_uri": "https://your-bucket.cn-north-7.myhuaweicloud.com/my-hello-world-template.tf"
+      }
+    },
+    "StackIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_id": {
+          "type": "string",
+          "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400"
+        }
+      },
+      "example": {
+        "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "KmsStructure": {
+      "type": "object",
+      "required": [
+        "cipher_text",
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "解密时,资源编排服务应该使用的KMS密钥的ID,通常是加密时所使用的密钥ID",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$"
+        },
+        "cipher_text": {
+          "type": "string",
+          "description": "数据加密密钥所对应的密文",
+          "minLength": 2,
+          "maxLength": 2048
+        }
+      },
+      "description": "如果用户给予的var_value是经过KMS加密的,可以通过传递相关加密信息,资源编排服务在使用的时候会帮助用户进行KMS解密\n\n更多关于KMS加密以及KMS加密的样例代码请见:[KMS加密使用场景介绍](https://support.huaweicloud.com/productdesc-dew/dew_01_0006.html)\n\n\n**注意:**\n  * 请确保用户给予资源编排服务的委托中包含对指定密钥ID的操作权限\n  * KMS每个月有免费试用的额度,如果超过,则KMS需要收费,此费用不是资源编排服务收取,具体标准见:[https://www.huaweicloud.com/pricing.html?tab=detail#/dew](https://www.huaweicloud.com/pricing.html?tab=detail#/dew)\n  * KMS加密只代表资源编排服务在存储和传输的时候传递的是密文,但是在stack-events中依然是明文,如果希望在log中以密文形式对待,请在模板中声明sensitive,更多关于sensitive的介绍见:[https://developer.hashicorp.com/terraform/tutorials/configuration-language/sensitive-variables](https://developer.hashicorp.com/terraform/tutorials/configuration-language/sensitive-variables)"
+    },
+    "VarsBodyPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_body": {
+          "type": "string",
+          "description": "HCL参数文件的内容。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n* vars_body使用HCL的tfvars格式,用户可以将“.tfvars”中的内容提交到vars_body中\n\n* 资源编排服务支持vars_body和vars_uri,如果以上两种方式中声明了同一个变量,将报错400\n\n* 如果vars_body过大,可以使用vars_uri\n\n* 资源栈集不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储对应的vars_body。",
+          "minLength": 0,
+          "maxLength": 51200
+        }
+      },
+      "example": {
+        "vars_body": ""
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "CreateExecutionPlanResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ExecutionPlanIdPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "ExecutionPlanIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "execution_plan_id": {
+          "type": "string",
+          "description": "执行计划(execution_plan)的唯一ID。\n\n此Id由资源编排服务在生成执行计划的时候生成,为UUID。\n\n由于执行计划名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的执行计划,删除,再重新创建一个同名执行计划。\n\n对于团队并行开发,用户可能希望确保,当前我操作的执行计划就是我认为的那个,而不是其他队友删除后创建的同名执行计划。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的执行计划所对应的ID都不相同,更新不会影响ID。如果给予的execution_plan_id和当前执行计划的ID不一致,则返回400\n\n**注意:**\n* 创建执行计划后,资源编排服务持久化请求并立即返回,客户端不等待请求最终处理完成,用户无法实时感知请求处理结果\n* 资源编排服务最终会将异步部署请求排队,在服务端空闲的情况下逐个处理。用户最大等待时长为1小时",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "execution_plan_id": "4abf1770-2760-4339-9c18-427fa115db6a"
+      }
+    },
+    "VarsStructurePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "vars_structure": {
+          "type": "array",
+          "description": "HCL参数结构。HCL模板支持参数传入,即,同一个模板可以给予不同的参数而达到不同的效果。\n\n* var_structure可以允许客户提交最简单的字符串类型的参数\n\n* 资源编排服务支持vars_structure,vars_body和vars_uri,如果以上三种方式中声明了同一个变量,将报错400\n\n* vars_structure中的值只支持简单的字符串类型,如果需要使用其他类型,需要用户自己在HCL引用时转换,\n或者用户可以使用vars_uri、vars_body,vars_uri和vars_body中支持HCL支持的各种类型以及复杂结构\n\n* vars_structure最多允许100项,如果vars_structure过大,可以使用vars_uri\n\n* 注意:vars_structure中默认不应该含有任何敏感信息,资源编排服务会直接明文使用、log、展示和存储对应的vars。如为敏感信息,建议设置encryption字段开启加密",
+          "items": {
+            "$ref": "#/definitions/VarsStructure"
+          },
+          "maxItems": 100,
+          "minItems": 0,
+          "x-omitempty": true
+        }
+      },
+      "example": {
+        "vars_structure": [
+          {
+            "var_key": "region",
+            "var_value": "cn-north-7",
+            "encryption": {
+              "kms": {
+                "id": "344d38b3-267e-435c-a1e1-f50356162173",
+                "cipher_text": "jslkjreiqpeorikshshlld"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "CreateExecutionPlanRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StackIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/TemplateBodyPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/TemplateURIPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ExecutionPlanNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ExecutionPlanDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsStructurePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsBodyPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/VarsURIPrimitiveTypeHolder"
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

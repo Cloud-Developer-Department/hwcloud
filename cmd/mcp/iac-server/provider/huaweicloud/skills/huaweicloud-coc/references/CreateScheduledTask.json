@@ -1,0 +1,603 @@
+{
+  "name": "CreateScheduledTask",
+  "summary": "新建定时运维",
+  "tags": "ScheduledTask",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/schedule/task": {
+      "post": {
+        "tags": [
+          "ScheduledTask"
+        ],
+        "operationId": "CreateScheduledTask",
+        "x-request-examples-text-1": "{}",
+        "summary": "新建定时运维",
+        "description": "Create Scheduled Task",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-requestHandler": true,
+        "x-imports": [
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth",
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.coc.scheduled.job.framework.auth.ScheduleTaskQueryActionInitializer",
+          "com.huawei.coc.scheduled.job.framework.auth.ScheduleTaskActionInitializer",
+          "com.huawei.coc.scheduled.job.framework.auth.ScheduleTaskHistoryActionInitializer",
+          "com.huawei.coc.scheduled.job.framework.auth.ScheduleTaskCreateActionInitializer",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta",
+          "com.huawei.coc.common.utils.annotation.CtsExtendMeta",
+          "com.huawei.coc.scheduled.job.enums.PolicyEnum",
+          "com.huawei.coc.scheduled.job.enums.TaskType",
+          "com.huawei.coc.scheduled.job.enums.RiskLevelEnum",
+          "com.huawei.coc.scheduled.job.enums.ApproveStatusParamEnum",
+          "com.huawei.coc.common.utils.enums.RunbookOperationStatus",
+          "com.huawei.coc.common.utils.enums.TaskSource",
+          "com.huawei.coc.common.utils.annotation.CheckEnum",
+          "jakarta.servlet.http.HttpServletRequest",
+          "com.huawei.clouds.wushan.auth.token.meta.BssOpType"
+        ],
+        "x-class-annotations": [
+          "@EnableAuth"
+        ],
+        "x-method-annotations": [
+          "@IamAuthMeta(needApigwJwtAuthCheck = false, authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"coc:schedule:create\",needAbacResourceCheck = true, authContextInitializer = ScheduleTaskCreateActionInitializer.class,needRbacCheck = false, supportAllGrantedEps = true, opType = BssOpType.RESOURCE)",
+          "@CtsExtendMeta(resourceId = \"#DataResp.data\", resourceName = \"ScheduledTask\", resourceIdKey = \"data\")",
+          "@CtsMeta(resourceType = \"schedule\", traceName = \"createScheduledTask\", operationId = \"CreateScheduledTask\")"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "CreateScheduledTaskRequestBody",
+            "description": "ScheduledTask object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ScheduledTaskRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scheduled Task Id",
+            "schema": {
+              "$ref": "#/definitions/DataResp"
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MessageNotification": {
+      "type": "object",
+      "x-imports": [
+        "com.huawei.coc.scheduled.job.enums.ProtocolEnums"
+      ],
+      "description": "消息通知",
+      "required": [
+        "notification_endpoint_type"
+      ],
+      "properties": {
+        "policy": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 0,
+          "description": "通知策略",
+          "example": "START_EXECUTION"
+        },
+        "notification_endpoint_type": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "ON_CALL"
+          ],
+          "maxLength": 32,
+          "minLength": 1,
+          "description": "通知对象类型"
+        },
+        "schedule_scene_id": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 0,
+          "description": "排班场景ID"
+        },
+        "schedule_role_id": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 0,
+          "description": "排班角色ID"
+        },
+        "recipients": {
+          "type": "string",
+          "maxLength": 3200,
+          "minLength": 0,
+          "description": "消息接收人"
+        },
+        "protocol": {
+          "type": "string",
+          "enum": [
+            "DEFAULT",
+            "NONE",
+            "SMS",
+            "EMAIL",
+            "DINGDING",
+            "LARK",
+            "WELINK",
+            "CALLNOTIFY",
+            "WECHAT"
+          ],
+          "maxLength": 32,
+          "minLength": 1,
+          "description": "通知渠道"
+        }
+      }
+    },
+    "TicketInfo": {
+      "type": "object",
+      "x-ref-external": "com.huawei.coc.common.model.req.cim.TicketInfo",
+      "description": "requestBody中包含的,前端选择的四号单的信息",
+      "properties": {
+        "ticket_id": {
+          "type": "string",
+          "description": "四号单id",
+          "example": "CM202405221739540119523656",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "ticket_type": {
+          "type": "string",
+          "description": "四号单类型,可选CHANGE/INCIDENT/ALARM/WARROOM",
+          "example": "CHANGE",
+          "minLength": 0,
+          "maxLength": 50
+        },
+        "target_id": {
+          "type": "string",
+          "description": "四号单关联的应用id",
+          "example": "64db3cb747c26529355eb32f",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "scope_id": {
+          "type": "string",
+          "description": "region id",
+          "example": "cn-north-7",
+          "minLength": 0,
+          "maxLength": 50
+        }
+      }
+    },
+    "TriggerTime": {
+      "type": "object",
+      "description": "定时任务触发时间",
+      "required": [
+        "time_zone",
+        "policy"
+      ],
+      "properties": {
+        "time_zone": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 0,
+          "description": "时区"
+        },
+        "policy": {
+          "type": "string",
+          "enum": [
+            "PERIODIC",
+            "ONCE",
+            "CRON"
+          ],
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "策略"
+        },
+        "single_scheduled_time": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9000000000000000,
+          "format": "int64",
+          "description": "单次执行的执行时间戳",
+          "example": 1683772662000
+        },
+        "periodic_scheduled_time": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 0,
+          "description": "周期执行的执行当天的时间 \"00:00:00\"",
+          "example": "00:00:00"
+        },
+        "period": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 0,
+          "description": "周期执行时的具体星期列表按逗号分割, 如星期日为\"1\",星期一为\"2\"",
+          "example": "1,2,3,5,6"
+        },
+        "cron": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 0,
+          "description": "cron表达式",
+          "example": "0 15 10 ? * *"
+        },
+        "scheduled_close_time": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9000000000000000,
+          "format": "int64",
+          "description": "定时任务规则截止日期时间戳",
+          "example": 1683772662000
+        }
+      }
+    },
+    "ScheduledTaskRequestBody": {
+      "description": "创建定时任务请求体",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TicketInformation"
+        },
+        {
+          "required": [
+            "name",
+            "version_no",
+            "trigger_time",
+            "task_type",
+            "associated_task_id",
+            "associated_task_type",
+            "associated_task_name",
+            "risk_level",
+            "input_param",
+            "target_instances",
+            "enable_approve",
+            "enable_message_notification",
+            "target_selection"
+          ],
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "任务名称",
+              "example": "patch_scan_job",
+              "maxLength": 128,
+              "minLength": 3,
+              "x-param-annotations": [
+                "@Pattern(regexp = \"[\\\\一-\\\\龥a-zA-Z0-9_-]{3,100}\", message =\"parameter name error.\")"
+              ]
+            },
+            "enterprise_project_id": {
+              "type": "string",
+              "description": "企业项目id",
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "agency_name": {
+              "type": "string",
+              "description": "委托名称",
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "version_no": {
+              "type": "string",
+              "description": "版本号",
+              "maxLength": 32,
+              "minLength": 1
+            },
+            "trigger_time": {
+              "description": "定时设置触发时间",
+              "$ref": "#/definitions/TriggerTime"
+            },
+            "task_type": {
+              "type": "string",
+              "enum": [
+                "RUNBOOK",
+                "SCRIPT"
+              ],
+              "maxLength": 32,
+              "minLength": 1,
+              "description": "任务类型"
+            },
+            "associated_task_id": {
+              "type": "string",
+              "description": "关联任务ID(脚本ID/作业ID)",
+              "example": "Customization",
+              "minLength": 0,
+              "maxLength": 256
+            },
+            "associated_task_type": {
+              "type": "string",
+              "enum": [
+                "COMMUNAL",
+                "CUSTOMIZATION"
+              ],
+              "maxLength": 32,
+              "minLength": 1,
+              "description": "关联任务的类型"
+            },
+            "associated_task_name": {
+              "type": "string",
+              "description": "关联任务名称(脚本名称/作业名称)",
+              "minLength": 0,
+              "maxLength": 256
+            },
+            "associated_task_name_en": {
+              "type": "string",
+              "description": "关联任务名称(英文)(脚本名称/作业名称)",
+              "minLength": 0,
+              "maxLength": 256
+            },
+            "associated_task_enterprise_project_id": {
+              "type": "string",
+              "description": "关联任务的企业项目ID",
+              "minLength": 0,
+              "maxLength": 256
+            },
+            "runbook_instance_mode": {
+              "type": "string",
+              "enum": [
+                "SAME",
+                "DIFF"
+              ],
+              "maxLength": 32,
+              "minLength": 1,
+              "description": "作业实例模式"
+            },
+            "risk_level": {
+              "type": "string",
+              "enum": [
+                "HIGH",
+                "MEDIUM",
+                "LOW"
+              ],
+              "maxLength": 32,
+              "minLength": 1,
+              "description": "风险等级"
+            },
+            "input_param": {
+              "type": "object",
+              "x-minLength": 0,
+              "x-maxLength": 2147483647,
+              "description": "执行参数,值为json串",
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 2147483647
+              }
+            },
+            "target_instances": {
+              "type": "array",
+              "x-minLength": 1,
+              "x-maxLength": 1000,
+              "maxItems": 1000,
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/ScheduleInstance"
+              },
+              "description": "目标实例信息"
+            },
+            "enable_approve": {
+              "type": "boolean",
+              "description": "是否开启入库人工审核"
+            },
+            "reviewer_notification": {
+              "description": "审核人通知信息",
+              "$ref": "#/definitions/MessageNotification"
+            },
+            "reviewer_user_name": {
+              "type": "string",
+              "maxLength": 3200,
+              "minLength": 0,
+              "description": "审核人昵称"
+            },
+            "enable_message_notification": {
+              "type": "boolean",
+              "description": "是否启用消息通知"
+            },
+            "message_notification": {
+              "description": "消息通知",
+              "$ref": "#/definitions/MessageNotification"
+            }
+          }
+        }
+      ]
+    },
+    "TicketInformation": {
+      "type": "object",
+      "x-ref-external": "com.huawei.coc.common.model.req.cim.TicketInfos",
+      "properties": {
+        "ticket_infos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TicketInfo"
+          },
+          "description": "选择的四号提权单信息",
+          "minItems": 0,
+          "maxItems": 1000
+        }
+      }
+    },
+    "ResourceQuery": {
+      "type": "object",
+      "description": "查询条件参数类",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "参数名",
+          "example": "name",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "value": {
+          "type": "string",
+          "description": "参数值",
+          "example": "张三",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "DataResp": {
+      "description": "响应信息",
+      "properties": {
+        "data": {
+          "type": "string",
+          "readOnly": true,
+          "description": "响应数据"
+        }
+      }
+    },
+    "ScheduleInstance": {
+      "type": "object",
+      "description": "保存定时任务关联的实例选择条件或实例信息",
+      "required": [
+        "target_selection",
+        "order_no"
+      ],
+      "properties": {
+        "target_selection": {
+          "type": "string",
+          "description": "目标选择方式,枚举值:ALL 全部实例,MANUAL 手动选择, NONE",
+          "example": "ALL",
+          "enum": [
+            "ALL",
+            "MANUAL",
+            "NONE"
+          ],
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "target_resource": {
+          "description": "实例查询条件",
+          "$ref": "#/definitions/TargetResource"
+        },
+        "target_instances": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100000000,
+          "description": "实例信息"
+        },
+        "order_no": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "步骤号"
+        },
+        "batch_strategy": {
+          "type": "string",
+          "description": "实例分批策略(AUTO_BATCH,MANUAL_BATCH,NONE)",
+          "example": "AUTO_BATCH",
+          "enum": [
+            "AUTO_BATCH",
+            "MANUAL_BATCH",
+            "NONE"
+          ],
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "sub_target_instances": {
+          "type": "array",
+          "description": "目标实例",
+          "x-minLength": 0,
+          "x-maxLength": 100000,
+          "minItems": 0,
+          "maxItems": 100000,
+          "items": {
+            "$ref": "#/definitions/ScheduleInstance"
+          }
+        }
+      }
+    },
+    "TargetResource": {
+      "type": "object",
+      "description": "目标资源接受类",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "资源类型(REGION, APPLICATION)",
+          "example": "region",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "REGION",
+            "APPLICATION"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "description": "资源id",
+          "example": "cn-north-7",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "app_name": {
+          "type": "string",
+          "description": "应用名称(层级关系用.隔开)",
+          "example": "COC-CDR.COC-CDR_component.分组01",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "region_id": {
+          "type": "string",
+          "description": "region(应用关联region)",
+          "example": "cn-north-7",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "params": {
+          "type": "array",
+          "x-minLength": 0,
+          "x-maxLength": 1000,
+          "minItems": 0,
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/ResourceQuery"
+          },
+          "description": "动态查询条件"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

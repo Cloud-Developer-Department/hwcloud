@@ -1,0 +1,295 @@
+{
+  "name": "CheckAssetJobStatus",
+  "summary": "查询作业进度",
+  "tags": "ASSET_MANAGEMENT",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/assets/jobs/{job_id}": {
+      "get": {
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "tags": [
+          "ASSET_MANAGEMENT"
+        ],
+        "operationId": "CheckAssetJobStatus",
+        "summary": "查询作业进度",
+        "description": "查询作业进度",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 100000
+          },
+          {
+            "type": "string",
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "实例ID"
+          },
+          {
+            "type": "string",
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "项目ID"
+          },
+          {
+            "type": "string",
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "作业ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AssetJobStatus"
+            },
+            "examples": {
+              "application/json": {
+                "id": "ff8080814dbd65d7014dbe0d84db0013",
+                "type": "exportAsset",
+                "status": "Running",
+                "reason": [
+                  {
+                    "resource_type": "application",
+                    "resource_name": "myApp",
+                    "error_code": "ROMA.00000101",
+                    "error_msg": "some error details here"
+                  }
+                ],
+                "progress_percent": 0.35,
+                "archive_id": "string",
+                "begin_time": "2019-12-06T06:49:04Z",
+                "end_time": "2019-12-06T06:50:04Z"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "ROMA.00000101",
+                "error_msg": "error summary",
+                "error_details": "some error details here",
+                "request_id": "13760c1fe8655e61209b75665e9bef43"
+              }
+            }
+          }
+        },
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#roma-address#",
+            "description": "",
+            "method": "GET",
+            "path": "/v2/{project_id}/instances/{instance_id}/assets/jobs/{job_id}",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "instance_id",
+              "origin": "REQUEST",
+              "value": "instance_id"
+            },
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "project_id",
+              "origin": "REQUEST",
+              "value": "project_id"
+            },
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "job_id",
+              "origin": "REQUEST",
+              "value": "job_id"
+            }
+          ],
+          "type": "HTTP"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误消息"
+        },
+        "error_details": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "具体错误消息"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "请求处理ID"
+        }
+      },
+      "example": {
+        "error_code": "ROMA.00000101",
+        "error_msg": "error summary",
+        "error_details": "some error details here",
+        "request_id": "13760c1fe8655e61209b75665e9bef43"
+      }
+    },
+    "AssetJobReason": {
+      "type": "object",
+      "properties": {
+        "resource_type": {
+          "type": "string",
+          "enum": [
+            "application",
+            "task"
+          ],
+          "description": "资源类型"
+        },
+        "resource_name": {
+          "type": "string",
+          "description": "资源名称",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "AssetJobStatus": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "作业ID",
+          "example": "ff8080814dbd65d7014dbe0d84db0013"
+        },
+        "type": {
+          "type": "string",
+          "description": "作业类型",
+          "example": "exportAsset",
+          "enum": [
+            "importAsset",
+            "exportAsset"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "RUNNING",
+            "SUCCEEDED",
+            "FAILED"
+          ],
+          "description": "作业状态\n- RUNNING : 作业正在执行\n- SUCCEEDED : 作业执行成功,对于导出作业,用户可以通过archive_id来下载资产包\n- FAILED : 作业执行失败,通过reason字段查看具体错误原因"
+        },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/AssetJobReason"
+          },
+          "example": [
+            {
+              "resource_type": "application",
+              "resource_name": "myApp",
+              "error_code": "ROMA.00000101",
+              "error_msg": "some error details here"
+            }
+          ],
+          "description": "导致作业失败的错误原因"
+        },
+        "progress_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "float",
+          "description": "作业进度百分比",
+          "example": 0.35
+        },
+        "archive_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "导出作业成功时,供下载的资产包ID"
+        },
+        "begin_time": {
+          "type": "string",
+          "minimum": 1,
+          "maximum": 128,
+          "format": "dateTime",
+          "description": "作业开始时间",
+          "example": "2019-12-06T06:49:04Z"
+        },
+        "end_time": {
+          "type": "string",
+          "minimum": 1,
+          "maximum": 128,
+          "format": "dateTime",
+          "description": "作业结束时间",
+          "example": "2019-12-06T06:50:04Z"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

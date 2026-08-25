@@ -1,0 +1,228 @@
+{
+  "name": "DeleteMemberInvite",
+  "summary": "删除邀请成员信息",
+  "tags": "BCS联盟",
+  "productshort": "BCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/members/invitations": {
+      "delete": {
+        "x-secnario": "hws",
+        "x-api-type": "open",
+        "tags": [
+          "BCS联盟"
+        ],
+        "summary": "删除邀请成员信息",
+        "description": "可通过此接口批量取消邀请或删除对已退出或拒绝加入或解散的成员邀请信息",
+        "operationId": "DeleteMemberInvite",
+        "x-order": 5,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "帐号token",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的项目ID,一般为32位字符串",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "DeleteMemberInviteRequestBody",
+            "description": "取消邀请请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeleteMemberInviteRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/SuccessResponse"
+            },
+            "examples": {
+              "application/json": {
+                "result": "success"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4006014",
+                "error_msg": "Invalid Parameter quotasType : ecs"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4010401",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4030403",
+                "error_msg": "No permissions to request this method"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4040404",
+                "error_msg": "Not Found:the url is not found"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.5000500",
+                "error_msg": "Internal Server Error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-auto-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误"
+    },
+    "SuccessResponse": {
+      "description": "请求成功",
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "请求成功的结果"
+        }
+      }
+    },
+    "DeleteMemberInviteRequestBody": {
+      "required": [
+        "bcs_id",
+        "channel_name",
+        "invited_userinfo"
+      ],
+      "properties": {
+        "bcs_id": {
+          "type": "string",
+          "description": "邀请实例id"
+        },
+        "channel_name": {
+          "type": "string",
+          "description": "邀请加入的通道名"
+        },
+        "invited_userinfo": {
+          "type": "array",
+          "description": "被邀请的用户列表,对应信息可通过获取联盟成员列表(ListMembers)接口查询,或被邀请方已加入联盟,或邀请状态为released时,需填写准确的被邀请方bcs实例id和邀请状态",
+          "items": {
+            "$ref": "#/definitions/InvitationDetail"
+          }
+        }
+      },
+      "example": {
+        "bcs_id": "83d85ea4-0f97-3bb7-07e2-4ad4b5a9f39d",
+        "channel_name": "chan2",
+        "invited_userinfo": [
+          {
+            "invited_user": "bcstest02",
+            "status": "quit",
+            "invited_bcs_id": "11ba0ae0-2986-72d5-9049-43998c16fe86"
+          }
+        ]
+      }
+    },
+    "InvitationDetail": {
+      "required": [
+        "invited_user"
+      ],
+      "properties": {
+        "invited_user": {
+          "type": "string",
+          "description": "被邀请方租户名,IAM用户名"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "quit",
+            "waiting",
+            "reject",
+            "released"
+          ],
+          "description": "邀请状态,可选:已退出(quit),等待中(waiting),已拒绝(reject),已解散(released),其他状态不允许删除"
+        },
+        "invited_bcs_id": {
+          "type": "string",
+          "description": "被邀请方服务实例ID"
+        }
+      },
+      "description": "被邀请列表"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "delete",
+  "uri": null
+}

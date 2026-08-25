@@ -1,0 +1,361 @@
+{
+  "name": "ShowOpsAgentMetricTrend",
+  "summary": "查询某个指标的趋势图接口",
+  "tags": "指标管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/ops/observation/agents/metric/trend": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L1",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "consumes": [
+          "application/json;charset=utf-8"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "tags": [
+          "metric"
+        ],
+        "operationId": "ShowOpsAgentMetricTrend",
+        "summary": "查询某个指标的趋势图接口",
+        "description": "查询某个指标的趋势图接口",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "ShowOpsAgentMetricTrendRequestBody",
+            "description": "获取指标的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ShowOpsAgentMetricTrendRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShowOpsAgentMetricTrendResponseBody"
+            }
+          },
+          "400": {
+            "description": "无效的请求信息",
+            "schema": {
+              "$ref": "#/definitions/OpsObserverCommonError"
+            },
+            "x-response-examples-0": {
+              "error_code": "AgentArts.05001003",
+              "error_msg": "请求参数不正确"
+            }
+          },
+          "403": {
+            "description": "权限不足,拒绝访问",
+            "schema": {
+              "$ref": "#/definitions/OpsObserverAuthorizationError"
+            },
+            "x-response-examples-0": {
+              "error_code": "AgentArts.05004003",
+              "error_msg": "权限不足,拒绝访问",
+              "encode_authorization_message": "eyJIcnJvciI6ICJVbmF1dGhvcm16ZWQifQ==",
+              "details": [
+                {
+                  "error_code": "AgentArts.05001003"
+                },
+                {
+                  "error_msg": "请求参数不正确"
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/OpsObserverCommonError"
+            },
+            "x-response-examples-0": {
+              "error_code": "AgentArts.05005000",
+              "error_msg": "内部服务器错误"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ShowOpsAgentMetricTrendRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ShowOpsAgentMetricTypeRequestBody"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "group_by": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "description": "分组名",
+              "example": "agent",
+              "minItems": 0,
+              "maxItems": 1000,
+              "x-maxLength": 1000
+            }
+          }
+        }
+      ]
+    },
+    "ShowOpsAgentMetricTrendResponseBody": {
+      "type": "object",
+      "required": [
+        "line_list"
+      ],
+      "properties": {
+        "line_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FrontLine"
+          },
+          "description": "趋势图数据",
+          "minItems": 0,
+          "maxItems": 1000,
+          "x-maxLength": 1000
+        },
+        "step": {
+          "type": "string",
+          "description": "步长",
+          "example": "60"
+        }
+      }
+    },
+    "FrontPoint": {
+      "type": "object",
+      "required": [
+        "time",
+        "value"
+      ],
+      "properties": {
+        "time": {
+          "type": "integer",
+          "description": "时间戳",
+          "format": "int64",
+          "example": 1754364381000,
+          "minimum": 0,
+          "maximum": 4110338427000
+        },
+        "value": {
+          "type": "string",
+          "description": "某个点的具体值",
+          "example": 20,
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "FrontLine": {
+      "type": "object",
+      "required": [
+        "point_list",
+        "groupBy"
+      ],
+      "properties": {
+        "point_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FrontPoint"
+          },
+          "description": "趋势图数据",
+          "minItems": 0,
+          "maxItems": 1000,
+          "x-maxLength": 1000
+        },
+        "group_by": {
+          "type": "string",
+          "description": "分组名",
+          "example": "gen_resource_id",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "OpsObserverCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "description": "错误响应信息",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 18,
+          "maxLength": 18,
+          "example": "AgentArts.05000001"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "ShowOpsAgentMetricTypeRequestBody": {
+      "type": "object",
+      "required": [
+        "start_time",
+        "end_time",
+        "metric_name"
+      ],
+      "properties": {
+        "group_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "description": "分组名",
+          "example": "agent",
+          "minItems": 0,
+          "maxItems": 1000,
+          "x-maxLength": 1000
+        },
+        "start_time": {
+          "type": "string",
+          "description": "开始时间",
+          "example": 1773104973000,
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间",
+          "example": 1773104973000,
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "metric_name": {
+          "type": "string",
+          "description": "指标名",
+          "example": "top_n_model_duration",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "resource_id": {
+          "type": "string",
+          "description": "智能体或工作流的id",
+          "example": "000b2b01-6279-4c7a-a4e5-08fdca69cc66",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "智能体类型,agent单智能体,multiagents多智能体,workflow工作流,office_ace",
+          "example": "workflow",
+          "enum": [
+            "multiagents",
+            "workflow",
+            "agent",
+            "office_ace"
+          ]
+        },
+        "user_id": {
+          "type": "string",
+          "description": "用户id",
+          "example": "000b2b01279c74e58fdca69cc66",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "filter": {
+          "type": "array",
+          "description": "过滤条件",
+          "minItems": 0,
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/MetricFilterParam"
+          }
+        }
+      }
+    },
+    "MetricFilterParam": {
+      "type": "object",
+      "properties": {
+        "label_name": {
+          "type": "string",
+          "description": "标签名",
+          "example": "trace_id",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "label_value": {
+          "type": "string",
+          "description": "标签值",
+          "example": "000b2b01-6279-4c7a-a4e5-08fdca69cc66",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "operator": {
+          "type": "string",
+          "description": "操作类型",
+          "example": "=",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "OpsObserverAuthorizationError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 18,
+          "maxLength": 18,
+          "example": "AgentArts.05000001"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "编码后的授权失败信息,可通过STS5 Decode Authorization Message接口解码获取详细授权失败原因",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "details": {
+          "type": "array",
+          "description": "依赖的下游服务错误信息列表",
+          "items": {
+            "$ref": "#/definitions/OpsObserverCommonError"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

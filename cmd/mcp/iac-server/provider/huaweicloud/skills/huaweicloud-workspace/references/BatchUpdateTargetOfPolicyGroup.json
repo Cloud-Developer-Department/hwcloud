@@ -1,0 +1,240 @@
+{
+  "name": "BatchUpdateTargetOfPolicyGroup",
+  "summary": "修改策略组应用对象",
+  "tags": "策略组",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/policy-groups/{policy_group_id}/targets": {
+      "put": {
+        "tags": [
+          "PolicyGroup"
+        ],
+        "summary": "修改策略组应用对象",
+        "description": "批量增加、删除应用对象到指定策略组。",
+        "operationId": "BatchUpdateTargetOfPolicyGroup",
+        "schemes": [
+          "https"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "policy_group_id",
+            "in": "path",
+            "description": "策略组id。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "4021a8xxxxxxx0174490b0b1d0055"
+          },
+          {
+            "in": "body",
+            "name": "BatchUpdateTargetOfPolicyGroupRequestBody",
+            "description": "修改策略组应用请求对象。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModifyPolicyTargetReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常。"
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "405": {
+            "description": "请求中指定的方法不被允许。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "503": {
+            "description": "服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-addValid": true,
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceType=ResourceType.POLICY_GROUP, resourceField=\"policy_group_id\")",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"workspace:policyGroups:updateTargets\", needApigwJwtAuthCheck = false, authContextInitializerName = \"workspacePolicyGroupsInstanceListAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"modifyTargets\")"
+        ],
+        "x-request-examples-url-1": "PUT /v2/29dfe82ada564ac2b927e1ff036d9a9b/policy-groups/401a23865cae63f3015cceb9affe0049/targets",
+        "x-request-examples-1": {
+          "add": [
+            {
+              "target_id": "xxxx-xxxx-xxxx-xxxx",
+              "target_type": "USER",
+              "target_name": "All-Targets-123"
+            }
+          ],
+          "delete": [
+            {
+              "target_id": "xxxx-xxxx-xxxx-xxxx",
+              "target_type": "USER",
+              "target_name": "All-Targets-456"
+            }
+          ]
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "public,internal_token",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "ModifyPolicyTargetReq": {
+      "properties": {
+        "add": {
+          "type": "array",
+          "description": "添加应用。",
+          "items": {
+            "$ref": "#/definitions/Target"
+          },
+          "maxItems": 5000,
+          "minItems": 0,
+          "x-maxLength": 5000,
+          "x-minLength": 0
+        },
+        "delete": {
+          "type": "array",
+          "description": "删除应用。",
+          "items": {
+            "$ref": "#/definitions/Target"
+          },
+          "maxItems": 5000,
+          "minItems": 0
+        }
+      }
+    },
+    "Target": {
+      "properties": {
+        "target_id": {
+          "type": "string",
+          "description": "对象ID。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "target_name": {
+          "type": "string",
+          "description": "对象名称,长度不能超过55个字符。",
+          "minLength": 0,
+          "maxLength": 55
+        },
+        "target_type": {
+          "type": "string",
+          "description": "对象类型。\n- INSTANCE:表示桌面。\n  target_id:为桌面的SID。\n  target_name:为桌面name。\n- USER:表示用户。\n  target_id:为用户ID。\n  target_name:为用户name。\n- USERGROUP:表示用户组。\n  target_id:为用户组ID。\n  target_name:为用户组name。\n- CLIENTIP:终端IP地址。\n  target_id:终端IP地址。\n  target_name:终端IP地址。\n- OU:组织单元。\n  target_id:OUID。\n  target_name:OU名称。\n- DESKTOPSPOOL:表示桌面池。\n  target_id:为桌面池的ID。\n  target_name:为桌面池name。\n- ALL:表示所有桌面。\n  target_id:default-apply-all-targets。\n  target_name:All-Targets。\n- DESKTOP_TAG:表示桌面标签。\n  target_id:标签的key|标签的value。\n  target_name:标签的key|标签的value。",
+          "minLength": 0,
+          "maxLength": 255,
+          "enum": [
+            "INSTANCE",
+            "DESKTOPSPOOL",
+            "USER",
+            "CLIENTIP",
+            "OU",
+            "USERGROUP",
+            "ALL",
+            "DESKTOP_TAG"
+          ]
+        },
+        "target_domain": {
+          "type": "string",
+          "description": "对象所在域。"
+        }
+      }
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

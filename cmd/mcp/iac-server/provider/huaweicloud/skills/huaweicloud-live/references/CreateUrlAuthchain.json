@@ -1,0 +1,245 @@
+{
+  "name": "CreateUrlAuthchain",
+  "summary": "生成URL鉴权串",
+  "tags": "鉴权管理",
+  "productshort": "Live",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v1/{project_id}/auth/chain": {
+      "post": {
+        "tags": [
+          "鉴权管理"
+        ],
+        "description": "生成URL鉴权串",
+        "summary": "生成URL鉴权串",
+        "operationId": "CreateUrlAuthchain",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "name": "CreateUrlAuthchainRequestBody",
+            "in": "body",
+            "description": "域名信息",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateUrlAuthchainReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取URL鉴权串成功",
+            "schema": {
+              "$ref": "#/definitions/AuthUrlKeychainRsp"
+            },
+            "examples": {
+              "application/json": {
+                "keychain": [
+                  "http://pull.domain.com/live/stream.flv?secret=xxx&time=ttt",
+                  "rtmp://pull.domain.com/live/stream?secret=xxx&time=ttt"
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "获取URL鉴权串失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "参数校验失败"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST /v1/{project_id}/auth/chain",
+        "x-request-examples-text-1": {
+          "domain": "string",
+          "domain_type": "string",
+          "stream": "string",
+          "app": "string",
+          "check_level": 0,
+          "start_time": "string"
+        },
+        "x-request-examples-1": {
+          "domain": "string",
+          "domain_type": "string",
+          "stream": "string",
+          "app": "string",
+          "check_level": 0,
+          "start_time": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "CreateUrlAuthchainReq": {
+      "type": "object",
+      "required": [
+        "domain",
+        "domain_type",
+        "app",
+        "stream"
+      ],
+      "properties": {
+        "domain": {
+          "description": "播放域名或推流域名",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "x-example": "play.test.huawei.com"
+        },
+        "domain_type": {
+          "description": "域名类型",
+          "type": "string",
+          "enum": [
+            "pull",
+            "push"
+          ],
+          "minLength": 1,
+          "maxLength": 64,
+          "x-example": "push"
+        },
+        "stream": {
+          "description": "流名称,与推流或播放地址中的StreamName一致。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "x-example": "huawei1"
+        },
+        "app": {
+          "description": "应用名称,与推流或播放地址中的AppName一致。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "x-example": "live"
+        },
+        "check_level": {
+          "description": "鉴权方式C必选。\n检查级别。LiveID由AppName和StreamName组成,即\"<app_name>/<stream_name>\"。\n包含如下取值:\n- 3:只检查LiveID是否匹配,不检查鉴权URL是否过期。\n- 5:检查LiveID是否匹配,Timestamp是否超时。",
+          "type": "integer",
+          "enum": [
+            3,
+            5
+          ],
+          "x-example": 5
+        },
+        "start_time": {
+          "description": "用户定义的有效访问时间起始点;例如:2006-01-02T15:04:05Z07:00\n不传或为空表示当前时间",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 25,
+          "x-example": "2022-07-19T03:09:01Z"
+        }
+      }
+    },
+    "AuthUrlKeychainRsp": {
+      "type": "object",
+      "required": [
+        "keychain"
+      ],
+      "properties": {
+        "keychain": {
+          "type": "array",
+          "description": "生成的鉴权串列表",
+          "maxLength": 3,
+          "minLength": 1,
+          "items": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。",
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "用户Token,使用Token鉴权方式时必填。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

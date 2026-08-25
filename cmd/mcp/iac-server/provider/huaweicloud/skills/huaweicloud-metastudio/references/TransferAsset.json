@@ -1,0 +1,247 @@
+{
+  "name": "TransferAsset",
+  "summary": "转移资产给其他用户",
+  "tags": "数字资产管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/digital-assets-action/transfers": {
+      "post": {
+        "tags": [
+          "DigitalAssetContentManager"
+        ],
+        "summary": "转移资产给其他用户",
+        "description": "转移资产给其他用户",
+        "operationId": "TransferAsset",
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-App-UserId"
+          },
+          {
+            "in": "body",
+            "name": "TransferAssetRequestBody",
+            "description": "资产转移请求",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TransferAssetReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "examples": {
+              "application/json": {
+                "job_id": "6a6a1f8354f64dd9b9a614def7b59d83"
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/TransferAssetRsp"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam,internal-appcode",
+        "x-open-range": "public",
+        "x-methodAnnotations": [
+          "@NotSupportUserIdApi"
+        ],
+        "x-imports": "com.huawei.common.annotations.NotSupportUserIdApi",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/6a6a1f8354f64dd9b9a614def7b59d83/digital-assets/transfers",
+        "x-request-examples-text-1": {
+          "asset_ids": [
+            "7a6a1f8354f64dd9b9a614def7b59d86",
+            "8a6a1f8354f64dd9b9a614def7b59d80"
+          ],
+          "dest_project_id": "6a6a1f8354f64dd9b9a614def7b59d83",
+          "memo": "专业服务xxxx,提供资产"
+        },
+        "x-order": 11
+      }
+    }
+  },
+  "definitions": {
+    "TransferAssetRsp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "资产转移任务ID",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "description": "资产转移响应"
+    },
+    "TransferAssetReq": {
+      "type": "object",
+      "required": [
+        "asset_ids",
+        "dest_project_id"
+      ],
+      "properties": {
+        "transfer_type": {
+          "$ref": "#/definitions/TransferTypeEnum"
+        },
+        "asset_ids": {
+          "type": "array",
+          "description": "资产ID列表",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100,
+          "x-minLength": 1,
+          "x-type": "List<@Size(min=1, max=64) String>"
+        },
+        "dest_project_id": {
+          "type": "string",
+          "description": "目标用户ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "memo": {
+          "type": "string",
+          "description": "备注信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "auto_accept": {
+          "type": "boolean",
+          "description": "是否自动接收,管理员可用",
+          "default": false
+        },
+        "auto_active": {
+          "type": "boolean",
+          "description": "是否自动激活,管理员可用",
+          "default": false
+        },
+        "is_need_billing": {
+          "type": "boolean",
+          "description": "资产转移时,是否需要从接收方扣减资源(产生计费话单)",
+          "default": false
+        },
+        "transfer_job_id": {
+          "type": "string",
+          "description": "转移任务ID,仅在transfer_type=TRANSFER_BACK时需要填写。",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      },
+      "description": "资产转移请求"
+    },
+    "TransferTypeEnum": {
+      "type": "string",
+      "description": "**参数解释**:\n转移类型。默认值是TRANSFER_OUT。\n**约束限制**:\n* 只有管理员或者开了资产转移白名单租户才有权限转出资产。\n* 普通租户有权限转回已接收成功的资产,转回给转移发起方。\n**取值范围**:\n* TRANSFER_OUT: 资产转出\n* TRANSFER_BACK:资产转回",
+      "enum": [
+        "TRANSFER_OUT",
+        "TRANSFER_BACK"
+      ],
+      "default": "TRANSFER_OUT"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-App-UserId": {
+      "name": "X-App-UserId",
+      "in": "header",
+      "description": "第三方用户ID。不允许输入中文。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "abcdefg1234567",
+      "x-apig-registered": false
+    }
+  },
+  "host": "metastudio.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

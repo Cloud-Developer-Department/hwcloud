@@ -1,0 +1,263 @@
+{
+  "name": "ShowNoticeRule",
+  "summary": "查询事件通知规则。",
+  "tags": "事件通知规则",
+  "productshort": "CAE",
+  "region_id": "tr-west-1",
+  "paths": {
+    "/v1/{project_id}/cae/notice-rules/{rule_id}": {
+      "get": {
+        "x-open-region-cloud": "hws,hws_eu,hws_hk",
+        "x-api-type": "open-api",
+        "x-api-framework": "RestfulAPI",
+        "x-api-position": "Region_ZONE",
+        "x-api-user": "IAM_User",
+        "x-authority-parameter-url": "project_id",
+        "x-sec-privacy-datalevel": "L3",
+        "x-sec-auditlog": "N",
+        "x-sec-upload-download": "N",
+        "summary": "查询事件通知规则。",
+        "tags": [
+          "NoticeRule"
+        ],
+        "operationId": "ShowNoticeRule",
+        "description": "查询事件通知规则。",
+        "parameters": [
+          {
+            "$ref": "#/parameters/param_path_project_id"
+          },
+          {
+            "$ref": "#/parameters/param_header_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/param_header_x_enterprise_project_id"
+          },
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "schema": {
+              "$ref": "#/definitions/CreateNoticeRuleResp"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "false"
+      }
+    }
+  },
+  "definitions": {
+    "NoticeRuleScope": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "生效范围的类型。包括environments(对指定环境下所有组件生效),applications(对指定应用下所有组件生效),components(对指定的组件生效)。",
+          "enum": [
+            "environments",
+            "applications",
+            "components"
+          ]
+        },
+        "environments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "生效的环境id列表。"
+        },
+        "applications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "生效的应用id列表。"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "生效的组件id列表。"
+        }
+      }
+    },
+    "CreateNoticeRuleResp": {
+      "type": "object",
+      "required": [
+        "api_version",
+        "kind",
+        "spec"
+      ],
+      "properties": {
+        "api_version": {
+          "type": "string",
+          "description": "API版本,固定值“v1”,该值不可修改。"
+        },
+        "kind": {
+          "type": "string",
+          "description": "API类型,固定值“NoticeRule”,该值不可修改。"
+        },
+        "spec": {
+          "description": "请求数据。",
+          "$ref": "#/definitions/CreateNoticeRuleRespItem"
+        }
+      }
+    },
+    "NoticeRuleNotification": {
+      "type": "object",
+      "required": [
+        "protocol",
+        "endpoint"
+      ],
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "description": "通知的协议类型,包括短信,邮件,企业微信群消息等。",
+          "enum": [
+            "email",
+            "sms",
+            "wechat"
+          ]
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "通知的终端地址。\nemail协议,接入点必须是邮件地址。\nsms协议,接入点必须是一个电话号码。\nwechat协议,参考https://support.huaweicloud.com/smn_faq/smn_faq_0027.html获取订阅终端,\n企业微信群消息为SMN服务公测功能,需提交工单申请开通。"
+        },
+        "template": {
+          "type": "string",
+          "description": "通知的模板语言。\nZH,中文。\nEN,英文。",
+          "enum": [
+            "ZH",
+            "EN"
+          ]
+        }
+      }
+    },
+    "CreateNoticeRuleRespItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "通知规则的唯一标识。"
+        },
+        "name": {
+          "type": "string",
+          "description": "通知名称。"
+        },
+        "event_name": {
+          "type": "string",
+          "description": "触发事件名称。"
+        },
+        "scope": {
+          "description": "生效的通知规则范围。",
+          "$ref": "#/definitions/NoticeRuleScope"
+        },
+        "trigger_policy": {
+          "description": "触发策略。",
+          "$ref": "#/definitions/TriggerPolicy"
+        },
+        "notification": {
+          "description": "通知的机制。",
+          "$ref": "#/definitions/NoticeRuleNotification"
+        },
+        "enable": {
+          "type": "boolean",
+          "description": "是否启用。"
+        }
+      }
+    },
+    "TriggerPolicy": {
+      "type": "object",
+      "required": [
+        "trigger_type"
+      ],
+      "properties": {
+        "trigger_type": {
+          "type": "string",
+          "description": "触发类型,accumulative: 累计触发,immediately: 立即触发。",
+          "enum": [
+            "accumulative",
+            "immediately"
+          ]
+        },
+        "period": {
+          "type": "integer",
+          "format": "int32",
+          "description": "触发周期,选择累计触发时需设置该参数,默认单位为s,支持5分钟、20分钟、1小时、4小时、24小时。",
+          "enum": [
+            300,
+            1200,
+            3600,
+            14400,
+            86400
+          ]
+        },
+        "operator": {
+          "type": "string",
+          "description": "比较符,支持'>'和'>='。",
+          "enum": [
+            ">",
+            ">="
+          ]
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "触发次数,选择累计触发时需设置该参数。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "param_header_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。    \n- 获取Token,请参考《[统一身份认证服务API参考](https://support.huaweicloud.com/api-iam/iam_30_0001.html)》的“获取用户Token”章节。          \n- 请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+      "required": true,
+      "type": "string",
+      "maxLength": 16384,
+      "x-order": 52
+    },
+    "param_path_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取项目ID请参见[获取项目ID](https://support.huaweicloud.com/api-cae/cae_06_0021.html)。",
+      "required": true,
+      "type": "string",
+      "x-order": 1,
+      "x-sec-authority-parameter": "Y"
+    },
+    "param_header_x_enterprise_project_id": {
+      "name": "X-Enterprise-Project-ID",
+      "in": "header",
+      "description": "企业项目ID。 \n- 创建环境时,环境会绑定企业项目ID。     \n- 最大长度36字节,带“-”连字符的UUID格式,或者是字符串“0”。    \n- 该字段不传(或传为字符串“0”)时,则查询默认企业项目下的资源。\n\n> 关于企业项目ID的获取及企业项目特性的详细信息,请参见《[企业管理服务用户指南](https://support.huaweicloud.com/usermanual-em/zh-cn_topic_0126101490.html)》。",
+      "required": false,
+      "type": "string",
+      "pattern": "^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$|^0$",
+      "x-order": 53
+    }
+  },
+  "host": "cae.tr-west-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

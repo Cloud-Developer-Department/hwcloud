@@ -1,0 +1,1807 @@
+{
+  "name": "CreateTranscodingTask",
+  "summary": "新建转码任务",
+  "tags": "媒资转码接口",
+  "productshort": "MPC",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/{project_id}/transcodings": {
+      "post": {
+        "x-navigation-title": "媒资转码接口",
+        "description": "新建转码任务可以将视频进行转码,并在转码过程中压制水印、视频截图等。视频转码前需要配置转码模板。\n待转码的音视频需要存储在与媒体处理服务同区域的OBS桶中,且该OBS桶已授权。",
+        "summary": "新建转码任务",
+        "x-publishpath": "mpc_04_0017",
+        "operationId": "CreateTranscodingTask",
+        "x-open-region-cloud": "hcso,hc,hk,g42",
+        "x-external-api": true,
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-since": "1.0.0",
+        "x-since-memo": "1.0.0 initial",
+        "x-modifier-memo": "版本 | 修改日期 | 修改说明 | 修改者\n------------ | ------------- | ------------- | -------------\n1.0.0 | 2018/1/24 |新增此接口。 | 劳喜昌\n",
+        "tags": [
+          "TranscodeTask"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/authorization"
+          },
+          {
+            "$ref": "#/parameters/xProjectId"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](mpc_04_0064.xml)",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "in": "header",
+            "name": "x-vod-projectId",
+            "x-inner-field": true,
+            "x-is_inner_param": "true",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "VOD调用MPC携带的客户projectId"
+          },
+          {
+            "in": "body",
+            "description": "创建转码任务",
+            "name": "CreateTranscodingTaskRequestBody",
+            "schema": {
+              "$ref": "#/definitions/CreateTranscodingReq"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "新建转码任务提交成功。",
+            "schema": {
+              "$ref": "#/definitions/CreateTranscodingTaskRsp"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": 100211
+              }
+            }
+          },
+          "403": {
+            "description": "新建转码任务提交失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "MPC.10202",
+                "error_msg": "Invalid request parameter"
+              }
+            }
+          }
+        },
+        "x-request-examples-1": "POST https://{endpoint}/v1/{project_id}/transcodings\n{\n  \"input\": {\n        \"bucket\": \"example-bucket\",\n        \"location\": \"region1\",\n        \"object\": \"/VOD/input/sample.MP4\"\n        },\n  \"output\": {\n        \"bucket\": \"example-bucket\",\n        \"location\": \"region1\",\n        \"object\": \"/VOD/output/\"\n      },\n   \"trans_template_id\": [1002, 1003, 1004, 1005],\n   \"priority\": \"9\",\n   \"subtitle\": {\n        \"subtitle_type\": 1,\n        \"input\": {\n                \"bucket\": \"bucket\",\n                \"location\": \"region1\",\n                \"object\": \"subtitle.srt\"\n          }\n       },\n    \"encryption\": {\n       \"multidrm\": {\n          \"content_id\": \"123456789\",\n          \"streaming_mode\": \"HLS \",\n          \"encrypt_audio\": 0,\n          \"emi\": 16420,\n          \"drm_list\": [\"PLAYREADY\"]\n       }\n     },\n    \"thumbnail\": {\n     \"out\": {\n        \"bucket\": \"example-bucket\",\n        \"location\": \"region1\",\n        \"object\": \"/VOD/output/\"\n      },\n    \"tar\": 1,\n     \"params\": {\n        \"time\": 2,\n        \"format\": 1,\n        \"max_length\": 480\n    }\n    }\n}\n",
+        "x-response-example": "{\n  \"task_id\": 100211\n}\n"
+      }
+    }
+  },
+  "definitions": {
+    "OutputPolicy": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;",
+      "type": "object",
+      "properties": {
+        "output_policy": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "输出策略。\n\n取值如下:\n- discard\n- transcode\n\n>- 当视频参数中的“output_policy”为\"discard\",且音频参数中的“output_policy”为“transcode”时,表示只输出音频。\n>- 当视频参数中的“output_policy”为\"transcode\",且音频参数中的“output_policy”为“discard”时,表示只输出视频。\n>- 同时为\"discard\"时不合法。\n>- 同时为“transcode”时,表示输出音视频。",
+          "default": "transcode",
+          "enum": [
+            "transcode",
+            "discard",
+            "copy"
+          ]
+        }
+      }
+    },
+    "MulInputFileInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "语言标签。"
+        },
+        "input": {
+          "description": "输入字幕文件地址。",
+          "$ref": "#/definitions/ObsObjInfo"
+        }
+      }
+    },
+    "QualityEnhance": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "normal_enhance": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "针对一般质量、无明显问题的普通片源,通过增强、锐化等技术明显提升主观效果。单纯该处理操作前后,分辨率、帧率等参数不发生变化。\n可和old_repair、super_resolution、super_framerate、SDRToHDR组合使用。",
+          "enum": [
+            "normal"
+          ]
+        },
+        "revive": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "针对旧片、老片,画质主观质量比较低的片源,通过降噪、去压缩失真等视频增强技术,提升画质主观效果。",
+          "enum": [
+            "normal"
+          ]
+        },
+        "sdr_to_hdr": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "超动态范围,提升视频动态范围,明显提升片源动态范围。单纯该处理操作前后,分辨率、帧率等参数不发生变化,动态范围、色域范围、码率发生变化。\n可和normal_ enhance组合使用。 取值范围:\n- SDRtoHDR10 :转换模式1,为标准模式\n- SDRtoHDRFLAT”:转换模式2,清新模式,基本不改变源片的饱和度,适用于饱和度高的SDR源片转换为HDR",
+          "enum": [
+            "SDRtoHDR10",
+            "SDRtoHDR10FLAT"
+          ]
+        },
+        "video_enhance": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "视频增强模式。取值范围:\n- REGENERATION, 老片修复\n- CONVERSION_SDR, 超高清转制输出SDR\n- CONVERSION_HDR, 超高清转制输出HDR\n- EFFICIENCY,效率优先的增强模式,输出SDR,增加对比度和饱和度,配置该参数时,其它参数不填",
+          "enum": [
+            "REGENERATION",
+            "CONVERSION_SDR",
+            "CONVERSION_HDR",
+            "EFFICIENCY"
+          ]
+        },
+        "video_settings": {
+          "description": "视频增强参数。",
+          "$ref": "#/definitions/VideoSettings"
+        }
+      }
+    },
+    "TextWatermark": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicWatermark"
+        },
+        {
+          "type": "object",
+          "description": "文字水印配置",
+          "properties": {
+            "font_name": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 64,
+              "description": "字体,当前支持fzyouh",
+              "default": "msyh"
+            },
+            "font_size": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 120,
+              "default": 16,
+              "format": "int32",
+              "description": "字体大小。\n\n取值范围:[4, 120]"
+            },
+            "font_color": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 16,
+              "description": "字体颜色。\n目前颜色支持 black,blue,white,green,red,yellow,brown,gold,pink,orange,purple。",
+              "default": "white"
+            },
+            "base": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 16,
+              "description": "水印叠加母体\n取值如下:\n- input:水印叠加在输入片源上,转码输出后实际大小按图像等比例缩放\n- output:水印叠加在转码输出文件上。\n默认值:input",
+              "default": "input",
+              "enum": [
+                "input",
+                "output"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Crop": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "duration": {
+          "description": "截取的视频时长。\n\n单位:秒\n\n从0秒开始算起",
+          "default": 0,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32"
+        }
+      }
+    },
+    "MultiAudio": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.Range;",
+      "properties": {
+        "tracks_info": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "description": "音轨信息",
+          "items": {
+            "$ref": "#/definitions/TracksInfo"
+          }
+        },
+        "audio_files": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "description": "音频文件",
+          "items": {
+            "$ref": "#/definitions/AudioFile"
+          }
+        },
+        "default_language": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "默认语言"
+        }
+      }
+    },
+    "AudioExtendSettings": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OutputPolicy"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "channels": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 100,
+              "description": "声道列表。用来覆盖模板组中的同名字段,如果不配置,则以模板组中的参数为准。",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Common": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "pack_type"
+      ],
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "PVC": {
+          "x-internal": false,
+          "description": "是否开启高清低码功能。\n\n取值如下:\n- false:关闭。\n- true:开启。",
+          "type": "boolean",
+          "default": false
+        },
+        "hls_interval": {
+          "x-internal": false,
+          "description": "HLS分片间隔,仅封装类型“pack_type”取值为1或3时,该参数生效。\n\n取值范围:[2,10]。\n\n单位:秒。",
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "format": "int32",
+          "default": 5
+        },
+        "dash_interval": {
+          "x-internal": false,
+          "description": "DASH间隔,仅封装类型“pack_type”取值为2或3时,该参数生效。\n\n取值范围:[2,10]。\n\n单位:秒。",
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "format": "int32",
+          "default": 5
+        },
+        "pack_type": {
+          "x-internal": false,
+          "description": "封装类型。\n\n取值如下:\n- 1:HLS\n- 2:DASH\n- 3:HLS+DASH\n- 4:MP4\n- 5:MP3\n- 6:ADTS\n\n> pack_type设置为5和6时,不能设置视频参数。",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6,
+          "format": "int32"
+        }
+      }
+    },
+    "AudioFile": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.Range;",
+      "properties": {
+        "tracks_info": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "description": "音轨信息",
+          "items": {
+            "$ref": "#/definitions/TracksInfo"
+          }
+        },
+        "input": {
+          "description": "输入存储位置",
+          "$ref": "#/definitions/ObsObjInfo"
+        }
+      }
+    },
+    "AudioProcess": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "volume": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "音量调整方式:\n- auto:表示自动调整音量。\n- dynamic:表示人为调整,需设定音量调整幅值。",
+          "enum": [
+            "auto",
+            "dynamic",
+            "original"
+          ]
+        },
+        "volume_expr": {
+          "type": "integer",
+          "minimum": -15,
+          "maximum": 15,
+          "format": "int32",
+          "description": "音量调整幅值,需指定volume为dynamic。\n\n取值范围:[-15,15]\n\n单位:dB",
+          "x-annotations": [
+            "@Range(min = -15, max = 15)"
+          ]
+        }
+      }
+    },
+    "EffectInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "特效处理开始时间点,单位:秒,精确到小数点后4位"
+        },
+        "stop_time": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "特效处理结束时间点,单位:秒,精确到小数点后4位"
+        },
+        "dx": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "相对视频源左上角顶点的水平偏移位置坐标。整数型表示像素值,范围[0,4096],单位px"
+        },
+        "dy": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "相对视频源左上角顶点的垂直偏移位置坐标。整数型表示像素值,范围[0,4096],单位px"
+        },
+        "width": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "特效区域的宽。整数型表示像素值,范围(0,4096],单位px"
+        },
+        "height": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "特效区域的高。整数型表示像素值,范围(0,4096],单位px"
+        }
+      }
+    },
+    "WatermarkRequest": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "$ref": "#/definitions/ObsObjInfo",
+          "description": "源文件地址,如果是图片水印,则该参数必选。"
+        },
+        "template_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "水印模板。可通过新建水印模板接口创建水印模板。"
+        },
+        "text_context": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "文字水印内容,内容需做Base64编码,若类型为文字水印 (type字段为Text),则此配置项不能为空\n\n示例:若想添加文字水印“测试文字水印”,那么Content的值为:5rWL6K+V5paH5a2X5rC05Y2w"
+        },
+        "image_watermark": {
+          "description": "图片水印参数,用于覆盖图片水印模板中的同名参数。",
+          "$ref": "#/definitions/ImageWatermark"
+        },
+        "text_watermark": {
+          "description": "文字水印配置,若设置“text_context”,则此配置项不能为空。",
+          "$ref": "#/definitions/TextWatermark"
+        }
+      }
+    },
+    "ImageSprite": {
+      "type": "object",
+      "required": [
+        "params"
+      ],
+      "properties": {
+        "params": {
+          "description": "雪碧图参数。",
+          "$ref": "#/definitions/ImageSpritePara"
+        },
+        "output": {
+          "description": "雪碧图输出路径,不填写时与转码输出在一起",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "output_object_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 180,
+          "description": "截取雪碧图后,雪碧图图片文件的输出文件名,如果不填,则默认为:{inputName}_imageSprite_{雪碧图id}_{number}.{format}.{雪碧图id}和{number}从0开始递增"
+        },
+        "webvtt_object_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 180,
+          "description": "截取雪碧图后,Web VTT 文件的输出路径,只能为相对路径。如果不填,则默认为相对路径:{inputName}_imageSprite_{雪碧图_id}.vtt"
+        }
+      }
+    },
+    "VideoExtendSettings": {
+      "type": "object",
+      "properties": {
+        "preset": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "扩展编码质量等级,用于覆盖模板中的同名参数。取值如下:\n- SPEED\n- HIGHQUALITY",
+          "enum": [
+            "SPEED",
+            "HIGHQUALITY"
+          ]
+        }
+      }
+    },
+    "SystemProcess": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "append_type": {
+          "x-is_inner_param": "true",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "追加转码类型。\n\n取值如下:\n- SUBTITLE:追加字幕\n- AUDIO:追加音频\n- VIDEO:追加视频(原有追加新分辨率视频)",
+          "enum": [
+            "SUBTITLE",
+            "AUDIO",
+            "VIDEO"
+          ]
+        },
+        "hls_index": {
+          "description": "当前任务需合并信息的m3u8文件。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "dash_index": {
+          "description": "当前任务需合并信息的mpd文件。",
+          "$ref": "#/definitions/ObsObjInfo"
+        }
+      }
+    },
+    "AudioTrack": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.Range;",
+      "properties": {
+        "type": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "int32",
+          "x-annotations": [
+            "@Range(min = 0, max = 1)"
+          ],
+          "description": "音轨选取方式。\n- 0:默认选取\n- 1:手动选择"
+        },
+        "left": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "description": "选取左声道所在的音轨编号。"
+        },
+        "right": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "description": "选取右声道所在的音轨编号。"
+        }
+      }
+    },
+    "AutoVolumeSetting": {
+      "type": "object",
+      "properties": {
+        "low_limit": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "default": -22,
+          "description": "调节下限,当平均音量低于该值时,进行调节。取值范围:[-30,-10]。"
+        },
+        "target_value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "default": -20,
+          "description": "音量调节目标值,当平均音量低于low_limit时,将调整到volume_target音量。取值范围:[-30,-10]。"
+        }
+      }
+    },
+    "Audio": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "allOf": [
+        {
+          "$ref": "#/definitions/OutputPolicy"
+        },
+        {
+          "type": "object",
+          "required": [
+            "channels"
+          ],
+          "properties": {
+            "codec": {
+              "x-internal": false,
+              "description": "音频编码格式。\n\n取值如下:\n\n- 1:AAC格式。\n- 2:HEAAC1格式 。\n- 3:HEAAC2格式。\n- 4:MP3格式 。",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4,
+              "format": "int32",
+              "default": 1
+            },
+            "sample_rate": {
+              "x-internal": false,
+              "description": "音频采样率。\n\n取值如下:\n\n- 1:AUDIO_SAMPLE_AUTO\n- 2:AUDIO_SAMPLE_22050(22050Hz)\n- 3:AUDIO_SAMPLE_32000(32000Hz)\n- 4:AUDIO_SAMPLE_44100(44100Hz)\n- 5:AUDIO_SAMPLE_48000(48000Hz)\n- 6:AUDIO_SAMPLE_96000(96000Hz)",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6,
+              "format": "int32",
+              "default": 1
+            },
+            "bitrate": {
+              "x-internal": false,
+              "description": "音频码率。\n\n取值范围:0或[8,1000]。\n\n单位:kbit/s。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "format": "int32"
+            },
+            "channels": {
+              "x-internal": false,
+              "description": "声道数。\n\n取值如下:\n- 1:AUDIO_CHANNELS_1\n- 2:AUDIO_CHANNELS_2\n- 6:AUDIO_CHANNELS_5_1",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6,
+              "format": "int32"
+            }
+          }
+        }
+      ]
+    },
+    "ObsObjInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "bucket",
+        "location",
+        "object"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "OBS的bucket名称。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "location": {
+          "description": "OBS桶所在的区域,且必须与使用的MPC区域保持一致。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "object": {
+          "description": "OBS对象路径,遵守OSS Object定义。\n\n- 当用于指示input时,需要指定到具体对象。\n- 当用于指示output时, 只需指定到转码结果期望存放的路径。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647,
+          "description": "文件名,仅用于转封装指定输出名称。\n\n- 当指定了此参数时,输出的对象名为object/file_name 。\n- 当不指定此参数时,输出的对象名为object/xxx,其中xxx由MPC指定。"
+        }
+      }
+    },
+    "Encryption": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "hls_encrypt": {
+          "description": "视频加密控制参数。",
+          "$ref": "#/definitions/HlsEncrypt"
+        }
+      }
+    },
+    "BlackEnhance": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "type": "object",
+      "properties": {
+        "early_report": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "提前反馈“疑似黑边”开关,取值为on或off。",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        "position": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "参数格式:top:bottom:left:right"
+        },
+        "start_time": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "黑边剪裁检测起始时间"
+        }
+      }
+    },
+    "ImageWatermark": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicWatermark"
+        },
+        {
+          "type": "object",
+          "description": "图片水印参数, 用于对模板中字段进行覆盖,目前模板只针对于图片水印",
+          "properties": {
+            "image_process": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 32,
+              "description": "图片水印处理方式,type设置为Image时有效。\n\n取值如下:\n\n- Original:只做简单缩放,不做其他处理。\n- Grayed:彩色图片变灰。\n- Transparent:透明化。"
+            },
+            "width": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 32,
+              "description": "水印图片宽,值有两种形式:\n- 整数型代水印图片宽的像素值,范围[8,4096],单位px。\n- 小数型代表相对输出视频分辨率宽的比率,范围(0,1),支持4位小数,如0.9999,超出部分系统自动丢弃。"
+            },
+            "height": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 32,
+              "description": "水印图片高,值有两种形式:\n- 整数型代表水印图片高的像素值,范围[8,4096],单位px。\n- 小数型代表相对输出视频分辨率高的比率,范围(0,1),支持4位小数,如0.9999,超出部分系统自动丢弃。"
+            },
+            "base": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 32,
+              "description": "水印叠加母体\n\n取值如下:\n- input :水印叠加在输入片源上,转码输出后实际大小按图像等比例缩放\n- output :水印叠加在转码输出文件上。",
+              "default": "input",
+              "enum": [
+                "input",
+                "output"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "FileMetaData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "metadata名称"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "metadata值"
+        }
+      }
+    },
+    "HlsEncrypt": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "key",
+        "url"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "内容加密秘钥"
+        },
+        "url": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "秘钥获取服务的地址"
+        },
+        "iv": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "初始向量,base64binary,随机数"
+        },
+        "algorithm": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "加密算法。\n- AES-128-CTR\n- AES-128-CBC\n- SM4CBC\n\n默认值:AES-128-CTR"
+        }
+      }
+    },
+    "CreateTranscodingReq": {
+      "type": "object",
+      "required": [
+        "output"
+      ],
+      "properties": {
+        "input": {
+          "x-internal": false,
+          "description": "源文件存储地址,非追加音频等场景,该参数必选。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "output": {
+          "x-internal": false,
+          "description": "输出文件存储地址。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "trans_template_id": {
+          "x-internal": false,
+          "description": "转码模板ID,没带av_parameter参数时,必须带该参数,数组,每一路转码输出对应一个转码配置模板ID,最多支持9个模板ID。\n\n多个转码模板中如下参数可变,其他都必须一致:\n\n视频bitrate,height,width。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "type": "integer"
+          }
+        },
+        "trans_template_list": {
+          "x-internal": false,
+          "description": "转码模板数组",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "$ref": "#/definitions/TransIdTemplate"
+          }
+        },
+        "av_parameters": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "description": "转码参数。\n\n若同时设置“trans_template_id”和此参数,则优先使用此参数进行转码,不带trans_template_id时,该参数必选。",
+          "items": {
+            "$ref": "#/definitions/AvParameters"
+          }
+        },
+        "additional_manifests": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "description": "主索引定制参数。",
+          "items": {
+            "$ref": "#/definitions/AdditionalManifests"
+          }
+        },
+        "output_filenames": {
+          "x-internal": false,
+          "description": "输出文件名称,每一路转码输出对应一个名称,需要与转码模板ID数组的顺序对应。\n\n- 若设置该参数,表示输出文件按该参数命名。\n- 若不设置该参数,表示输出文件按默认方式命名。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "user_data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65535,
+          "description": "用户自定义数据,该字段可在查询接口或消息通知中按原内容透传给用户。"
+        },
+        "watermarks": {
+          "x-internal": false,
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "description": "图片水印参数,数组,最多支持20个成员。",
+          "items": {
+            "$ref": "#/definitions/WatermarkRequest"
+          }
+        },
+        "thumbnail": {
+          "x-internal": false,
+          "description": "截图信息。\n> 仅“trans_template_id”对应的转码模板或“av_parameters”中设置的输出分辨率为1920×1080、1280×720、854×480或480×270时,视频转码才会输出对应的截图文件;否则将不输出截图文件。",
+          "$ref": "#/definitions/Thumbnail"
+        },
+        "thumbnails": {
+          "type": "array",
+          "x-minLength": 0,
+          "x-maxLength": 20,
+          "description": "多截图任务,数组,最多支持20个成员。",
+          "items": {
+            "$ref": "#/definitions/Thumbnail"
+          }
+        },
+        "image_sprites": {
+          "type": "array",
+          "x-minLength": 0,
+          "x-maxLength": 20,
+          "description": "雪碧图参数,数组,最多支持20个成员。",
+          "items": {
+            "$ref": "#/definitions/ImageSprite"
+          }
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9,
+          "description": "任务优先级,取值如下:\n- 9代表高优先级。\n- 6代表中优先级,默认为6。\n\n暂时只支持6和9。",
+          "format": "int32",
+          "default": 6
+        },
+        "subtitle": {
+          "description": "字幕参数。",
+          "$ref": "#/definitions/Subtitle"
+        },
+        "encryption": {
+          "description": "视频加密控制参数。",
+          "$ref": "#/definitions/Encryption"
+        },
+        "crop": {
+          "description": "截取前多少秒做转码。",
+          "$ref": "#/definitions/Crop"
+        },
+        "audio_track": {
+          "description": "音轨参数。",
+          "$ref": "#/definitions/AudioTrack"
+        },
+        "multi_audio": {
+          "description": "音频多语言多声道参数。",
+          "$ref": "#/definitions/MultiAudio"
+        },
+        "video_process": {
+          "description": "视频处理控制参数",
+          "$ref": "#/definitions/VideoProcess"
+        },
+        "audio_process": {
+          "description": "音频处理控制参数",
+          "$ref": "#/definitions/AudioProcess"
+        },
+        "metadata": {
+          "x-apiexplorer-hide": "Y",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 20,
+          "description": "metadata设置,默认只支持AIGC",
+          "items": {
+            "$ref": "#/definitions/FileMetaData"
+          }
+        }
+      }
+    },
+    "AvParameters": {
+      "type": "object",
+      "required": [
+        "common"
+      ],
+      "properties": {
+        "video": {
+          "description": "视频参数",
+          "$ref": "#/definitions/VideoParameters"
+        },
+        "audio": {
+          "description": "音频参数",
+          "$ref": "#/definitions/Audio"
+        },
+        "common": {
+          "description": "公共参数",
+          "$ref": "#/definitions/Common"
+        },
+        "output": {
+          "description": "输出路径,不填写时与外层转码输出在一起\n说明: \n  hls多路输出时,每路输出路径不同时,index.m3u8将不可用,音视频分离不可用。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "output_filename": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 180,
+          "description": "输出文件名"
+        }
+      }
+    },
+    "TracksInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.Range;",
+      "properties": {
+        "channel_layout": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "音频轨的声道layout"
+        },
+        "language": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "音频轨对应语言描述"
+        }
+      }
+    },
+    "AdditionalManifests": {
+      "type": "object",
+      "properties": {
+        "manifest_name_modifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "定制的索引后缀名"
+        },
+        "selected_outputs": {
+          "type": "array",
+          "description": "选择的流名称",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ImageSpritePara": {
+      "type": "object",
+      "required": [
+        "sample_type",
+        "sample_interval",
+        "row_count",
+        "column_count"
+      ],
+      "properties": {
+        "sample_type": {
+          "type": "string",
+          "minimum": 0,
+          "maximum": 64,
+          "description": "采样类型,取值:\n- PERCENT:按百分比\n- TIME:按时间间隔",
+          "enum": [
+            "PERCENT",
+            "TIME"
+          ],
+          "default": "PERCENT"
+        },
+        "sample_interval": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 360000,
+          "description": "采样间隔。\n-当 sample_type 为 PERCENT 时,指定采样间隔的百分比,范围(0,100]。\n-当 sample_type 为 TIME 时,指定采样间隔的时间,单位为秒,范围(0,360000]。"
+        },
+        "row_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "雪碧图中小图的行数,行数*列数不得超过 100。"
+        },
+        "column_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "雪碧图中小图的列数,行数*列数不得超过 100。"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096,
+          "description": "雪碧图中小图的宽度(或长边)的最大值,取值范围:0 和 [96, 4096],单位:px。\n- 当 width、height 均为 0,则分辨率同源;\n- 当 width 为 0,Height 非 0,则 Width 按比例缩放;\n- 当 width 非 0,Height 为 0,则 Height 按比例缩放;\n- 当 width、Height 均非 0,则分辨率按用户指定",
+          "default": 0
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096,
+          "default": 0,
+          "description": "雪碧图中小图的高度(或短边)的最大值,取值范围:0 和 [96, 4096],单位:px。\n- 当 Width、Height 均为 0,则分辨率同源;\n- 当 Width 为 0,Height 非 0,则 Width 按比例缩放;\n- 当 Width 非 0,Height 为 0,则 Height 按比例缩放;\n- 当 Width、Height 均非 0,则分辨率按用户指定。"
+        },
+        "resolution_adaptive": {
+          "type": "string",
+          "minimum": 0,
+          "maximum": 64,
+          "default": "open",
+          "description": "分辨率自适应,可选值:\n- open:开启,此时,Width 代表视频的长边,Height 表示视频的短边;\n- close:关闭,此时,Width 代表视频的宽度,Height 表示视频的高度。",
+          "enum": [
+            "open",
+            "close"
+          ]
+        },
+        "fill_type": {
+          "type": "string",
+          "minimum": 0,
+          "maximum": 64,
+          "default": "black",
+          "description": "填充方式,当视频流配置宽高参数与原始视频的宽高比不一致时,对转码的处理方式,即为“填充”。可选填充方式:\n- stretch:拉伸,对每一帧进行拉伸,填满整个画面,可能导致转码后的视频被“压扁“或者“拉长“;\n- black:留黑,保持视频宽高比不变,边缘剩余部分使用黑色填充。\n- white:留白,保持视频宽高比不变,边缘剩余部分使用白色填充。",
+          "enum": [
+            "stretch",
+            "black",
+            "white"
+          ]
+        },
+        "format": {
+          "type": "string",
+          "minimum": 0,
+          "maximum": 64,
+          "default": "jpg",
+          "description": "图片格式,取值为 jpg、png。默认为 jpg。",
+          "enum": [
+            "jpg",
+            "png"
+          ]
+        }
+      }
+    },
+    "Thumbnail": {
+      "type": "object",
+      "required": [
+        "params"
+      ],
+      "properties": {
+        "tar": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "是否压缩抽帧图片生成tar包\n- 0:表示压缩\n- 1:表示不压缩",
+          "format": "int32",
+          "default": 1
+        },
+        "out": {
+          "description": "截图输出路径,不填写时与转码输出在一起",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "params": {
+          "description": "截图参数。",
+          "$ref": "#/definitions/ThumbnailPara"
+        }
+      }
+    },
+    "VideoProcess": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "type": "object",
+      "properties": {
+        "hls_init_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "format": "int32",
+          "default": 0,
+          "description": "需要单独设置时长的HLS起始分片数量。与hls_init_interval配合使用,设置前面hls_init_count个HLS分片时长。\n为0表示不单独配置时长。"
+        },
+        "hls_init_interval": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "format": "int32",
+          "default": 5,
+          "description": "表示前面hls_init_count个HLS分片的时长,hls_init_count不为0时,该字段才起作用。"
+        },
+        "hls_storage_type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "hls的音视频流存储方式。\n\n- composite:存储在同一个文件中。\n- separate:存储在不同的文件中",
+          "enum": [
+            "composite",
+            "separate"
+          ]
+        },
+        "rotate": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4,
+          "format": "int32",
+          "x-annotations": [
+            "@Range(min = 0, max = 3)"
+          ],
+          "description": "视频顺时针旋转角度。\n\n- 0:表示不旋转\n- 1:表示顺时针旋转90度\n- 2:表示顺时针旋转180度\n- 3:表示顺时针旋转270度"
+        },
+        "adaptation": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "长短边自适应控制字段:\n- SHORT:表示短边自适应\n- LONG:表示长边自适应\n- NONE:表示不自适应",
+          "default": "SHORT",
+          "enum": [
+            "SHORT",
+            "LONG",
+            "NONE"
+          ]
+        },
+        "fill_type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "adaptation为NONE时生效:\n- stretch:拉伸,对每一帧进行拉伸,填满整个画面\n- black:留黑,保持视频宽高比不变,边缘剩余部分使用黑色填充。\n- white:留白,保持视频宽高比不变,边缘剩余部分使用白色填充。\n- gauss:高斯模糊,保持视频宽高比不变,边缘剩余部分使用高斯模糊。",
+          "default": "stretch"
+        },
+        "upsample": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "format": "int32",
+          "x-annotations": [
+            "@Range(min = 0, max = 1)"
+          ],
+          "description": "是否开启上采样,如支持从480P的片源转为720P,可取值为:\n\n- 0:表示上采样关闭,\n- 1:表示上采样开启.",
+          "default": 0
+        },
+        "hls_segment_type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "HLS切片类型。\n\n取值如下所示:\n- mpegts:ts切片\n- fmp4:fmp4切片\n\n不设置默认为ts切片。",
+          "enum": [
+            "mpegts",
+            "fmp4"
+          ]
+        }
+      }
+    },
+    "VideoSettings": {
+      "properties": {
+        "frc": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "帧率转换开关。取值范围:\n- ENABLED\n- DISABLED",
+          "enum": [
+            "ENABLED",
+            "DISABLED"
+          ],
+          "default": "ENABLED"
+        }
+      }
+    },
+    "Multidrm": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "drm_list",
+        "streaming_mode"
+      ],
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "唯一标识"
+        },
+        "streaming_mode": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "enum": [
+            "DASH",
+            "HLS"
+          ],
+          "description": "定义数据流的类型,取值为DASH或HLS"
+        },
+        "encrypt_audio": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2,
+          "format": "int32",
+          "description": "音频加密开关。\n\n取值如下:\n- 0:标识音频不加密。\n- 1:标识音频加密。\n\n默认值:0。\n该参数只对dash有效。"
+        },
+        "emi": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "default": 16420,
+          "description": "定义加密方式。\n\n取值如下:\n- 16418(AES-128,CBC)\n- 16420(AES-128,CTR)\n- 16422(SM4CBC)"
+        },
+        "drm_list": {
+          "description": "HLS视频加密控制参数。\n\n取值如下:\n- PLAYREADY\n- CHINA_DRM\n- WIDEVINE",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ThumbnailPara": {
+      "type": "object",
+      "x-imports": "org.hibernate.validator.constraints.Range;",
+      "properties": {
+        "type": {
+          "description": "采样类型。\n\n取值如下:\n- \"TIME\":根据时间间隔采样截图。\n- \"DOTS\":指定时间点截图。选择同步截图时,需指定此类型。\n- \"DOTS_MS\":同步截图指定时间点毫秒值。\n\n默认值:\"TIME\"",
+          "type": "string",
+          "enum": [
+            "TIME",
+            "DOTS",
+            "DOTS_MS"
+          ],
+          "default": "TIME"
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int32",
+          "default": 0,
+          "description": "黑点比例大于等于此值认为是黑帧。"
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "format": "int32",
+          "default": 32,
+          "description": "像素值小于此值认为是黑点。"
+        },
+        "time": {
+          "description": "采样截图的时间间隔值。\n\n默认值:12。\n\n单位:秒",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int32",
+          "default": 12
+        },
+        "start_time": {
+          "description": "采样类型为“TIME”模式的开始时间,和“time”配合使用。\n\n默认值:0。\n\n单位:秒。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "x-annotations": null,
+          "default": 0
+        },
+        "duration": {
+          "description": "采样类型为“TIME”模式的持续时间,和“time”、“start_time”配合使用,表示从视频文件的第“start_time”开始,持续时间为“duration”,每间隔“time”生成一张截图。\n取值范围:[数字,ToEND]。“ToEND”表示持续到视频结束。\n\n默认值: ToEND。\n\n单位:秒。\n> “duration”必须大于等0,若设置为0,则截图持续时间从“start_time”到视频结束。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32"
+        },
+        "dots": {
+          "description": "指定时间截图时的时间点数组,最多支持10个。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "type": "integer"
+          }
+        },
+        "dots_ms": {
+          "description": "同步截图下,指定时间截图的时间点数组,单位毫秒\n\n例如输入[1000],截取视频第1000毫秒位置的图像帧,仅支持一个时间点",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "output_filename": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "description": "截图输出文件名。\n\n- 如果只抽一张图(即:按DOTS方式,指定1个时间点)则按该指定文件名输出图片。\n\n- 如果抽多张图(即:按DOTS方式指定多个时间点或按TIME间隔截图)则输出图片名在该指定文件名基础上在增加时间点(示例:output_filename_10.jpg)。\n\n- 如果指定了压缩抽帧图片生成tar包,则tar包按该指定文件名输出。"
+        },
+        "format": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "截图文件格式。\n\n取值如下:\n\n1:表示jpg格式",
+          "default": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3840,
+          "description": "图片宽度\n\n取值范围:(96,3840]\n\n单位:px"
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2160,
+          "description": "图片高度\n\n取值范围:(96,2160]\n\n单位:px"
+        },
+        "max_length": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 3840,
+          "description": "截图最长边的尺寸。宽边尺寸按照该尺寸与原始视频像素等比缩放计算。\n\n\n取值范围:[240,3840]\n\n默认值:480\n\n单位:像素\n\n>\n该参数和width/height选择使用,以width/height优先,若width/height都不等于0,则图片尺寸按width/height得出;反之,则图片尺寸按\nmax_length 得出。\n\n> 若该参数和width/height都未选择,则按源片源宽高输出截图",
+          "x-annotations": null,
+          "default": 480
+        }
+      }
+    },
+    "TransIdTemplate": {
+      "type": "object",
+      "required": [
+        "template_id"
+      ],
+      "properties": {
+        "template_id": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "输出视频对应的模板ID"
+        },
+        "output": {
+          "description": "输出路径,不填写时与外层转码输出在一起\n说明: \n  hls多路输出时,每路输出路径不同时,index.m3u8将不可用,音视频分离不可用。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "output_filename": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 180,
+          "description": "输出文件名"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "DigitalWatermark": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "profile"
+      ],
+      "properties": {
+        "profile": {
+          "description": "数字水印属性。\n- ROBUST:水印鲁棒性最高\n- MEDIUM:水印鲁棒性和视频质量折中(默认,暂时只支持该选项)\n- QUALITY:视频质量最好\n- MEZZ:具有最高感官质量的水印\n- CAMCORDING:最强大的水印配置文件,支持摄录攻击",
+          "type": "string",
+          "enum": [
+            "ROBUST",
+            "MEDIUM",
+            "QUALITY",
+            "MEZZ",
+            "CAMCORDING"
+          ],
+          "default": "MEDIUM"
+        }
+      }
+    },
+    "BasicWatermark": {
+      "type": "object",
+      "properties": {
+        "dx": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "default": 0,
+          "description": "水印图片起点相对输出视频顶点的水平偏移量。\n\n设置方法有如下两种:\n\n- 整数型:表示图片起点水平偏移视频顶点的像素值,单位px。取值范围:[0,4096]\n- 小数型:表示图片起点相对于视频分辨率宽的水平偏移比率。取值范围:(0,1),支持4位小数,如0.9999,超出部分系统自动丢弃。\n\n示例:输出视频分辨率宽1920,设置“dx”为“0.1”,“referpos”为“TopRight”(右上角),则水印图片右上角到视频右顶点在水平方向上偏移距离为192。"
+        },
+        "dy": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "default": 0,
+          "description": "水印图片起点相对输出视频顶点的垂直偏移量。\n\n- 设置方法有如下两种:整数型:表示图片起点垂直偏移视频顶点的像素值,单位px。取值范围:[0,4096]\n- 小数型:表示图片起点相对于视频分辨率高的垂直偏移比率。取值范围:(0,1),支持4位小数,如0.9999,超出部分系统自动丢弃。\n\n示例:输出视频分辨率高1080,设置“dy”为“0.1”,“referpos”为“TopRight”(右上角),则水印图片右上角到视频右顶点在垂直方向上的偏移距离为108。"
+        },
+        "referpos": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "水印的位置。\n\n取值如下:\n- TopRight:右上角。\n- TopLeft:左上角。\n- BottomRight:右下角。\n- BottomLeft:左下角。"
+        },
+        "timeline_start": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "default": 0,
+          "description": "水印开始时间,与“timeline_duration”配合使用。\n\n取值范围:数字。\n\n单位:秒。"
+        },
+        "timeline_duration": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "水印持续时间,与“timeline_start”配合使用。\n\n取值范围:[数字,ToEND]。“ToEND”表示持续到视频结束。\n\n默认值:ToEND。"
+        },
+        "random_time_min": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "default": 300,
+          "description": "轮转间隔时间最小值,单位:秒"
+        },
+        "random_time_max": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "default": 1800,
+          "description": "轮转间隔时间最大值,单位:秒"
+        }
+      }
+    },
+    "Subtitle": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "javax.validation.constraints.NotEmpty;org.hibernate.validator.constraints.*;",
+      "type": "object",
+      "properties": {
+        "input": {
+          "description": "字幕文件地址。",
+          "$ref": "#/definitions/ObsObjInfo"
+        },
+        "inputs": {
+          "description": "多字幕文件地址。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "$ref": "#/definitions/MulInputFileInfo"
+          }
+        },
+        "subtitle_type": {
+          "description": "字幕类型。取值如下:\n\n- 0,表示不输出字幕\n- 1,表示外部字幕文件嵌入视频流\n- 2,表示输出WebVTT格式字幕",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3,
+          "format": "int32"
+        }
+      }
+    },
+    "SpecialEffect": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "enum": [
+            "Blur",
+            "Mosaic",
+            "Replace"
+          ],
+          "description": "特效处理类型。取值:\nBlur(水印模糊化)\nMosaic(水印打马赛克,暂不支持)\nReplace(替换,暂不支持)"
+        },
+        "auto_detect": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "On:表示自动检测特效处理的参数信息,如水印的时间、位置信息等,无需输入参数信息effectinfos\nOFF:表示需输入特效处理的相关参数信息effectinfos"
+        },
+        "effect_infos": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50000,
+          "items": {
+            "$ref": "#/definitions/EffectInfo"
+          },
+          "description": "特效处理相关参数,数组\n约束:1)每帧视频最多处理2个指定区域;2)每个视频最多处理20个指定区域。"
+        }
+      }
+    },
+    "VideoParameters": {
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "allOf": [
+        {
+          "$ref": "#/definitions/OutputPolicy"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "codec": {
+              "description": "视频编码格式。\n\n取值如下:\n- 1:VIDEO_CODEC_H264\n- 2:VIDEO_CODEC_H265",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 0, max = 3)"
+              ]
+            },
+            "crf": {
+              "description": "视频恒定码率控制因子。\n\n取值范围为[0, 51]",
+              "type": "object",
+              "format": "float"
+            },
+            "max_bitrate": {
+              "description": "输出最大码率,基于crf,设置max_bitrate字段才会开启ccrf\n\n取值范围:0或[40,800000]之间的整数。\n\n\n单位:kbit/s\n\n带crf时使用,参考原片的平均码率进行设置(一般为1.5倍)",
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0,
+              "maximum": 800000
+            },
+            "bitrate": {
+              "description": "输出平均码率。\n\n取值范围:0或[40,50000]之间的整数。\n\n单位:kbit/s\n\n若设置为0,则输出平均码率为自适应值。",
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0,
+              "maximum": 50000
+            },
+            "buf_size": {
+              "description": "ccrf时的缓冲区大小,建议与max_bitrate保持一致,避免编码器缓冲区溢出\n\n取值范围:0或[40,800000]之间的整数。\n\n单位:kbit",
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0,
+              "maximum": 800000
+            },
+            "profile": {
+              "description": "编码档次\n\n取值如下:\n- 1:VIDEO_PROFILE_H264_BASE\n- 2:VIDEO_PROFILE_H264_MAIN\n- 3:VIDEO_PROFILE_H264_HIGH\n- 4:VIDEO_PROFILE_H265_MAIN",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 0, max = 5)"
+              ]
+            },
+            "level": {
+              "description": "编码级别\n\n取值如下:\n- 1:VIDEO_LEVEL_1_0\n- 2:VIDEO_LEVEL_1_1\n- 3:VIDEO_LEVEL_1_2\n- 4:VIDEO_LEVEL_1_3\n- 5:VIDEO_LEVEL_2_0\n- 6:VIDEO_LEVEL_2_1\n- 7:VIDEO_LEVEL_2_2\n- 8:VIDEO_LEVEL_3_0\n- 9:VIDEO_LEVEL_3_1\n- 10:VIDEO_LEVEL_3_2\n- 11:VIDEO_LEVEL_4_0\n- 12:VIDEO_LEVEL_4_1\n- 13:VIDEO_LEVEL_4_2\n- 14:VIDEO_LEVEL_5_0\n- 15:VIDEO_LEVEL_5_1\n- 16:VIDEO_LEVEL_x_x",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 0, max = 16)"
+              ]
+            },
+            "preset": {
+              "description": "编码质量等级\n\n取值如下:\n- 1:VIDEO_PRESET_SPEED,编码快速档位\n- 3:VIDEO_PRESET_HIGHQUALITY,编码高质量档位\n- 4:VIDEO_PRESET_QUALITY,编码质量档位\n- 5:VIDEO_PRESET_BALANCE,编码平衡档位\n\n默认值1。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5,
+              "default": 1,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 0, max = 5)"
+              ]
+            },
+            "max_iframes_interval": {
+              "description": "I帧最大间隔\n\n取值范围:[2,10]。\n\n默认值:5。\n\n单位:秒。",
+              "type": "integer",
+              "format": "int32",
+              "minimum": 2,
+              "maximum": 10,
+              "x-annotations": [
+                "@Range(min = 2, max = 10)"
+              ],
+              "default": 5
+            },
+            "bframes_count": {
+              "description": "最大B帧间隔。\n\n取值范围:\n- H264:[0,7],默认值为4。\n- H265:[0,7],默认值为7。\n\n单位:帧。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 0, max = 8)"
+              ]
+            },
+            "frame_rate": {
+              "description": "帧率。\n\n取值范围:0或[5,60],0表示自适应。\n\n单位:帧每秒。\n\n> 若设置的帧率不在取值范围内,则自动调整为0,若设置的帧率高于片源帧率,则自动调整为片源帧率。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "format": "int32"
+            },
+            "frame_rate_float": {
+              "x-apiexplorer-hide": "Y",
+              "description": "帧率。\n\n取值范围:0或[5,60],0表示自适应。\n\n单位:帧每秒。\n\n> 若设置的帧率不在取值范围内,则自动调整为0,若设置的帧率高于片源帧率,则自动调整为片源帧率。",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "format": "float"
+            },
+            "width": {
+              "description": "视频宽度(单位:像素)\n\n- H264:范围[32,4096],必须为2的倍数\n- H265:范围[320,4096],必须是4的倍数",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 0, max = 4096)"
+              ]
+            },
+            "height": {
+              "description": "视频高度(单位:像素)\n\n- H264:范围[32,2880],必须为2的倍数\n- H265:范围[240,2880] ,必须是4的倍数",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2880,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 0, max = 2880)"
+              ]
+            },
+            "black_cut": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2,
+              "format": "int32",
+              "description": "黑边剪裁类型\n\n- 0:不开启黑边剪裁\n- 1:开启黑边剪裁,低复杂度算法,针对长视频(>5分钟)\n- 2:开启黑边剪裁,高复杂度算法,针对短视频(<=5分钟)",
+              "x-annotations": [
+                "@Range(min = 0, max = 2)"
+              ]
+            },
+            "stream_name": {
+              "description": "流名称",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        }
+      ]
+    },
+    "CreateTranscodingTaskRsp": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "description": "任务ID。\n如果返回值为200 OK,为接受任务后产生的任务ID。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      }
+    },
+    "TemplateExtend": {
+      "type": "object",
+      "properties": {
+        "audio": {
+          "description": "扩展音频参数,用于覆盖模板参数",
+          "$ref": "#/definitions/AudioExtendSettings"
+        },
+        "video": {
+          "description": "扩展视频参数,用于覆盖模板参数。",
+          "$ref": "#/definitions/VideoExtendSettings"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    },
+    "xProjectId": {
+      "name": "X-Project_Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    }
+  },
+  "host": "mts.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

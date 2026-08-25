@@ -1,0 +1,280 @@
+{
+  "name": "ListAppQuotas",
+  "summary": "获取客户端配额列表",
+  "tags": "客户端配额",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/app-quotas": {
+      "get": {
+        "tags": [
+          "客户端配额"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-order": 5,
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "operationId": "ListAppQuotas",
+        "summary": "获取客户端配额列表",
+        "description": "获取客户端配额列表。支持根据名称模糊查询",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_offset"
+          },
+          {
+            "$ref": "#/parameters/apic_limit"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "客户端配额名称",
+            "x-example": "应用配额1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AppQuotaPage"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "size": 1,
+                "quotas": [
+                  {
+                    "app_quota_id": "c900c5612dbe451bb43cbcc49cfaf2f3",
+                    "call_limits": 1000,
+                    "create_time": "2020-09-19T07:27:47Z",
+                    "name": "ClientQuota_demo",
+                    "reset_time": "2020-09-20 00:00:00 +0000 +0000",
+                    "time_interval": 1,
+                    "time_unit": "DAY"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:name. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BasePage": {
+      "properties": {
+        "size": {
+          "description": "本次返回的列表长度",
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "description": "满足条件的记录数",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "分页基本信息",
+      "required": [
+        "size",
+        "total"
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "AppQuotaInfo": {
+      "properties": {
+        "app_quota_id": {
+          "type": "string",
+          "description": "客户端配额编号"
+        },
+        "name": {
+          "type": "string",
+          "description": "配额名称。支持汉字,英文,数字,下划线,且只能以英文和汉字开头,3-255字符"
+        },
+        "call_limits": {
+          "type": "integer",
+          "description": "客户端配额的访问次数限制"
+        },
+        "time_unit": {
+          "type": "string",
+          "enum": [
+            "SECOND",
+            "MINUTE",
+            "HOUR",
+            "DAY"
+          ],
+          "description": "限定时间单位:SECOND:秒、MINUTE:分、HOURE:时、DAY:天"
+        },
+        "time_interval": {
+          "type": "integer",
+          "description": "配额的限定时间值"
+        },
+        "remark": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "参数说明和描述"
+        },
+        "reset_time": {
+          "type": "string",
+          "description": "首次配额重置时间点,不配置默认为首次调用时间计算"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "bound_app_num": {
+          "type": "integer",
+          "description": "配额策略已绑定应用数量"
+        }
+      }
+    },
+    "AppQuotaPage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasePage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "quotas": {
+              "type": "array",
+              "description": "客户端配额列表",
+              "items": {
+                "$ref": "#/definitions/AppQuotaInfo"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_offset": {
+      "name": "offset",
+      "in": "query",
+      "type": "integer",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量小于0时,自动转换为0",
+      "format": "int64",
+      "default": 0,
+      "x-example": 1
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "apic_limit": {
+      "name": "limit",
+      "in": "query",
+      "type": "integer",
+      "description": "每页显示的条目数量",
+      "format": "int32",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 20,
+      "x-example": 10
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

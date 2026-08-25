@@ -1,0 +1,208 @@
+{
+  "name": "CopyJob",
+  "summary": "克隆任务",
+  "tags": "实例管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v5/{project_id}/jobs/clone": {
+      "post": {
+        "x-constraint": "- 对于状态为创建中、创建失败、配置、等待启动、启动中、删除的任务,暂不支持进行克隆。",
+        "x-request-examples-url-1": "https://{endpoint}/v5/5237e10fe9aa4ad5b16b6a5245248314/jobs/clone",
+        "x-request-examples-description-1": "克隆MySQL同步任务请求示例。",
+        "x-request-examples-text-1": {
+          "job_id": "23fcec7a-899f-40d0-8cd3-7fad453jb201",
+          "name": "DRS-8733-copy",
+          "task_version": "2.0"
+        },
+        "x-request-examples-1": {
+          "job_id": "23fcec7a-899f-40d0-8cd3-7fad453jb201",
+          "name": "DRS-8733-copy",
+          "task_version": "2.0"
+        },
+        "tags": [
+          "实例管理"
+        ],
+        "operationId": "CopyJob",
+        "consumes": [
+          "application/json"
+        ],
+        "summary": "克隆任务",
+        "description": "DRS支持通过克隆功能,快速复制现有同步任务的配置。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。\n获取方法请参见[获取项目ID。](https://support.huaweicloud.com/api-drs/drs_api_0106.html)"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "发送的实体的MIME类型。推荐用户默认使用application/json,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+            "type": "string",
+            "default": "application/json"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。\n\n用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。\n\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。",
+            "type": "string",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "default": "en-us"
+          },
+          {
+            "name": "CopyJobRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "克隆任务请求体。",
+            "schema": {
+              "$ref": "#/definitions/CloneJobReq"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "schema": {
+              "$ref": "#/definitions/CreateJobResp"
+            },
+            "examples": {
+              "application/json": {
+                "id": "c7debc9c-8e09-4a5d-8dd6-cc44f78jb20r",
+                "name": "DRS-1234",
+                "status": "CREATING",
+                "is_clone_job": true,
+                "create_time": "2022-11-07T16:15:18Z"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DRS.10000001",
+                "error_msg": "Failed."
+              }
+            }
+          }
+        },
+        "x-order": 6
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "请求失败时返回的错误对象响应体。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12,
+          "example": "DRS.00000000"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "Success"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object"
+    },
+    "CreateJobResp": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "任务名称。"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态。"
+        },
+        "create_time": {
+          "type": "string",
+          "description": "任务创建时间。"
+        },
+        "is_clone_job": {
+          "type": "string",
+          "description": "是否为克隆任务。"
+        }
+      },
+      "description": "创建任务响应体。",
+      "required": [
+        "id",
+        "name",
+        "status",
+        "create_time"
+      ],
+      "type": "object"
+    },
+    "CloneJobReq": {
+      "type": "object",
+      "description": "克隆任务请求体。",
+      "required": [
+        "job_id",
+        "name"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "example": "5d31bf53-1f58-4576-bb90-a0b56d4jb201",
+          "description": "被克隆任务ID。"
+        },
+        "name": {
+          "type": "string",
+          "example": "DRS-8733-copy",
+          "description": "克隆任务名称。名称在4位到50位之间,必须以字母开头,可以包含字母、数字、中划线或下划线,不能包含其他特殊字符,任务名称不能重复。"
+        },
+        "task_version": {
+          "type": "string",
+          "example": 2.0,
+          "description": "任务版本号,新UX任务为2.0。默认为空,即克隆老任务。",
+          "enum": [
+            "2.0"
+          ]
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

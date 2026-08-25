@@ -1,0 +1,211 @@
+{
+  "name": "ListMetricNotifyRecord",
+  "summary": "查询对应指标维度是否存在满足通知规则的记录",
+  "tags": "报表统计",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/statistics/notification-records": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "查询对应指标维度是否存在满足通知规则的记录",
+        "description": "查询对应指标维度是否存在满足通知规则的记录;\n查询结果仅表示满足相应指标维度下对应通知规则可产生的通知记录",
+        "operationId": "ListMetricNotifyRecord",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "metric_name",
+            "in": "query",
+            "description": "指标名称(精确匹配)\n(metric_name和rule_id不允许同时为空)",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "x-example": "desktop_idle_duration"
+          },
+          {
+            "name": "rule_id",
+            "in": "query",
+            "description": "通知规则ID\n(metric_name和rule_id不允许同时为空)",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "x-example": "xxxx-x-x-xx"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "查询的偏移量,默认值0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 2147483646,
+            "minimum": 0,
+            "x-example": "0"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "单次查询的大小[1-100],默认值10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "x-example": "10"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功。",
+            "examples": {
+              "application/json": {
+                "count": 0,
+                "items": [
+                  {
+                    "match_count": 1,
+                    "metric_name": "desktop_state",
+                    "threshold": 30,
+                    "comparison_operator": ""
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListMetricNotifyRecordResp"
+            }
+          },
+          "400": {
+            "description": "客户端请求有误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:statistics:listNotificationRecords\", authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, rbac = {\"te_admin\", \"wks_adm\"})",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"ListMetricNotifyRecord\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ListMetricNotifyRecordResp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "example": 0,
+          "description": "总数。",
+          "readOnly": true
+        },
+        "items": {
+          "type": "array",
+          "description": "通知记录。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/DesktopMetricNotifyRecord"
+          }
+        }
+      },
+      "description": "查询满足对应指标维度产生的告警记录。"
+    },
+    "DesktopMetricNotifyRecord": {
+      "properties": {
+        "match_count": {
+          "type": "integer",
+          "example": 1,
+          "description": "满足通知规则阈值的桌面数。",
+          "readOnly": true
+        },
+        "metric_name": {
+          "type": "string",
+          "example": "desktop_state",
+          "description": "指标名称。",
+          "readOnly": true
+        },
+        "threshold": {
+          "type": "integer",
+          "example": 30,
+          "description": "统计持续周期(天)。",
+          "readOnly": true
+        },
+        "comparison_operator": {
+          "type": "string",
+          "example": "",
+          "description": "统计指标对应的统计值和threshold进行比较的条件\n* `>=` -  统计指标大于等于threshold时触发\n* `>` -   统计指标大于threshold时触发\n* `=` -  统计指标等于threshold时触发\n* `<=` -  统计指标小于等于threshold时触发\n* `<` -  统计指标小于threshold时触发",
+          "readOnly": true
+        }
+      },
+      "description": "对应指标维度产生的告警记录"
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

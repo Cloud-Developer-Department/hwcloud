@@ -1,0 +1,206 @@
+{
+  "name": "ShowJobInstance",
+  "summary": "查询作业实例详情",
+  "tags": "作业相关的API",
+  "productshort": "DGC",
+  "region_id": "cn-north-9",
+  "paths": {
+    "/v1/{project_id}/jobs/{job_name}/instances/{instance_id}": {
+      "get": {
+        "summary": "查询作业实例详情",
+        "x-support-sdk": "Y",
+        "tags": [
+          "作业相关的API"
+        ],
+        "operationId": "ShowJobInstance",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "workspace",
+            "in": "header",
+            "description": "工作空间id",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "job_name",
+            "in": "path",
+            "description": "作业名称.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "作业实例id.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/QueryJobInstanceResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QueryJobInstanceResp": {
+      "properties": {
+        "jobName": {
+          "type": "string",
+          "description": "作业名称"
+        },
+        "instanceId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "作业实例状态:\n- waiting:等待运行\n- running:运行中\n- success:运行成功\n- forceSuccess:强制成功\n- ignoreSuccess:忽略失败\n- freeze:冻结\n- skip-by-depend:跳过\n- waiting-confirm:待确认执行\n- fail: 运行失败\n- running-exception:运行异常\n- pause: 暂停\n- manual-stop:取消"
+        },
+        "planTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例计划执行时间"
+        },
+        "startTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例实际执行开始时间"
+        },
+        "endTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例实际执行结束时间"
+        },
+        "executeTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行耗时,单位:毫秒"
+        },
+        "total": {
+          "type": "integer",
+          "description": "总的节点数据条数"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeInstance"
+          },
+          "description": "节点实例状态"
+        },
+        "instanceType": {
+          "type": "integer",
+          "description": "作业调度方式:\n- 0:正常调度\n- 2:手工调度\n- 5:补数据\n- 6:子作业调度\n- 7:单次调度"
+        },
+        "forceSuccess": {
+          "type": "boolean",
+          "description": "作业实例状态筛选为强制成功,默认值:false"
+        },
+        "ignoreSuccess": {
+          "type": "boolean",
+          "description": "作业实例状态筛选为忽略失败,默认值:false"
+        }
+      },
+      "required": [
+        "jobName",
+        "instanceId",
+        "status",
+        "planTime",
+        "startTime",
+        "total",
+        "nodes",
+        "instanceType"
+      ]
+    },
+    "NodeInstance": {
+      "properties": {
+        "nodeName": {
+          "type": "string",
+          "description": "节点名称"
+        },
+        "status": {
+          "type": "string",
+          "description": "节点状态:\n- waiting:等待运行\n- running:运行中\n- success:运行成功\n- fail: 运行失败\n- skip:跳过\n- pause: 暂停\n- manual-stop:取消"
+        },
+        "queue": {
+          "type": "string",
+          "description": "DLI资源队列名称。在返回响应中,仅DLI SQL或者DLI SPARK算子会返回DLI队列名称。"
+        },
+        "planTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例计划执行时间"
+        },
+        "startTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "节点实际执行开始时间"
+        },
+        "endTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "节点实际执行结束时间"
+        },
+        "type": {
+          "type": "string",
+          "description": "节点类型:\n- HiveSQL:执行Hive SQL脚本\n- SparkSQL:执行Spark SQL脚本\n- DWSSQL:执行DWS SQL脚本\n- DLISQL:执行DLI SQL脚本\n- Shell:执行Shell SQL脚本\n- CDMJob:执行CDM作业\n- DISTransferTask:创建DIS转储任务\n- CloudTableManager:CloudTable表管理,创建和删除表。\n- OBSManager:OBS路径管理,包括创建和删除路径。\n- RestClient:REST API请求\n- SMN:发送短信或邮件\n- MRSSpark:执行MRS服务的Spark作业\n- MapReduce:执行MRS服务的MapReduce作业\n- MRSFlinkJob:执行MRS服务的FlinkJob作业。\n- MRSHetuEngine:执行MRS服务的HetuEngine作业。\n- DLISpark:执行DLF服务的Spark作业\n- RDSSQL:传递SQL语句到RDS中执行。\n- ModelArts Train:执行ModelArts服务的workflow作业。"
+        },
+        "retryTimes": {
+          "type": "integer",
+          "description": "失败重试次数"
+        },
+        "instanceId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例id"
+        },
+        "inputRowCount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "写入数据行数"
+        },
+        "speed": {
+          "type": "number",
+          "description": "写入速度(行/秒)"
+        },
+        "logPath": {
+          "type": "string",
+          "description": "节点执行的日志路径"
+        }
+      },
+      "required": [
+        "nodeName",
+        "status",
+        "queue",
+        "planTime",
+        "startTime",
+        "type",
+        "instanceId"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu-dlf.cn-north-9.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

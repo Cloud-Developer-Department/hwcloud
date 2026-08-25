@@ -1,0 +1,206 @@
+{
+  "name": "ListStreamForbidden",
+  "summary": "查询禁止直播推流列表",
+  "tags": "流管理",
+  "productshort": "Live",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/stream/blocks": {
+      "get": {
+        "tags": [
+          "流管理"
+        ],
+        "summary": "查询禁止直播推流列表",
+        "description": "查询禁播黑名单列表",
+        "operationId": "ListStreamForbidden",
+        "x-publishpath": "topic_retrieveStreamForbidden",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-live/live_03_0023.html)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "description": "推流域名",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "publish.example.huawei.com"
+          },
+          {
+            "name": "app_name",
+            "in": "query",
+            "description": "应用名称,不指定则查询domain下所有应用的禁止直播推流信息",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "x-example": "live"
+          },
+          {
+            "name": "stream_name",
+            "in": "query",
+            "description": "流名称",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "x-example": "test_001"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "分页编号。\n默认为0。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "default": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页记录数。\n\n取值范围:1-100。\n\n默认为10。",
+            "type": "integer",
+            "format": "int32",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询禁止直播推流列表成功",
+            "schema": {
+              "$ref": "#/definitions/LiveForbiddenCfgRsp"
+            },
+            "examples": {
+              "application/json": {
+                "total": 2,
+                "blocks": [
+                  {
+                    "app_name": "live",
+                    "stream_name": "test_001",
+                    "resume_time": "2018-05-19T21:10:15Z"
+                  },
+                  {
+                    "app_name": "live",
+                    "stream_name": "test_002",
+                    "resume_time": "2018-06-12T20:10:10Z"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "查询禁止直播推流列表失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "分页编号必须大于0。"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/stream/blocks?domain=publish.example.huawei.com&app_name=live"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "StreamForbiddenList": {
+      "type": "object",
+      "required": [
+        "app_name",
+        "stream_name"
+      ],
+      "properties": {
+        "app_name": {
+          "type": "string",
+          "description": "流应用名称",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "live"
+        },
+        "stream_name": {
+          "type": "string",
+          "description": "流名称",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "test_001"
+        },
+        "resume_time": {
+          "type": "string",
+          "description": "恢复流时间,格式:yyyy-mm-ddThh:mm:ssZ,UTC时间,不指定则默认7天,最大禁推为90天",
+          "example": "2018-05-19T21:10:15Z"
+        }
+      }
+    },
+    "LiveForbiddenCfgRsp": {
+      "type": "object",
+      "required": [
+        "total",
+        "blocks"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "description": "查询结果的总元素数量"
+        },
+        "blocks": {
+          "type": "array",
+          "description": "禁播黑名单列表",
+          "items": {
+            "$ref": "#/definitions/StreamForbiddenList"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

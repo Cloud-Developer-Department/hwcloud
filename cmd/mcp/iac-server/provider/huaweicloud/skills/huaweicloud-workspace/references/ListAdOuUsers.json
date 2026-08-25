@@ -1,0 +1,245 @@
+{
+  "name": "ListAdOuUsers",
+  "summary": "查询OU下用户信息",
+  "tags": "组织单元",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/ou-users": {
+      "get": {
+        "tags": [
+          "Ou"
+        ],
+        "summary": "查询OU下用户信息",
+        "description": "查询OU下用户信息。",
+        "operationId": "ListAdOuUsers",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "ou_dn",
+            "in": "query",
+            "description": "OU的域名地址。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "description": "用户名,支持模糊查询。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          {
+            "name": "has_existed",
+            "in": "query",
+            "description": "用户是否已存在。",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "用于分页查询,返回桌面数量限制。如果不指定,则返回所有符合条件的桌面。",
+            "required": false,
+            "type": "integer",
+            "default": 200,
+            "maximum": 200,
+            "minimum": 0
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "用于分页查询,查询的起始记录序号,从0开始。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 10000,
+            "minimum": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询OU信息。",
+            "examples": {
+              "application/json": {
+                "user_infos": [
+                  {
+                    "user_name": "wksmanager",
+                    "expired_time": "2022-12-17 00:00:00",
+                    "has_existed": false
+                  },
+                  {
+                    "user_name": "wksmanager",
+                    "expired_time": "-1",
+                    "has_existed": false
+                  }
+                ],
+                "total_count": 2
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListAdOuUsersRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "405": {
+            "description": "请求中指定的方法不被允许。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "503": {
+            "description": "服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET /v2/29dfe82ada564ac2b927e1ff036d9a9b/ou-users",
+        "x-addValid": true,
+        "x-apigateway-request-type": "public",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-support-hcs": "Y",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:ou:listOuUsers\", authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, needRbacCheck = false)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"listAdOuUsers\")"
+        ],
+        "x-apig-group": "public,internal_token"
+      }
+    }
+  },
+  "definitions": {
+    "AdOuUserInfo": {
+      "properties": {
+        "user_name": {
+          "type": "string",
+          "description": "名称。",
+          "readOnly": true
+        },
+        "expired_time": {
+          "type": "string",
+          "description": "过期时间 -1代表永不过期。",
+          "readOnly": true
+        },
+        "has_existed": {
+          "type": "boolean",
+          "description": "是否存在于用户列表。",
+          "readOnly": true
+        }
+      }
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    },
+    "ListAdOuUsersRsp": {
+      "properties": {
+        "user_infos": {
+          "type": "array",
+          "description": "OU对象。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/AdOuUserInfo"
+          }
+        },
+        "total_count": {
+          "type": "integer",
+          "description": "用户数。",
+          "readOnly": true
+        },
+        "enable_create_count": {
+          "type": "integer",
+          "description": "可以创建的用户数量。",
+          "readOnly": true
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

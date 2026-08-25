@@ -1,0 +1,262 @@
+{
+  "name": "ShowBatchMetricData",
+  "summary": "批量查询指定条件的监控数据",
+  "tags": "租户保障",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/V1.0/{project_id}/batch-query-metric-data": {
+      "post": {
+        "summary": "批量查询指定条件的监控数据",
+        "description": "批量查询指定时间范围指定指标的指定粒度的监控数据。\n\ncurl命令调用示例:\n```\ncurl -v -H \"Content-Type:application/json\" -X POST \"https://ip:port/v1.0/{projectId}/batch-query-metric-data\"\n```",
+        "x-filter": "ManageOne,openapi",
+        "x-precautions": "错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 租户保障特性”章节。\n",
+        "x-plane": "Tenant,OM",
+        "tags": [
+          "租户保障"
+        ],
+        "operationId": "ShowBatchMetricData",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "有效的token(op_service权限的用户token),token中需要包含project信息。"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "project Id。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "batchMetricData",
+            "in": "body",
+            "description": "性能数据。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CesBatchMetricData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回指标数据。获取响应体请参考《资源北向模型》。",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": {
+                "metrics": [
+                  {
+                    "unit": "request/s",
+                    "datapoints": [
+                      {
+                        "average": 0,
+                        "timestamp": 1484401920000
+                      },
+                      {
+                        "average": 1,
+                        "timestamp": 1484407920000
+                      }
+                    ],
+                    "namespace": "MINE.APP",
+                    "dimensions": [
+                      {
+                        "name": "instance_id",
+                        "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                      }
+                    ],
+                    "metric_name": "cpu_util"
+                  },
+                  {
+                    "unit": "request/s",
+                    "datapoints": [
+                      {
+                        "average": 2.3,
+                        "timestamp": 1484401920000
+                      },
+                      {
+                        "average": 1.2,
+                        "timestamp": 1484407920000
+                      }
+                    ],
+                    "namespace": "MINE.APP",
+                    "dimensions": [
+                      {
+                        "name": "instance_id",
+                        "value": "33328f02-3814-422e-b688-bfdba93d4051"
+                      }
+                    ],
+                    "metric_name": "cpu_util"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "406": {
+            "description": "流控限流。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "metrics": [
+            {
+              "namespace": "SYS.ECS",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "faea5b75-e390-4e2b-8733-9226a9026070"
+                }
+              ],
+              "metric_name": "disk_write_bytes_rate"
+            },
+            {
+              "namespace": "SYS.ECS",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "06b4020f-461a-4a52-84da-53fa71c2f42b"
+                }
+              ],
+              "metric_name": "disk_write_requests_rate"
+            }
+          ],
+          "from": 1484153313000,
+          "to": 1484653313000,
+          "period": "1",
+          "filter": "average"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CesDimensions": {
+      "required": [
+        "name",
+        "value"
+      ],
+      "description": "CES告警维度。",
+      "properties": {
+        "name": {
+          "description": "告警描述,只能包含0-9/az/A-Z/_/-或汉字,长度0-256。",
+          "type": "string"
+        },
+        "value": {
+          "description": "告警描述,只能包含0-9/az/A-Z/_/-或汉字,长度0-256。",
+          "type": "string"
+        }
+      }
+    },
+    "CesMetric": {
+      "required": [
+        "namespace",
+        "metric_name",
+        "dimensions"
+      ],
+      "description": "CES告警指标信息。",
+      "properties": {
+        "namespace": {
+          "description": "指标命名空间,必须以字母开头,只能包含0-9/a-z/AZ/_,总长度最短为3,最大为32。",
+          "type": "string"
+        },
+        "metric_name": {
+          "description": "指标名称,必须以字母开头,只能包含0-9/a-z/AZ/_,长度最短为1,最大为64。",
+          "type": "string"
+        },
+        "dimensions": {
+          "description": "指标维度列表。目前支持维度列表长度最大为3。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CesDimensions"
+          },
+          "maxItems": 1000
+        }
+      }
+    },
+    "CesBatchMetricData": {
+      "required": [
+        "metrics",
+        "from",
+        "to",
+        "period",
+        "filter"
+      ],
+      "properties": {
+        "metrics": {
+          "description": "指标数据。",
+          "required": true,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CesMetric"
+          },
+          "maxItems": 1000
+        },
+        "from": {
+          "description": "查询数据起始时间。UNIX时间戳,单位毫秒。",
+          "required": true,
+          "type": "integer",
+          "format": "int64"
+        },
+        "to": {
+          "description": "查询数据截止时间UNIX时间戳,单位毫秒。from必须小于to。",
+          "required": true,
+          "type": "integer",
+          "format": "int64"
+        },
+        "period": {
+          "description": "监控数据粒度,取值范围{1:实时数据,300:5分钟粒度,1200:20分钟粒度,3600:1小时粒度,14400:4小时粒度,86400:1天粒度}。",
+          "required": true,
+          "type": "integer",
+          "format": "int32"
+        },
+        "filter": {
+          "description": "数据聚合方式,max,min,average,sum,variance。",
+          "required": true,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

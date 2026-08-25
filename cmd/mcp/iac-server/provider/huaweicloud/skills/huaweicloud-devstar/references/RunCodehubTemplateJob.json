@@ -1,0 +1,277 @@
+{
+  "name": "RunCodehubTemplateJob",
+  "summary": "CodeHub 模板生成代码",
+  "tags": "代码生成",
+  "productshort": "DevStar",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/jobs/codehub": {
+      "post": {
+        "tags": [
+          "JobServer"
+        ],
+        "summary": "CodeHub 模板生成代码",
+        "description": "使用CodeHub模板创建应用代码。\n\n通过 Codehub 模板创建生成应用代码的任务,并将应用代码存储于指定的 CodeHub 仓库中或者生成代码压缩包,可以通过返回的任务 ID 查询相关任务状态。\n\n- 接口鉴权方式\n通过华为云服务获取的用户token。\n\n- 代码生成位置\n应用代码生成后的地址,目前支持codehub地址和压缩包下载地址。",
+        "operationId": "RunCodehubTemplateJob",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 10240,
+            "minLength": 0,
+            "x-notgenerate": true,
+            "x-example": "MIIDkgYJKoZIhvIIDgzCCXXXXXX..."
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言类型,缺省值为“zh-cn”。\n\n枚举值:\n- zh-cn:中文\n- en-us:英文\n",
+            "required": false,
+            "type": "string",
+            "default": "zh-cn",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ],
+            "x-notgenerate": true
+          },
+          {
+            "in": "body",
+            "name": "RunCodehubTemplateJobRequestBody",
+            "description": "创建任务参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CodehubJobInfo"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "examples": {
+              "application/json": {
+                "id": "j_zNvQCYTy"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JobResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "HDN.1001",
+                "error_msg": "参数错误"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "HDN.1001",
+                "error_msg": "权限错误"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "HDN.1001",
+                "error_msg": "权限错误"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-description-1": "请求样例",
+        "x-request-examples-url-1": "",
+        "x-request-examples-1": {
+          "region_id": "cn-north-7",
+          "code_url": "git@codehub.alpha.devcloud.inhuawei.com:nizhiwei00001/nizhiwei001.git",
+          "application_name": "codehub",
+          "repo_type": 1,
+          "properties": {
+            "artifactId": "Hello"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FileTreeNode": {
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "description": "文件路径",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "file_name": {
+          "type": "string",
+          "description": "文件名称",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "file_type": {
+          "type": "string",
+          "description": "是否文件夹",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      }
+    },
+    "RepositoryInfo": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "代码仓的名称。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "代码仓描述。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "project_id": {
+          "type": "string",
+          "description": "项目id。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "region_id": {
+          "type": "string",
+          "description": "区域id。",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "gitignore": {
+          "type": "string",
+          "description": "根据编程语言生成gitignore文件。",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "member_permission": {
+          "type": "integer",
+          "description": "是否允许项目内成员访问仓库:\n- 0:不允许\n- 1:允许\n",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "readme_permission": {
+          "type": "integer",
+          "description": "是否允许生成README文件:\n- 0:不允许\n- 1:允许\n",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "visibility_level": {
+          "type": "integer",
+          "description": "是否公开:\n- 0:私有\n- 20:公开只读\n",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "license_id": {
+          "type": "integer",
+          "description": " 开源许可证id (0:默认)。",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "JobResp": {
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务id。",
+          "minLength": 8,
+          "maxLength": 8
+        },
+        "file_list": {
+          "type": "array",
+          "description": "文件列表。",
+          "items": {
+            "$ref": "#/definitions/FileTreeNode"
+          },
+          "maxItems": 1024,
+          "minItems": 0
+        }
+      }
+    },
+    "CodehubJobInfo": {
+      "required": [
+        "application_name",
+        "code_url",
+        "region_id",
+        "repo_type"
+      ],
+      "properties": {
+        "application_name": {
+          "type": "string",
+          "description": "应用名称。",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "privately": {
+          "type": "boolean",
+          "description": "仓库是否私有",
+          "default": true
+        },
+        "short_id": {
+          "type": "string",
+          "description": "仓库短id",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "code_url": {
+          "type": "string",
+          "description": "代码存放的ssh地址。",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "region_id": {
+          "type": "string",
+          "description": "CodeHub 仓库所在的 Region ID:\n- 华南-广州:cn-south-1\n- 华东-上海二:cn-east-2\n- 华北-北京一:cn-north-1\n- 华北-北京四:cn-north-4\n",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "repo_type": {
+          "type": "integer",
+          "description": "- 0 - 将生成的应用代码存储于 repo_info 指定的 CodeHub 仓库中。\n- 1 - 将生成的应用代码存储到华为云,任务创建人可以通过 ExportApplicationCode 下载代码压缩包。\n",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "properties": {
+          "type": "object",
+          "description": "可以根据 template-metadata.json 获取动态参数 ID 以及规则。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "repo_info": {
+          "description": "生成的代码框架存储的 CodeHub 信息, 当 repo_type = 0 时必填。",
+          "$ref": "#/definitions/RepositoryInfo"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "devstar.cn-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

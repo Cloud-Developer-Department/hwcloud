@@ -1,0 +1,205 @@
+{
+  "name": "ListJobOperationLog",
+  "summary": "查询任务操作日志",
+  "tags": "声音制作任务管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/voice-training-manage/user/jobs/{job_id}/op-logs": {
+      "get": {
+        "tags": [
+          "TrainingJobManager"
+        ],
+        "summary": "查询任务操作日志",
+        "description": "查询任务操作日志",
+        "operationId": "ListJobOperationLog",
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/OffsetQuery"
+          },
+          {
+            "$ref": "#/parameters/LimitQuery"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "任务id",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListJobOperationLogRsp"
+            }
+          },
+          "400": {
+            "description": "训练参数异常",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam,internal-appcode",
+        "x-open-range": "public",
+        "x-methodAnnotations": [
+          "@AppUserAuth"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "OpExternalInfo": {
+      "properties": {
+        "review_id_list": {
+          "type": "array",
+          "description": "审核详情id列表",
+          "items": {
+            "type": "string",
+            "example": "123abc",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "maxItems": 5,
+          "minItems": 1
+        },
+        "algorithm_failure_reason": {
+          "type": "string",
+          "example": "失败",
+          "description": "算法侧失败原因",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "admin_audit_failure_reason": {
+          "type": "string",
+          "example": "音频质量不佳",
+          "description": "管理员驳回的原因",
+          "minLength": 0,
+          "maxLength": 4096
+        }
+      },
+      "description": "操作日志附加信息"
+    },
+    "ListJobOperationLogRsp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "满足查询要求的操作日志总数",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "operations": {
+          "type": "array",
+          "description": "操作日志列表",
+          "items": {
+            "$ref": "#/definitions/OperationLogItem"
+          },
+          "maxItems": 2147483647,
+          "minItems": 0
+        }
+      },
+      "description": "显示任务操作日志"
+    },
+    "OperationLogItem": {
+      "properties": {
+        "time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 123,
+          "description": "操作时间",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "action": {
+          "type": "string",
+          "example": "CREATE_JOB",
+          "description": "操作名称,当前已有的action为CREATE_JOB(创建任务),COMMIT_JOB(提交任务),SYSTEM_AUDIT_PASS(系统审核通过),ADMIN_AUDIT_PASS(管理员审核通过),AUDIT_NOT_PASS(审核未通过),TRAINING_FINISH(训练完成),UPLOADING_MODEL(上传语音模型),COMPLETE_JOB(任务完成)",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operator": {
+          "type": "string",
+          "example": "USER",
+          "description": "操作者,USER(用户),ADMIN(管理员),SYSTEM(系统用户)",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "external_info": {
+          "$ref": "#/definitions/OpExternalInfo"
+        }
+      },
+      "description": "操作"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "LimitQuery": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页显示的条目数量。",
+      "required": false,
+      "type": "integer",
+      "default": 10,
+      "maximum": 100,
+      "minimum": 1,
+      "format": "uint32"
+    },
+    "OffsetQuery": {
+      "name": "offset",
+      "in": "query",
+      "description": "偏移量,表示从此偏移量开始查询。",
+      "required": false,
+      "type": "integer",
+      "default": 0,
+      "maximum": 2147483647,
+      "minimum": 0,
+      "format": "uint32"
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    }
+  },
+  "host": "metastudio.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,196 @@
+{
+  "name": "CreateVmsTemplate",
+  "summary": "新建智能信息基础版模板",
+  "tags": "智能信息基础版模板",
+  "productshort": "KooMessage",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/aim-basic/templates": {
+      "post": {
+        "tags": [
+          "VmsTemplate"
+        ],
+        "summary": "新建智能信息基础版模板",
+        "description": "支持用户通过此接口创建智能信息基础版模板。\n",
+        "operationId": "CreateVmsTemplate",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "CreateVmsTemplateRequestBody",
+            "description": "创建模板请求头",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateVmsTemplateRequestBody"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "请求体参数类型,该字段必须设置为:application/json。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "新建智能信息基础版模板返回体。",
+            "examples": {
+              "application/json": {
+                "tplid": "800000001"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateVmsTemplateRsp"
+            }
+          },
+          "400": {
+            "description": "非法参数。",
+            "schema": {
+              "$ref": "#/definitions/VmsErrorMsg"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/VmsErrorMsg"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "Public"
+      }
+    }
+  },
+  "definitions": {
+    "CreateVmsTemplateRequestBody": {
+      "type": "object",
+      "required": [
+        "expiration_time",
+        "reslist",
+        "title",
+        "tpl_name"
+      ],
+      "properties": {
+        "expiration_time": {
+          "type": "string",
+          "example": "90",
+          "description": "智能信息基础版模板有效期。单位:天,必须取整,最长9999天。"
+        },
+        "tpl_name": {
+          "type": "string",
+          "example": "测试模板",
+          "description": "智能信息基础版模板名称。模板的别名,用来帮助记忆。最大不超过100个字,若使用中文需经过UTF-8编码。"
+        },
+        "title": {
+          "type": "string",
+          "example": "测试模板",
+          "description": "智能信息基础版模板主题,最大不超过20个字,若使用中文需经过UTF-8 编码,主题不能包含“【】”,否则审核会不通过。"
+        },
+        "reslist": {
+          "type": "array",
+          "description": "\n模板资源列表,由按顺序排列的资源组成,资源类型支持文本、图片、音频、视频。\n\n> 资源在JSON数组中的顺序将决定其在手机上的显示顺序,数组大小不能超过10。\n",
+          "items": {
+            "$ref": "#/definitions/ResourceInfo"
+          },
+          "maxItems": 10,
+          "minItems": 1
+        },
+        "remarks": {
+          "type": "string",
+          "example": "希望30分钟内完成审批",
+          "description": "智能信息基础版模板备注信息,用于填写对模板审核的期望或要求,最大不超过200个字。例如:希望这个模板绑定的通道类型是三网合一通道,默认优先绑定三网合一通道。"
+        },
+        "callbackurl": {
+          "type": "string",
+          "example": "htts://ip:port/xxx",
+          "description": "客户系统回调URL,可用于通知对端模板审核状态信息。\n\n> 接口规格需参照定义智能信息基础版模板状态回执完成实现。\n"
+        },
+        "is_draft": {
+          "type": "integer",
+          "description": "以草稿状态提交模板。\n- 0:非草稿模板\n- 1:草稿模板\n",
+          "default": 0
+        }
+      },
+      "description": "新建智能信息基础版模板的请求消息体。"
+    },
+    "VmsErrorMsg": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "结果状态码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "结果详情。"
+        }
+      },
+      "description": "错误模型。"
+    },
+    "ResourceInfo": {
+      "type": "object",
+      "required": [
+        "content",
+        "name",
+        "source",
+        "type"
+      ],
+      "properties": {
+        "index": {
+          "type": "string",
+          "example": "1-1",
+          "description": "智能信息基础版序号。\n\n从1开始,例如: 1-1,表示第1帧第1个元素;1-2:表示第1帧第2个元素;2-1:表示第2帧第1个元素。\n\n> - 每帧支持最多2个元素,2个元素中必须包含有文本\n> - 如果未填该字段,则每个元素独占一帧并按数组顺序排序\n> - 最多支持8帧\n> - 最多2帧同时包含2个元素\n> - index必须全部指定,或者全为空,不能重复\n"
+        },
+        "type": {
+          "type": "string",
+          "example": "txt",
+          "description": "智能信息基础版资源类型。\n- 类型为文字填:txt\n- 类型为图片填:jpg/jpeg/png/gif\n- 类型为音频填:mp3/wav\n- 类型为视频填:3gp\n"
+        },
+        "name": {
+          "type": "string",
+          "example": "文本.txt",
+          "description": "智能信息基础版资源名称。"
+        },
+        "source": {
+          "type": "string",
+          "example": "txt",
+          "description": "智能信息基础版资源来源。\n\n- txt:表示资源内容是纯文字\n- file:表示资源内容来源于文件流\n- url:表示资源内容来源于URL外链\n\n> 资源来自于文字/文件流/URL外链。\n"
+        },
+        "content": {
+          "type": "string",
+          "example": "【签名】尊敬的#p_1#你好,你#p_2#月的账单如下",
+          "description": "智能信息基础版。\n- 当source=txt时,填写经过UTF-8编码的文字\n- 当source=file时,填写经过Base64编码的文件流,不须带文件格式前缀,样例:\"iVBORw0KGgoAAAANSUhEUgA...\",样例过长,未显示全部\n- 当source=url时,填写资源URL地址,URL长度不能超过1024个字节\n\n> - 支持文字图片,文字和图片使用#p_n#参数变量占位,n为1~100内的数字,不同类型的资源中不允许有重复的参数占位符,相同类型的资源同一参数占位符可复用。如:#p_1#已表示是文本参数占位符时,不可以同时是图片又是文本参数占位符。不能包含除模板签名外的“【】” > - 第一个文本帧,内容必须以:【签名】开始,'签名' 标识客户信息\n"
+        }
+      },
+      "description": "智能信息基础版资源信息。"
+    },
+    "CreateVmsTemplateRsp": {
+      "type": "object",
+      "properties": {
+        "tplid": {
+          "type": "string",
+          "example": "12121121",
+          "description": "智能信息基础版模板ID,用来唯一标识上传的模板。"
+        }
+      },
+      "description": "新建智能信息基础版模板的答复消息体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koomessage.myhuaweicloud.cn",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

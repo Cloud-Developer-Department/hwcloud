@@ -1,0 +1,480 @@
+{
+  "name": "CountEvents",
+  "summary": "统计事件告警信息",
+  "tags": "告警",
+  "productshort": "AOM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/events/statistic": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "https://{endpoint}/v2/{project_id}/events/statistic",
+        "x-request-examples-description-1": "以步长step查询当前时间范围(time_range)内的事件、告警统计信息。",
+        "x-request-examples-text-1": {
+          "time_range": "-1.-1.5",
+          "step": 60000
+        },
+        "x-request-examples-1": {
+          "time_range": "-1.-1.5",
+          "step": 60000
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-is-devspore": "true",
+        "tags": [
+          "告警"
+        ],
+        "operationId": "CountEvents",
+        "summary": "统计事件告警信息",
+        "description": "该接口用于分段统计指定条件下的事件、告警。",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从控制台获取,也可以从调用API处获取。获取方式请参见:[获取项目ID](aom_04_0024.xml)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token。获取方式请参见:[获取Token](aom_04_0059.xml)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "消息体的类型(格式)。指定类型为“application/json”。",
+            "type": "string",
+            "enum": [
+              "application/json"
+            ]
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "enum": [
+              "history_alert",
+              "active_alert"
+            ],
+            "description": "查询类型:\n- active_alert:代表查询活动告警\n- history_alert代表查询历史告警。\n\n不传或者传其他值,则返回指定查询条件的所有信息。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "CountEventsRequestBody",
+            "description": "查询事件或者告警列表请求参数。",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventQueryParam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK 请求响应成功。",
+            "schema": {
+              "$ref": "#/definitions/EventStatistic"
+            },
+            "examples": {
+              "application/json": {
+                "series": [
+                  {
+                    "event_severity": "Critical",
+                    "values": [
+                      2,
+                      3,
+                      3,
+                      1,
+                      0
+                    ]
+                  },
+                  {
+                    "event_severity": "Major",
+                    "values": [
+                      4,
+                      3,
+                      5,
+                      4,
+                      0
+                    ]
+                  },
+                  {
+                    "event_severity": "Minor",
+                    "values": [
+                      3,
+                      1,
+                      1,
+                      1,
+                      0
+                    ]
+                  },
+                  {
+                    "event_severity": "Info",
+                    "values": [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  }
+                ],
+                "step": 60000,
+                "summary": {
+                  "critical_count": 9,
+                  "info_count": 0,
+                  "major_count": 16,
+                  "minor_count": 6
+                },
+                "timestamps": [
+                  1711788600000,
+                  1711788660000,
+                  1711788720000,
+                  1711788780000,
+                  1711788840000
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest。非法请求。 建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.08033002",
+                "error_message": "The request body is illegal",
+                "trace_id": ""
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "401": {
+            "description": "Unauthorized  在客户端提供认证信息后,返回该状态码,表明服务端指出客户端所提供的认证信息不正确或非法。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.0403",
+                "error_message": "auth failed.",
+                "error_type": "AUTH_FAILED",
+                "trace_id": null
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "403": {
+            "description": "Forbidden 请求被拒绝访问。返回该状态码,表明请求能够到达服务端,且服务端能够理解用户请求,但是拒绝做更多的事情,因为该请求被设置为拒绝访问,建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.0403",
+                "error_message": "auth failed.",
+                "error_type": "AUTH_FAILED",
+                "trace_id": null
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "500": {
+            "description": "InternalServerError 表明服务端能被请求访问到,但是不能理解用户的请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "APM.00000500",
+                "error_message": "Internal Server Error",
+                "trace_id": ""
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "503": {
+            "description": "ServiceUnavailable 被请求的服务无效。建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.0503",
+                "error_message": "SC_NOT_IMPLEMENTED",
+                "error_type": "SC_NOT_IMPLEMENTED"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EventSeries": {
+      "description": "事件或者告警统计值统计结果元数据。",
+      "type": "object",
+      "properties": {
+        "event_severity": {
+          "type": "string",
+          "description": "事件或者告警级别枚举类型。",
+          "enum": [
+            "Critical",
+            "Major",
+            "Minor",
+            "Info"
+          ]
+        },
+        "values": {
+          "description": "事件或者告警统计结果。",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "RelationModel": {
+      "description": "查询条件。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "指定查询字段的key,对应metadata里面的key 。当metadata_relation参数不为空时 key参数必填。"
+        },
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "查询条件中指定key的值。"
+        },
+        "relation": {
+          "type": "string",
+          "description": "该条件与其他条件的组合方式。 \n- AND:必须满足所有条件。\n-  OR:可以满足其中一个条件。\n-  NOT:必须不满足所有条件。",
+          "enum": [
+            "AND",
+            "OR",
+            "NOT"
+          ]
+        }
+      },
+      "type": "object",
+      "required": [
+        "key"
+      ]
+    },
+    "EventQueryParam": {
+      "description": "查询事件或者告警信息 。",
+      "properties": {
+        "time_range": {
+          "type": "string",
+          "description": "查询时间范围,主要用于解决客户端时间和服务端时间不一致情况下,查询最近N分钟的数据。另可用于精确查询某一段时间的数据。\n\n例如:\n\n- -1.-1.60(表示最近60分钟),不管当前客户端是什么时间,都以服务端时间为准查询最近60分钟。\n\n- 1650852000000.1650852300000.5(表示GMT+8 2022-04-25 10:00:00至2022-04-25\n10:05:00指定的5分钟)\n\n格式如下:\n\nstartTimeInMillis.endTimeInMillis.durationInMinutes\n\n参数解释:\n\n- startTimeInMillis: 查询的开始时间,格式为UTC毫秒,如果指定为-1,服务端将按(endTimeInMillis - durationInMinutes * 60 * 1000)计算开始时间。例如-1.1650852300000.5,则相当于1650852000000.1650852300000.5。\n- endTimeInMillis: 查询的结束时间,格式为UTC毫秒,如果指定为-1,服务端将按(startTimeInMillis + durationInMinutes * 60 * 1000)计算结束时间。如果计算出的结束时间大于当前系统时间,则使用当前系统时间。例如1650852000000.-1.5,则相当于1650852000000.1650852300000.5。\n- durationInMinutes:查询时间的跨度分钟数。 取值范围大于0并且大于等于(endTimeInMillis - startTimeInMillis) / (60 * 1000) - 1。当开始时间与结束时间都设置为-1时,系统会将结束时间设置为当前时间UTC毫秒值,并按(endTimeInMillis - durationInMinutes * 60 * 1000)计算开始时间。如:-1.-1.60(表示最近60分钟)。\n\n约束与限制:\n\n单次请求中,查询时长与周期需要满足以下条件: durationInMinutes * 60 / period <= 1440。"
+        },
+        "step": {
+          "type": "integer",
+          "format": "int64",
+          "description": "统计步长。毫秒数,例如一分钟则填写为60000。最小值为1分钟。"
+        },
+        "search": {
+          "type": "string",
+          "description": "模糊查询匹配字段,可以为空。如果值不为空,可以模糊匹配metadata字段中的必选字段的值。"
+        },
+        "sort": {
+          "description": "返回列表的排序方式,可以为空。",
+          "properties": {
+            "order_by": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "排序字段列表。会根据列表中定义顺序对返回列表进行排序。"
+            },
+            "order": {
+              "type": "string",
+              "description": "排序方式枚举值。asc代表正序,desc代表倒序。",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        },
+        "metadata_relation": {
+          "description": "查询条件组合,可以为空。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RelationModel"
+          }
+        }
+      },
+      "example": {
+        "time_range": "-1.-1.5",
+        "step": 60000,
+        "metadata_relation": [
+          {
+            "key": "event_name",
+            "relation": "AND",
+            "value": [
+              "test1",
+              "test2"
+            ]
+          },
+          {
+            "key": "event_severity",
+            "relation": "AND",
+            "value": [
+              "test1",
+              "test2"
+            ]
+          },
+          {
+            "key": "expert_advice_url",
+            "relation": "NOT",
+            "value": [
+              "test1",
+              "test2"
+            ]
+          }
+        ],
+        "search": "test",
+        "sort": {
+          "order_by": [
+            "starts_at"
+          ],
+          "order": "desc"
+        }
+      },
+      "required": [
+        "time_range"
+      ],
+      "type": "object"
+    },
+    "EventStatistic": {
+      "description": "事件或者告警统计值。",
+      "type": "object",
+      "properties": {
+        "step": {
+          "type": "integer",
+          "format": "int64",
+          "description": "统计步长。毫秒数,例如一分钟则填写为60000。"
+        },
+        "timestamps": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": "统计结果对应的时间序列。"
+        },
+        "series": {
+          "description": "事件或者告警不同级别相同时间序列对应的统计结果。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EventSeries"
+          }
+        },
+        "summary": {
+          "type": "object",
+          "description": "各类告警信息的数量汇总",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "example": {
+        "step": 60000,
+        "timestamps": [
+          1582537140000,
+          1582537200000,
+          1582537260000,
+          1582540740000
+        ],
+        "series": [
+          {
+            "event_severity": "total",
+            "values": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "event_severity": "critical",
+            "values": [
+              1,
+              0,
+              3,
+              3
+            ]
+          },
+          {
+            "event_severity": "info",
+            "values": [
+              1,
+              0,
+              3,
+              3
+            ]
+          },
+          {
+            "event_severity": "major",
+            "values": [
+              1,
+              0,
+              3,
+              3
+            ]
+          },
+          {
+            "event_severity": "minor",
+            "values": [
+              1,
+              0,
+              3,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    "ResultInfo2": {
+      "description": "调用失败时的返回值。",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败响应信息描述。"
+        },
+        "error_type": {
+          "type": "string",
+          "description": "调用失败类型。"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "请求id"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "aom.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

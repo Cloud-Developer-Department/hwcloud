@@ -1,0 +1,194 @@
+{
+  "name": "CheckScriptRisk",
+  "summary": "评估脚本风险等级",
+  "tags": "ScriptManagement",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/job/analyze-job": {
+      "post": {
+        "x-apiexplorer-hide": false,
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "ScriptManagement"
+        ],
+        "summary": "评估脚本风险等级",
+        "description": "根据作业内容,对作业评估风险,返回相关分析的结果和信息,结果仅供参考。\n高危命令指影响系统或服务的正常运行,或造成系统特殊文件被恶意删除或修改命令。 高危命令检测通过校验规则正则匹配脚本内容中是否包含高危命令。",
+        "operationId": "CheckScriptRisk",
+        "parameters": [
+          {
+            "name": "CheckScriptRiskRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "脚本内容。",
+            "schema": {
+              "$ref": "#/definitions/JobScriptAnalyzeRequest"
+            }
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/X-Language"
+          },
+          {
+            "$ref": "#/parameters/x-project-id"
+          },
+          {
+            "$ref": "#/parameters/x-user-profile"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。\n更多状态码请参考[状态码](coc_api_05_03.xml)。",
+            "schema": {
+              "$ref": "#/definitions/CheckScriptRiskRes"
+            },
+            "examples": {
+              "application/json": {
+                "data": {
+                  "risk_level": "HIGH",
+                  "blacklist_commands": [
+                    {
+                      "command_name": "rm command",
+                      "command_rule": "\\s*rm\\s+.*",
+                      "example": "rm test.txt ",
+                      "description_en": "The rm command is included, special system files may be maliciously deleted or modified.",
+                      "description_zh": "包含rm命令,可能造成系统特殊文件被恶意删除或修改。"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-order": 7
+      }
+    }
+  },
+  "definitions": {
+    "JobScriptAnalyzeRequest": {
+      "type": "object",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "echo aaa",
+          "description": "脚本内容",
+          "minLength": 0,
+          "maxLength": 4096
+        }
+      },
+      "description": "脚本内容分析请求"
+    },
+    "CheckScriptRiskRes": {
+      "type": "object",
+      "description": "高危命令检测返回体。",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "description": "返回数据。",
+          "required": [
+            "risk_level"
+          ],
+          "properties": {
+            "risk_level": {
+              "type": "string",
+              "example": "HIGH",
+              "description": "风险等级。",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "blacklist_commands": {
+              "items": {
+                "properties": {
+                  "command_name": {
+                    "type": "string",
+                    "example": "rm command",
+                    "description": "命令。",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "command_rule": {
+                    "type": "string",
+                    "example": "\\s*rm\\s+.*",
+                    "description": "匹配规则。",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "example": {
+                    "type": "string",
+                    "example": "rm test.txt ",
+                    "description": "实例。",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "description_en": {
+                    "type": "string",
+                    "example": "The rm command is included, special system files may be maliciously deleted or modified.",
+                    "description": "黑名单命令中文描述。",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "description_zh": {
+                    "type": "string",
+                    "example": "包含rm命令,可能造成系统特殊文件被恶意删除或修改",
+                    "description": "黑名单命令英文描述。",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                }
+              },
+              "description": "黑名单列表。",
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 256
+            }
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "type": "string",
+      "description": "租户token。"
+    },
+    "X-Language": {
+      "name": "X-Language",
+      "in": "header",
+      "required": false,
+      "type": "string",
+      "description": "国际化标记,zh-cn表示中文,en-us或不传表示英文。"
+    },
+    "x-user-profile": {
+      "name": "x-user-profile",
+      "in": "header",
+      "required": false,
+      "type": "string",
+      "description": "IAM5.0用户信息。"
+    },
+    "x-project-id": {
+      "name": "x-project-id",
+      "in": "header",
+      "required": false,
+      "type": "string",
+      "description": "项目ID。"
+    }
+  },
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

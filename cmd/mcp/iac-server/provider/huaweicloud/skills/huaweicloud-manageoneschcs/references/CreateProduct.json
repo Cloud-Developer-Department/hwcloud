@@ -1,0 +1,299 @@
+{
+  "name": "CreateProduct",
+  "summary": "定义产品",
+  "tags": "产品管理",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/product/v3.0/products": {
+      "post": {
+        "summary": "定义产品",
+        "description": "云服务预置产品或者通过页面创建产品。\n\n1. /product/v3.0/products接口只会注册服务的基本信息,不会注册服务的actions(服务发布、上线时可选的审批项)、endpoint(服务目录跳转时路径)、catalog(服务目录分类)、links(云联邦HCS服务目录跳转时路径)等信息。建议使用/rest/product/v3.1/products POST接口。\n\n2. 使用v3.0接口创建服务后,可通过/rest/product/v3.0/support-actions POST接口注册服务审批项。建议使用/rest/product/v3.0/modify-actions POST接口。\n请求示例如下:\n{ \n    \"service_type\":\"ecs\", \n    \"action\":\"apply\", \n    \"region_id\": \"cn-west-1\"\n}\n\n请求响应如下:\n{\n\"result\": true\n}\n\n3. 可通过/rest/product/v3.0/support-actions DELETE接口删除服务审批项。建议使用/rest/product/v3.0/modify-actions POST接口。\n请求示例如下:删除该服务指定的审批项\n/rest/product/v3.0/support-actions?service_type=others-1656319918270&action=apply&region_id=cn-global-137\n\n请求示例如下:删除该服务所有的审批项\n/rest/product/v3.0/support-actions?service_type=others-1656319918270\n\n4. 可通过/rest/product/v3.0/modify-actions POST接口修改服务审批项\n变更类型包括增加(add)、删除(delete),该接口除了会增加或删除服务审批项之外,还会同时增加或删除服务关联的审批流程。 建议使用该方法增加或删除审批项。\n    请求示例如下:\n{ \n\"modify_type\":\"add\", \n\"service_type\":\"others-1656319918270\", \n\"action\":\"apply\", \n\"region_id\": \"cn-global-137\"\n}\n请求示例如下:\n{ \n\"modify_type\":\"delete\", \n\"service_type\":\"others-1656319918270\", \n\"action\":\"apply\", \n\"region_id\": \"cn-global-137\"\n}",
+        "x-opseverity": "Minor",
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > 产品管理”章节。\n",
+        "x-resource": "定义产品",
+        "tags": [
+          "产品管理"
+        ],
+        "operationId": "CreateProduct",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Language",
+            "description": "操作发生时的语言环境,中文是zh-cn,英文是en-us。",
+            "in": "header",
+            "type": "string",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "机机账户或者运营管理员或者VDC管理员有效的token。"
+          },
+          {
+            "name": "product",
+            "description": "待定义的产品信息对象。",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateProductVO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "定义产品成功。",
+            "schema": {
+              "$ref": "#/definitions/ProductResultDTO"
+            },
+            "examples": {
+              "application/json": {
+                "product_id": "f038b65254ef48249e304e9a3d870da0"
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "406": {
+            "description": "流控限流。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/product/v3.0/products",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "name": "{\"zh_CN\":\"ecs product\",\"en_US\":\"ecs product1\"}",
+          "description": "{\"zh_CN\":\"description\",\"en_US\":\"description\"}",
+          "service_type": "ecs",
+          "icon_id": "defaulticonecs",
+          "params": "{\"a\":\"111\",\"b\":\"222\"}",
+          "is_default": false,
+          "region_id": "region1",
+          "catalog_id": "1"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateProductVO": {
+      "description": "创建产品的接收参数对象。",
+      "required": [
+        "service_type",
+        "catalog_id",
+        "params",
+        "description",
+        "name",
+        "region_id"
+      ],
+      "properties": {
+        "service_type": {
+          "description": "服务类型。",
+          "type": "string",
+          "maxLength": 32,
+          "minLength": 1
+        },
+        "icon_id": {
+          "description": "图标ID。",
+          "type": "string",
+          "maxLength": 32,
+          "minLength": 0
+        },
+        "catalog_id": {
+          "description": "目录ID。",
+          "type": "string",
+          "maxLength": 36,
+          "minLength": 1
+        },
+        "params": {
+          "description": "产品规格参数。",
+          "type": "string",
+          "maxLength": 16777215,
+          "minLength": 1
+        },
+        "description": {
+          "description": "产品描述,值为json格式字符串,各语言的名称长度不大于1024个字符,例如:{\"zh_CN\":\"描述\",\"en_US\":\"description\"}。",
+          "type": "string",
+          "maxLength": 65535,
+          "minLength": 1
+        },
+        "name": {
+          "description": "产品名称,值为json格式字符串,各语言的名称长度不大于64个字符,例如:{\"zh_CN\":\"弹性云服务器\",\"en_US\":\"ecs1\"}。",
+          "type": "string",
+          "maxLength": 1024,
+          "minLength": 1
+        },
+        "region_id": {
+          "description": "Region ID。",
+          "type": "string",
+          "maxLength": 36,
+          "minLength": 1
+        },
+        "is_default": {
+          "description": "产品是否是预置产品。",
+          "type": "boolean"
+        },
+        "is_register_process_control_point": {
+          "description": "是否注册流程控制点。",
+          "type": "boolean",
+          "default": false
+        },
+        "single_region_project": {
+          "type": "string",
+          "description": "true时,表示云服务只支持以regionId开头的project,false表示支持多region的project"
+        },
+        "resource_pool_id": {
+          "description": "Resource Pool ID。",
+          "type": "string",
+          "default": "",
+          "maxLength": 128,
+          "minLength": 0
+        },
+        "project_id": {
+          "description": "Project ID。",
+          "type": "string",
+          "default": "",
+          "maxLength": 128,
+          "minLength": 0
+        },
+        "az_id": {
+          "description": "Available zone ID。",
+          "type": "string",
+          "default": "",
+          "maxLength": 128,
+          "minLength": 0
+        },
+        "secret_params": {
+          "description": "产品秘密参数。",
+          "type": "string",
+          "maxLength": 16777215,
+          "minLength": 1
+        },
+        "product_type": {
+          "description": "产品类型。",
+          "type": "string",
+          "maxLength": 32,
+          "minLength": 0
+        },
+        "custom_catalog_info": {
+          "type": "string",
+          "description": "定制目录信息",
+          "maxLength": 1024,
+          "minLength": 0
+        },
+        "custom_catalog_id": {
+          "type": "string",
+          "description": "定制目录id",
+          "maxLength": 36,
+          "minLength": 0
+        },
+        "version": {
+          "type": "string",
+          "description": "版本号",
+          "maxLength": 36,
+          "minLength": 0
+        },
+        "support_user": {
+          "type": "string",
+          "description": "支持人",
+          "maxLength": 32,
+          "minLength": 0
+        },
+        "charge_user": {
+          "type": "string",
+          "description": "负责人",
+          "maxLength": 32,
+          "minLength": 0
+        },
+        "service_vendor": {
+          "type": "string",
+          "description": "服务厂商,由中文、大小写英文字符、数字、空格、小括号、中划线、下划线、点组成,长度范围0~64,不能以空格开头或结尾",
+          "maxLength": 64,
+          "minLength": 0
+        },
+        "register_service_type": {
+          "type": "string",
+          "description": "注册的云服务类型",
+          "maxLength": 36,
+          "minLength": 0
+        },
+        "approval_parameter_mode": {
+          "type": "string",
+          "description": "审批参数模式",
+          "maxLength": 36,
+          "minLength": 0
+        },
+        "console_apply_url": {
+          "type": "string",
+          "description": "跳转申请链接",
+          "maxLength": 255,
+          "minLength": 0
+        },
+        "console_create_url": {
+          "type": "string",
+          "description": "跳转创建链接",
+          "maxLength": 255,
+          "minLength": 0
+        },
+        "console_detail_url": {
+          "type": "string",
+          "description": "跳转详情链接",
+          "maxLength": 255,
+          "minLength": 0
+        },
+        "console_modify_url": {
+          "type": "string",
+          "description": "跳转修改链接",
+          "maxLength": 255,
+          "minLength": 0
+        },
+        "console_delete_url": {
+          "type": "string",
+          "description": "跳转删除链接",
+          "maxLength": 255,
+          "minLength": 0
+        }
+      }
+    },
+    "ProductResultDTO": {
+      "description": "操作产品的返回值对象。",
+      "required": [
+        "product_id"
+      ],
+      "properties": {
+        "product_id": {
+          "description": "产品ID。",
+          "type": "string",
+          "maxLength": 36,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

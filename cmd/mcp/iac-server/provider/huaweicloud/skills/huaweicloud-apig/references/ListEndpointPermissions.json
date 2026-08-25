@@ -1,0 +1,289 @@
+{
+  "name": "ListEndpointPermissions",
+  "summary": "查询实例的终端节点服务的白名单列表",
+  "tags": "专享版-实例终端节点管理",
+  "productshort": "APIG",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/{project_id}/apigw/instances/{instance_id}/vpc-endpoint/permissions": {
+      "get": {
+        "tags": [
+          "专享版-实例终端节点管理"
+        ],
+        "x-api-type": "open-api",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk,cmcc,ctc,dt,g42,hk_g42,hk_sbc,hk_tm,hws_eu,hws_ocb,ocb,sbc,tm,srg,ax",
+        "operationId": "ListEndpointPermissions",
+        "summary": "查询实例的终端节点服务的白名单列表",
+        "description": "查询当前实例终端节点服务的白名单列表。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "x-produc-type": "apig",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_offset"
+          },
+          {
+            "$ref": "#/parameters/apic_limit"
+          },
+          {
+            "name": "permission",
+            "in": "query",
+            "required": false,
+            "description": "权限账号ID,格式为“iam:domain::domain_id”,支持模糊搜索",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EndpointPermissionPage"
+            },
+            "examples": {
+              "application/json": {
+                "total": 2,
+                "size": 1,
+                "permissions": [
+                  {
+                    "id": "e4a7ba21-1e5c-43cc-977d-4aeeacb937ec",
+                    "permission": "iam:domain::821a2d452de64bcdb52319967f8a06b9",
+                    "created_at": "2021-05-07T14:10:49Z"
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "type": "string",
+                "description": "请求编号"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7102",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "type": "string",
+                "description": "请求编号"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7106",
+                "error_msg": "No permissions to request for the method"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "headers": {
+              "x-request-id": {
+                "description": "请求编号",
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7314",
+                "error_msg": "Endpoint service not found"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "headers": {
+              "x-request-id": {
+                "description": "请求编号",
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.9007",
+                "error_msg": "Failed to execute VCPEP request"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "headers": {
+              "x-request-id": {
+                "description": "请求编号",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EndpointPermissionPage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasePage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "permissions": {
+              "type": "array",
+              "description": "白名单记录列表",
+              "items": {
+                "$ref": "#/definitions/EndpointPermission"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "BasePage": {
+      "properties": {
+        "size": {
+          "description": "本次返回的列表长度",
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "description": "满足条件的记录数",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "分页基本信息",
+      "required": [
+        "size",
+        "total"
+      ]
+    },
+    "ErrorMsg": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "EndpointPermission": {
+      "required": [
+        "id",
+        "permission",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "记录编号",
+          "example": "4ce4e6ce-128c-41b2-bf22-5f4f4cb942ea"
+        },
+        "permission": {
+          "type": "string",
+          "description": "权限规则",
+          "example": "iam:domain::9ca803f14e7548b1aadbe4ab670754b8"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "创建时间",
+          "format": "date-time",
+          "example": "2021-05-07T06:53:08Z"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_offset": {
+      "name": "offset",
+      "in": "query",
+      "type": "integer",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量小于0时,自动转换为0",
+      "format": "int64",
+      "default": 0,
+      "x-example": 1
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID,在API网关控制台的“实例信息”中获取。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见[获取项目ID](apig-api-180713009.xml)。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "apic_limit": {
+      "name": "limit",
+      "in": "query",
+      "type": "integer",
+      "description": "每页显示的条目数量,条目数量小于等于0时,自动转换为20,条目数量大于500时,自动转换为500",
+      "format": "int32",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 20,
+      "x-example": 10
+    }
+  },
+  "host": "apig.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

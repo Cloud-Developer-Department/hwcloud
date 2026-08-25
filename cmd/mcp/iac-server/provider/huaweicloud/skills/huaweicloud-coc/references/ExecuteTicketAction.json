@@ -1,0 +1,155 @@
+{
+  "name": "ExecuteTicketAction",
+  "summary": "工单操作",
+  "tags": "ExternalCocTicket",
+  "productshort": "COC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{ticket_type}/actions": {
+      "post": {
+        "tags": [
+          "ExternalCOCTicket"
+        ],
+        "operationId": "ExecuteTicketAction",
+        "summary": "工单操作",
+        "description": "变更单审批、撤销以及问题单的所有操作均通过此接口完成。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-access-level": "ReadWrite",
+        "x-risk-level": "middle",
+        "x-sre-api-type": "D",
+        "x-methodAnnotations": [
+          "@CoaCustomizeAuthMeta",
+          "@CoaAuthExtendMeta(userType=UserTypeEnum.MAN_MACHINE_ACCOUNT)",
+          "@IamAuthMeta(authLevel = IamAuthLevel.TOKEN, abacAction = \"coc:ticket:action\", opType = BssOpType.RESOURCE, needApigwJwtAuthCheck = false, authContextInitializer = IAMCustomAuthContextInitializer.class)",
+          "@AuditLog(operation = \"gocm:ExecuteTicketAction\", risk = \"middle\", resourceType = GomResourceTypeEnum.TICKET, resourceId = \"gocm:TicketId=#executeTicketActionRequestBody.ticketId\", resourceName = \"#executeTicketActionRequestBody.action\")",
+          "@CtsMeta(resourceType = \"Ticket\", traceName = \"executeTicketAction\", operationId = \"ExecuteTicketAction\")",
+          "@CtsExtendMeta(resourceId = \"#executeTicketActionRequestBody.ticketId\", resourceName = \"#executeTicketActionRequestBody.action\")",
+          "@QuotaCheck(needTicketType = true, operateId = \"operate\")"
+        ],
+        "x-imports": "com.huawei.clouds.wushan.auth.token.meta.BssOpType;com.huawei.globaloperationmgmt.common.auth.CoaCustomizeAuthMeta;com.huawei.globaloperationmgmt.common.enums.GomResourceTypeEnum;com.huawei.clouds.wushan.integration.common.auth.EnableAuth;com.huawei.clouds.wushan.coa.abac.auth.CoaAuth;com.huawei.clouds.wushan.coa.CoaAuthMeta;com.huawei.globaloperationmgmt.common.enums.UserTypeEnum;com.huawei.globaloperationmgmt.common.apos.CoaAuthExtendMeta;com.huawei.globaloperationmgmt.common.apos.AuditLog;com.huawei.clouds.wushan.auth.token.IamAuthMeta;com.huawei.clouds.wushan.auth.token.IamAuthLevel;com.huawei.clouds.wushan.cts.meta.CtsMeta;com.huawei.globaloperationmgmt.common.apos.CtsExtendMeta;com.huawei.globaloperationmgmt.common.apos.QuotaCheck;com.huawei.globaloperationmgmt.common.apos.CtsExtendMeta;com.huawei.clouds.wushan.cts.meta.CtsMeta;com.huawei.globaloperationmgmt.common.apos.QuotaCheck;",
+        "x-classAnnotation": "@EnableAuth(type = \"${wushan.integration.common.auth.type}\")",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ticket_type",
+            "in": "path",
+            "description": "工单类型,变更单传值change,问题单传值issues_mgmt。",
+            "required": true,
+            "default": "incident",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          {
+            "name": "ExecuteTicketActionRequestBody",
+            "in": "body",
+            "description": "执行动作参数。",
+            "x-en-description": "Query parameters.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ExecuteActionParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "执行action结果",
+            "x-en-description": "执行action结果",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ExecuteActionParams": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "maxLength": 100000000,
+          "minLength": 0,
+          "description": "用户ID",
+          "example": "xxxx"
+        },
+        "ticket_id": {
+          "type": "string",
+          "maxLength": 100000000,
+          "minLength": 0,
+          "description": "执行当前操作的工单单号。",
+          "example": "ISU20250704160617014971439"
+        },
+        "task_id": {
+          "type": "string",
+          "maxLength": 100000000,
+          "minLength": 0,
+          "description": "任务ID",
+          "example": 19410458913044643854408
+        },
+        "action": {
+          "type": "string",
+          "maxLength": 100000000,
+          "minLength": 0,
+          "description": "动作名称",
+          "example": "gocm_issues_accepte"
+        },
+        "params": {
+          "type": "object",
+          "description": "当前执行的动作信息",
+          "x-maxLength": 1024,
+          "x-minLength": 0,
+          "x-type": "Map<String, Object>",
+          "x-annotations": [
+            "@Size(max = 1024, min = 0)"
+          ],
+          "example": {
+            "up_down_updated_level": "issues_level_3000",
+            "up_down_grade_reason_comment": "升降级说明信息。",
+            "level": "issues_level_4000"
+          }
+        }
+      }
+    },
+    "BaseResponse": {
+      "type": "object",
+      "description": "--",
+      "required": [
+        "provider_code",
+        "error_code"
+      ],
+      "properties": {
+        "provider_code": {
+          "type": "string",
+          "description": "服务标识",
+          "default": 4,
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "error_code": {
+          "type": "string",
+          "description": "请求响应代码,范围:0000~9999,正常时取值:0",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求响应描述",
+          "minLength": 0,
+          "maxLength": 10240
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc-intl.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

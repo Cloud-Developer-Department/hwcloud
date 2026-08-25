@@ -1,0 +1,313 @@
+{
+  "name": "ListElasticResourcePoolScaleRecords",
+  "summary": "弹性资源池扩缩容历史记录",
+  "tags": "弹性资源池相关API",
+  "productshort": "DLI",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/scale-records": {
+      "get": {
+        "tags": [
+          "弹性资源池相关API"
+        ],
+        "summary": "弹性资源池扩缩容历史记录",
+        "description": "查询当前弹性资源池扩缩容历史记录",
+        "operationId": "ListElasticResourcePoolScaleRecords",
+        "x-is-registered": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目编号,用于资源隔离。获取方式请参考[获取项目ID](https://support.huaweicloud.com/api-dli/dli_02_0183.html)。"
+          },
+          {
+            "name": "elastic_resource_pool_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "弹性资源池名称",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^(?!_)(?![0-9]+$)[a-z0-9_]*$"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "租户token",
+            "type": "string"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "description": "start_time用于查询扩缩容历史的开始时间,该时间点需大于当前时间点减30天,必须小于end_time 。时间格式为unix时间戳,单位:毫秒。\n1若start_time为空,则查询end_time前七天到end_time的数据(end_time最大不能大于当前时间30天)。\n2查询当前时间点前15天到当前时间点的数据(start_time和end_time同时为空)。",
+            "type": "integer",
+            "format": "int64",
+            "exclusiveMinimum": true,
+            "exclusiveMaximum": true,
+            "allowEmptyValue": true
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "description": "end_time用于查询扩缩容历史的结束时间,该时间点不能小于开始时间,不能大于当前时间。时间格式为unix时间戳,单位:毫秒。\n1若end_time为空,则查询start_time到当前时间点的数据。\n2查询当前时间点前15天到当前时间的数据(start_time和end_time同时为空)。",
+            "type": "integer",
+            "format": "int64",
+            "allowEmptyValue": true,
+            "exclusiveMinimum": true,
+            "exclusiveMaximum": true
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "弹性资源池扩缩容的状态",
+            "type": "string",
+            "allowEmptyValue": true,
+            "minLength": 0,
+            "maxLength": 20,
+            "enum": [
+              "success",
+              "fail"
+            ]
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "偏移量",
+            "type": "integer",
+            "format": "int32",
+            "exclusiveMaximum": true,
+            "allowEmptyValue": true,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "当前分页条数",
+            "type": "integer",
+            "format": "int32",
+            "allowEmptyValue": true,
+            "minimum": 0,
+            "maximum": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "扩缩容历史记录查询接口查询成功",
+            "schema": {
+              "$ref": "#/definitions/ListElasticResourcePoolScaleRecordsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "items": [
+                  {
+                    "max_cu": 64,
+                    "min_cu": 16,
+                    "current_cu": 16,
+                    "target_cu": 16,
+                    "origin_cu": 16,
+                    "record_time": 1650784624000,
+                    "status": "fail",
+                    "fail_reason": "Internal error, please contact technical support."
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "X-Auth-Token": {
+                "description": "租户token",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "扩缩容历史记录查询接口查询失败",
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DLI.0001",
+                "error_msg": "endTime cannot be greater than 30 days from beginTime"
+              }
+            },
+            "headers": {
+              "X-Auth-Token": {
+                "description": "租户token",
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "被禁止的",
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DLI.0003",
+                "error_msg": "Forbidden"
+              }
+            },
+            "headers": {
+              "X-Auth-Token": {
+                "description": "租户token",
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "请求未找到",
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DLI.0002",
+                "error_msg": "Not Found"
+              }
+            },
+            "headers": {
+              "X-Auth-Token": {
+                "description": "租户token",
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DLI.0999",
+                "error_msg": "Exception thrown in awaitResult: "
+              }
+            },
+            "headers": {
+              "X-Auth-Token": {
+                "description": "租户token",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hws_hk",
+        "x-order": 7
+      }
+    }
+  },
+  "definitions": {
+    "FailResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息。"
+        }
+      },
+      "type": "object"
+    },
+    "ListElasticResourcePoolScaleRecordsResponseBody": {
+      "description": "扩缩容历史记录接口返回数据",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "返回数组长度"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ElasticResourcePoolScaleRecord"
+          },
+          "description": "数组中返回的数据"
+        }
+      },
+      "required": [
+        "count"
+      ],
+      "type": "object"
+    },
+    "ElasticResourcePoolScaleRecord": {
+      "type": "object",
+      "required": [
+        "max_cu",
+        "min_cu",
+        "current_cu",
+        "origin_cu",
+        "target_cu",
+        "record_time",
+        "status"
+      ],
+      "properties": {
+        "max_cu": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大Cu"
+        },
+        "min_cu": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最小CU"
+        },
+        "current_cu": {
+          "type": "integer",
+          "format": "int32",
+          "description": "扩缩容后CU"
+        },
+        "origin_cu": {
+          "type": "integer",
+          "format": "int32",
+          "description": "扩缩容前CU"
+        },
+        "target_cu": {
+          "type": "integer",
+          "format": "int32",
+          "description": "扩缩容预期CU"
+        },
+        "record_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "操作完成时间"
+        },
+        "status": {
+          "type": "string",
+          "description": "扩缩容成功或者失败的状态"
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "失败原因"
+        }
+      },
+      "description": "扩缩容历史记录接口返回数组中的数据"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dli.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,447 @@
+{
+  "name": "BatchUpdateNotificationMasks",
+  "summary": "批量设置告警通知屏蔽规则",
+  "tags": "告警通知屏蔽",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/notification-masks": {
+      "put": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "tags": [
+          "告警通知屏蔽"
+        ],
+        "summary": "批量设置告警通知屏蔽规则",
+        "description": "批量设置告警通知屏蔽规则",
+        "operationId": "BatchUpdateNotificationMasks",
+        "x-version": "v2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/ContentType"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "BatchUpdateNotificationMasksRequestBody",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchUpdateNotificationMasksRequestBody"
+            },
+            "description": "**参数解释**:\n批量设置通知屏蔽规则请求体\n**约束限制**:\n不涉及"
+          }
+        ],
+        "x-request-examples-1": {
+          "mask_name": "mn_test",
+          "relation_type": "ALARM_RULE",
+          "relation_ids": [
+            "al16558829757444BVVxr999"
+          ],
+          "resources": [
+            {
+              "namespace": "SYS.ECS",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "4270ff17-aba3-4138-89fa-820594c39755"
+                }
+              ]
+            }
+          ],
+          "mask_type": "START_END_TIME",
+          "start_date": "2026-06-01",
+          "start_time": "18:00:00",
+          "end_date": "2026-06-01",
+          "end_time": "19:00:00"
+        },
+        "responses": {
+          "201": {
+            "description": "设置通知屏蔽规则成功",
+            "schema": {
+              "$ref": "#/definitions/BatchUpdateNotificationMasksResp"
+            },
+            "examples": {
+              "application/json": {
+                "relation_ids": [
+                  "al16558829757444BVVxr999"
+                ],
+                "notification_mask_id": "nm123232232341232132"
+              }
+            }
+          },
+          "400": {
+            "description": "参数校验失败",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "500": {
+            "description": "系统内部错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RelationType": {
+      "type": "string",
+      "description": "**参数解释**:\n屏蔽告警通知的实现方式。\n**约束限制**:\n不涉及。\n**取值范围**:\n枚举值:\n- ALARM_RULE:通过告警规则屏蔽告警通知。\n- RESOURCE:通过资源屏蔽告警通知。\n- RESOURCE_POLICY_NOTIFICATION:通过告警策略屏蔽告警通知。\n- RESOURCE_POLICY_ALARM:(已废弃,不推荐使用)通过屏蔽告警计算来屏蔽告警通知。\n- EVENT.SYS: 通过事件来屏蔽告警\n**默认取值**:\n不涉及。",
+      "minLength": 1,
+      "maxLength": 32,
+      "example": "ALARM_RULE",
+      "enum": [
+        "ALARM_RULE",
+        "RESOURCE",
+        "RESOURCE_POLICY_NOTIFICATION",
+        "RESOURCE_POLICY_ALARM",
+        "EVENT.SYS"
+      ]
+    },
+    "EndDate": {
+      "type": "string",
+      "format": "date",
+      "description": "**参数解释**:\n屏蔽截止日期。          \n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度为10,格式为:yyyy-MM-dd          \n**默认取值**:\n不涉及。",
+      "example": "2026-06-01",
+      "minLength": 10,
+      "maxLength": 10
+    },
+    "BatchUpdateNotificationMasksRequestBody": {
+      "properties": {
+        "mask_name": {
+          "description": "**参数解释**:\n必填。屏蔽规则名称。   \n**约束限制**:\n不涉及。\n**取值范围**:\n只能为字母、数字、汉字、-、_,长度为[1,64]个字符。     \n**默认取值**:\n不涉及。",
+          "$ref": "#/definitions/MaskName"
+        },
+        "relation_type": {
+          "$ref": "#/definitions/RelationType"
+        },
+        "relation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RelationID"
+          },
+          "description": "**参数解释**:\n关联ID列表。       \n**约束限制**:\nrelation_type为ALARM_RULE时填屏蔽的告警规则ID;relation_type为RESOURCE_POLICY_NOTIFICATION时填屏蔽的告警策略ID。包含的关联ID数量为[1,100]",
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Resource"
+          },
+          "description": "**参数解释**:\n必填。关联的资源列表  \n**约束限制**:\nrelation_type为RESOURCE、RESOURCE_POLICY_NOTIFICATION 时填屏蔽的资源信息。包含的资源数量为[1,100]",
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "metric_names": {
+          "type": "array",
+          "description": "**参数解释**:\n关联的指标名称\n**约束限制**:\nrelation_type为RESOURCE可选填,不填视为对资源所有指标进行告警屏蔽。包含的指标数量为[0,50]",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/MetricName"
+          }
+        },
+        "product_metrics": {
+          "description": "**参数解释**:\n按云产品维度屏蔽时的指标信息\n**约束限制**:\n包含的指标数量为[0,50]",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/ProductMetric"
+          }
+        },
+        "resource_level": {
+          "type": "string",
+          "enum": [
+            "dimension",
+            "product"
+          ],
+          "description": "**参数解释**:\n资源层级。\n**约束限制**:\n不涉及。\n**取值范围**:\n枚举值。\n- product:资源层级为云产品\n- dimension:资源层级为子维度\n**默认取值**:\n不涉及。"
+        },
+        "product_name": {
+          "type": "string",
+          "description": "**参数解释**:\n资源层级为云产品时的云产品名称\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[0,128]个字符。\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "mask_type": {
+          "$ref": "#/definitions/MaskType"
+        },
+        "start_date": {
+          "$ref": "#/definitions/StartDate"
+        },
+        "start_time": {
+          "$ref": "#/definitions/StartTime"
+        },
+        "end_date": {
+          "$ref": "#/definitions/EndDate"
+        },
+        "end_time": {
+          "$ref": "#/definitions/EndTime"
+        },
+        "effective_timezone": {
+          "$ref": "#/definitions/EffectiveTimezone"
+        }
+      },
+      "description": "**参数解释**:\n通知屏蔽信请求体\n**约束限制**:\n不涉及",
+      "required": [
+        "relation_type",
+        "relation_ids",
+        "mask_type"
+      ],
+      "type": "object"
+    },
+    "MaskName": {
+      "type": "string",
+      "description": "**参数解释**:\n屏蔽规则名称。   \n**约束限制**:\n不涉及。\n**取值范围**:\n只能为字母、数字、汉字、-、_,长度为[1,64]个字符。     \n**默认取值**:\n不涉及。",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^([\\一-\\鿿]|[a-z]|[A-Z]|[0-9]|_|-)+$",
+      "example": "mn_test"
+    },
+    "Resource": {
+      "required": [
+        "namespace",
+        "dimensions"
+      ],
+      "properties": {
+        "namespace": {
+          "$ref": "#/definitions/ResourceNamespace"
+        },
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "description": "**参数解释**\n资源的维度信息。value为 * 时,代表所有资源\n**约束限制**\n包含的维度数量为[1,4]",
+          "items": {
+            "$ref": "#/definitions/ResourceDimension"
+          }
+        }
+      }
+    },
+    "ResourceNamespace": {
+      "type": "string",
+      "description": "**参数解释**\n查询服务的命名空间,各服务命名空间请参阅[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)\n**约束限制**\n不涉及\n**取值范围**\n格式为service.item;service和item必须是字符串,必须以字母开头,只能包含0-9/a-z/A-Z/_。字符串的长度必须在 3 到 32个字符之间。\n**默认取值**\n不涉及",
+      "minLength": 3,
+      "maxLength": 32,
+      "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*\\.([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*$",
+      "example": "SYS.ECS"
+    },
+    "StartDate": {
+      "type": "string",
+      "format": "date",
+      "description": "**参数解释**:\n屏蔽起始日期。          \n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度为10,格式为:yyyy-MM-dd          \n**默认取值**:\n不涉及。",
+      "example": "2026-06-01",
+      "minLength": 10,
+      "maxLength": 10
+    },
+    "EffectiveTimezone": {
+      "type": "string",
+      "description": "**参数解释**:\n时区,形如:\"GMT-08:00\"、\"GMT+08:00\"、\"GMT+0:00\"。   \n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,16]个字符。          \n**默认取值**:\n不涉及。",
+      "example": "GMT-08:00",
+      "minLength": 1,
+      "maxLength": 16,
+      "pattern": "^(GMT[+-](0|0[1-9]|1[0-2]):00)$"
+    },
+    "ResourceDimension": {
+      "description": "资源维度",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "description": "**参数解释**\n资源维度名称,如:弹性云服务器,则维度为instance_id;各服务资源的维度名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。\n**约束限制**\n不涉及\n**取值范围**\n由字母开头,后面可以包含字母、数字、_或-,长度为[1,32]个字符\n**默认取值**\n不涉及",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-)*$",
+          "example": "instance_id"
+        },
+        "value": {
+          "description": "**参数解释**\n资源维度值,为资源的实例ID,如:4270ff17-aba3-4138-89fa-820594c39755。\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,256]个字符\n**默认取值**\n不涉及",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^((([a-z]|[A-Z]|[0-9]|\\*|_|/|#|\\(|\\)){1}([a-z]|[A-Z]|[0-9]|_|-|\\.|\\*|/|#|\\(|\\))*))$",
+          "example": "4270ff17-aba3-4138-89fa-820594c39755"
+        }
+      }
+    },
+    "RelationIDResp": {
+      "type": "string",
+      "description": "**参数解释**:\n关联ID      \n**取值范围**:\n取值为告警规则ID、告警策略ID。只能包含字母、数字、“-”,长度为[1,64]个字符。",
+      "minLength": 1,
+      "maxLength": 64,
+      "example": "al16558829757444BVVxr999或2d5e1811-a6b2-4ac2-9038-a4c5fc7c19b8",
+      "pattern": "^([a-z]|[A-Z]|[0-9]|-){1,64}$"
+    },
+    "GoAPIErrorResponseV2": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "ces.0001",
+          "description": "请求异常内部业务状态码",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "the request format is invalid",
+          "description": "请求异常信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "request_id": {
+          "type": "string",
+          "example": "txnEntry-DESKTOP-4LPFH08.txnId-466541d0-f1a6-429b-b747-98d4991671c1.ts-1637909316688.c-95",
+          "description": "请求ID",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "ProductMetric": {
+      "type": "object",
+      "required": [
+        "dimension_name",
+        "metric_name"
+      ],
+      "properties": {
+        "dimension_name": {
+          "description": "**参数解释**:\n按云产品维度屏蔽时的资源维度信息。   \n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[0,128]个字符,有多个时用\",\"连接。   \n**默认取值**:\n不涉及。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "metric_name": {
+          "$ref": "#/definitions/MetricName"
+        }
+      }
+    },
+    "MetricName": {
+      "description": "**参数解释**:\n资源的监控指标名称,各服务资源的指标名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。\n**约束限制**:\n不涉及。\n**取值范围**:\n必须以字母开头,只能包含0-9/a-z/A-Z/_/-。字符长度最短为1,最大为96。如:弹性云服务器中的监控指标cpu_util,表示弹性服务器的CPU使用率;文档数据库中的指标mongo001_command_ps,表示command执行频率。        \n**默认取值**:\n不涉及。",
+      "type": "string",
+      "pattern": "^([A-Za-z]){1}([0-9A-Za-z]|_|-)*$",
+      "minLength": 1,
+      "maxLength": 96,
+      "example": "cpu_util"
+    },
+    "NotificationMaskIDResp": {
+      "type": "string",
+      "description": "**参数解释**:\n屏蔽规则ID\n**取值范围**:\n以nm开头,后跟[0,62]位字母或数字。",
+      "minLength": 1,
+      "maxLength": 64,
+      "example": "nm123232232341232132",
+      "pattern": "^nm([0-9A-Za-z]){0,62}$"
+    },
+    "RelationID": {
+      "type": "string",
+      "description": "**参数解释**:\n关联ID,为告警规则ID或者告警策略ID\n**约束限制**:\n不涉及。\n**取值范围**:\n只能包含字母、数字、“-”,长度为[1,64]个字符。     \n**默认取值**:\n不涉及。",
+      "minLength": 1,
+      "maxLength": 64,
+      "example": "al16558829757444BVVxr999或2d5e1811-a6b2-4ac2-9038-a4c5fc7c19b8",
+      "pattern": "^([a-z]|[A-Z]|[0-9]|-){1,64}$"
+    },
+    "StartTime": {
+      "type": "string",
+      "description": "**参数解释**:\n屏蔽起始时间。         \n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度为8,格式为:HH:mm:ss        \n**默认取值**:\n不涉及。",
+      "example": "HH:mm:ss",
+      "minLength": 8,
+      "maxLength": 8
+    },
+    "BatchUpdateNotificationMasksResp": {
+      "description": "屏蔽成功的关联ID列表",
+      "properties": {
+        "relation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RelationIDResp"
+          },
+          "description": "**参数解释**:\n创建成功的关联ID列表",
+          "minItems": 0,
+          "maxItems": 100
+        },
+        "notification_mask_id": {
+          "$ref": "#/definitions/NotificationMaskIDResp"
+        }
+      },
+      "required": [
+        "notification_mask_id"
+      ]
+    },
+    "MaskType": {
+      "type": "string",
+      "description": "**参数解释**:\n屏蔽类型。         \n**约束限制**:\n不涉及。\n**取值范围**:\n只能为START_END_TIME、FOREVER_TIME、CYCLE_TIME\n- START_END_TIME:按起止时间屏蔽。\n- FOREVER_TIME:永久时间屏蔽。\n- CYCLE_TIME:按周期时间屏蔽。          \n**默认取值**:\n不涉及。",
+      "minLength": 1,
+      "maxLength": 32,
+      "example": "START_END_TIME",
+      "enum": [
+        "START_END_TIME",
+        "FOREVER_TIME",
+        "CYCLE_TIME"
+      ]
+    },
+    "EndTime": {
+      "type": "string",
+      "description": "**参数解释**:\n屏蔽截止时间。         \n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度为8,格式为:HH:mm:ss        \n**默认取值**:\n不涉及。",
+      "example": "HH:mm:ss",
+      "minLength": 8,
+      "maxLength": 8
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符串的长度必须在 1 到 64个字符之间。\n**默认取值**:\n不涉及。",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ContentType": {
+      "name": "Content-Type",
+      "in": "header",
+      "description": "**参数解释**:\n发送的实体的MIME类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为64。\n**默认取值**:\n默认使用application/json; charset=UTF-8。",
+      "required": false,
+      "type": "string",
+      "default": "application/json; charset=UTF-8",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-order": 1
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户Token。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为16384。\n**默认取值**:\n不涉及。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "x-order": 2
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

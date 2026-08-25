@@ -1,0 +1,181 @@
+{
+  "name": "AddShardingNode",
+  "summary": "扩容集群实例的节点数量",
+  "tags": "实例管理",
+  "productshort": "DDS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/enlarge": {
+      "post": {
+        "tags": [
+          "实例管理"
+        ],
+        "operationId": "AddShardingNode",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-open-region-cloud": "hc,hk",
+        "summary": "扩容集群实例的节点数量",
+        "description": "扩容指定集群实例的节点数量。",
+        "x-constraint": "- 该接口既支持包年包月实例,也支持按需实例。\n- 仅支持扩容集群实例的mongos节点和shard节点。",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID,可以调用“查询实例列表和详情”接口获取。如果未申请实例,可以调用“创建实例”接口创建。",
+            "required": true,
+            "type": "string",
+            "x-example": "e73893ef73754465a8bd2e0857bbf13ein02"
+          },
+          {
+            "name": "EnlargeInstanceRequestBody",
+            "in": "body",
+            "description": "请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EnlargeInstanceRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/EnlargeInstanceResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "04efe8e2-9255-44ae-a98b-d87cae411890"
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "扩容mongos节点数量:",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/054e292c9880d4992f02c0196d3ein02/enlarge",
+        "x-request-examples-1": {
+          "type": "mongos",
+          "spec_code": "dds.mongodb.c6.medium.4.mongos",
+          "num": 1
+        },
+        "x-request-examples-description-2": "扩容shard组数量:",
+        "x-request-examples-url-2": "POST https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/054e292c9880d4992f02c0196d3ein02/enlarge",
+        "x-request-examples-2": {
+          "type": "shard",
+          "spec_code": "dds.mongodb.c6.medium.4.shard",
+          "num": 1,
+          "volume": {
+            "size": 330
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "EnlargeInstanceRequestBody": {
+      "required": [
+        "type",
+        "spec_code",
+        "num"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "待扩容的对象类型。\n- 扩容mongos节点时,取值为“mongos”。\n- 扩容shard组时,取值为“shard”。",
+          "enum": [
+            "mongos",
+            "shard"
+          ]
+        },
+        "spec_code": {
+          "type": "string",
+          "description": "资源规格编码。"
+        },
+        "num": {
+          "type": "string",
+          "description": "一个集群实例下,最多支持16个mongos节点和16个shard组。"
+        },
+        "volume": {
+          "description": "磁盘信息。\n- 扩容mongos节点时,不传该参数。\n- 扩容shard组时,该参数必选,指定新增的所有shard组的磁盘信息。",
+          "$ref": "#/definitions/AddShardingNodeVolumeOption"
+        },
+        "is_auto_pay": {
+          "type": "boolean",
+          "description": "扩容包年包月实例的节点数量时可指定,表示是否自动从账户中支付,此字段不影响自动续订的支付方式。\n- true,表示自动从账户中支付。\n- false,表示手动从账户中支付,默认为该方式。"
+        }
+      }
+    },
+    "EnlargeInstanceResponseBody": {
+      "required": [
+        "job_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务ID。",
+          "example": "6ad4eb1f-73bd-4876-aa31-aa9a1e41c4bc"
+        },
+        "order_id": {
+          "type": "string",
+          "description": "订单ID,仅扩容包年包月实例的节点数量时返回该参数。",
+          "example": "CS20070721568OVO9"
+        }
+      }
+    },
+    "AddShardingNodeVolumeOption": {
+      "required": [
+        "size"
+      ],
+      "properties": {
+        "size": {
+          "type": "string",
+          "description": "指定新增的所有shard组的磁盘容量。取值范围:10GB~2000GB。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dds.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,214 @@
+{
+  "name": "DecryptDatakey",
+  "summary": "解密数据密钥",
+  "tags": "数据密钥管理",
+  "productshort": "KMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/kms/decrypt-datakey": {
+      "post": {
+        "tags": [
+          "数据密钥管理"
+        ],
+        "summary": "解密数据密钥",
+        "description": "- 功能介绍:解密数据密钥,用指定的主密钥解密数据密钥。",
+        "operationId": "DecryptDatakey",
+        "produces": [
+          "application/json"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "DecryptDatakeyRequestBody",
+            "in": "body",
+            "description": "decrypt_datakey",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DecryptDatakeyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/DecryptDatakeyResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "data_key": "000000e724d9cb35df84bb474a37fXXX...",
+                "datakey_length": "64",
+                "datakey_dgst": "F5A5FD42D16A20302798EF6ED3099XXX..."
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "认证失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "资源不存在,资源未找到",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "请求未完成。服务器从上游服务器收到一个无效的响应",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "网关超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f",
+          "cipher_text": "020098005273E14E6E8E95F5463BECDC27E80AFxxxxxxxxxx...",
+          "datakey_cipher_length": "64",
+          "additional_authenticated_data": "123aad"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DecryptDatakeyRequestBody": {
+      "required": [
+        "key_id",
+        "cipher_text",
+        "datakey_cipher_length"
+      ],
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "密钥ID,36字节,满足正则匹配“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”。\n例如:0d0466b0-e727-4d9c-b35d-f84bb474a37f。"
+        },
+        "cipher_text": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8192,
+          "description": "DEK密文及元数据的16进制字符串。取值为加密数据密钥结果中的cipher_text的值。"
+        },
+        "datakey_cipher_length": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10,
+          "description": "密钥字节长度,取值范围为1~1024。\n密钥字节长度,取值为“64”。"
+        },
+        "additional_authenticated_data": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "身份验证的非敏感额外数据。任意字符串,长度不超过128字节。"
+        },
+        "sequence": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "请求消息序列号,36字节序列号。\n例如:919c82d4-8046-4722-9094-35c3c6524cff"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "error": {
+          "description": "错误信息返回体。",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          }
+        }
+      }
+    },
+    "DecryptDatakeyResponseBody": {
+      "properties": {
+        "data_key": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8192,
+          "description": "DEK明文的16进制字符串。"
+        },
+        "datakey_length": {
+          "minLength": 0,
+          "maxLength": 10,
+          "type": "string",
+          "description": "DEK明文字节长度。"
+        },
+        "datakey_dgst": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8192,
+          "description": "DEK明文的SHA256值对应的16进制字符串。"
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

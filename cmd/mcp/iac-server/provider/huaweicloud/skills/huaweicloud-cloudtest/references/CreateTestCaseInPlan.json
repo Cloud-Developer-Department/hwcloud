@@ -1,0 +1,211 @@
+{
+  "name": "CreateTestCaseInPlan",
+  "summary": "计划中批量添加测试用例",
+  "tags": "测试计划管理",
+  "productshort": "Cloudtest",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/projects/{project_id}/plans/{plan_id}/testcases/batch-add": {
+      "post": {
+        "description": "计划中批量添加测试用例",
+        "summary": "计划中批量添加测试用例",
+        "x-constraint": "",
+        "x-name": "计划中批量添加测试用例",
+        "x-scope": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "operationId": "CreateTestCaseInPlan",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "description": "项目唯一标识,固定长度32位字符",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "plan_id",
+            "description": "计划唯一标识,长度11-34位字符",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "CreateTestCaseInPlanRequestBody",
+            "in": "body",
+            "description": "该接口的入参bean名称",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTestCaseInPlanRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/OperationResultResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "测试计划管理"
+        ],
+        "x-apigateway-backend": {
+          "type": "HTTP",
+          "httpEndpoints": {
+            "address": "10.63.38.190:40115",
+            "description": "",
+            "method": "POST",
+            "path": "/testplan/v1/testhub/projects/{project_id}/plans/{plan_id}/testcases/addition",
+            "scheme": "https",
+            "timeout": 20000
+          },
+          "parameters": [
+            {
+              "description": "逻辑region",
+              "in": "HEADER",
+              "name": "X-AUTH-REGION",
+              "origin": "CONSTANT",
+              "value": "cn-north-7"
+            },
+            {
+              "name": "project_id",
+              "description": "项目唯一标识,固定长度32位字符",
+              "in": "PATH",
+              "origin": "REQUEST",
+              "value": "project_id"
+            },
+            {
+              "name": "plan_id",
+              "description": "计划唯一标识,长度11-34位字符",
+              "in": "PATH",
+              "origin": "REQUEST",
+              "value": "plan_id"
+            }
+          ]
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-open-region-cloud": "hws,hws_hk"
+      }
+    }
+  },
+  "definitions": {
+    "CreateTestCaseInPlanRequestBody": {
+      "description": "计划中批量添加测试用例请求体",
+      "required": [
+        "service_id",
+        "testcase_id_list"
+      ],
+      "properties": {
+        "service_id": {
+          "type": "integer",
+          "description": "注册测试类型服务接口返回的服务id"
+        },
+        "testcase_id_list": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "计划下包含的用例个数,数组长度小于50个,只能包含一种测试类型"
+        }
+      },
+      "example": {
+        "service_id": 13,
+        "testcase_id_list": [
+          "97b82412f1ca4628803b918c27ed09de",
+          "97b82412f1ca4628803b918c27ed09de",
+          "97b82412f1ca4628803b918c27ed09de"
+        ]
+      }
+    },
+    "ErrorDetailInfo": {
+      "properties": {
+        "failed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ErrorCaseInfoBean"
+          },
+          "description": "批量操作失败的资源的详情信息"
+        }
+      }
+    },
+    "ErrorCaseInfoBean": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "失败错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "失败错误信息"
+        },
+        "testcase_id": {
+          "type": "string",
+          "description": "失败资源信息"
+        }
+      }
+    },
+    "OperationResultResponseBody": {
+      "description": "批量操作失败详情信息",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "接口调用失败错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "接口调用失败错误信息"
+        },
+        "error_detail": {
+          "type": "object",
+          "$ref": "#/definitions/ErrorDetailInfo",
+          "description": "批量操作失败的详情信息,全部失败没有该结构"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cloudtest-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

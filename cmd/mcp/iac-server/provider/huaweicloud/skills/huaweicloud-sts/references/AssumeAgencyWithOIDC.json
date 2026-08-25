@@ -1,0 +1,122 @@
+{
+  "name": "AssumeAgencyWithOIDC",
+  "summary": "通过使用OIDC协议SSO的信任委托获取临时安全凭证",
+  "tags": "临时安全凭证",
+  "productshort": "STS",
+  "region_id": "sa-brazil-1",
+  "paths": {
+    "/v5/agencies/assume-with-oidc": {
+      "post": {
+        "tags": [
+          "Agency"
+        ],
+        "operationId": "AssumeAgencyWithOIDC",
+        "summary": "通过使用OIDC协议SSO的信任委托获取临时安全凭证",
+        "description": "为通过 OIDC 身份提供商令牌验证的用户返回一组临时安全凭证。此操作提供了一种机制,可以让外部的任何兼容 OIDC 身份提供商使用信任委托的临时安全凭证华为云访问,而无需使用 IAM 用户的凭证。\n\n**会话持续时间:**\n默认情况下,通过 AssumeAgencyWithOIDC 创建的临时安全凭证有效期为一小时。您可以使用可选的 duration_seconds 参数来指定会话的持续时间,duration_seconds 取值范围是从 900 秒(15 分钟)到该信任委托设置的最大会话持续时长,最大会话持续时长的取值范围可以从 1 小时到 12 小时。注意:委托链会将您的会话持续时间限制为最多一小时,当您使用 AssumeAgency API 操作来进行委托链的切换时,如果您提供了大于一小时的 duration_seconds 参数值,该操作将会失败。\n\n**权限:**\n调用 AssumeAgencyWithOIDC 不需要使用华为云凭证。调用者的身份是通过使用您 JWKS 端点中的公钥进行验证的。\n您可以使用 policy 和 policy_ids 参数传递自定义策略和已有的身份策略来限制本次会话获得的临时安全凭证的权限范围,最终获得临时安全凭证的权限是 policy 和 policy_ids 与信任委托身上附加的身份策略的交集。\n\n**标签:**\n在信任委托的信任策略中添加了 sts::tagSession 授权项时,您可以配置您的身份提供商,将属性作为会话标签传递到您的 ID Token 中。每个会话标签由一个键(Key)和一个值(Value)组成。您最多可以传递 20 个会话标签。纯文本形式的会话标签键不得超过 128 个字符,值不得超过 255 个字符。您也可以传递与信任委托身上标签同名的会话标签,此时会话标签会覆盖具有相同键的信任委托标签。您可以将会话标签设置为可传递的 (Transitive),可传递的会话标签在角色链期间会持续保留。\n\n**身份:**\n在您的应用程序可以调用 AssumeAgencyWithOIDC 之前,您必须使用您的账号在 IAM 中创建 OIDC 提供商和信任委托,并在信任委托的信任策略中指定该 OIDC 提供商,然后还需要配置您的 OIDC 身份提供商以颁发 IAM 所需的 ID Token。",
+        "security": [
+          {
+            "apig-auth-iam-none-used-authn5": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssumeAgencyWithOIDCReqBody"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/agencies/assume-with-oidc",
+        "x-request-examples-description-1": "通过账号27680d67da6b47eb82d00a1a118be145下的信任委托Y0yfCQYJGO与ID Token获取临时安全凭证。",
+        "x-request-examples-1": {
+          "duration_seconds": 3600,
+          "policy": "{\"Version\":\"5.0\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"obs:bucket:listBucket\",\"Resource\":\"obs:*:*:bucket:productionapp\"}]}",
+          "agency_urn": "iam::27680d67da6b47eb82d00a1a118be145:agency:Y0yfCQYJGO",
+          "agency_session_name": "session1",
+          "provider_urn": "iam::27680d67da6b47eb82d00a1a118be145:oidcProvider:test",
+          "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQ1In0...YeJ2hFNCyRwH4DKcfBKJ782m7xmIvQ"
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssumeAgencyWithOIDCResp"
+                },
+                "example": {
+                  "source_identity": "DevUser123",
+                  "subject_from_id_token": "sub-sample",
+                  "audience": "client-id-test",
+                  "provider": "iam::{account_id}:oidcProvider:test",
+                  "assumed_agency": {
+                    "urn": "sts::{account_id}::assumed-agency:{agency_name}/{agency_session_name}",
+                    "id": "{agency_id}:{agency_session_name}"
+                  },
+                  "credentials": {
+                    "access_key_id": "HSTANO...XBS55JLJ3",
+                    "secret_access_key": "EoWCQrr...SCcw4Whkt2aXKWAr",
+                    "security_token": "hQpjbi1XXXXXX...XXXXXKbhBbA0TQ==",
+                    "expiration": "2022-09-07T03:27:51.158Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求体异常。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResp"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorResp"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "未找到对应资源。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResp"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResp"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": null,
+  "version": "3.0.1",
+  "parameters": null,
+  "host": "sts.sa-brazil-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

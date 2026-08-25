@@ -1,0 +1,149 @@
+{
+  "name": "DownloadServerLogs",
+  "summary": "下载日志文件",
+  "tags": "物理服务器管理",
+  "productshort": "CloudDC",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/{project_id}/physicalservers/{id}/logs/exports/{export_id}/content": {
+      "get": {
+        "tags": [
+          "物理服务器管理"
+        ],
+        "operationId": "DownloadServerLogs",
+        "summary": "下载日志文件",
+        "description": "下载服务器日志文件。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/ID"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ExportId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "日志文件字节流",
+            "schema": {
+              "type": "string",
+              "format": "byte"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "description": "格式为 \"attachment; filename=${id}-dump.tar.gz\",id为服务器唯一标识SN",
+                "type": "string"
+              },
+              "Content-Type": {
+                "description": "固定为 application/octet-stream;charset=UTF-8",
+                "type": "string"
+              },
+              "Content-Transfer-Encoding": {
+                "description": "固定为 binary",
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 7
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "ID": {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "imetal server id",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "ExportId": {
+      "name": "export_id",
+      "in": "path",
+      "required": true,
+      "description": "日志导出id",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 36
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,166 @@
+{
+  "name": "DeleteInstances",
+  "summary": "批量删除实例",
+  "tags": "裸机实例管理",
+  "productshort": "CloudDC",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/{project_id}/instances/batch-delete": {
+      "post": {
+        "tags": [
+          "裸机实例管理"
+        ],
+        "summary": "批量删除实例",
+        "description": "指定物理服务器批量删除实例,此接口为异步接口,可通过 **ShowInstanceStatus** 查询实例状态,实例状态从 **shutting-down** 变为 **terminated**,表明删除实例成功。",
+        "operationId": "DeleteInstances",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "name": "DeleteInstancesRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "批量部署请求",
+            "schema": {
+              "$ref": "#/definitions/BatchDeleteOptions"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "批量删除实例应答",
+            "schema": {
+              "$ref": "#/definitions/InstancesResponse"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 3
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "ResourceUuid": {
+      "type": "string",
+      "description": "UUID(Universally Unique Identifier)是一个 128 位的数字,通常以 32 个十六进制数字的形式表示,分为 5 组,用连字符分隔。具体格式如下:\n\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n其中:\n\n每个 x 是一个十六进制数字(0-9 或 a-f)。\n5 组的长度分别是:8 位、4 位、4 位、4 位 和 12 位。\n为了匹配这种格式的 UUID,可以使用以下正则表达式:\n\nregex\n^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+    },
+    "BatchDeleteOptions": {
+      "description": "批量删除请求参数",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ServerInstanceIdSet"
+        }
+      ]
+    },
+    "InstancesResponse": {
+      "description": "实例批量资源返回信息",
+      "properties": {
+        "instances": {
+          "description": "实例返回信息",
+          "type": "array",
+          "items": {
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/ResourceUuid"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ServerInstanceIdSet": {
+      "type": "object",
+      "description": "实例ID集合",
+      "properties": {
+        "instance_id_set": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceUuid"
+          },
+          "description": "instance id set"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

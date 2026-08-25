@@ -1,0 +1,296 @@
+{
+  "name": "UpdateSmartLiveUserConfig",
+  "summary": "租户设置直播租户级配置",
+  "tags": "直播配置管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/smart-live-configs/user-config": {
+      "put": {
+        "tags": [
+          "SmartLiveConfigManage"
+        ],
+        "summary": "租户设置直播租户级配置",
+        "description": "该接口用于租户设置直播租户级配置。",
+        "operationId": "UpdateSmartLiveUserConfig",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Project-IdHeader"
+          },
+          {
+            "in": "body",
+            "name": "UpdateSmartLiveUserConfigRequestBody",
+            "description": "设置租户级直播配置。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateSmartLiveUserConfigReq"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServiceError"
+          }
+        },
+        "x-imports": [
+          "com.huawei.springframework.advice.HttpStatusController;",
+          "org.springframework.http.ResponseEntity;",
+          "com.huawei.springframework.om.trace.masker.annotation.*;",
+          "com.huawei.springframework.om.trace.masker.base.*;"
+        ],
+        "x-classAnnotation": "@HttpStatusController",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam",
+        "x-open-range": "public",
+        "x-feature": "2dlive",
+        "x-request-examples-url-1": "PUT https://metastudio.xxxx.myhuaweicloud.com/v1/26f065244f754b3aa853b649a21aaf66/smart-live-configs/user-config",
+        "x-request-examples-1": {
+          "live_exit_config": {
+            "max_live_duration": 8,
+            "auto_stop_mode": "SEGMENT_END",
+            "max_exception_waiting_duration": 30
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "NotifyEventEnum": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "* AUDIT_TEXT:直播在非人工退出场景(如最大时长中断,网络异常中断,欠费中断)中断。",
+      "example": "AUTO_EXIT",
+      "enum": [
+        "AUTO_EXIT"
+      ]
+    },
+    "LiveEventCallBackConfig": {
+      "type": "object",
+      "properties": {
+        "live_event_type_callback_url": {
+          "type": "string",
+          "description": "**参数解释**:\n直播事件回调地址,为https地址。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度0-2048位。\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "auth_type": {
+          "type": "string",
+          "description": "**参数解释**:\n认证类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n* NONE:URL中自带认证。\n* MSS_A:HMACSHA256签名模式,在URL中追加参数hwSecret、hwTime。\n  取值方式:hwSecret=hmac_sha256(Key, URI(live_event_callback_url)+ hwTime)&hwTime=hex(timestamp)\n* MSS_A_HEAD:HMACSHA256签名模式,参数hwSecret、hwTime放置在Head中。\n  取值方式:x-hw-mss-secret=hmac_sha256(Key, URI(live_event_callback_url)+ hwTime)\n    x-hw-mss-time=hex(timestamp)\n* MEITUAN_DEFAULT:仅用于美团平台调用回调使用。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "NONE",
+            "MSS_A",
+            "MSS_A_HEAD",
+            "MEITUAN_DEFAULT"
+          ],
+          "default": "NONE"
+        },
+        "key": {
+          "type": "string",
+          "description": "**参数解释**:\n密钥Key。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度0-32位。\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "callback_event_type": {
+          "type": "array",
+          "description": "**参数解释**:\n回调的直播事件类型列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n当前仅支持如下取值:\n* SHOOT_SCRIPT_SWITCH:剧本段落切换事件。 \n* RTMP_STREAM_STATE_CHANGE:RTMP链接发生变化回调事件。\n* REPLY_COMMAND_FINISH:回复播放完成通知。\n\n回调事件结构体定义:\n* event_type:事件类型。\n* message:事件描述。\n  - SHOOT_SCRIPT_SWITCH事件回调定义如下:\n    ```json\n    {\n      \"event_type\":  \"SHOOT_SCRIPT_SWITCH\",\n      \"message\":\"{\\\"room_id\\\":\\\"26f065244f754b3aa853b649a21aaf66\\\",\\\"job_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\\\",\\\"scene_script_name\\\":\\\"商品1\\\",\\\"shoot_script_sequence_no\\\":\\\"2\\\",\\\"shoot_script_title\\\":\\\"段落2\\\"}\"\n    }\n    ```\n  - RTMP_STREAM_STATE_CHANGE回调定义如下:\n    ```json\n    {\n      \"event_type\":  \"RTMP_STREAM_STATE_CHANGE\",\n      \"message\":\"{\\\"room_id\\\":\\\"26f065244f754b3aa853b649a21aaf66\\\",\\\"job_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\\\",\\\"output_url\\\":\\\"rtmp://xxx/xx/xx\\\",\\\"stream_key\\\":\\\"xxxxx\\\",\\\"state\\\":\\\"CONNECTED\\\"}\"\n    }\n    ```\n    其中state取值:CONNECTING链路连接中;CONNECTED链路已连接;DISCONNECTED链路已断开,RECONNECTING链路重连中;END联络不再重连,链路已结束。\n\n  - REPLY_COMMAND_FINISH回调定义如下:\n    ```json\n    {\n      \"event_type\":  \"REPLY_COMMAND_FINISH\",\n      \"message\":\"{\\\"room_id\\\":\\\"26f065244f754b3aa853b649a21aaf66\\\",\\\"job_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\\\",\\\"reply_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\"}\"\n    }",
+          "items": {
+            "type": "string",
+            "description": "回调的直播事件类型\n* SHOOT_SCRIPT_SWITCH,剧本段落切换事件\n* RTMP_STREAM_STATE_CHANGE,RTMP链接发生变化回调事件\n* REPLY_COMMAND_FINISH,回复播放完成通知",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "x-maxLength": 10000
+        }
+      },
+      "description": "直播事件HTTPS回调通知配置"
+    },
+    "UpdateSmartLiveUserConfigReq": {
+      "type": "object",
+      "properties": {
+        "live_exit_config": {
+          "$ref": "#/definitions/LiveExitConfig"
+        },
+        "live_event_callback_config": {
+          "$ref": "#/definitions/LiveEventCallBackConfig"
+        },
+        "live_notify_config": {
+          "$ref": "#/definitions/LiveNotifyConfigReq"
+        }
+      },
+      "description": "租户直播配置修改请求"
+    },
+    "LiveNotifyConfigReq": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "确认操作。\n* add: 增加。\n* del: 删除。\n* replace:替换。",
+          "minLength": 0,
+          "maxLength": 64,
+          "enum": [
+            "add",
+            "del",
+            "replace"
+          ]
+        },
+        "notify_events": {
+          "type": "array",
+          "description": "**参数解释**:\n启用通知事件列表。\n**约束限制**:\n不涉及\n**默认取值**:\n无。",
+          "items": {
+            "$ref": "#/definitions/NotifyEventEnum"
+          },
+          "maxItems": 10,
+          "minItems": 0
+        }
+      },
+      "description": "直播通知配置。通过短信,邮件,站内信通知用户直播中断。用户可在华为云消息中心配置接受者信息"
+    },
+    "LiveExitConfig": {
+      "type": "object",
+      "properties": {
+        "max_live_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n最大直播时长。单位小时。\n此数值配置为n,则标识起播后n小时后触发停止直播逻辑。\n当前数值最大为168(一周),特殊的,0表示不限时。\n**约束限制**:\n停止直播逻辑配置为立即停止则直播停止误差在5分钟之内。其他逻辑则加上处理时长。\n**默认取值**:\n不设置则表示不限时。",
+          "minimum": 0,
+          "maximum": 168
+        },
+        "auto_stop_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n自动停止直播模式。\n* FORCE_EXIT:立即强制停止,不做其他逻辑处理。\n* SEGMENT_END:等待段落结束停止。\n* SCENE_END:等待场景结束停止。\n* SCRIPT_END:等待剧本结束停止。\n**约束限制**:\n不涉及\n**默认取值**:\n不设置则表示FORCE_EXIT。",
+          "enum": [
+            "FORCE_EXIT",
+            "SEGMENT_END",
+            "SCENE_END",
+            "SCRIPT_END"
+          ]
+        },
+        "max_exception_waiting_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n最大异常等待时长。单位分钟。 \n此数值配置为n,则标识检测到异常n分钟后触发立即停止直播逻辑。\n当前数值最大为60(1小时),特殊的,0表示不限时。\n**约束限制**:\n不涉及\n**默认取值**:\n不设置则为系统默认值,当前为3分钟,默认值可能会根据服务运行状态进行少许调整。",
+          "minimum": 0,
+          "maximum": 60
+        }
+      },
+      "description": "直播任务退出配置"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "X-Project-IdHeader": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    }
+  },
+  "host": "metastudio.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

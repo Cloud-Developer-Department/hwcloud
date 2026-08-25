@@ -1,0 +1,285 @@
+{
+  "name": "CreateOpsSynthesisTask",
+  "summary": "创建评测集合成任务",
+  "tags": "评测集管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/ops/datasets-synthesis": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "创建评测集合成任务",
+        "description": "该接口用于利用大模型能力发起异步的数据合成任务,通过种子数据泛化(Seed-based Generalization)等手段自动生成高质量、多样化的训练或评测样本。\n适用场景:\n- 数据样本扩充:在现有数据量不足时,基于少量种子数据生成大规模同分布的模拟数据,提升模型训练效果。\n- 边界场景覆盖:通过 AI 模拟生成罕见或特定领域的对话记录,增强评测集对极端情况(Edge Cases)的覆盖度。",
+        "operationId": "CreateOpsSynthesisTask",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "CreateOpsSynthesisTaskRequestBody",
+            "description": "**参数解释:**\n创建数据合成任务的请求主体。用于提交合成任务的详细配置,包括数据源选择、合成算法参数、输出目标以及任务优先级等。\n**约束限制:**\n符合JSON格式规范。\n**取值范围:**\n符合数据合成任务创建规范的JSON对象。\n**默认取值:**\n不涉及。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOpsSynthesisTaskRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "任务创建成功",
+            "examples": {
+              "application/json": {
+                "id": "task_uuid"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateOpsSynthesisTaskResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://*.com/agentarts/v1/ops/datasets-synthesis",
+        "x-request-examples-description-1": "任务创建",
+        "x-request-examples-text-1": "\n{\n  \"name\": \"从现有数据演化生成技术面试题\",\n  \"scenario_type\": \"seed_data\",\n  \"scenario_description\": \"基于现有100条React问答,生成50条更复杂的面试题\",\n  \"status\": \"pending\",\n  \"model_config\": {\n    \"model_id\": \"1749615103\",\n    \"model_name\": \"豆包·1.6·自动深度思考\",\n    \"temperature\": 0.1,\n    \"max_tokens\": 4096,\n    \"top_p\": 0.7,\n    \"frequency_penalty\": 0\n  },\n  \"seed_data\": {\n    \"type\": \"dataset\",\n    \"dataset_id\": \"c3c2571d-a8b0-4447-8b79-a67cac076768\",\n    \"dataset_version_id\": \"c3c2571d-a8b0-4447-8b79-a67cac076768\",\n    \"file_name\": \"seed.jsonl\",\n    \"obs_tmp_file_id\": \"obs:../path/to/seed.jsonl\"\n  },\n  \"schemas\": [\n    {\n      \"name\": \"input\",\n      \"description\": \"作为输入投递给评测对象\",\n      \"synthesis_requirement\": \"生成技术深度适中、具有实践意义的React问题,考虑候选人2-3年经验水平\"\n    }\n  ],\n  \"sample_count\": 50\n}\n",
+        "x-request-examples-1": "\n{\n  \"name\": \"从现有数据演化生成技术面试题\",\n  \"scenario_type\": \"seed_data\",\n  \"scenario_description\": \"基于现有100条React问答,生成50条更复杂的面试题\",\n  \"status\": \"pending\",\n  \"model_config\": {\n    \"model_id\": \"1749615103\",\n    \"model_name\": \"豆包·1.6·自动深度思考\",\n    \"temperature\": 0.1,\n    \"max_tokens\": 4096,\n    \"top_p\": 0.7,\n    \"frequency_penalty\": 0\n  },\n  \"seed_data\": {\n    \"type\": \"dataset\",\n    \"dataset_id\": \"c3c2571d-a8b0-4447-8b79-a67cac076768\",\n    \"dataset_version_id\": \"c3c2571d-a8b0-4447-8b79-a67cac076768\",\n    \"file_name\": \"seed.jsonl\",\n    \"obs_tmp_file_id\": \"obs:../path/to/seed.jsonl\"\n  },\n  \"schemas\": [\n    {\n      \"name\": \"input\",\n      \"description\": \"作为输入投递给评测对象\",\n      \"synthesis_requirement\": \"生成技术深度适中、具有实践意义的React问题,考虑候选人2-3年经验水平\"\n    }\n  ],\n  \"sample_count\": 50\n}\n",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-open-api": true,
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L4"
+      }
+    }
+  },
+  "definitions": {
+    "EvaluationOpsSeedDataCreateConfig": {
+      "type": "object",
+      "required": [
+        "seed_data_type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "dataset",
+          "description": "**参数解释:**  \n指定种子数据的来源类型。\n**约束限制:**  \n枚举值。\n**取值范围:**  \n字符长度1-100,dataset(平台评测集),file(本地上传文件)。\n**默认取值:**  \n不涉及。",
+          "enum": [
+            "dataset",
+            "file"
+          ]
+        },
+        "dataset_id": {
+          "type": "string",
+          "example": "c3c2571d-a8b0-4447-8b79-a67cac076768",
+          "description": "**参数解释:**  \n种子评测集的唯一标识符,通过数据集列表接口获取。\n**约束限制:**  \n0-64个字符;当type为dataset时必填。\n**取值范围:**  \n字符长度0-64,已存在的评测集ID。\n**默认取值:**  \n不涉及。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "dataset_version_id": {
+          "type": "string",
+          "example": "c3c2571d-a8b0-4447-8b79-a67cac076768",
+          "description": "**参数解释:**  \n指定种子评测集的具体版本标识。\n**约束限制:**  \n0-64个字符。\n**取值范围:**  \n已发布或草稿版本的ID。\n**默认取值:**  \n指向草稿版本。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "file_name": {
+          "type": "string",
+          "example": "seed.jsonl",
+          "description": "**参数解释:**  \n上传的种子数据文件的原始名称。\n**约束限制:**  \n1-200个字符,当type为file时必填。\n**取值范围:**  \n1-200个字符,合法的文件名。\n**默认取值:**  \n不涉及。",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "obs_tmp_file_id": {
+          "type": "string",
+          "example": "obs:../path/to/seed.jsonl",
+          "description": "**参数解释:**  \n种子数据文件在OBS中的临时存储路径。\n**约束限制:**  \n最大长度10000字符。\n**取值范围:**  \nOBS路径字符串。\n**默认取值:**  \n不涉及。",
+          "minLength": 0,
+          "maxLength": 10000
+        }
+      }
+    },
+    "CreateOpsSynthesisTaskRequestBody": {
+      "type": "object",
+      "required": [
+        "model_config",
+        "name",
+        "sample_count",
+        "scenario_type",
+        "schemas"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "从现有数据演化生成技术面试题",
+          "description": "**参数解释:**  \n数据合成任务的显示名称,用于在任务列表中进行识别与检索。\n**约束限制:**  \n长度为2-100个字符。\n**取值范围:**  \n任意字符串。\n**默认取值:**  \n不涉及。",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "scenario_type": {
+          "type": "string",
+          "example": "seed_data",
+          "description": "**参数解释:**  \n指定数据合成的具体逻辑场景。\n**约束限制:**  \n必填,仅支持枚举值。字符长度1-100。\n**取值范围:**  \n字符长度1-100,seed_data (基于种子数据生成)。\n**默认取值:**  \n不涉及。",
+          "enum": [
+            "seed_data"
+          ]
+        },
+        "scenario_description": {
+          "type": "string",
+          "example": "基于现有100条React问答,生成50条更复杂的面试题",
+          "description": "**参数解释:**  \n对合成任务背景的详细描述,辅助模型更好地理解合成目标。\n**约束限制:**  \n1-4000个字符。\n**取值范围:**  \n字符长度1-4000,由用户定义的业务背景描述。\n**默认取值:**  \n不涉及。",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释:**  \n任务创建后的初始执行状态。\n**约束限制:**  \n字符长度1-100,枚举类型。\n**取值范围:**  \n字符长度1-100,pending(仅保存草稿),running(立即启动运行)。\n**默认取值:**  \npending。",
+          "enum": [
+            "pending",
+            "running"
+          ]
+        },
+        "model_config": {
+          "description": "**参数解释:**  \n执行合成任务所调用的底层大模型配置信息。\n**约束限制:**  \n必填,参考EvaluationOpsModelConfig定义。\n**取值范围:**  \n不涉及。\n**默认取值:**  \n不涉及。",
+          "$ref": "#/definitions/EvaluationOpsModelConfig"
+        },
+        "seed_data": {
+          "description": "**参数解释:**  \n作为合成基础的源数据配置。\n**约束限制:**  \n当 scenario_type 为 seed_data 时必填。\n**取值范围:**  \n参考EvaluationOpsSeedDataCreateConfig定义。\n**默认取值:**  \n不涉及。",
+          "$ref": "#/definitions/EvaluationOpsSeedDataCreateConfig"
+        },
+        "schemas": {
+          "type": "array",
+          "description": "**参数解释:**  \n定义合成数据输出的字段结构与约束。\n**约束限制:**  \n数组长度为 1-50。\n**取值范围:**  \n参考EvaluationOpsSynthesisSchema定义。\n**默认取值:**  \n不涉及。",
+          "items": {
+            "$ref": "#/definitions/EvaluationOpsSynthesisSchema"
+          },
+          "maxItems": 50,
+          "minItems": 1
+        },
+        "sample_count": {
+          "type": "integer",
+          "example": 50,
+          "description": "**参数解释:**  \n期望通过本次合成任务产出的目标样本总数。\n**约束限制:**  \n1-500之间的整数。\n**取值范围:**  \n1-500。\n**默认取值:**  \n不涉及。",
+          "minimum": 1,
+          "maximum": 500
+        }
+      }
+    },
+    "CreateOpsSynthesisTaskResponseBody": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "task_uuid",
+          "description": "**参数解释:**  \n系统生成的合成任务唯一标识符。\n**取值范围:**  \n符合通用唯一识别码(UUID)标准的字符串。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "EvaluationOpsModelConfig": {
+      "type": "object",
+      "required": [
+        "model_id",
+        "model_name"
+      ],
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "example": "1749615103",
+          "description": "**参数解释:**  \n指定调用的大模型唯一标识符,通过模型列表接口获取。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "model_name": {
+          "type": "string",
+          "example": "豆包·1.6·自动深度思考",
+          "description": "**参数解释:**  \n模型的显示名称。\n**取值范围:**  \n任意字符串。",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "temperature": {
+          "type": "number",
+          "format": "float",
+          "example": 0.1,
+          "description": "**参数解释:**  \n采样温度参数,用于控制输出的随机性。数值低更聚焦,数值高更具创造性。\n**取值范围:**  \n0.0到2.0。",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0.7
+        },
+        "max_tokens": {
+          "type": "integer",
+          "example": 4096,
+          "description": "**参数解释:**  \n单次推理生成的最大Token数量限制。\n**取值范围:**  \n1-32000。",
+          "minimum": 1,
+          "maximum": 32000
+        },
+        "top_p": {
+          "type": "number",
+          "format": "float",
+          "example": 0.7,
+          "description": "**参数解释:**  \n核采样参数。\n**取值范围:**  \n0.0到1.0。",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1.0
+        },
+        "frequency_penalty": {
+          "type": "number",
+          "format": "float",
+          "example": 0.0,
+          "description": "**参数解释:**  \n频率惩罚系数,降低内容重复倾向。\n**取值范围:**  \n-2.0到2.0。",
+          "minimum": -2.0,
+          "maximum": 2.0,
+          "default": 0.0
+        }
+      }
+    },
+    "EvaluationOpsSynthesisSchema": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "**参数解释:**  \n合成字段的id。\n**取值范围:**  \n由字母、数字、下划线组成。",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "name": {
+          "type": "string",
+          "example": "input",
+          "description": "**参数解释:**  \n合成字段的名称。\n**取值范围:**  \n长度1-100字符,由字母、数字、下划线组成。",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "example": "作为输入投递给评测对象",
+          "description": "**参数解释:**  \n合成字段的业务含义描述。\n**取值范围:**  \n任意字符串。",
+          "minLength": 0,
+          "maxLength": 400
+        },
+        "synthesis_requirement": {
+          "type": "string",
+          "example": "生成技术深度适中、具有实践意义的React问题。",
+          "description": "**参数解释:**  \n合成要求,用于指导LLM生成该字段的思考路径。\n**取值范围:**  \n0-4000字符,详细的指令说明。",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

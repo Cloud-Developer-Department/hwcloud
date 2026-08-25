@@ -1,0 +1,460 @@
+{
+  "name": "ListResInstanceMeters",
+  "summary": "资源实例信息查询",
+  "tags": "计量计价",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/metering/v3.0/metrics/resource-instance": {
+      "post": {
+        "summary": "资源实例信息查询",
+        "description": "资源实例信息查询(如果数据量超过100w,建议填写参数region_id)。",
+        "x-opseverity": "Minor",
+        "x-resource": "计量信息查询",
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > 计量计价”章节。",
+        "tags": [
+          "计量计价"
+        ],
+        "operationId": "ListResInstanceMeters",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-language",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "语言信息。",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ]
+          },
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "当前用户的token。用于鉴权,必须具有mo_bss_adm、vdc_adm、vdc_readonly、vdc_user、op_service角色。"
+          },
+          {
+            "name": "resInstRequest",
+            "in": "body",
+            "required": true,
+            "description": "资源实例维度计量查询参数。",
+            "schema": {
+              "$ref": "#/definitions/ResInstanceMeterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询资源实例计量信息成功。",
+            "schema": {
+              "$ref": "#/definitions/ResInsStatisticsResponse"
+            },
+            "examples": {
+              "application/json": {
+                "currency": "AED",
+                "total": 1,
+                "listStatistics": [
+                  {
+                    "id": "399d7cab-7877-44dd-985e-e086ea4fbe74::vfirewall-1687",
+                    "state": null,
+                    "startTime": "2017-08-23 00:00:00",
+                    "endTime": "2018-08-23 00:00:00",
+                    "resourceId": "399d7cab-7877-44dd-985e-e086ea4fbe74",
+                    "domainId": null,
+                    "resourceType": "hws.resource.type.nfvivfw",
+                    "resourceTypeName": "Virtual Firewall",
+                    "resourceName": "vfirewall-1687",
+                    "charge": "0.000000",
+                    "regionCode": "cn-region-1",
+                    "regionName": "cn-region-122212",
+                    "azCode": "",
+                    "azName": "",
+                    "createTime": null,
+                    "deleteTime": null,
+                    "upperVdc": null,
+                    "statistics": [
+                      {
+                        "meterId": "38cd477a-9283-43e0-98a8-7eed7b5bee7a",
+                        "meterName": "Virtual Firewall",
+                        "meterType": "interval",
+                        "meterUnit": "Number-Hour",
+                        "meterKey": "NFVI-VFW",
+                        "value": "0.92",
+                        "time": "3294",
+                        "charge": "0.000000"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "token鉴权失败"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/metering/v3.0/metrics/resource-instance",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "tenant_id": "6f7ae39d-3160-4ab8-ad26-1cd289592c7a",
+          "resource_type": "hws.resource.type.vrmvpc",
+          "tenant_type": "upperVDC",
+          "start_time": "2018-08-01 00:00:00",
+          "end_time": "2018-08-21 00:00:00",
+          "local": "zh_CN",
+          "time_zone": "Asia/Shanghai"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResInstanceMeterRequest": {
+      "description": "资源实例计量查询参数。",
+      "required": [
+        "tenant_id",
+        "tenant_type",
+        "resource_type",
+        "local",
+        "start_time",
+        "end_time",
+        "time_zone"
+      ],
+      "properties": {
+        "tenant_id": {
+          "description": "租户ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "resource_type": {
+          "description": "资源类型。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "tenant_type": {
+          "description": "租户类型。取值为:一级VDCID、已删除一级VDCID、租户ID、已删除租户ID、VDCID、已删除VDCID、资源空间Id、企业项目ID",
+          "type": "string",
+          "enum": [
+            "upperVDC",
+            "delUpperVDC",
+            "resTenant",
+            "delResTenant",
+            "vdcMgmt",
+            "delVdcMgmt",
+            "project",
+            "enterProj"
+          ]
+        },
+        "local": {
+          "description": "界面显示的语言类型。取值为:zh_CN(中文)或en_US(英文)。",
+          "type": "string",
+          "enum": [
+            "zh_CN",
+            "en_US"
+          ]
+        },
+        "start_time": {
+          "description": "开始时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "end_time": {
+          "description": "结束时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "time_zone": {
+          "description": "时区信息。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "region_id": {
+          "description": "地域ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "az_id": {
+          "description": "可用分区ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "sort_key": {
+          "description": "排序字段。枚举值:resourceName。",
+          "type": "string",
+          "default": "resourceName"
+        },
+        "sort_dir": {
+          "description": "排序方向,取值范围asc,desc。默认值为asc。",
+          "type": "string",
+          "default": "asc"
+        },
+        "start": {
+          "description": "分页查询的起始位置。默认从0开始,取值范围:0-2147483646。",
+          "type": "integer",
+          "format": "int32",
+          "default": 0
+        },
+        "limit": {
+          "description": "限制每页显示的条目数量,取值范围:1-100。",
+          "type": "integer",
+          "format": "int32",
+          "default": 20
+        },
+        "resource_name": {
+          "description": "资源名称。",
+          "type": "string"
+        }
+      }
+    },
+    "ResInsStatisticsList": {
+      "description": "计量结构体。",
+      "required": [
+        "state",
+        "startTime",
+        "endTime",
+        "resourceId",
+        "resourceType",
+        "resourceName",
+        "regionName",
+        "azName",
+        "statistics"
+      ],
+      "properties": {
+        "id": {
+          "description": "ID。",
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "state": {
+          "description": "租户状态。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "startTime": {
+          "description": "开始时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "endTime": {
+          "description": "结束时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "resourceId": {
+          "description": "资源ID。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "domainId": {
+          "type": "string",
+          "description": "域标识,长度在1-64之间。",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "resourceType": {
+          "description": "资源类型。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "resourceTypeName": {
+          "description": "资源类型名称。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "resourceName": {
+          "description": "资源名称。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "charge": {
+          "description": "计量的总价。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "regionCode": {
+          "description": "地域ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "regionName": {
+          "description": "地域名称。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "azCode": {
+          "description": "可用分区ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "azName": {
+          "description": "可用分区名称。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "createTime": {
+          "description": "创建时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "deleteTime": {
+          "description": "删除时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "upperVdc": {
+          "description": "上级VDC结构。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "statistics": {
+          "description": "原子计量指标列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResInsStatistic"
+          }
+        }
+      }
+    },
+    "ResInsStatisticsResponse": {
+      "description": "计量信息结构体。",
+      "required": [
+        "total",
+        "listStatistics"
+      ],
+      "properties": {
+        "currency": {
+          "description": "币种信息。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "total": {
+          "description": "记录总数。",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483646
+        },
+        "listStatistics": {
+          "description": "计量列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResInsStatisticsList"
+          }
+        }
+      }
+    },
+    "ResInsStatistic": {
+      "description": "原子计量指标结构体。",
+      "required": [
+        "meterId",
+        "meterName",
+        "meterType",
+        "meterUnit",
+        "meterKey",
+        "value",
+        "time"
+      ],
+      "properties": {
+        "meterId": {
+          "description": "计量指标ID。",
+          "type": "string",
+          "maxLength": 4096,
+          "minLength": 1
+        },
+        "meterName": {
+          "description": "计量指标名称。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "meterType": {
+          "description": "计量指标类型。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "meterUnit": {
+          "description": "计量指标单位。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "meterKey": {
+          "description": "计量指标Key。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "value": {
+          "description": "计量汇总值,保留两位小数。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "time": {
+          "description": "计量时长。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "charge": {
+          "description": "价格。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

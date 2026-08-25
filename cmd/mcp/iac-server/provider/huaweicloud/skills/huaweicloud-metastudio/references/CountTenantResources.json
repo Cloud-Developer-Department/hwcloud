@@ -1,0 +1,234 @@
+{
+  "name": "CountTenantResources",
+  "summary": "统计时间段内过期的资源数量",
+  "tags": "租户管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/tenants/resources-count": {
+      "get": {
+        "tags": [
+          "TenantManager"
+        ],
+        "summary": "统计时间段内过期的资源数量",
+        "description": "统计指定时间段内即将过期的包周期与一次性资源数量。",
+        "operationId": "CountTenantResources",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Project-IdHeader"
+          },
+          {
+            "name": "business",
+            "in": "query",
+            "description": "业务类型。可填多个用\",\"分隔\n* VOICE_CLONE:声音制作\n* SYNTHETICS_SOUND:声音合成\n* ASSET_MANAGER:资产管理\n* MODELING_2D:形象制作\n* LIVE_2D:分身数字人视频直播\n* VIDEO_2D:分身数字人视频制作\n* CHAT_2D:分身数字人智能交互\n* BUSINESS_CARD_2D:分身数字人名片\n* PICTURE_2D:照片数字人视频\n* MODELING_3D:3D照片建模\n* VDS_3D:3D视觉驱动\n* TTSA_3D:3D语音驱动\n* FLEXUS_2D:FLEXUS版本资源",
+            "required": false,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "x-apig-registered": false
+          },
+          {
+            "name": "resource_expire_start_time",
+            "in": "query",
+            "description": "资源过期时间段 开始时间。格式遵循:RFC 3339 如\"2021-01-10T08:43:17Z\"",
+            "required": false,
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 0,
+            "x-apig-registered": false
+          },
+          {
+            "name": "resource_expire_end_time",
+            "in": "query",
+            "description": "资源过期时间段 结束时间。格式遵循:RFC 3339 如\"2021-01-10T08:43:17Z\"",
+            "required": false,
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 0,
+            "x-apig-registered": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查看租户信息",
+            "examples": {
+              "application/json": {
+                "resources_count": [
+                  {
+                    "business_type": "LIVE_2D",
+                    "count": 1,
+                    "charging_mode": "ONE_TIME",
+                    "resource_source": "SP_ALLOCATED"
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/TenantResourcesCount"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          }
+        },
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam,internal-appcode",
+        "x-open-range": "public",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/f488337c31c8e4622f1590735b134c65/tenants/resources"
+      }
+    }
+  },
+  "definitions": {
+    "ResourcesCount": {
+      "type": "object",
+      "properties": {
+        "business_type": {
+          "type": "string",
+          "description": "业务类型。可填多个,用\",\"分隔。\n* VOICE_CLONE:声音制作\n* SYNTHETICS_SOUND:声音合成\n* ASSET_MANAGER:资产管理\n* MODELING_2D:形象制作\n* LIVE_2D:分身数字人视频直播\n* VIDEO_2D:分身数字人视频制作\n* CHAT_2D:分身数字人智能交互\n* BUSINESS_CARD_2D:分身数字人名片\n* PICTURE_2D:照片数字人视频\n* MODELING_3D:3D照片建模\n* VDS_3D:3D视觉驱动\n* TTSA_3D:3D语音驱动\n* FLEXUS_2D:FLEXUS版本资源",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "count": {
+          "type": "number",
+          "description": "资源总数。",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "charging_mode": {
+          "type": "string",
+          "description": "计费类型。\n* PERIODIC: 包周期\n* ONE_TIME:一次性\n* ON_DEMAND:按需",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "resource_source": {
+          "type": "string",
+          "format": "int64",
+          "example": "ADMIN_ALLOCATED",
+          "description": "资源来源。\n* PURCHASED: 购买\n* SP_ALLOCATED:SP分配\n* ADMIN_ALLOCATED:系统管理员分配",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "description": "资源总量信息"
+    },
+    "TenantResourcesCount": {
+      "type": "object",
+      "properties": {
+        "resources_count": {
+          "type": "array",
+          "description": "资源总数列表",
+          "items": {
+            "$ref": "#/definitions/ResourcesCount"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        }
+      },
+      "description": "租户资源总数"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "X-Project-IdHeader": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    }
+  },
+  "host": "metastudio.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

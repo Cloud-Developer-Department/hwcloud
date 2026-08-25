@@ -1,0 +1,394 @@
+{
+  "name": "BatchSearchMetricHits",
+  "summary": "批量查询指标结果",
+  "tags": "指标管理",
+  "productshort": "SecMaster",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/workspaces/{workspace_id}/sa/metrics/hits": {
+      "post": {
+        "tags": [
+          "指标管理"
+        ],
+        "summary": "批量查询指标结果",
+        "description": "批量查询指标结果",
+        "operationId": "BatchSearchMetricHits",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32
+          },
+          {
+            "name": "workspace_id",
+            "in": "path",
+            "description": "工作空间ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36
+          },
+          {
+            "in": "body",
+            "name": "BatchSearchMetricHitsRequestBody",
+            "description": "需要查询的指标ID及参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchSearchMetricHitsRequestBody"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。 通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+            "required": true,
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 100
+          },
+          {
+            "name": "timespan",
+            "in": "query",
+            "description": "查询指标的时间范围,ISO8601格式,例如:2007-03-01T13:00:00Z/2008-05-11T15:30:00Z或2007-03-01T13:00:00Z/P1Y2M10DT2H30M或P1Y2M10DT2H30M/2008-05-11T15:30:00Z",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
+          },
+          {
+            "name": "cache",
+            "in": "query",
+            "description": "是否启用缓存,默认true,禁用缓存 false",
+            "required": false,
+            "type": "boolean",
+            "default": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "examples": {
+              "application/json": [
+                {
+                  "metric_id": "1f0f5e29-5a92-17a5-2c16-5f37c6dc109c",
+                  "result": {
+                    "labels": [
+                      "label1"
+                    ],
+                    "datarows": [
+                      [
+                        {}
+                      ]
+                    ],
+                    "effective_column": "0:1"
+                  },
+                  "status": "SUCCESS"
+                }
+              ]
+            },
+            "schema": {
+              "type": "array",
+              "description": "批量查询指标结果",
+              "items": {
+                "$ref": "#/definitions/ShowMetricResultResponseBody"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/workspaces/{workspace_id}/sa/metrics/hits",
+        "x-request-examples-description-1": "通过指标接口查询从6月25日至当前的告警等级分布",
+        "x-request-examples-text-1": {
+          "metric_ids": [
+            "1f0f5e29-5a92-17a5-2c16-5f37c6dc109c"
+          ],
+          "params": [
+            {
+              "start_date": "2024-06-25T00:00:00.000+08:00"
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "metric_ids": [
+            "1f0f5e29-5a92-17a5-2c16-5f37c6dc109c"
+          ],
+          "params": [
+            {
+              "start_date": "2024-06-25T00:00:00.000+08:00"
+            }
+          ]
+        },
+        "x-enable-auth-anno": {
+          "type": "CsbIamAuth.NAME"
+        },
+        "x-method-annotations": [
+          "@IamAuthParam(instanceId = \"metric_id\")",
+          "@CsbAuthMeta(instanceType = \"metric\", supportInternalAccess = true)"
+        ],
+        "x-iam-auth-meta-anno": {
+          "abacAction": "secmaster:metric:getResult",
+          "authLevel": "project",
+          "rbac": [
+            "readonly"
+          ],
+          "needAbacResourceCheck": true,
+          "authContextInitializer": "CsbIamAuthContextInitializer.class"
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-surpport-hcs": "Y",
+        "x-surpport-apiexplorer": true,
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "BatchSearchMetricHitsRequestBody": {
+      "type": "object",
+      "required": [
+        "metric_ids"
+      ],
+      "properties": {
+        "metric_ids": {
+          "type": "array",
+          "example": [
+            "2255f65b33b04d8696fdb1d85e99bee7",
+            "7b60263be0f9474aaf14e17834286f39",
+            "1ceb611dd8044737879e6bc85d2759d3"
+          ],
+          "description": "待查询的指标Id列表,可参照附录中指标信息说明获取已有指标信息。",
+          "items": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 64
+          },
+          "maxItems": 50,
+          "minItems": 1
+        },
+        "workspace_ids": {
+          "type": "array",
+          "example": [
+            "c3b4fccf-fa24-4b92-8cdf-b0b30bf00bf0",
+            "04d577bc-fbfa-4864-b98d-46c550a824c1"
+          ],
+          "description": "工作空间列表,当指标支持获取多工作空间数据时填写。",
+          "items": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 64
+          },
+          "maxItems": 50,
+          "minItems": 0
+        },
+        "params": {
+          "type": "array",
+          "example": [
+            {
+              "dataspace_id": "18da5ab9-03ec-4010-878c-fa0327762390",
+              "pipe_id": "18edfdca-be1c-4b54-8cd0-3bd14efcca82",
+              "date_from": "1673452800000",
+              "date_to": "1673489876314",
+              "other": "other"
+            },
+            {
+              "dataspace_id": "18da5ab9-03ec-4010-878c-fa0327762390",
+              "pipe_id": "18edfdca-be1c-4b54-8cd0-3bd14efcca82",
+              "date_from": "1673452800000",
+              "date_to": "1673489876314",
+              "other": "other"
+            },
+            {
+              "dataspace_id": "18da5ab9-03ec-4010-878c-fa0327762390",
+              "pipe_id": "18edfdca-be1c-4b54-8cd0-3bd14efcca82",
+              "date_from": "1673452800000",
+              "date_to": "1673489876314",
+              "other": "other"
+            }
+          ],
+          "description": "待查询指标的参数列表,列表内每个元素为<String, String>的K-V形式,元素数量必须与metric_ids列表相同,具体填写方式请参照附录。",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "参数map",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          },
+          "maxItems": 50,
+          "minItems": 0
+        },
+        "interactive_params": {
+          "type": "array",
+          "description": "交互式参数查询,当指标支持交互式参数时,填写<String, String>的K-V形式的参数列表,具体填写方式请参照附录。",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "参数map",
+              "minLength": 0,
+              "maxLength": 128
+            }
+          },
+          "maxItems": 100,
+          "minItems": 0
+        },
+        "field_ids": {
+          "type": "array",
+          "example": [
+            "c3b4fccf-fa24-4b92-8cdf-b0b30bf00bf0",
+            "04d577bc-fbfa-4864-b98d-46c550a824c1"
+          ],
+          "description": "指标卡片ID列表",
+          "items": {
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 64
+          },
+          "maxItems": 50,
+          "minItems": 0
+        }
+      },
+      "description": "查询指标Hit结果请求体。"
+    },
+    "MetricFormat": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string",
+          "description": "数据格式",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "display": {
+          "type": "string",
+          "description": "显示格式",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "display_param": {
+          "type": "object",
+          "description": "显示参数",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 128
+          }
+        },
+        "data_param": {
+          "type": "object",
+          "description": "数据参数",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "ShowMetricResultResponseBody": {
+      "type": "object",
+      "required": [
+        "metric_id",
+        "result"
+      ],
+      "properties": {
+        "metric_id": {
+          "type": "string",
+          "example": "c50498b695a44defae499679b9c516dd",
+          "description": "指标ID",
+          "pattern": "[a-f0-9]{32}"
+        },
+        "result": {
+          "type": "object",
+          "description": "指标查询结果内容",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "example": [
+                "severity",
+                "percentage"
+              ],
+              "description": "指标查询结果表格标题",
+              "items": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 999
+              },
+              "maxItems": 999,
+              "minItems": 0
+            },
+            "datarows": {
+              "type": "array",
+              "description": "指标查询结果内容表格",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "description": "结果表格",
+                  "properties": {}
+                },
+                "maxItems": 100,
+                "minItems": 1
+              },
+              "maxItems": 999,
+              "minItems": 0
+            },
+            "effective_column": {
+              "type": "string",
+              "example": "0:2",
+              "description": "生效的列,当有该参数时,使用指定列作为指标数据结果",
+              "pattern": "\\d+:\\d+"
+            }
+          },
+          "required": [
+            "datarows",
+            "labels"
+          ]
+        },
+        "metric_format": {
+          "type": "array",
+          "description": "指标显示格式,根据不同指标固定返回。",
+          "items": {
+            "$ref": "#/definitions/MetricFormat"
+          },
+          "maxItems": 64,
+          "minItems": 0
+        },
+        "log_msg": {
+          "type": "string",
+          "description": "结果日志信息",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "status": {
+          "type": "string",
+          "description": "查询结果状态,SUCCESS:查询成功,FAILED:查询失败,FALLBACK:使用默认值",
+          "minLength": 0,
+          "maxLength": 128,
+          "enum": [
+            "SUCCESS",
+            "FAILED",
+            "FALLBACK"
+          ]
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "secmaster.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

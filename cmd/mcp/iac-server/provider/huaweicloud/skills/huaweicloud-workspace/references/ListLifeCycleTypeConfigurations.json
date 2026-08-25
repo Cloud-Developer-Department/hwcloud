@@ -1,0 +1,252 @@
+{
+  "name": "ListLifeCycleTypeConfigurations",
+  "summary": "查询生命周期类型配置",
+  "tags": "定时任务",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/scheduled-tasks/life-cycle-type/configurations": {
+      "get": {
+        "tags": [
+          "ScheduledTask"
+        ],
+        "summary": "查询生命周期类型配置",
+        "description": "根据type查询Apollo配置项life.cycle.type.action,获取对应的配置信息。不传type时返回所有配置项。",
+        "operationId": "ListLifeCycleTypeConfigurations",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "触发场景类型。POST_CREATE_DESKTOP_SUCCESS:创建桌面成功后,POST_REBUILD_DESKTOP_SUCCESS:重建桌面成功后,POST_REATTACH_DESKTOP_SUCCESS:触发重建的分配用户任务成功后,POST_DESKTOP_DISCONNECTED:桌面断开连接后,POST_DESKTOP_CANNOT_CONNECT:桌面无法连接。不传时返回所有配置项。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "POST_CREATE_DESKTOP_SUCCESS"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常。",
+            "examples": {
+              "application/json": {
+                "POST_CREATE_DESKTOP_SUCCESS": {
+                  "min_wait_time": 0,
+                  "default_wait_time": 0,
+                  "min_exec_time": 0,
+                  "default_exec_time": 0,
+                  "actions": [
+                    {
+                      "action": "STOP"
+                    },
+                    {
+                      "action": "HIBERNATE"
+                    },
+                    {
+                      "action": "REBOOT"
+                    },
+                    {
+                      "action": "EXECUTE_SCRIPT"
+                    }
+                  ]
+                },
+                "POST_DESKTOP_CANNOT_CONNECT": {
+                  "min_wait_time": 0,
+                  "default_wait_time": 10,
+                  "min_exec_time": 0,
+                  "default_exec_time": 1440,
+                  "actions": [
+                    {
+                      "action": "STOP"
+                    },
+                    {
+                      "action": "HIBERNATE"
+                    },
+                    {
+                      "action": "REBOOT",
+                      "min_wait_time": 3,
+                      "default_wait_time": 10,
+                      "min_exec_time": 60,
+                      "default_exec_time": 1440
+                    },
+                    {
+                      "action": "EXECUTE_SCRIPT"
+                    }
+                  ]
+                }
+              }
+            },
+            "schema": {
+              "type": "object",
+              "description": "生命周期类型配置响应。",
+              "additionalProperties": {
+                "$ref": "#/definitions/LifeCycleTypeConfigRsp"
+              }
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-apig-group": "public,internal_token",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, authContextInitializerName = \"workspaceCommonAuthContextInitializer\", abacAction = \"workspace:scheduledTasks:listLifeCycleConfigurations\", needApigwJwtAuthCheck = false, needRbacCheck = false)"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "LifeCycleTypeConfigRsp": {
+      "type": "object",
+      "properties": {
+        "min_wait_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "最小等待时长,单位分钟。"
+        },
+        "default_wait_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "默认等待时长,单位分钟。"
+        },
+        "min_exec_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "最小执行周期,单位分钟。"
+        },
+        "default_exec_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "默认执行周期,单位分钟。"
+        },
+        "support_exec_time": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否支持执行周期。"
+        },
+        "actions": {
+          "type": "array",
+          "example": [
+            {
+              "action": "STOP"
+            },
+            {
+              "action": "HIBERNATE"
+            },
+            {
+              "action": "REBOOT"
+            },
+            {
+              "action": "EXECUTE_SCRIPT"
+            }
+          ],
+          "description": "可执行的动作列表。",
+          "items": {
+            "$ref": "#/definitions/ActionConfig"
+          }
+        }
+      },
+      "description": "生命周期类型配置响应。"
+    },
+    "ActionConfig": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "example": "STOP",
+          "description": "动作名称。STOP:关机,HIBERNATE:休眠,REBOOT:重启,EXECUTE_SCRIPT:执行脚本。"
+        },
+        "min_wait_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 3,
+          "description": "最小等待时长,单位分钟。如果不填,则使用父级的 min_wait_time。"
+        },
+        "default_wait_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 10,
+          "description": "默认等待时长,单位分钟。如果不填,则使用父级的 default_wait_time。"
+        },
+        "min_exec_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 60,
+          "description": "最小执行周期,单位分钟。如果不填,则使用父级的 min_exec_time。"
+        },
+        "default_exec_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1440,
+          "description": "默认执行周期,单位分钟。如果不填,则使用父级的 default_exec_time。"
+        }
+      },
+      "description": "动作配置。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

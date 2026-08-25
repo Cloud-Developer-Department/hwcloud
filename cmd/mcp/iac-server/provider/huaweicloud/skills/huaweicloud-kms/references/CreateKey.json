@@ -1,0 +1,250 @@
+{
+  "name": "CreateKey",
+  "summary": "创建密钥",
+  "tags": "密钥生命周期管理",
+  "productshort": "KMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/kms/create-key": {
+      "post": {
+        "tags": [
+          "密钥生命周期管理"
+        ],
+        "summary": "创建密钥",
+        "description": "创建用户主密钥,用户主密钥可以为对称密钥或非对称密钥。\n- 对称密钥为长度为256位AES密钥或者128位SM4密钥,可用于小量数据的加密或者用于加密数据密钥。\n- 非对称密钥可以为RSA密钥对或者ECC密钥对(包含SM2密钥对),可用于加解密数据、数字签名及验签。",
+        "operationId": "CreateKey",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-constraint": "别名“/default”为服务默认主密钥的后缀名,由服务自动创建。因此用户创建的主密钥别名不能与服务默认主密钥的别名相同,即后缀名不能为“/default”。\n对于开通企业项目的用户,服务默认主密钥属于且只能属于默认企业项目下,且不支持企业资源的迁入迁出。服务默认主密钥为用户提供基础的云上加密功能,满足合规要求。因此,在企业多项目下,其他非默认企业项目下的用户均可使用该密钥。若客户有企业管理资源诉求,请自行创建和使用密钥。",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "CreateKeyRequestBody",
+            "in": "body",
+            "description": "创建主密钥请求消息体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateKeyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/CreateKeyResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "key_info": {
+                  "key_id": "bb6a3d22-dc93-47ac-b5bd-88df7ad35f1e",
+                  "domain_id": "b168fe00ff56492495a7d22974df2d0b"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "认证失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "资源不存在,资源未找到",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "请求未完成。服务器从上游服务器收到一个无效的响应",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "网关超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "key_alias": "test"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateKeyResponseBody": {
+      "properties": {
+        "key_info": {
+          "$ref": "#/definitions/KeKInfo"
+        }
+      }
+    },
+    "KeKInfo": {
+      "description": "密钥详细信息。",
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "description": "密钥ID。"
+        },
+        "domain_id": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 64,
+          "description": "用户域ID。"
+        },
+        "region_id": {
+          "type": "string",
+          "description": "region ID。"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "error": {
+          "description": "错误信息返回体。",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          }
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    },
+    "CreateKeyRequestBody": {
+      "required": [
+        "key_alias"
+      ],
+      "properties": {
+        "key_alias": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "非默认主密钥别名,取值范围为1到255个字符,满足正则匹配“^[a-zA-Z0-9:/_-]{1,255}$”,且不与系统服务创建的默认主密钥别名重名。"
+        },
+        "key_spec": {
+          "type": "string",
+          "enum": [
+            "AES_256",
+            "SM4",
+            "RSA_2048",
+            "RSA_3072",
+            "RSA_4096",
+            "EC_P256",
+            "EC_P384",
+            "SECP256K1",
+            "SM2"
+          ],
+          "description": "密钥生成算法,默认为“AES_256”,枚举如下:\n- AES_256\n- SM4\n- RSA_2048\n- RSA_3072\n- RSA_4096\n- EC_P256\n- EC_P384\n- SECP256K1\n- SM2"
+        },
+        "key_usage": {
+          "type": "string",
+          "enum": [
+            "ENCRYPT_DECRYPT",
+            "SIGN_VERIFY"
+          ],
+          "description": "密钥用途,对称密钥默认为“ENCRYPT_DECRYPT”,非对称密钥默认为“SIGN_VERIFY”,枚举如下:\n- ENCRYPT_DECRYPT\n- SIGN_VERIFY"
+        },
+        "key_description": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "密钥描述,取值0到255字符。"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "kms",
+            "external"
+          ],
+          "description": "密钥来源,默认为“kms”,枚举如下:\n- kms:表示密钥材料由kms生成。\n- external:表示密钥材料由外部导入。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "企业多项目ID。\n- 用户未开通企业多项目时,不需要输入该字段。\n- 用户开通企业多项目时,创建资源可以输入该字段。若用户户不输入该字段,默认创建属于默认企业多项目ID(ID为“0”)的资源。\n注意:若用户没有默认企业多项目ID(ID为“0”)下的创建权限,则接口报错。"
+        },
+        "sequence": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "请求消息序列号,36字节序列号。\n例如:919c82d4-8046-4722-9094-35c3c6524cff"
+        },
+        "keystore_id": {
+          "type": "string",
+          "description": "密钥库ID,默认为0,使用KMS默认密钥库;设置为1,则指定管理面CDMS集群;设置为2,则指定租户面共享CDMS集群;若需指定其他CDMS集群,需先执行创建密钥库操作"
+        },
+        "vm_id": {
+          "type": "string",
+          "description": "虚机ID,密钥创建的虚机,仅四级密评场景生效"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

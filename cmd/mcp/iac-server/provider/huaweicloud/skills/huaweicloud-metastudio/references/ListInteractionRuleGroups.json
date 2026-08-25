@@ -1,0 +1,782 @@
+{
+  "name": "ListInteractionRuleGroups",
+  "summary": "查询智能直播间互动规则库列表",
+  "tags": "互动规则库管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/smart-live-interaction-rule-groups": {
+      "get": {
+        "tags": [
+          "InteractionRuleGroupManager"
+        ],
+        "summary": "查询智能直播间互动规则库列表",
+        "description": "该接口用于智能直播间互动规则库列表。",
+        "operationId": "ListInteractionRuleGroups",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Project-IdHeader"
+          },
+          {
+            "$ref": "#/parameters/X-App-UserId"
+          },
+          {
+            "$ref": "#/parameters/OffsetQuery"
+          },
+          {
+            "$ref": "#/parameters/LimitQuery"
+          },
+          {
+            "$ref": "#/parameters/CreateSinceQuery"
+          },
+          {
+            "$ref": "#/parameters/CreateUntilQuery"
+          },
+          {
+            "name": "group_name",
+            "in": "query",
+            "description": "规则库名称",
+            "required": false,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0,
+            "allowEmptyValue": true
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "interaction_rule_groups": [
+                  {
+                    "group_id": "26f06524-4f75-4b3a-a853-b649a21aaf66",
+                    "group_name": "欢迎用户进入",
+                    "create_time": "2022-11-30T06:59:55Z",
+                    "update_time": "2022-12-05T12:30:37Z"
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListInteractionRuleGroups"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServiceError"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam,internal-appcode",
+        "x-open-range": "public",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/70b76xxxxxx34253880af501cdxxxxxx/smart-live-rooms",
+        "x-order": 7
+      }
+    }
+  },
+  "definitions": {
+    "SmartImageLayerConfig": {
+      "type": "object",
+      "required": [
+        "image_url"
+      ],
+      "properties": {
+        "image_url": {
+          "type": "string",
+          "description": "图片文件的URL。",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "display_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n图片显示时长,单位s。\n\n显示时长规则为,若携带reply_texts、reply_audios,则与播放语音内容时长保持一致。若未携带,则与匹配的关键词语音内容时长保持一致。",
+          "minimum": 0,
+          "maximum": 3600
+        }
+      },
+      "description": "素材图片图层配置。"
+    },
+    "SmartLayerConfig": {
+      "required": [
+        "layer_type"
+      ],
+      "properties": {
+        "layer_type": {
+          "type": "string",
+          "description": "图层类型。\n- IMAGE: 素材图片图层\n- VIDEO: 素材视频图层\n- TEXT: 文本图层",
+          "enum": [
+            "IMAGE",
+            "VIDEO",
+            "TEXT"
+          ]
+        },
+        "asset_id": {
+          "type": "string",
+          "description": "图层所需资产的资产id,外部资产信息无需填写",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "position": {
+          "$ref": "#/definitions/LayerPositionConfig"
+        },
+        "size": {
+          "$ref": "#/definitions/LayerSizeConfig"
+        },
+        "image_config": {
+          "$ref": "#/definitions/SmartImageLayerConfig"
+        },
+        "video_config": {
+          "$ref": "#/definitions/SmartVideoLayerConfig"
+        },
+        "text_config": {
+          "$ref": "#/definitions/SmartTextLayerConfig"
+        }
+      },
+      "description": "智能图层配置。"
+    },
+    "ReviewConfig": {
+      "type": "object",
+      "properties": {
+        "no_need_review": {
+          "type": "boolean",
+          "description": "免审核。 目前仅白名单用户可使用此参数,非白名单用户跟随系统策略审核。"
+        }
+      },
+      "description": "内容审核配置"
+    },
+    "SmartTextLayerConfig": {
+      "type": "object",
+      "properties": {
+        "text_type": {
+          "type": "string",
+          "description": "**参数解释**:\n文本类型。\n* DYNAMIC:动态文本,需要进行关键字替换。\n* STATIC:静态文本。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "DYNAMIC",
+            "STATIC"
+          ],
+          "default": "DYNAMIC"
+        },
+        "text_context": {
+          "type": "string",
+          "description": "文本。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "font_name": {
+          "type": "string",
+          "description": "**参数解释**:\n字体。当前支持的字体:\n* HarmonyOS_Sans_SC_Black:鸿蒙粗体\n* HarmonyOS_Sans_SC_Regular:鸿蒙常规\n* HarmonyOS_Sans_SC_Thin:鸿蒙细体\n* fzyouh:方正瘦体",
+          "minLength": 0,
+          "maxLength": 64,
+          "default": "HarmonyOS_Sans_SC_Black"
+        },
+        "font_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n字体大小(像素)。\n\n业务取值范围:[4, 120],请以业务取值范围为准。",
+          "minimum": 0,
+          "maximum": 120,
+          "default": 16
+        },
+        "font_color": {
+          "type": "string",
+          "description": "**参数解释**:\n字体颜色。RGB颜色值。",
+          "minLength": 0,
+          "maxLength": 16,
+          "default": "#FFFFFF"
+        },
+        "display_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n文本显示时长,单位s。\n显示时长规则为,若携带reply_texts、reply_audios,则与播放语音内容时长保持一致;若未携带,则与匹配的关键词语音内容时长保持一致。",
+          "minimum": 0,
+          "maximum": 3600
+        }
+      },
+      "description": "素材视频图层配置。"
+    },
+    "InteractionRuleInfo": {
+      "type": "object",
+      "properties": {
+        "rule_index": {
+          "type": "string",
+          "description": "**参数解释**:\n规则索引。用于触发规则时索引具体规则。\n**约束限制**:\n无需用户填写。\n**取值范围**:\n字符0-64位\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "rule_name": {
+          "type": "string",
+          "description": "**参数解释**:\n规则名称。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符0-256位\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否启用。\n**约束限制**:\n不涉及。\n**取值范围**:\n* true:启用\n* fasle:不启用\n\n**默认取值**:\ntrue"
+        },
+        "event_type": {
+          "type": "integer",
+          "description": "**参数解释**:\n规则匹配直播事件类型。接口的取值范围[0,100],实际业务取值如下所示:\n* 1:弹幕事件 \n* 2:用户入场事件 \n* 3:用户点赞事件\n* 4:用户送礼事件 \n* 10: 预置话术事件\n\n请以实际业务取值为准。\n> * 1,2,3,4:与LiveEventReport中的event.type对应。\n> * 10:匹配预置剧本\n\n**约束限制**:\n不涉及。\n**默认取值**:\n不涉及",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "hit_condition": {
+          "description": "规则命中的条件",
+          "$ref": "#/definitions/HitCondition"
+        },
+        "trigger": {
+          "description": "规则命中后处理",
+          "$ref": "#/definitions/TriggerProcess"
+        },
+        "review_config": {
+          "description": "内容审核配置",
+          "$ref": "#/definitions/ReviewConfig"
+        }
+      },
+      "description": "互动规则配置信息"
+    },
+    "HitCondition": {
+      "type": "object",
+      "properties": {
+        "relation": {
+          "type": "string",
+          "description": "**参数解释**:\n条件关系。对于多个条件的逻辑运算关系。\n**约束限制**:\n不涉及。\n**取值范围**:\n* AND:表示多个条件同时满足。\n* OR:表示多个条件满足其一即可。\n* RESERVED:兜底回复不会去判断其他命中条件。\n\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 16,
+          "enum": [
+            "AND",
+            "OR",
+            "RESERVED"
+          ]
+        },
+        "priority": {
+          "type": "integer",
+          "description": "**参数解释**:\n优先级,数值越低优先级越高;取值0-999,默认值为500,为可选值\n**约束限制**:\n不涉及",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "tags": {
+          "type": "array",
+          "description": "匹配关系配置",
+          "items": {
+            "$ref": "#/definitions/HitConditionTag"
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "x-maxLength": 10000
+        }
+      },
+      "description": "命中条件配置"
+    },
+    "InteractionRuleGroupDetail": {
+      "type": "object",
+      "required": [
+        "group_name"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string",
+          "description": "互动规则库ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "group_name": {
+          "type": "string",
+          "description": "互动规则库名称",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "interaction_rules": {
+          "type": "array",
+          "description": "互动规则列表。\n> 查询互动规则库列表接口不再返回该内容。请使用查询互动规则库详情接口查具体某个库的规则列表。",
+          "items": {
+            "$ref": "#/definitions/InteractionRuleDetailInfo"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        },
+        "create_time": {
+          "type": "string",
+          "description": "创建时间,格式遵循:RFC 3339 如“2021-01-10T08:43:17Z”。",
+          "minLength": 20,
+          "maxLength": 20
+        },
+        "update_time": {
+          "type": "string",
+          "description": "更新时间,格式遵循:RFC 3339 如“2021-01-10T08:43:17Z”。",
+          "minLength": 20,
+          "maxLength": 20
+        }
+      },
+      "description": "互动规则库信息"
+    },
+    "ListInteractionRuleGroups": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n互动规则总数。",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "interaction_rule_groups": {
+          "type": "array",
+          "description": "互动规则库列表。",
+          "items": {
+            "$ref": "#/definitions/InteractionRuleGroupDetail"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        }
+      }
+    },
+    "SmartVideoLayerConfig": {
+      "type": "object",
+      "required": [
+        "video_url"
+      ],
+      "properties": {
+        "video_url": {
+          "type": "string",
+          "description": "视频文件的URL。",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "video_cover_url": {
+          "type": "string",
+          "description": "视频封面文件的URL。",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "display_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n图片显示时长,单位s。\n\n显示时长规则为,若携带reply_texts、reply_audios,则与播放语音内容时长保持一致。若未携带,则与匹配的关键词语音内容时长保持一致。",
+          "minimum": 0,
+          "maximum": 3600
+        }
+      },
+      "description": "素材视频图层配置。"
+    },
+    "HitConditionTag": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "type": "string",
+          "description": "**参数解释**:\n事件内容关键字段\n> * event_type为1,2,3,4:与LiveEventReport中event.content中反序列化后的JSON字段对应。如:弹幕事件上报事件。\n  {\n    \"timestamp\": 1694481224245,\n    \"type\": 1,\n    \"content\": \"{\\\"user\\\":{\\\"userId\\\":\\\"2027271526\\\",\\\"name\\\":\\\"***\\\",\\\"level\\\":17,\\\"badge\\\":\\\"\\\",\\\"badgeLevel\\\":0},\\\"content\\\":\\\"***\\\"}\"\n  }\n  匹配弹幕内容,填写content;匹配用户平台等级,填写level。\n> * 10:固定填写content即可。\n\n**约束限制**:\n不涉及\n**取值范围**:\n字符长度0-256位\n**默认取值**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "operation": {
+          "type": "string",
+          "description": "**参数解释**:\n字段取值处理\n**约束限制**:\n不涉及\n**取值范围**:\n* SUM:累计\n* AVG:平均\n* COUNT:计数\n* NONE:无处理",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "SUM",
+            "AVG",
+            "COUNT",
+            "NONE"
+          ],
+          "default": "NONE"
+        },
+        "match": {
+          "type": "string",
+          "description": "**参数解释**:\n匹配类型。关键词匹配建议使用REGEX。\n**约束限制**:\n不涉及。\n**取值范围**:\n* EQUAL: 完全相等\n* REGEX:正则匹配\n* MATH_GT:数值大于\n* MATH_GE:数值大于等于 \n* MATH_LT:数值小于\n* MATH_LE:数值小于等于\n* MATH_EQ:数值相等\n\n**默认取值**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "EQUAL",
+            "REGEX",
+            "MATH_GT",
+            "MATH_GE",
+            "MATH_LT",
+            "MATH_LE",
+            "MATH_EQ"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释**:\n匹配值。\n**约束限制**:\n不涉及\n**取值范围**:\n字符长度0-1024\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "description": "命中条件定义"
+    },
+    "LayerPositionConfig": {
+      "type": "object",
+      "required": [
+        "dx",
+        "dy",
+        "layer_index"
+      ],
+      "properties": {
+        "dx": {
+          "type": "integer",
+          "format": "int32",
+          "example": 256,
+          "description": "**参数解释**:\n图层左上角像素点的X轴位置值(画布左上角坐标是0x0)。\n横屏(16:9)画布像素为1920x1080;竖屏(9:16)画布像素为1080x1920。\n\n**约束限制**:\n该值为相对于画布的像素值,仅表示布局位置关系,与输出画面分辨率无关。",
+          "minimum": -1920,
+          "maximum": 3840,
+          "default": 0
+        },
+        "dy": {
+          "type": "integer",
+          "format": "int32",
+          "example": 512,
+          "description": "**参数解释**:\n图层图片左上角像素点的Y轴位置值(画布左上角坐标是0x0)。\n横屏(16:9)画布像素为1920x1080;竖屏(9:16)画布像素为1080x1920。\n\n**约束限制**:\n该值为相对于画布的像素值,仅表示布局位置关系,与输出画面分辨率无关。",
+          "minimum": -1920,
+          "maximum": 3840,
+          "default": 0
+        },
+        "layer_index": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数解释**:\n图片、视频、人物图的层顺序。\n> 图层顺序为从1开始的整数,底层图层顺序是1,往上依次增加。\n\n**约束限制**:\n如果出现重复则重复图层叠加关系随机。",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 100
+        }
+      },
+      "description": "图层位置配置。"
+    },
+    "LayerSizeConfig": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n图层图片左上角像素点的Y轴位置值图层图片宽度像素值(相对画布大小)。\n横屏(16:9)画布像素为1920x1080;竖屏(9:16)画布像素为1080x1920。\n\n**约束限制**:\n该值为相对于画布的像素值,仅表示布局位置关系,与输出画面分辨率无关。",
+          "minimum": 1,
+          "maximum": 7680
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n图层图片高度像素值(相对画布大小)。\n横屏(16:9)画布像素为1920x1080;竖屏(9:16)画布像素为1080x1920。\n\n**约束限制**:\n该值为相对于画布的像素值,仅表示布局位置关系,与输出画面分辨率无关。|",
+          "minimum": 1,
+          "maximum": 7680
+        }
+      },
+      "description": "图层大小配置。"
+    },
+    "ReplyAudioInfo": {
+      "type": "object",
+      "properties": {
+        "audio_url": {
+          "type": "string",
+          "description": "音频URL",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "audio_name": {
+          "type": "string",
+          "description": "音频名",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      },
+      "description": "回复音频信息"
+    },
+    "InteractionRuleDetailInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/InteractionRuleInfo"
+        },
+        {
+          "properties": {
+            "rule_id": {
+              "type": "string",
+              "description": "互动规则ID",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "create_time": {
+              "type": "string",
+              "description": "创建时间,格式遵循:RFC 3339 如“2021-01-10T08:43:17Z”。",
+              "minLength": 20,
+              "maxLength": 20
+            },
+            "update_time": {
+              "type": "string",
+              "description": "更新时间,格式遵循:RFC 3339 如“2021-01-10T08:43:17Z”。",
+              "minLength": 20,
+              "maxLength": 20
+            }
+          }
+        }
+      ]
+    },
+    "TriggerProcess": {
+      "type": "object",
+      "properties": {
+        "time_window": {
+          "type": "integer",
+          "description": "**参数解释**:\n处理抑制时长。单位秒。\n- -1:表示整场直播仅触发一次。\n- 0:表示无抑制,每次都触发。\n- 其他值n:表示n秒内仅触发一次。\n\n**约束限制**:\n不涉及\n**默认取值**:\n不涉及",
+          "minimum": -1,
+          "maximum": 7200
+        },
+        "reply_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n回复类型。\n**约束限制**:\n不涉及\n**取值范围**:\n* SYSTEM_REPLY:系统自动回复预先设置的话术。\n* CALLBACK:回调给其他服务,携带设置的话术。\n* SYSTEM_REPLY_AND_CALLBACK:系统自动回复预先设置的话术,同时回调给用户,携带设置的话术。\n* SHOW_LAYER:仅显示叠加图层,不影响话术。\n* INTELLIGENT_REPLY:使用配置的大模型生成回复话术。\n\n**默认取值**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 16,
+          "enum": [
+            "SYSTEM_REPLY",
+            "CALLBACK",
+            "SYSTEM_REPLY_AND_CALLBACK",
+            "SHOW_LAYER",
+            "INTELLIGENT_REPLY"
+          ]
+        },
+        "layer_config": {
+          "$ref": "#/definitions/SmartLayerConfig"
+        },
+        "extra_layer_config": {
+          "description": "额外图层,用于有产品同时需要显示动态文本场景,配置第二图层使用。",
+          "$ref": "#/definitions/SmartLayerConfig"
+        },
+        "reply_texts": {
+          "type": "array",
+          "description": "**参数解释**:\n回复话术集。\n**约束限制**:\n不涉及\n**取值范围**:\n最大支持5条预置话术。\n单条话术字符长度0-1024位。\n**默认取值**:\n不涉及",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1024
+          },
+          "maxItems": 5,
+          "minItems": 0,
+          "x-maxLength": 10000
+        },
+        "reply_audios": {
+          "type": "array",
+          "description": "**参数解释**:\n回复音频集。填写audio_url。\n**约束限制**:\n不涉及\n**取值范围**:\n最大支持5条预置音频。\n**默认取值**:\n不涉及",
+          "items": {
+            "$ref": "#/definitions/ReplyAudioInfo"
+          },
+          "maxItems": 5,
+          "minItems": 0,
+          "x-maxLength": 10000
+        },
+        "reply_order": {
+          "type": "string",
+          "description": "**参数解释**:\n回复话术选择次序。\n**约束限制**:\n不涉及\n**取值范围**:\n* RANDOM:随机\n* ORDER:顺序循环\n\n**默认取值**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "RANDOM",
+            "ORDER"
+          ]
+        },
+        "reply_role": {
+          "type": "string",
+          "description": "**参数解释**:\n回复角色。\n**约束限制**:\n不涉及\n**取值范围**:\n* STREAMER:主播\n* CO_STREAMER:助播,仅声音。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "STREAMER",
+            "CO_STREAMER"
+          ],
+          "default": "STREAMER"
+        },
+        "robot_id": {
+          "type": "string",
+          "example": "e37a28485f684769aa537466e719629d",
+          "description": "**参数解释**:\n机器人ID。\n**约束限制**:\nreply_mode为INTELLIGENT_REPLY时必填,智能交互配置的大模型机器人ID。\n获取方法请参考[创建应用](CreateRobot.xml)。\n**取值范围**:\n字符长度0-64位。\n**默认取值**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "play_type": {
+          "type": "string",
+          "example": "PLAY_NOW",
+          "description": "回复播放类型。\n- APPEND:追加,放置在场景播放队列尾部\n- INSERT: 插入,在两个音频文件,或者文本句末添加。\n- PLAY_NOW : 立即插入,收到指令后,立即播放,无需等待句末。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "APPEND",
+            "INSERT",
+            "PLAY_NOW"
+          ],
+          "default": "PLAY_NOW"
+        }
+      },
+      "description": "触发器处理"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "X-Project-IdHeader": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+      "x-apig-registered": false
+    },
+    "CreateSinceQuery": {
+      "name": "create_since",
+      "in": "query",
+      "description": "过滤创建时间>=输入时间的记录。",
+      "required": false,
+      "type": "string",
+      "maxLength": 20,
+      "minLength": 0,
+      "x-annotations": [
+        "@Size( min = 20, max = 20)"
+      ],
+      "x-apig-registered": false
+    },
+    "CreateUntilQuery": {
+      "name": "create_until",
+      "in": "query",
+      "description": "过滤创建时间<=输入时间的记录。",
+      "required": false,
+      "type": "string",
+      "maxLength": 20,
+      "minLength": 0,
+      "x-annotations": [
+        "@Size( min = 20, max = 20)"
+      ],
+      "x-apig-registered": false
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "LimitQuery": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页显示的条目数量。",
+      "required": false,
+      "type": "integer",
+      "default": 10,
+      "maximum": 100,
+      "minimum": 1,
+      "format": "uint32"
+    },
+    "OffsetQuery": {
+      "name": "offset",
+      "in": "query",
+      "description": "偏移量,表示从此偏移量开始查询。",
+      "required": false,
+      "type": "integer",
+      "default": 0,
+      "maximum": 2147483647,
+      "minimum": 0,
+      "format": "uint32"
+    },
+    "X-App-UserId": {
+      "name": "X-App-UserId",
+      "in": "header",
+      "description": "第三方用户ID。不允许输入中文。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "abcdefg1234567",
+      "x-apig-registered": false
+    }
+  },
+  "host": "metastudio.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

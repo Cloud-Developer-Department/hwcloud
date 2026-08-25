@@ -1,0 +1,178 @@
+{
+  "name": "ShowRecords",
+  "summary": "分批查询当前告警",
+  "tags": "告警管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/fault/v1/current-alarms/scroll": {
+      "post": {
+        "summary": "分批查询当前告警",
+        "description": "根据条件过滤当前告警,将告警信息按照期望的数量和维度分批返回。\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| >=99.95%|\n|可用性|Tier3|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量(tiny2)|3tps|\n|吞吐量(small)|3tps|\n|吞吐量(medium)|3tps|\n|吞吐量(large)|3tps|\n|TP50请求时延|10000ms|\n|TP99.9请求时延|20000ms|",
+        "tags": [
+          "告警管理"
+        ],
+        "operationId": "ShowRecords",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queryParam",
+            "in": "body",
+            "description": "查询参数。",
+            "schema": {
+              "$ref": "#/definitions/ScrollQueryParam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回迭代查询结果。",
+            "examples": {
+              "application/json": {
+                "resultCode": "success"
+              }
+            }
+          },
+          "400": {
+            "description": "参数非法。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/fault/v1/current-alarms/scroll",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "query": {
+            "filters": [
+              {
+                "name": "OCCURUTC",
+                "field": "OCCURUTC",
+                "operator": "BETWEEN",
+                "values": [
+                  "1499763069608",
+                  "1499763205240"
+                ]
+              }
+            ]
+          },
+          "sort": [
+            {
+              "field": "CSN",
+              "order": "desc"
+            }
+          ],
+          "iterator": "6985",
+          "fields": [
+            "csn",
+            "alarmId",
+            "originSystem",
+            "alarmName",
+            "OCCURUTC"
+          ],
+          "size": 500
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ScrollQueryParam": {
+      "description": "迭代查询参数",
+      "x-ref-external": "com.huawei.cloudsop.fmkernel.search.condition.ScrollQueryParam",
+      "properties": {
+        "query": {
+          "description": "过滤条件",
+          "$ref": "#/definitions/QueryContext"
+        },
+        "sort": {
+          "description": "排序条件。仅支持当前告警迭代查询排序,不支持其他迭代查询接口。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QSortField"
+          }
+        },
+        "size": {
+          "description": "期望返回最大数量",
+          "type": "integer",
+          "format": "int32"
+        },
+        "iterator": {
+          "description": "首次查询无需传入。若查询返回值里面有iterator返回,则表示告警数据还没有遍历完。当需要从上次查询位置继续往后查询,需要把上次返回的iterator作为参数传入。",
+          "type": "string"
+        },
+        "fields": {
+          "description": "指定返回的字段。不区分大小写",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "QFilterElement": {
+      "description": "单个过滤条件",
+      "properties": {
+        "name": {
+          "description": "条件名称,唯一标识一个过滤条件",
+          "type": "string"
+        },
+        "field": {
+          "description": "条件对应的字段名称,当前支持的字段有:",
+          "type": "string"
+        },
+        "operator": {
+          "description": "条件操作符,当前支持的操作符有:\"=\"等于,\"<\"小于,\"<=\"小于等于,\">\"大于,\">=\"大于等于,\"!=\"不等于,\"in\"属于集合,\"like\"包含字符串,\"between\"介于两个数字之间",
+          "type": "string"
+        },
+        "values": {
+          "description": "条件取值",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "QSortField": {
+      "description": "单个排序条件",
+      "properties": {
+        "field": {
+          "description": "排序字段",
+          "type": "string"
+        },
+        "order": {
+          "description": "升降序,“ASC”升序,“DESC”降序",
+          "type": "string"
+        }
+      }
+    },
+    "QueryContext": {
+      "description": "查询过滤条件",
+      "properties": {
+        "filters": {
+          "description": "一组过滤条件的集合",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/QFilterElement"
+          }
+        },
+        "expression": {
+          "description": "由\"and\"、\"or\"、\"not\"、括号和QFilterElement的name组成的条件逻辑表达式。目前只支持\"and\"关系;没有该tag时默认所有条件元素为\"and\"关系",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

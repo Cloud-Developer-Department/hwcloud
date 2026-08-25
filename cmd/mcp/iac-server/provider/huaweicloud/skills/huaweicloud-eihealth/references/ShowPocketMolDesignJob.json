@@ -1,0 +1,711 @@
+{
+  "name": "ShowPocketMolDesignJob",
+  "summary": "查询靶点口袋分子设计作业详情",
+  "tags": "靶点口袋分子设计作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/pocket-mol-design/{job_id}": {
+      "get": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-partial": true,
+        "x-interface-name": "IPocketMolDesignJobController",
+        "tags": [
+          "靶点口袋分子设计作业管理"
+        ],
+        "summary": "查询靶点口袋分子设计作业详情",
+        "description": "查询靶点口袋分子设计作业详情",
+        "operationId": "ShowPocketMolDesignJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid",
+            "x-example": "projectId"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "作业id",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "job_id is invalid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PocketMolDesignRsp"
+            },
+            "examples": {
+              "application/json": {
+                "basic_info": {
+                  "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                  "name": "demo-job",
+                  "labels": [
+                    "labelA",
+                    "labelB"
+                  ],
+                  "status": "FINISHED",
+                  "type": "POCKE_MOL_DESIGN",
+                  "start_time": "2021-01-30T02:34:36Z",
+                  "create_time": "2021-01-30T02:34:36Z",
+                  "finish_time": "2021-01-30T02:53:26Z",
+                  "failed_message": "null",
+                  "user_name": "demo-user-name",
+                  "output_dir": "job-analysis/job-name",
+                  "expect_charge_num": 1,
+                  "real_charge_num": 1
+                },
+                "receptor": {
+                  "file": {
+                    "source": "PRIVATE",
+                    "url": "project:/dir/file"
+                  }
+                },
+                "ligands": [
+                  {
+                    "source": "PRIVATE"
+                  },
+                  {
+                    "url": "project:/dir/file"
+                  }
+                ],
+                "cluster_result": {
+                  "method": "hiq_mc",
+                  "output_dir": "project://bucket/path/to/task/dir/",
+                  "status": "finished",
+                  "failed_reasons": [
+                    {
+                      "reason": "failed reason"
+                    },
+                    {
+                      "count": 1
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "PocketMolDesignReceptorDto": {
+      "type": "object",
+      "required": [
+        "file"
+      ],
+      "description": "靶点口袋分子设计的靶点文件",
+      "properties": {
+        "file": {
+          "$ref": "#/definitions/ReceptorDrugFile",
+          "description": "靶点文件"
+        },
+        "bounding_box": {
+          "$ref": "#/definitions/BoundingBoxDto"
+        },
+        "remove_ion": {
+          "type": "boolean",
+          "description": "去除受体中的离子",
+          "default": true
+        },
+        "remove_water": {
+          "type": "boolean",
+          "description": "去除受体中的水分子",
+          "default": true
+        },
+        "remove_ligand": {
+          "type": "boolean",
+          "description": "去除受体中的配体分子",
+          "default": true
+        },
+        "add_hydrogen": {
+          "type": "boolean",
+          "default": false,
+          "description": "增加氢原子"
+        }
+      }
+    },
+    "Progress": {
+      "properties": {
+        "overall": {
+          "type": "number",
+          "format": "float",
+          "example": 0.21,
+          "description": "整体进度"
+        },
+        "estimated_finish_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1000,
+          "description": "预计结束时间,毫秒"
+        }
+      }
+    },
+    "ReceptorDrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ]
+        }
+      }
+    },
+    "FailedReasonRecord": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "example": "invalid smiles",
+          "description": "失败原因"
+        },
+        "count": {
+          "type": "integer",
+          "example": 20,
+          "description": "失败数量"
+        }
+      }
+    },
+    "EditedLigand": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "RAW",
+          "pattern": "^RAW$",
+          "description": "文件来源,仅支持RAW"
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "CIF",
+          "pattern": "^(CIF)$",
+          "description": "文件格式,仅支持CIF"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "PocketMolDesignRsp": {
+      "type": "object",
+      "required": [
+        "basic_info",
+        "receptor",
+        "ligand"
+      ],
+      "properties": {
+        "basic_info": {
+          "$ref": "#/definitions/DrugJobDto",
+          "description": "作业基本信息"
+        },
+        "receptor": {
+          "$ref": "#/definitions/PocketMolDesignReceptorDto",
+          "description": "靶点文件"
+        },
+        "ligands": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/definitions/PocketFragment"
+          },
+          "description": "配体文件列表"
+        },
+        "num_trials": {
+          "type": "integer",
+          "format": "int32",
+          "description": "生成分子数量",
+          "minimum": 1,
+          "maximum": 5000,
+          "default": 1000
+        },
+        "model_list": {
+          "description": "模型列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BasicDrugModel"
+          }
+        },
+        "molecular_weight": {
+          "type": "array",
+          "description": "分子量范围",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "maximum": 1000,
+            "minimum": 1
+          }
+        },
+        "optimization_mode": {
+          "$ref": "#/definitions/OptimizationMode",
+          "description": "优化类型"
+        },
+        "cluster_result": {
+          "$ref": "#/definitions/ClusterJobRsp",
+          "description": "聚类结果信息"
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    },
+    "BoundingBoxDto": {
+      "required": [
+        "center",
+        "size"
+      ],
+      "type": "object",
+      "description": "结合口袋,包含口袋中心位置和尺寸大小",
+      "properties": {
+        "center": {
+          "type": "array",
+          "description": "口袋中心坐标; x, y, z轴的坐标",
+          "minItems": 3,
+          "maxItems": 3,
+          "example": [
+            1.3,
+            23.4,
+            -14.5
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": -9999999,
+            "maximum": 99999999
+          }
+        },
+        "size": {
+          "type": "array",
+          "description": "口袋尺寸大小;  x, y, z轴的大小",
+          "minItems": 3,
+          "maxItems": 3,
+          "example": [
+            10.0,
+            10.0,
+            10.0
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": 2,
+            "maximum": 500
+          }
+        },
+        "padding": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "maximum": 20,
+          "description": "填充"
+        }
+      }
+    },
+    "LabelSite": {
+      "description": "靶点分子设计标记位点",
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 99999
+          },
+          "description": "索引",
+          "example": [
+            0,
+            1
+          ]
+        },
+        "name": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "description": "标记位点名称",
+          "example": [
+            "site_x",
+            "site_y"
+          ]
+        },
+        "coordinate": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "type": "array",
+            "description": "位点三维坐标",
+            "items": {
+              "type": "number",
+              "format": "float",
+              "minimum": -9999999,
+              "maximum": 99999999
+            }
+          },
+          "example": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              4,
+              5,
+              6
+            ]
+          ],
+          "description": "位点三维坐标集"
+        }
+      }
+    },
+    "DrugJobDto": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "description": "作业的名称,取值范围:[1,63],允许大小写字母、数字、以及特殊字符中划线(-)"
+        },
+        "eihealth_project_id": {
+          "type": "string",
+          "example": "demo_id",
+          "description": "**参数解释**:\n作业所属空间ID。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1-63]个字符,允许大小写字母、数字、以及特殊字符中划线(-)。\n**默认取值**:\n不涉及"
+        },
+        "eihealth_project_name": {
+          "type": "string",
+          "example": "demo_name",
+          "description": "**参数解释**:\n作业所属空间名称。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        },
+        "upstream_job_info": {
+          "type": "string",
+          "example": "{\"job_id\":\"demo-job-id\",\"job_name\":\"demo-job-name\"}",
+          "description": "**参数解释**:\n上游作业信息。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "作业标签",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "example": "FINISHED",
+          "description": "作业状态"
+        },
+        "type": {
+          "type": "string",
+          "example": "OPTIMIZATION",
+          "description": "作业类型"
+        },
+        "create_time": {
+          "type": "string",
+          "example": "2021-01-30T02:34:36Z",
+          "description": "作业创建时间"
+        },
+        "finish_time": {
+          "type": "string",
+          "example": "2021-01-30T02:53:26Z",
+          "description": "作业结束时间"
+        },
+        "start_time": {
+          "type": "string",
+          "example": "2021-01-30T02:50:26Z",
+          "description": "作业开始时间"
+        },
+        "failed_message": {
+          "type": "string",
+          "example": "null",
+          "description": "失败提示,当作业执行失败时会返回"
+        },
+        "user_name": {
+          "type": "string",
+          "example": "demo-user-name",
+          "description": "创建任务的用户名称"
+        },
+        "output_dir": {
+          "type": "string",
+          "example": "projectName:/job-result/dir",
+          "description": "作业结果输出目录"
+        },
+        "expect_charge_num": {
+          "type": "number",
+          "format": "double",
+          "example": 1,
+          "description": "预估功能调用消耗次数"
+        },
+        "real_charge_num": {
+          "type": "number",
+          "format": "double",
+          "example": 1,
+          "description": "实际功能调用消耗次数"
+        },
+        "progress": {
+          "$ref": "#/definitions/Progress",
+          "description": "作业进度信息"
+        }
+      }
+    },
+    "ClusterJobRsp": {
+      "type": "object",
+      "description": "分子聚类结果",
+      "required": [
+        "method",
+        "output_dir",
+        "status",
+        "failed_reasons"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "description": "分子聚类方法",
+          "example": "hiq_mc"
+        },
+        "output_dir": {
+          "type": "string",
+          "description": "分子聚类输出结果",
+          "example": "project://bucket/path/to/task/dir/"
+        },
+        "status": {
+          "type": "string",
+          "description": "作业结果信息",
+          "example": "finished"
+        },
+        "failed_reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FailedReasonRecord"
+          },
+          "description": "部分失败原因和数量"
+        }
+      }
+    },
+    "PocketFragment": {
+      "type": "object",
+      "description": "靶点口袋分子优化片段",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "LIG::0",
+          "description": "原始配体名称,仅RAW类型时用于配体名称标识"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        },
+        "edited": {
+          "$ref": "#/definitions/EditedLigand",
+          "description": "编辑后的配体"
+        },
+        "label_sites": {
+          "description": "标记位点",
+          "$ref": "#/definitions/LabelSite"
+        }
+      }
+    },
+    "OptimizationMode": {
+      "type": "string",
+      "enum": [
+        "generation",
+        "side_chains_decoration",
+        "scaffold_hopping",
+        "fragment_growing"
+      ],
+      "description": "靶点口袋分子设计模式:支持从头生成、侧链修饰、骨架跃迁、片段生长。"
+    },
+    "BasicDrugModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "模型ID"
+        },
+        "task_id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "任务ID"
+        },
+        "name": {
+          "type": "string",
+          "example": "model_name",
+          "description": "模型名称"
+        },
+        "creator": {
+          "type": "string",
+          "example": "creator",
+          "description": "模型创建者"
+        },
+        "type": {
+          "type": "string",
+          "example": "binary",
+          "description": "模型类型"
+        },
+        "value_range": {
+          "$ref": "#/definitions/ValueRange2"
+        },
+        "description": {
+          "type": "string",
+          "example": "description",
+          "description": "模型描述信息"
+        }
+      }
+    },
+    "ValueRange2": {
+      "properties": {
+        "lower": {
+          "type": "number",
+          "format": "float",
+          "description": "值域下限"
+        },
+        "upper": {
+          "type": "number",
+          "format": "float",
+          "description": "值域上限"
+        }
+      },
+      "description": "数值值域区间定义",
+      "example": {
+        "lower": 0,
+        "upper": 20
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

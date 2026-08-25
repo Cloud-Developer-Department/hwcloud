@@ -1,0 +1,1209 @@
+{
+  "name": "ListIpdProjectIssues",
+  "summary": "查询项目工作项列表",
+  "tags": "IPD项目接口",
+  "productshort": "ProjectMan",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/ipdprojectservice/projects/{project_id}/issues/query": {
+      "post": {
+        "tags": [
+          "IPD项目接口"
+        ],
+        "summary": "查询项目工作项列表",
+        "operationId": "ListIpdProjectIssues",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "pattern": "^[0-9a-z]{32}$",
+            "required": true,
+            "type": "string",
+            "description": "devcloud项目的32位id"
+          },
+          {
+            "name": "is_backlog",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "description": "是否backlog查询"
+          },
+          {
+            "name": "issue_type",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "工作项分类:[Epic,FE,IR,RR,SR,US,AR,Bug,Task]"
+          },
+          {
+            "name": "src_domain_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "提出项目Id"
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "description": "视图模式[tree,list]",
+            "required": false,
+            "type": "string",
+            "default": "tree"
+          },
+          {
+            "in": "body",
+            "name": "ListIpdProjectIssuesRequestBody",
+            "description": "查询issues实体对象,实体属性不能都为空",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SearchIpdIssuesRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/IPDIssuePageResponse"
+            },
+            "examples": {
+              "application/json": "{\n    \"status\": \"success\",\n    \"message\": null,\n    \"result\": {\n        \"total\": 6,\n        \"issues\": [\n            {\n                \"tenant_id\": \"4e919d73499648e3b0292cd3cbe88888\",\n                \"link\": \"\",\n                \"is_suspended\": null,\n                \"change_status\": {\n                    \"id\": \"868551928365096970\",\n                    \"display_value\": \"变更评审中\",\n                    \"value\": \"change-reviewing\",\n                    \"code\": \"change-reviewing\",\n                    \"value_py\": \"change-reviewing\",\n                    \"sequence\": 2,\n                    \"level\": 1,\n                    \"domain_id\": \"88888888888888\",\n                    \"belong_definition_type\": \"5\"\n                },\n                \"title\": \"dawd1\",\n                \"type\": \"raw requirement\",\n                \"sum_workload_man_day\": null,\n                \"send_from\": \"\",\n                \"number\": \"RR20230705648410\",\n                \"send_to\": \"\",\n                \"convolution_actual_hours\": null,\n                \"workload_man_day\": \"11.0\",\n                \"plan_end_date\": \"1689609600000\",\n                \"id\": \"883373467167888888\",\n                \"state\": \"正在工作\",\n                \"stay_days\": 2,\n                \"rr2ir\": \"\",\n                \"assigned_cc\": null,\n                \"convolution_plan_hours\": null,\n                \"submit_time\": \"1688542246000\",            \n                \"setup\": true,\n                \"child_issues\": [],\n                \"parent_status\": \"no\"\n            }\n        ]\n    }\n}"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/BadRequestError"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedRequestError"
+            }
+          }
+        },
+        "deprecated": false,
+        "description": "查询Ipd项目的工作项列表",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-sre-api-type": "A1",
+        "x-is-registered": "Y",
+        "x-hcs-visible": "Y",
+        "x-request-examples-url-1": "Post https://{endpoint}/v1/ipdprojectservice/projects/cb41a2a2cb4347028289709296e263e7/issues/query?issue_type=RR,IR,SR,AR&is_rr_list=true&_=1688643804359",
+        "x-request-examples-text-1": "{\n\t\"filter\": [{\n\t\t\"status\": {\n\t\t\t\"values\": [\"Committed\", \"Analyse\", \"ToBeConfirmed\", \"Plan\", \"Doing\", \"Delivered\", \"Checking\"],\n\t\t\t\"operator\": \"||\"\n\t\t}\n\t}],\n\t\"page\": {\n\t\t\"page_no\": 1,\n\t\t\"page_size\": 20\n\t}\n}"
+      }
+    }
+  },
+  "definitions": {
+    "IssueVO": {
+      "type": "object",
+      "description": "工作项对象",
+      "properties": {
+        "sys_analysis_conclusion": {
+          "type": "string",
+          "example": "<p>22221</p>",
+          "description": "**参数解释:** \n分析结论,通常在接纳RR时填写。\n**取值范围:** \n不涉及。"
+        },
+        "sys_remark": {
+          "type": "string",
+          "description": "**参数解释:** \n备注。通常在提交验收RR时填写。\n**取值范围:** \n不涉及。"
+        },
+        "promised": {
+          "description": "**参数解释:** \n是否承诺。通常在接纳RR时填写。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "type": {
+          "type": "string",
+          "example": "raw requirement",
+          "description": "**参数解释:** \n工作项的分类。\n**取值范围:** \n- requirement\n- raw requirement\n- bug\n- task\n- feature"
+        },
+        "belong_inside": {
+          "type": "string",
+          "example": "1",
+          "description": "**参数解释:** \n标识工作项是否跨项目提交。\n**取值范围:** \n- 1:跨项目提交工作项。\n- 0:非跨项目提交工作项。"
+        },
+        "src_domain": {
+          "description": "**参数解释:** \n工作项提出项目。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/DomainVO"
+        },
+        "domain_id": {
+          "description": "**参数解释:** \n工作项归属项目。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/DomainVO"
+        },
+        "send_from": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \n原始需求的协同上游需求Id。\n**取值范围:** \n不涉及。"
+        },
+        "number": {
+          "type": "string",
+          "example": "RR20250930982833",
+          "description": "**参数解释:** \n工作项编号,由工作项类型+年月日+6位随机数组成。\n**取值范围:** \n不涉及。"
+        },
+        "send_to": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \n原始需求的协同下游需求Id。\n**取值范围:** \n不涉及。"
+        },
+        "path": {
+          "type": "string",
+          "example": "/1179825865717542913",
+          "description": "**参数解释:** \n工作项父子挂载路径关系。\n**取值范围:** \n不涉及。"
+        },
+        "workload_man_day": {
+          "type": "string",
+          "example": "2.0",
+          "description": "**参数解释:** \n工作项计划工时。\n**取值范围:** \n不涉及。"
+        },
+        "sys_check_conclusion": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n验收结论。通常是验收RR时填写。\n**取值范围:** \n不涉及。"
+        },
+        "id": {
+          "type": "string",
+          "example": "1179825865717542913",
+          "description": "**参数解释:** \n工作项唯一Id。\n**取值范围:** \n不涉及。"
+        },
+        "state": {
+          "type": "string",
+          "example": "正在工作",
+          "description": "**参数解释:** \n工作项生命周期。\n**取值范围:** \n- 正在工作:可正常操作的工作项;\n- 作废:软删除后的工作项,可在回收站恢复;\n- 删除:彻底删除后的工作项,无法恢复。"
+        },
+        "stay_days": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释:** \n工作项在当前状态的停留天数。\n**取值范围:** \n不涉及。"
+        },
+        "assigned_cc": {
+          "items": {
+            "$ref": "#/definitions/UserVO"
+          },
+          "description": "**参数解释:** \n抄送人。\n**取值范围:** \n不涉及。",
+          "type": "array"
+        },
+        "submit_time": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项提交时间,指工作项进入工作流的时间,而不是创建时间。\n**取值范围:** \n不涉及。"
+        },
+        "workitem2label": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkItemLabelVO"
+          },
+          "example": null,
+          "description": "**参数解释:** \n工作项标签。\n**取值范围:** \n不涉及。"
+        },
+        "sys_return_conclusion": {
+          "type": "string",
+          "example": "非本服务需求",
+          "description": "**参数解释:** \n退回原因。通常为退回RR/Bug时填写。\n**取值范围:** \n不涉及。"
+        },
+        "close_time": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项完成时间。\n**取值范围:** \n不涉及。"
+        },
+        "priority": {
+          "description": "**参数解释:** \n优先级。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "modified_date": {
+          "type": "string",
+          "example": "1762167018804",
+          "description": "**参数解释:** \n工作项最新修改时间。\n**取值范围:** \n不涉及。"
+        },
+        "created_by": {
+          "description": "**参数解释:** \n工作项创建人。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/UserVO"
+        },
+        "break_status": {
+          "description": "**参数解释:** \n分解状态。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "status_modified_date": {
+          "type": "string",
+          "example": "1762167018798",
+          "description": "**参数解释:** \n工作项上一次流转状态的时间,可用于计算停留天数。unix时间戳,单位为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "expect_delivery_time": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n期望完成时间。Unix时间戳,单位为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "parent_id": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项的父工作项Id。\n**取值范围:** \n不涉及。"
+        },
+        "assignee": {
+          "description": "**参数解释:** \n责任人。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/UserVO"
+        },
+        "region": {
+          "type": "string",
+          "example": "cn-north-4",
+          "description": "**参数解释:** \n工作项所属租户的域。\n**取值范围:** \n不涉及。"
+        },
+        "status": {
+          "$ref": "#/definitions/AlmStatus",
+          "description": "**参数解释:** \n工作项状态。\n**取值范围:** \n不涉及。"
+        },
+        "tenant_id": {
+          "description": "**参数解释:** \n工作项所属租户Id。\n**取值范围:** \n不涉及。",
+          "type": "string"
+        },
+        "plan_pi": {
+          "description": "**参数解释:** \n工作项所属发布。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/PlanVO"
+        },
+        "link": {
+          "type": "string",
+          "example": "1179825567519072256",
+          "description": "**参数解释:** \n关联工作项的关系字段。多值使用英文逗号分隔。\n**取值范围:** \n不涉及。"
+        },
+        "description": {
+          "type": "string",
+          "example": "<p>【需求背景】</p><p><br></p><p>【需求价值】</p><p><br></p><p>【需求详情】</p>",
+          "description": "**参数解释:** \n工作项描述,最多支持50w字符。\n**取值范围:** \n不涉及。"
+        },
+        "is_suspended": {
+          "description": "**参数解释:** \n是否挂起。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "change_status": {
+          "description": "**参数解释:** \n工作项变更评审状态。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "title": {
+          "type": "string",
+          "example": "66",
+          "description": "**参数解释:** \n工作项标题。\n**取值范围:** \n不涉及。"
+        },
+        "sum_workload_man_day": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项实际工时。\n**取值范围:** \n不涉及。"
+        },
+        "sys_close_reason": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项关闭原因。\n**取值范围:** \n不涉及。"
+        },
+        "sys_resubmit_reason": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n重新提交原因,通常用于RR/Bug退回后重新提交。\n**取值范围:** \n不涉及。"
+        },
+        "plan_end_date": {
+          "type": "string",
+          "example": "1760112000000",
+          "description": "**参数解释:** \n工作项计划完成时间。\n**取值范围:** \n不涉及。"
+        },
+        "rr2ir": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \nRR的子IR的id。多值使用英文逗号分隔。\n**取值范围:** \n不涉及。"
+        },
+        "category_layer_id": {
+          "type": "string",
+          "example": "10017",
+          "description": "**参数解释:** \n工作项类型层级id。\n**取值范围:** \n不涉及。"
+        },
+        "submitted_by": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserVO"
+          },
+          "description": "**参数解释:** \n工作项提交人。\n**取值范围:** \n不涉及。"
+        },
+        "rr2us": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \nRR的子US的id,多值使用英文逗号分隔。\n**取值范围:** \n不涉及。"
+        },
+        "sys_no_develop_reason": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项无需开发原因。\n**取值范围:** \n不涉及。"
+        },
+        "plan_iteration": {
+          "description": "**参数解释:** \n工作项所属迭代。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/PlanVO"
+        },
+        "sys_return_reason": {
+          "type": "string",
+          "description": "**参数解释:** \n退回原因。通常用于RR/bug退回。\n**取值范围:** \n不涉及。"
+        },
+        "cascade_delete": {
+          "type": "string",
+          "example": "none",
+          "description": "**参数解释:** \n是否级联删除标记。\n**取值范围:** \n不涉及。"
+        },
+        "recipient": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserVO"
+          },
+          "description": "**参数解释:** \n承接人。通常用于RR。\n**取值范围:** \n不涉及。"
+        },
+        "modified_by": {
+          "$ref": "#/definitions/UserVO",
+          "description": "**参数解释:** \n工作项最近修改人。\n**取值范围:** \n不涉及。"
+        },
+        "created_date": {
+          "type": "string",
+          "example": "1759222006486",
+          "description": "**参数解释:** \n工作项创建时间。\n**取值范围:** \n不涉及。"
+        },
+        "category": {
+          "type": "string",
+          "example": "RR",
+          "description": "**参数解释:** \n工作项类型。\n**取值范围:** \n- 系统设备类项目:RR/SF/IR/SR/AR/Task/Bug。\n- 独立软件类项目:RR/SF/IR/US/Task/Bug。\n- 云服务类项目:RR/Epic/FE/US/Task/Bug。"
+        },
+        "collaborative_status": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": null,
+          "description": "**参数解释:** \n研发需求协同需求状态。\n**取值范围:** \n不涉及。"
+        },
+        "project": {
+          "description": "**参数解释:** \n工作项所属的项目信息。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/DomainVO"
+        },
+        "child_issues": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/IssueVO"
+          },
+          "example": [],
+          "description": "**参数解释:** \n子工作项列表。\n**取值范围:** \n不涉及。"
+        },
+        "activate_times": {
+          "type": "integer",
+          "format": "int32",
+          "example": "1",
+          "description": "**参数解释:** \n激活次数。Bug激活时自动赋值。\n**取值范围:** \n不涉及。"
+        },
+        "baseline": {
+          "description": "**参数解释:** \n工作项基线状态。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "business_domain": {
+          "description": "**参数解释:** \n工作项领域。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "children": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n子工作项Id,多值使用英文逗号分隔。\n**取值范围:** \n不涉及。"
+        },
+        "collaborative_history": {
+          "type": "string",
+          "description": "**参数解释:** \n协同需求的状态变化历史记录,内容为Json字符串。\n**取值范围:** \n不涉及。"
+        },
+        "collaboratives": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n协同需求中的记录Id。\n**取值范围:** \n不涉及。"
+        },
+        "convolution_actual_hours": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n卷积实际工时。父工作项中将子工作项/协同工作项的实际工时卷积得到。\n**取值范围:** \n不涉及。"
+        },
+        "convolution_plan_hours": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n卷积计划工时。父工作项中将子工作项/协同工作项的计划工时卷积得到。\n**取值范围:** \n不涉及。"
+        },
+        "develop_owner": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n开发责任人。通常用于“开发”状态节点责任人。\n**取值范围:** \n不涉及。"
+        },
+        "done_ratio": {
+          "description": "**参数解释:** \n完成度。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "expected_repair_date": {
+          "type": "string",
+          "example": "1765468800000",
+          "description": "**参数解释:** \n期望修复时间。\n**取值范围:** \n不涉及。"
+        },
+        "feature2ir": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \nSF的子IR的id。多值使用英文逗号分隔。\n**取值范围:** \n不涉及。"
+        },
+        "feature_set": {
+          "description": "**参数解释:** \nSF的所属特性集。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "found_env": {
+          "description": "**参数解释:** \n发现环境。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "found_iteration": {
+          "description": "**参数解释:** \n发现迭代。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/PlanVO"
+        },
+        "found_pi": {
+          "description": "**参数解释:** \n发现发布。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/PlanVO"
+        },
+        "function_scene": {
+          "type": "string",
+          "example": "功能场景测试",
+          "description": "**参数解释:** \n功能场景。\n**取值范围:** \n不涉及。"
+        },
+        "ir2feature": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \nIR关联的SF的Id,一个IR仅能关联一个SF。\n**取值范围:** \n不涉及。"
+        },
+        "ir2rr": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \nIR关联父RR的Id,多值使用英文逗号分隔。\n**取值范围:** \n不涉及。"
+        },
+        "issue_opinion_id": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项关联的决策意见Id。\n**取值范围:** \n不涉及。"
+        },
+        "issue_review_id": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n工作项关联的评审意见Id。\n**取值范围:** \n不涉及。"
+        },
+        "module": {
+          "description": "**参数解释:** \n模块。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "need_break": {
+          "description": "**参数解释:** \n是否需要分解子工作项。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "need_develop": {
+          "description": "**参数解释:** \n是否需要开发。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "no_break_reason": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n无需分解原因。\n**取值范围:** \n不涉及。"
+        },
+        "no_develop_reason": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n无需开发原因。\n**取值范围:** \n不涉及。"
+        },
+        "order": {
+          "type": "string",
+          "example": "1",
+          "description": "**参数解释:** \n优先级顺序。\n**取值范围:** \n1~100。"
+        },
+        "plan_dev_end_date": {
+          "type": "string",
+          "example": "1763481600000",
+          "description": "**参数解释:** \n计划开发结束时间。通常用于“开发”状态节点,Unix时间戳,单位为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "plan_processing_end_date": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n计划处理中结束时间。通常用于“处理中”状态节点,Unix时间戳,单位为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "plan_researchanddevelop_end_date": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n计划研发结束时间。通常用于“研发”状态节点,Unix时间戳,单位为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "plan_test_end_date": {
+          "type": "string",
+          "example": "1763827200000",
+          "description": "**参数解释:** \n计划测试结束时间。通常用于“测试”状态节点,Unix时间戳,单位为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "position_float": {
+          "type": "string",
+          "example": "9999999894.4871580000",
+          "description": "**参数解释:** \n标识工作项在列表中初始排序位置。\n**取值范围:** \n不涉及。"
+        },
+        "processing_owner": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n处理中责任人。通常用于“处理中”状态节点。\n**取值范围:** \n不涉及。"
+        },
+        "reason_analysis": {
+          "type": "string",
+          "example": "<p>提交到修复时填的分析原因</p>",
+          "description": "**参数解释:** \n分析原因。\n**取值范围:** \n不涉及。"
+        },
+        "regression_failure_number": {
+          "type": "integer",
+          "format": "int32",
+          "example": "0",
+          "description": "**参数解释:** \n回归不通过次数。缺陷测试不通过时自动赋值。\n**取值范围:** \n不涉及。"
+        },
+        "related_network_security": {
+          "description": "**参数解释:** \n是否涉及网络安全。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "repair_solution": {
+          "type": "string",
+          "example": "<p>提交到测试时填的修复方案</p>",
+          "description": "**参数解释:** \n修复方案。常用于修复缺陷时。\n**取值范围:** \n不涉及。"
+        },
+        "researchanddevelop_owner": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n研发责任人。通常用于“研发”状态节点。\n**取值范围:** \n不涉及。"
+        },
+        "severity": {
+          "description": "**参数解释:** \n严重程度。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "sys_activation_reason": {
+          "type": "string",
+          "example": "<p>激活时填的激活原因</p>",
+          "description": "**参数解释:** \n严重程度。\n**取值范围:** \n不涉及。"
+        },
+        "sys_no_repair_reason": {
+          "type": "string",
+          "example": "<p>无需修复时填的无需修复原因</p>",
+          "description": "**参数解释:** \n无需修复原因。通常用于在缺陷无需修复时。\n**取值范围:** \n不涉及。"
+        },
+        "test_failures_times": {
+          "type": "integer",
+          "format": "int32",
+          "example": "1",
+          "description": "**参数解释:** \n测试不通过次数。\n**取值范围:** \n不涉及。"
+        },
+        "test_owner": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n测试责任人。通常用于“测试”状态节点。\n**取值范围:** \n不涉及。"
+        },
+        "test_report": {
+          "type": "string",
+          "example": "<p>测试通过填的测试报告</p>",
+          "description": "**参数解释:** \n测试报告。\n**取值范围:** \n不涉及。"
+        },
+        "val_feature": {
+          "description": "**参数解释:** \n价值特性。\n**取值范围:** \n不涉及。",
+          "$ref": "#/definitions/OptionVO"
+        },
+        "workitem2ganttchart": {
+          "type": "string",
+          "example": "",
+          "description": "**参数解释:** \n工作项关联的甘特图Id。\n**取值范围:** \n不涉及。"
+        },
+        "workitem2mindmap": {
+          "type": "string",
+          "example": "1176199630291767296",
+          "description": "**参数解释:** \n工作项关联的思维导图Id。\n**取值范围:** \n不涉及。"
+        }
+      }
+    },
+    "SearchIpdIssuesRequestBody": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/ConditionVO"
+            }
+          },
+          "description": "过滤条件"
+        },
+        "page": {
+          "$ref": "#/definitions/PageInfoVO",
+          "description": "分页参数"
+        },
+        "return_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "返回字段"
+        },
+        "sort": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SortInfo"
+          },
+          "description": "排序字段"
+        }
+      }
+    },
+    "IssueListResult": {
+      "type": "object",
+      "properties": {
+        "issues": {
+          "type": "array",
+          "description": "**参数解释:**\n工作项列表。\n**取值范围:**\n不涉及。",
+          "minItems": 0,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/definitions/IssueVO"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释:**\n符合过滤条件的工作项总数。\n**取值范围:**\n不涉及。",
+          "exclusiveMinimum": true,
+          "exclusiveMaximum": true
+        }
+      },
+      "description": "工作项列表查询结果"
+    },
+    "UserVO": {
+      "type": "object",
+      "properties": {
+        "domain_id": {
+          "type": "string",
+          "example": "868551927720357888",
+          "description": "用户的租户ID"
+        },
+        "domain_name": {
+          "type": "string",
+          "example": "Test_CodeArtsReq",
+          "description": "用户的租户名称"
+        },
+        "nick_name": {
+          "type": "string",
+          "example": "Test_CodeArtsReq_nickname",
+          "description": "用户的昵称"
+        },
+        "user_id": {
+          "type": "string",
+          "example": "eab51c9c46f84d3aab838e1db6401232",
+          "description": "用户Iam id"
+        },
+        "user_name": {
+          "type": "string",
+          "example": "Test_CodeArtsReq",
+          "description": "用户名"
+        },
+        "user_num_id": {
+          "type": "integer",
+          "format": "int32",
+          "example": 700370955,
+          "description": "用户索引id"
+        }
+      }
+    },
+    "OptionVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "1179798773483036694",
+          "description": "**参数解释:** \n选项Id。\n**取值范围:** \n不涉及。"
+        },
+        "display_value": {
+          "type": "string",
+          "example": "是",
+          "description": "**参数解释:** \n选项名称。\n**取值范围:** \n不涉及。"
+        },
+        "value": {
+          "type": "string",
+          "example": "yes",
+          "description": "**参数解释:** \n选项的唯一标识,自定义的选项id和value相同。\n**取值范围:** \n不涉及。"
+        },
+        "code": {
+          "type": "string",
+          "example": "yes",
+          "description": "**参数解释:** \n选项code。\n**取值范围:** \n不涉及。"
+        },
+        "value_py": {
+          "type": "string",
+          "example": "yes",
+          "description": "**参数解释:** \n选项名称的中文拼音首字母。\n**取值范围:** \n不涉及。"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数解释:** \n选项在选项列表中的排序。\n**取值范围:** \n不涉及。"
+        },
+        "level": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数解释:** \n层级选项的分层标识,单选列表和多选列表值都为1,层级字段按照层级依次为1,2,3,4。\n**取值范围:** \n不涉及。"
+        },
+        "domain_id": {
+          "type": "string",
+          "example": "1179798772925194241",
+          "description": "**参数解释:** \n选项所在的项目空间Id。\n**取值范围:** \n不涉及。"
+        },
+        "belong_definition_type": {
+          "type": "string",
+          "example": "2",
+          "description": "**参数解释:** \n选项归属的定义级别。1,2,3为系统级,4为租户自定义,5为项目自定义。\n**取值范围:** \n不涉及。"
+        }
+      }
+    },
+    "BadRequestError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "参数错误"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "PM.00000001"
+        }
+      }
+    },
+    "PageInfoVO": {
+      "type": "object",
+      "properties": {
+        "page_no": {
+          "type": "integer",
+          "format": "int32",
+          "description": "页数",
+          "example": 10
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "单页大小",
+          "example": 10
+        }
+      }
+    },
+    "AlmStatus": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "1179798773743083544",
+          "description": "**参数解释:** \n状态Id。\n**取值范围:** \n不涉及。"
+        },
+        "belonging": {
+          "type": "string",
+          "example": "START",
+          "description": "**参数解释:** \n工作项的状态属性。\n**取值范围:** \n- START\n- IN_PROGRESS\n- END"
+        },
+        "space_id": {
+          "type": "string",
+          "example": "1179798772925194241",
+          "description": "**参数解释:** \n状态所属的项目空间id。\n**取值范围:** \n不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "example": "分析",
+          "description": "**参数解释:** \n状态名称。\n**取值范围:** \n不涉及。"
+        },
+        "code": {
+          "type": "string",
+          "example": "Analyse",
+          "description": "**参数解释:** \n状态code值。\n**取值范围:** \n不涉及。"
+        },
+        "definition_type": {
+          "type": "string",
+          "example": "5",
+          "description": "**参数解释:** \n状态定义级别,1,2,3为系统级,4为租户自定义,5为项目自定义。\n**取值范围:** \n不涉及。"
+        },
+        "belong_definition_type": {
+          "type": "integer",
+          "format": "int32",
+          "example": 3,
+          "description": "**参数解释:** \n状态归属定义级别,1,2,3为系统级,4为租户自定义,5为项目自定义。区别于definition_type。如果为系统级和租户自定义级,在项目中会复制一份元数据,归属于项目空间。\n**取值范围:** \n不涉及。"
+        },
+        "display_value": {
+          "type": "string",
+          "example": "分析",
+          "description": "**参数解释:** \n状态名称,和name值相同。\n**取值范围:** \n不涉及。"
+        },
+        "position": {
+          "type": "integer",
+          "format": "int32",
+          "example": 2,
+          "description": "**参数解释:** \n位置顺序。\n**取值范围:** \n不涉及。"
+        },
+        "displayable": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数解释:** \n是否显示。\n**取值范围:** \n不涉及。"
+        },
+        "editable": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数解释:** \n是否可编辑。\n**取值范围:** \n不涉及。"
+        },
+        "deletable": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数解释:** \n是否可删除。\n**取值范围:** \n不涉及。"
+        },
+        "mutable": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数解释:** \n是否可变,即是否为固定值。\n**取值范围:** \n不涉及。"
+        },
+        "title_py": {
+          "type": "string",
+          "example": "fx",
+          "description": "**参数解释:** \n标题的拼音首字母。\n**取值范围:** \n不涉及。"
+        },
+        "created_by": {
+          "type": "string",
+          "example": "c2d89e38a64a466f8f945f595df4402d",
+          "description": "**参数解释:** \n创建人用户Id。\n**取值范围:** \n不涉及。"
+        },
+        "created_date": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1759215547261,
+          "description": "**参数解释:** \n创建时间。Unix时间戳,精度为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "modified_date": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1759215547261,
+          "description": "**参数解释:** \n最近修改时间。Unix时间戳,精度为毫秒。\n**取值范围:** \n不涉及。"
+        },
+        "modified_by": {
+          "type": "string",
+          "example": "c2d89e38a64a466f8f945f595df4402d",
+          "description": "**参数解释:** \n最近修改人用户Id。\n**取值范围:** \n  不涉及。",
+          "linkage_node_fields": {
+            "type": "boolean",
+            "description": "**参数解释:** \n工作流配置中用于标识是否新增“节点责任人/节点结束时间”。\n**取值范围:** \n不涉及。"
+          }
+        }
+      }
+    },
+    "IPDIssuePageResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "返回信息",
+          "example": null
+        },
+        "result": {
+          "description": "结果对象",
+          "$ref": "#/definitions/IssueListResult"
+        },
+        "status": {
+          "type": "string",
+          "description": "返回状态",
+          "example": "success"
+        }
+      }
+    },
+    "DomainVO": {
+      "type": "object",
+      "description": "项目空间对象",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "965714701520515072",
+          "description": "**参数解释:** \n项目空间的唯一Id。\n**取值范围:** \n不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "example": "IPD-系统设备类-0217",
+          "description": "**参数解释:** \n项目空间名称。\n**取值范围:** \n不涉及。"
+        },
+        "title": {
+          "type": "string",
+          "example": "IPD-系统设备类-0217",
+          "description": "**参数解释:** \n项目空间名称。\n**取值范围:** \n不涉及。"
+        },
+        "project_id": {
+          "type": "string",
+          "example": "e4b0424709934bd1a54753e70336564d",
+          "description": "**参数解释:** \n项目空间对应的32位UUId。\n**取值范围:** \n不涉及。"
+        },
+        "parent_id": {
+          "type": "string",
+          "example": null,
+          "description": "**参数解释:** \n项目空间的父项目空间Id,仅在项目群中使用。\n**取值范围:** \n不涉及。"
+        },
+        "category": {
+          "type": "string",
+          "example": "Project",
+          "description": "**参数解释:** \n项目空间类型。\n**取值范围:** \n-  Project:项目\n- Group:项目群"
+        },
+        "created_by": {
+          "type": "string",
+          "example": "a360371833bf4c558f796fd707b44daf",
+          "description": "**参数解释:** \n项目空间创建人Id。\n**取值范围:** \n不涉及。"
+        },
+        "model_id": {
+          "type": "string",
+          "example": "10001",
+          "description": "**参数解释:** \n项目空间对应的模型Id。\n**取值范围:** \n不涉及。\n- 10001:系统设备类\n- 10002:独立软件类\n- 10003:自营软件/云服务类"
+        }
+      }
+    },
+    "WorkItemLabelVO": {
+      "type": "object",
+      "description": "标签对象",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "1179812901656322049",
+          "description": "**参数解释:** \n标签Id。\n**约束限制:** \n最小长度:18,最大长度:19。\n**取值范围:** \n不涉及。"
+        },
+        "category": {
+          "type": "string",
+          "example": "Label",
+          "description": "**参数解释:** \n对象类型。\n**约束限制:** \n固定为Label,表示当前对象类型为标签。\n**取值范围:** \n不涉及。"
+        },
+        "label_type": {
+          "type": "string",
+          "example": "raw requirement",
+          "description": "**参数解释:** \n标签所属的工作项的类别。\n**取值范围:** \n- requirement\n- raw requirement\n- bug\n- task\n- feature"
+        },
+        "color": {
+          "type": "string",
+          "example": "#86CAFF",
+          "description": "**参数解释:** \n标签颜色的RGB值。\n**取值范围:** \n- #86CAFF\n- #6DDEBB\n- #A6DD82\n- #FAC20A \n- #FA9841\n- #F66F6A\n- #F3689A\n- #A97AF8\n- #71757F\n- #5E7CE0\n- #207AB3\n- #169E6C\n- #6CA83B\n- #B58200\n- #B54E04\n- #B02121\n- #AD215B\n- #572DB3\n- #4F4F4F\n- #3C51A6"
+        },
+        "title": {
+          "type": "string",
+          "example": "RR",
+          "description": "**参数解释:** \n标签标题。\n**约束限制:** \n最小长度:1,最大长度:30。"
+        },
+        "type": {
+          "type": "string",
+          "example": "label",
+          "description": "**参数解释:** \n表示当前对象数据类型为标签。\n**约束限制:** \n固定为label。\n**取值范围:** \nlabel。"
+        },
+        "state": {
+          "type": "string",
+          "example": "正在工作",
+          "description": "**参数解释:** \n标签的生命周期。\n**取值范围:** \n- 正在工作\n- 作废\n- 删除"
+        },
+        "modified_by": {
+          "type": "string",
+          "example": "c2d89e38a64a466f8f945f595df4402d",
+          "description": "**参数解释:** \n最近修改人。\n**约束限制:** \n不涉及。"
+        }
+      }
+    },
+    "UnauthorizedRequestError": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "认证信息过期"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DEV.00000003"
+        }
+      }
+    },
+    "PlanVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": 956200745322848257,
+          "description": "**参数解释:**\nid(发布、迭代、里程碑的id)\n**取值范围:**\n不涉及",
+          "minLength": 18,
+          "maxLength": 19
+        },
+        "title": {
+          "type": "string",
+          "example": "IR-01",
+          "description": "**参数解释:**\n标题\n**取值范围:**\n不涉及",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "category": {
+          "type": "string",
+          "example": "Iteration",
+          "description": "**参数解释:**\n分类,枚举类型\n**取值范围:**\n- PI:发布\n- Iteration:迭代\n- PlanMilestone:里程碑",
+          "minLength": 2,
+          "maxLength": 16
+        },
+        "description": {
+          "type": "string",
+          "example": "描述",
+          "description": "**参数解释:**\n描述\n**取值范围:**\n不涉及",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "state": {
+          "type": "string",
+          "example": "正在工作",
+          "description": "**参数解释:**\n作废标识,枚举类型。\n**取值范围:**\n- 正在工作:可正常操作的发布\n- 作废:软删除后的发布,可在回收站恢复\n- 删除:彻底删除后的发布,无法恢复",
+          "minLength": 2,
+          "maxLength": 8,
+          "readOnly": true
+        },
+        "status": {
+          "type": "string",
+          "example": "ended",
+          "description": "**参数解释:**\n发布/迭代的状态,枚举类型。\n**取值范围:**\n- planned:发布/计划未开始\n- going:发布/计划进行中\n- ended:发布/计划已结束",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "children": {
+          "type": "array",
+          "description": "**参数解释:**\n子项目迭代信息",
+          "items": {
+            "$ref": "#/definitions/PlanVO"
+          }
+        },
+        "created_by": {
+          "type": "string",
+          "example": "a360371833bf4c558f796fd707b44daf",
+          "description": "**参数解释:**\n创建人Id\n**取值范围:**\n不涉及",
+          "minLength": 32,
+          "maxLength": 32,
+          "readOnly": true
+        },
+        "modified_by": {
+          "type": "string",
+          "example": "a360371833bf4c558f796fd707b44daf",
+          "description": "**参数解释:**\n最近更新人Id\n**取值范围:**\n不涉及",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "plan_start_date": {
+          "type": "string",
+          "example": "2022-12-08",
+          "description": "**参数解释:**\n计划开始时间,\"yyyy-MM-dd\"格式\n**取值范围:**\n不涉及"
+        },
+        "plan_end_date": {
+          "type": "string",
+          "example": "2022-12-31",
+          "description": "**参数解释:**\n计划完成时间,\"yyyy-MM-dd\"格式\n**取值范围:**\n不涉及"
+        },
+        "created_date": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1706845715000,
+          "description": "**参数解释:**\n创建时间,unix时间戳,单位:毫秒\n**取值范围:**\n不涉及"
+        },
+        "parent_id": {
+          "type": "string",
+          "example": 956239067176935424,
+          "description": "**参数解释:**\n父工作项id\n**取值范围:**\n不涉及",
+          "minLength": 18,
+          "maxLength": 19
+        },
+        "baseline": {
+          "type": "string",
+          "example": "baselined",
+          "description": "**参数解释:**\n基线状态,枚举类型\n**取值范围:**\n- baselined:已基线\n- unbaseline:未基线\n- baseline-reviewing:基线评审中",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "workload": {
+          "type": "string",
+          "description": "**参数解释:**\n预估工作量\n**取值范围:**\n不涉及",
+          "minLength": 0,
+          "maxLength": 11
+        },
+        "owner": {
+          "type": "string",
+          "example": "a360371833bf4c558f796fd707b44daf",
+          "description": "**参数解释:**\n责任人ID\n**取值范围:**\n不涉及",
+          "minLength": 32,
+          "maxLength": 32
+        }
+      }
+    },
+    "SortInfo": {
+      "type": "object",
+      "properties": {
+        "asc": {
+          "type": "boolean",
+          "description": "是否升序",
+          "example": true
+        },
+        "field": {
+          "type": "string",
+          "description": "排序字段"
+        }
+      }
+    },
+    "ConditionVO": {
+      "type": "object",
+      "properties": {
+        "operator": {
+          "type": "string",
+          "description": "条件类型{&&,||}",
+          "example": "||"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "条件值",
+          "example": [
+            "Committed",
+            "Analyse",
+            "ToBeConfirmed",
+            "Plan",
+            "Doing",
+            "Delivered",
+            "Checking"
+          ]
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "projectman-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v4",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,309 @@
+{
+  "name": "ShowReportTaskDetailsData",
+  "summary": "查询报告详情类数据",
+  "tags": "报告管理",
+  "productshort": "BCC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{domain_id}/reports/{report_id}/task-details-data": {
+      "get": {
+        "tags": [
+          "报告管理"
+        ],
+        "summary": "查询报告详情类数据",
+        "description": "查询指定租户下的指定报告的详情类数据",
+        "operationId": "ShowReportTaskDetailsData",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户ID",
+            "pattern": "^[a-z0-9]{16,32}$",
+            "minLength": 16,
+            "maxLength": 32
+          },
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "报告ID",
+            "pattern": "^[0-9a-f]{24}$",
+            "minLength": 24,
+            "maxLength": 24
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "单次查询的条数限制,取值范围(0,100],默认值为10,用于限制结果数据条数。",
+            "type": "integer",
+            "format": "int32",
+            "default": "10",
+            "minimum": 1,
+            "maximum": 100
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "required": false,
+            "description": "请求游标",
+            "type": "string",
+            "minLength": 24,
+            "maxLength": 24,
+            "pattern": "^[0-9a-f]{24}$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询报告的任务详细数据列表响应体",
+            "schema": {
+              "$ref": "#/definitions/ListTasksResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "未提供认证信息或认证信息错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "请求页面被禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "404": {
+            "description": "未找到资源。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "408": {
+            "description": "请求超出了服务器的等待时间。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "429": {
+            "description": "当前请求过多。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "请求未完成,服务异常。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "503": {
+            "description": "服务端错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "bcc::getReportTaskDetails",
+          "authLevel": "NO_INSTANCE",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": false,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": true,
+          "needCbcCheck": false,
+          "model": "v5",
+          "authContextInitializerName": "baseIamAuthContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResourceTypeEnum": {
+      "type": "string",
+      "enum": [
+        "Server",
+        "Volume",
+        "Sfs-Turbo",
+        "Workspace",
+        "MySQL",
+        "PostgreSQL",
+        "SQLServer",
+        "MariaDB",
+        "GaussDB"
+      ],
+      "description": "Server:云服务器\nVolume:云硬盘\nSfs-Turbo:高性能文件系统\nWorkspace:云桌面\nMySQL:云数据库RDS(MySQL)\nPostgreSQL:云数据库RDS(PostgreSQL)\nSQLServer:云数据库RDS(SQLServer)\nMariaDB:云数据库RDS(MariaDB)\nGaussDB:云数据库GaussDB",
+      "minLength": 2,
+      "maxLength": 16,
+      "example": "Server"
+    },
+    "TaskTypeEnum": {
+      "type": "string",
+      "example": "backup",
+      "enum": [
+        "backup",
+        "replication",
+        "restore",
+        "delete",
+        "vault_delete",
+        "remove_resource"
+      ],
+      "description": "任务类型枚举",
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "TaskEntity": {
+      "type": "object",
+      "description": "任务实体",
+      "required": [
+        "task_id",
+        "task_type",
+        "task_status",
+        "resource_name",
+        "resource_id",
+        "resource_type",
+        "region_id",
+        "task_start_time",
+        "task_end_time"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务ID",
+          "example": "43e4feaab48f11e89039fa163ebaa7e4br01;4827f2da-b008-4507-ab7d-42d0df5ed912",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "task_type": {
+          "$ref": "#/definitions/TaskTypeEnum",
+          "description": "任务类型"
+        },
+        "task_status": {
+          "$ref": "#/definitions/TaskStatusEnum",
+          "description": "任务状态"
+        },
+        "resource_name": {
+          "type": "string",
+          "description": "资源名称"
+        },
+        "resource_id": {
+          "type": "string",
+          "description": "资源ID"
+        },
+        "resource_type": {
+          "$ref": "#/definitions/ResourceTypeEnum",
+          "description": "资源类型"
+        },
+        "region_id": {
+          "type": "string",
+          "description": "任务归属的区域ID"
+        },
+        "vault_name": {
+          "type": "string",
+          "description": "存储库名称"
+        },
+        "vault_id": {
+          "type": "string",
+          "description": "存储库ID"
+        },
+        "task_start_time": {
+          "type": "string",
+          "description": "任务开始时间"
+        },
+        "task_end_time": {
+          "type": "string",
+          "description": "任务结束时间"
+        }
+      }
+    },
+    "TaskStatusEnum": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "running",
+        "skipped",
+        "timeout"
+      ],
+      "description": "任务状态枚举",
+      "example": "success",
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "ListTasksResponseBody": {
+      "type": "object",
+      "description": "查询报告的任务详细数据列表响应",
+      "required": [
+        "count",
+        "tasks"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "本次分页查询响应的任务条数",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "next_marker": {
+          "type": "string",
+          "description": "下一页的marker",
+          "maxLength": 38
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskEntity"
+          },
+          "description": "任务列表",
+          "maxItems": 100,
+          "minItems": 0
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcc.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

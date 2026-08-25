@@ -1,0 +1,464 @@
+{
+  "name": "CreateConnection",
+  "summary": "创建连接",
+  "tags": "连接管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v5/{project_id}/connections": {
+      "post": {
+        "x-request-examples-url-1": "https://{endpoint}/v5/5237e10fe9aa4ad5b16b6a5245248314/connections",
+        "x-request-examples-description-1": "创建一个MySQL连接示例。",
+        "x-request-examples-text-1": {
+          "name": "DRS-mysql",
+          "db_type": "mysql",
+          "description": "description",
+          "endpoint": {
+            "endpoint_name": "mysql",
+            "ip": "127.0.0.1",
+            "db_port": "3306",
+            "db_user": "root",
+            "db_password": "password"
+          },
+          "ssl": {
+            "ssl_link": false
+          },
+          "enterprise_project_id": "0"
+        },
+        "x-request-examples-1": {
+          "name": "DRS-mysql",
+          "db_type": "mysql",
+          "description": "description",
+          "endpoint": {
+            "endpoint_name": "mysql",
+            "ip": "127.0.0.1",
+            "db_port": "3306",
+            "db_user": "root",
+            "db_password": "password"
+          },
+          "ssl": {
+            "ssl_link": false
+          },
+          "enterprise_project_id": "0"
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "连接管理"
+        ],
+        "summary": "创建连接",
+        "description": "创建单个连接,该连接可以为线下自建库或云上RDS等,目前支持的数据库引擎包括MySQL、PostgreSQL、Oracle和MongoDB。",
+        "operationId": "CreateConnection",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。 获取方法请参见[获取项目ID。](https://support.huaweicloud.com/api-drs/drs_api_0106.html)",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "发送的实体的MIME类型。推荐用户默认使用application/json,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。 用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。 请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "name": "CreateConnectionRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "创建单个连接请求体。",
+            "schema": {
+              "$ref": "#/definitions/CreateConnectionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ConnectionResp"
+            },
+            "examples": {
+              "application/json": {
+                "name": "DRS-mysql",
+                "db_type": "mysql",
+                "endpoint": {
+                  "endpoint_name": "mysql",
+                  "ip": "127.0.0.1",
+                  "db_port": "3306",
+                  "db_user": "root"
+                },
+                "description": "description",
+                "connection_id": "835e1d79-24ac-411d-a1c8-22c000280659",
+                "ssl": {
+                  "ssl_link": false
+                },
+                "create_time": 1716879012121,
+                "enterprise_project_id": "0"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DRS.10010065",
+                "error_msg": "Connection manager name is already exists."
+              }
+            }
+          }
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "CreateConnectionReq": {
+      "type": "object",
+      "required": [
+        "name",
+        "db_type",
+        "endpoint"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "连接名称。 约束:连接名称在4位到50位之间,不区分大小写,可以包含字母、数字、中划线或下划线,不能包括其他特殊字符。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "db_type": {
+          "type": "string",
+          "description": "连接类型,包含:\n- mysql\n- postgresql\n- mongodb\n- oracle",
+          "enum": [
+            "mysql",
+            "postgresql",
+            "mongodb",
+            "oracle"
+          ]
+        },
+        "config": {
+          "description": "连接的配置项,不同类型的连接配置项不同。",
+          "$ref": "#/definitions/ConnectionConfig"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述,长度不能超过255个字符。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "endpoint": {
+          "description": "数据库连接基本信息。",
+          "$ref": "#/definitions/BaseEndpoint"
+        },
+        "vpc": {
+          "description": "数据库实例所在VPC,子网,安全组等信息。",
+          "$ref": "#/definitions/CloudVpcInfo"
+        },
+        "ssl": {
+          "description": "数据库SSL证书信息。",
+          "$ref": "#/definitions/EndpointSslConfig"
+        },
+        "cloud": {
+          "description": "数据库实例所在Region,项目等信息。",
+          "$ref": "#/definitions/CloudBaseInfo"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。",
+          "minLength": 0,
+          "maxLength": 128
+        }
+      },
+      "description": "创建连接请求体。"
+    },
+    "ErrorResp": {
+      "description": "请求失败时返回的错误对象响应体。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12,
+          "example": "DRS.00000000"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "Success"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object"
+    },
+    "BaseEndpoint": {
+      "description": "数据库基本信息体。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "数据库信息ID。"
+        },
+        "endpoint_name": {
+          "type": "string",
+          "description": "数据库场景类型。取值:\n- oracle:云下自建Oracle数据库。\n- ecs_oracle:华为云ECS自建Oracle数据库。\n- cloud_gaussdbv5:华为云数据库GaussDB分布式。\n- mysql:他云/本地自建MySQL数据库。\n- ecs_mysql:华为云ECS自建MySQL数据库。\n- cloud_mysql:华为云数据库RDS for MySQL。\n- redis:云下自建Redis数据。\n- ecs_redis:华为云ECS自建Redis数据。\n- rediscluster:云下自建Redis集群数据库。\n- ecs_rediscluster:华为云ECS自建Redis集群数据库。\n- cloud_gaussdb_redis:华为云数据库GeminiDB Redis。\n- postgresql: 云下自建PostgreSQL数据库。\n- ecs_postgresql: 华为云ECS自建PostgreSQL数据库。\n- cloud_postgresql: 华为云数据库RDS for PostgreSQL。\n- mongodb: 云下自建MongoDB数据库。\n- ecs_mongodb: 华为云ECS自建MongoDB数据库。\n- cloud_mongodb: 华为云文档数据库服务DDS。",
+          "enum": [
+            "oracle",
+            "ecs_oracle",
+            "cloud_gaussdbv5",
+            "mysql",
+            "ecs_mysql",
+            "cloud_mysql",
+            "redis",
+            "ecs_redis",
+            "rediscluster",
+            "ecs_rediscluster",
+            "cloud_gaussdb_redis",
+            "postgresql",
+            "ecs_postgresql",
+            "cloud_postgresql",
+            "mongodb",
+            "ecs_mongodb",
+            "cloud_mongodb"
+          ]
+        },
+        "ip": {
+          "type": "string",
+          "description": "数据库IP。\n约束:\n- 数据库为自建MongoDB时,数据库IP与端口之间用“:”英文冒号拼接,多个值之间请用“,”英文逗号隔开,最多支持填写3个IP地址或域名。\n- 数据库为DDS实例时,数据库IP与端口之间用“:”英文冒号拼接,多个IP端口之间请用“,”英文逗号分隔。\n- 数据库为Redis集群时,请填写源端Redis集群所有分片的IP地址和对应端口,数据库IP与端口之间用“:”英文冒号拼接,多个IP端口之间请用“,”英文逗号分隔,并且推荐填写集群分片的Slave节点的IP地址。最多支持填写32个IP地址或域名,多个值之间请用英文逗号隔开。\n示例:\n- MySQL:ip\n- MongoDB:ip:port,ip:port,ip:port\n- DDS:ip:port,ip:port\n - Redis集群:ip:port,ip:port",
+          "example": "MySQL:ip;MongoDB:ip:port,ip:port,ip:port;DDS:ip:port,ip:port;Redis集群:ip:port,ip:port;"
+        },
+        "db_port": {
+          "type": "string",
+          "description": "数据库端口。\n\n约束:输入范围为1-65535之间的整数。",
+          "example": "3306"
+        },
+        "db_user": {
+          "type": "string",
+          "description": "数据库用户名。",
+          "example": "root"
+        },
+        "db_password": {
+          "type": "string",
+          "description": "数据库密码。",
+          "example": "******"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "华为云数据库实例ID。"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "华为云数据库实例名称。"
+        },
+        "db_name": {
+          "type": "string",
+          "description": "指定数据库名称。例如:\n- oracle:serviceName.orcl。"
+        },
+        "source_sharding": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BaseEndpoint"
+          },
+          "description": "物理源库信息。"
+        }
+      },
+      "required": [
+        "endpoint_name",
+        "db_user",
+        "db_password"
+      ],
+      "type": "object"
+    },
+    "CloudVpcInfo": {
+      "properties": {
+        "vpc_id": {
+          "type": "string",
+          "description": "数据库实例所在的虚拟私有云ID,获取方法如下:\n方法1:登录虚拟私有云服务的控制台界面,在虚拟私有云的详情页面查找VPC ID。\n方法2:通过虚拟私有云服务的API接口查询,具体操作可参考查询VPC列表。",
+          "example": "ab155e40-35f2-4463-b22b-c67a56e2fbb9"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "数据库实例所在子网ID,获取方法如下:\n方法1:登录虚拟私有云服务的控制台界面,单击VPC下的子网,进入子网详情页面,查找网络ID。\n方法2:通过虚拟私有云服务的API接口查询,具体操作可参考查询子网列表。",
+          "example": "54886391-4bf0-443a-8145-e2bfacfdf5ca"
+        },
+        "security_group_id": {
+          "type": "string",
+          "description": "数据库实例所在的安全组ID,获取方法如下:\n方法1:登录虚拟私有云服务的控制台界面,在安全组的详情页面查找安全组ID。\n方法2:通过虚拟私有云服务的API接口查询,具体操作可参考查询安全组列表。",
+          "example": "2a1f7fc8-3307-42a7-aa6f-42c8b9b8f8c5"
+        }
+      },
+      "description": "数据库实例所在VPC,子网,安全组等信息,当数据库实例类型为ecs(华为云ECS自建数据库),cloud(华为云数据库)时为必填项。",
+      "required": [
+        "vpc_id",
+        "subnet_id"
+      ]
+    },
+    "CloudBaseInfo": {
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "区域ID,当数据库实例类型为ecs(华为云ECS自建数据库),cloud(华为云数据库)时为必填项。获取方法请参见地区和终端节点。\n注意:当该Region下存在子项目时,Region ID为区域项目ID与子项目ID,由“_”下划线拼接,例如:cn-north-4_abc。",
+          "example": "cn-north-4:华北-北京四,cn-east-3:华东-上海一,cn-south-1:华南-广州"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "租户在某一Region下的Project ID。 获取方法请参见获取项目ID。",
+          "example": "054ba152d480d55b2f5dc0069e7ddef0"
+        },
+        "az_code": {
+          "type": "string",
+          "description": "数据库所在可用分区(AZ)名称。",
+          "example": "cn-north-4a:华北-北京四-可用区1"
+        }
+      },
+      "description": "数据库实例所在Region,项目等信息,当数据库实例类型为ecs(华为云ECS自建数据库),cloud(华为云数据库)时为必填项。",
+      "required": [
+        "region",
+        "project_id"
+      ]
+    },
+    "ConnectionResp": {
+      "type": "object",
+      "description": "连接响应体。",
+      "required": [
+        "connection_id",
+        "name",
+        "create_time",
+        "db_type",
+        "endpoint"
+      ],
+      "properties": {
+        "connection_id": {
+          "type": "string",
+          "description": "连接ID。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "name": {
+          "type": "string",
+          "description": "连接名称。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "连接创建时间,格式为时间戳。",
+          "exclusiveMinimum": true,
+          "exclusiveMaximum": true,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "db_type": {
+          "type": "string",
+          "description": "连接类型。\n取值:mysql - postgresql - mongodb - oracle",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "config": {
+          "description": "连接的配置项。",
+          "$ref": "#/definitions/ConnectionConfig"
+        },
+        "endpoint": {
+          "description": "数据库基本信息。",
+          "$ref": "#/definitions/BaseEndpoint"
+        },
+        "vpc": {
+          "description": "数据库实例所在VPC,子网,安全组等信息。",
+          "$ref": "#/definitions/CloudVpcInfo"
+        },
+        "ssl": {
+          "description": "数据库SSL证书信息。",
+          "$ref": "#/definitions/EndpointSslConfig"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "描述。",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      }
+    },
+    "ConnectionConfig": {
+      "type": "object",
+      "properties": {
+        "driver_name": {
+          "type": "string",
+          "description": "驱动程序名称。",
+          "minLength": 0,
+          "maxLength": 128
+        }
+      }
+    },
+    "EndpointSslConfig": {
+      "description": "数据库SSL证书信息体。如果数据库启用了SSL安全连接,请确保相关配置正确,并输入SSL证书相关参数,否则无需填写此参数。",
+      "properties": {
+        "ssl_link": {
+          "type": "boolean",
+          "description": "是否SSL安全连接。如果数据库启用了SSL安全连接,参数值为true。"
+        },
+        "ssl_cert_name": {
+          "type": "string",
+          "description": "SSL证书名字。"
+        },
+        "ssl_cert_key": {
+          "type": "string",
+          "description": "SSL证书内容,用base64加密。"
+        },
+        "ssl_cert_check_sum": {
+          "type": "string",
+          "description": "SSL证书内容checksum值,后端校验,源库安全连接必选。"
+        },
+        "ssl_cert_password": {
+          "type": "string",
+          "description": "SSL证书密码,证书文件后缀为.p12时必填。"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

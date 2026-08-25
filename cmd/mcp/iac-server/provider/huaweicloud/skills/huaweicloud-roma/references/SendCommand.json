@@ -1,0 +1,180 @@
+{
+  "name": "SendCommand",
+  "summary": "发送命令",
+  "tags": "设备管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/link/instances/{instance_id}/devices/{device_id}/send-command": {
+      "post": {
+        "tags": [
+          "设备管理"
+        ],
+        "summary": "发送命令",
+        "operationId": "SendCommand",
+        "description": "发送命令",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/instance_id"
+          },
+          {
+            "$ref": "#/parameters/device_id"
+          },
+          {
+            "name": "SendCommandRequestBody",
+            "in": "body",
+            "description": "创建设备请求对象",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SendCommandRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content 当同步参数为同步(is_sync=true)时,表示命令已发送给设备,当同步参数为异步(is_sync=false)时,表示命令已发送到平台(若此时设备在线则会立即将命令发送给设备,若设备不在线则会当设备上线后立即发送给设备)"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error 包含异步命令时南向设备回复命令响应超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "系统错误码,针对4xx和5xx类HTTP错误码的详细错误码",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 0,
+          "maxLength": 200
+        },
+        "request_id": {
+          "type": "string",
+          "description": "消息ID",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      }
+    },
+    "RequestParameter": {
+      "example": {
+        "parameter_name": "parameter1",
+        "parameter_value": "parameter_value1"
+      },
+      "properties": {
+        "parameter_name": {
+          "type": "string",
+          "description": "请求参数名",
+          "maxLength": 32,
+          "minLength": 2
+        },
+        "parameter_value": {
+          "type": "string",
+          "description": "请求参数值",
+          "maxLength": 32,
+          "minLength": 2
+        }
+      }
+    },
+    "SendCommandRequestBody": {
+      "example": {
+        "service_id": 10001,
+        "command_id": 20001,
+        "is_sync": 1
+      },
+      "required": [
+        "service_id",
+        "command_id",
+        "is_sync"
+      ],
+      "properties": {
+        "service_id": {
+          "type": "integer",
+          "description": "服务ID,自动向下取整",
+          "minimum": 1,
+          "maximum": 999999999999999999
+        },
+        "command_id": {
+          "type": "integer",
+          "description": "命令ID,自动向下取整",
+          "minimum": 1,
+          "maximum": 999999999999999999
+        },
+        "is_sync": {
+          "type": "boolean",
+          "description": "命令是否同步 true-同步 false-异步 同步命令会将命令以MQTT消息发送给设备后等待设备的MQTT命令响应,收到响应后再回复响应(默认超时5秒),异步命令则以立即返回响应"
+        },
+        "requests": {
+          "type": "array",
+          "description": "请求参数列表",
+          "minItems": 1,
+          "maxItems": 9999,
+          "items": {
+            "$ref": "#/definitions/RequestParameter"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "device_id": {
+      "name": "device_id",
+      "in": "path",
+      "description": "设备ID",
+      "required": true,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 99999999999999999999999
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方式请参见《ROMA Connect API参考》的“附录 > 获取项目ID”章节。",
+      "type": "string",
+      "required": true,
+      "maxLength": 32,
+      "minLength": 0
+    },
+    "instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "description": "实例ID",
+      "type": "string",
+      "required": true,
+      "maxLength": 36,
+      "minLength": 0
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,1101 @@
+{
+  "name": "CreateRule",
+  "summary": "创建规则",
+  "tags": "设备联动规则",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/rules": {
+      "post": {
+        "tags": [
+          "RuleManagement"
+        ],
+        "summary": "创建规则",
+        "description": "应用服务器可调用此接口在物联网平台创建一条规则。",
+        "operationId": "CreateRule",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html)。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,一般华为云租户无需携带该参数,仅在物理多租场景下从管理面访问API时需要携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID。",
+            "required": false,
+            "type": "string",
+            "pattern": "[a-f0-9-]{1,36}",
+            "x-example": "********"
+          },
+          {
+            "in": "body",
+            "name": "CreateRuleRequestBody",
+            "description": "**参数说明**:请求的body对象,详细请看规则结构体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Rule"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "examples": {
+              "application/json": {
+                "rule_id": "5eb3628d017d9105d0cf9aec",
+                "rule_type": "DEVICE_LINKAGE",
+                "name": "openLight",
+                "status": "active",
+                "condition_group": {
+                  "conditions": [
+                    {
+                      "type": "DEVICE_DATA",
+                      "device_property_condition": {
+                        "device_id": "07b69d78-c716-4be6-9545-869920738397",
+                        "filters": [
+                          {
+                            "path": "StreetLight/visibility",
+                            "operator": "<",
+                            "value": "30",
+                            "strategy": {
+                              "trigger": "reverse",
+                              "event_valid_time": 300
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "actions": [
+                  {
+                    "type": "DEVICE_CMD",
+                    "device_command": {
+                      "device_id": "3a9e52d9-3ebf-4985-89e9-6d2396748a2f",
+                      "cmd": {
+                        "command_name": "SET_LIGHT_SWITCH",
+                        "command_body": {
+                          "value": 0
+                        },
+                        "service_id": "Switch",
+                        "buffer_timeout": 0,
+                        "response_timeout": 1800
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RuleResponse"
+            },
+            "x-SuccessCode": true
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.000006",
+              "IOTDA.001001",
+              "IOTDA.010000",
+              "IOTDA.010004",
+              "IOTDA.010005",
+              "IOTDA.010006",
+              "IOTDA.010007",
+              "IOTDA.010008",
+              "IOTDA.010009",
+              "IOTDA.010010",
+              "IOTDA.010011",
+              "IOTDA.010012",
+              "IOTDA.010013",
+              "IOTDA.010015"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.000004",
+              "IOTDA.000021",
+              "IOTDA.001000",
+              "IOTDA.001002",
+              "IOTDA.001005",
+              "IOTDA.001006",
+              "IOTDA.001007",
+              "IOTDA.010003"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IOTDA.010002"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IOTDA.000007",
+              "IOTDA.000020"
+            ]
+          }
+        },
+        "x-iftype": "OpenAPI_new",
+        "x-imports": [
+          "org.springframework.http.ResponseEntity;"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "iot_06_v5_0084",
+        "x-externalAPI": true,
+        "x-returnType": "ResponseEntity<RuleResponse>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/rules",
+        "x-request-examples-description-1": "创建云端规则-设备下线触发告警",
+        "x-request-examples-text-1": {
+          "name": "openLight",
+          "description": "string",
+          "condition_group": {
+            "time_range": {
+              "days_of_week": "2,3,4,5,6",
+              "start_time": "18:00",
+              "end_time": "23:00"
+            },
+            "logic": "or",
+            "conditions": [
+              {
+                "device_linkage_status_condition": {
+                  "device_id": "07b69d78-c716-4be6-9545-869920738397",
+                  "status_list": [
+                    "OFFLINE"
+                  ],
+                  "duration": 0
+                },
+                "type": "DEVICE_LINKAGE_STATUS"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "device_alarm": {
+                "severity": "warning",
+                "alarm_status": "fault",
+                "name": "设备下线",
+                "description": "设备下线"
+              },
+              "type": "DEVICE_ALARM"
+            }
+          ],
+          "rule_type": "DEVICE_LINKAGE",
+          "status": "active",
+          "app_id": "string"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v5/iot/{project_id}/rules",
+        "x-request-examples-description-2": "创建云端规则-属性上报触发命令下发",
+        "x-request-examples-text-2": {
+          "name": "openLight",
+          "description": "string",
+          "condition_group": {
+            "time_range": {
+              "days_of_week": "2,3,4,5,6",
+              "start_time": "18:00",
+              "end_time": "23:00"
+            },
+            "logic": "or",
+            "conditions": [
+              {
+                "device_property_condition": {
+                  "device_id": "07b69d78-c716-4be6-9545-869920738397",
+                  "filters": [
+                    {
+                      "path": "StreetLight/visibility",
+                      "strategy": {
+                        "trigger": "reverse",
+                        "event_valid_time": 300
+                      },
+                      "value": "30",
+                      "operator": "<"
+                    }
+                  ]
+                },
+                "type": "DEVICE_DATA"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "device_command": {
+                "device_id": "3a9e52d9-3ebf-4985-89e9-6d2396748a2f",
+                "cmd": {
+                  "buffer_timeout": 0,
+                  "mode": "ACTIVE",
+                  "service_id": "Switch",
+                  "command_name": "SET_LIGHT_SWITCH",
+                  "command_body": {
+                    "value": 0
+                  }
+                }
+              },
+              "type": "DEVICE_CMD"
+            }
+          ],
+          "rule_type": "DEVICE_LINKAGE",
+          "status": "active",
+          "app_id": "string"
+        },
+        "x-request-examples-url-3": "POST https://{endpoint}/v5/iot/{project_id}/rules",
+        "x-request-examples-description-3": "创建端测规则-属性上报触发命令下发",
+        "x-request-examples-text-3": {
+          "name": "openLight",
+          "description": "string",
+          "condition_group": {
+            "time_range": {
+              "days_of_week": "2,3,4,5,6",
+              "start_time": "18:00",
+              "end_time": "23:00"
+            },
+            "logic": "or",
+            "conditions": [
+              {
+                "device_property_condition": {
+                  "device_id": "3a9e52d9-3ebf-4985-89e9-6d2396748a2f",
+                  "filters": [
+                    {
+                      "path": "StreetLight/visibility",
+                      "strategy": {
+                        "trigger": "reverse",
+                        "event_valid_time": 300
+                      },
+                      "value": "30",
+                      "operator": "<"
+                    }
+                  ]
+                },
+                "type": "DEVICE_DATA"
+              }
+            ]
+          },
+          "actions": [
+            {
+              "device_command": {
+                "device_id": "3a9e52d9-3ebf-4985-89e9-6d2396748a2f",
+                "cmd": {
+                  "buffer_timeout": 0,
+                  "mode": "ACTIVE",
+                  "service_id": "Switch",
+                  "command_name": "SET_LIGHT_SWITCH",
+                  "command_body": {
+                    "value": 0
+                  }
+                }
+              },
+              "type": "DEVICE_CMD"
+            }
+          ],
+          "rule_type": "DEVICE_SIDE",
+          "device_side": {
+            "device_ids": [
+              "3a9e52d9-3ebf-4985-89e9-6d2396748a2f"
+            ]
+          },
+          "status": "active",
+          "app_id": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CMD": {
+      "type": "object",
+      "required": [
+        "command_body",
+        "command_name",
+        "service_id"
+      ],
+      "properties": {
+        "command_name": {
+          "type": "string",
+          "example": "SET_LIGHT_SWITCH",
+          "description": "**参数说明**:设备命令名称,在设备关联的产品模型中定义。",
+          "maxLength": 128,
+          "x-NotEmpty": true
+        },
+        "command_body": {
+          "type": "object",
+          "example": {
+            "value": 0
+          },
+          "description": "**参数说明**:设备命令参数,Json格式。\n使用LWM2M协议设备命令示例:{\"value\":\"1\"},里面是一个个键值对,每个键都是产品模型中命令的参数名(paraName)。\n使用MQTT协议设备命令示例:{\"header\": {\"mode\": \"ACK\",\"from\": \"/users/testUser\",\"method\": \"SET_TEMPERATURE_READ_PERIOD\",\"to\":\"/devices/{device_id}/services/{service_id}\"},\"body\": {\"value\" : \"1\"}}。\n- mode:必选,设备收到命令后是否需要回复确认消息,默认为ACK模式。ACK表示需要回复确认消息,NOACK表示不需要回复确认消息,其它值无效。\n- from:可选,命令发送方的地址。App发起请求时格式为/users/{userId} ,应用服务器发起请求时格式为/{serviceName},物联网平台发起请求时格式为/cloud/{serviceName}。\n- to:可选,命令接收方的地址,格式为/devices/{device_id}/services/{service_id}。\n- method:可选,产品模型中定义的命令名称。\n- body:可选,命令的消息体,里面是一个个键值对,每个键都是产品模型中命令的参数名(paraName)。具体格式需要应用和设备约定。",
+          "properties": {},
+          "x-Type": "object"
+        },
+        "service_id": {
+          "type": "string",
+          "example": "Switch",
+          "description": "**参数说明**:设备命令所属的设备服务ID,在设备关联的产品模型中定义。",
+          "maxLength": 64,
+          "x-NotEmpty": true
+        },
+        "buffer_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "**参数说明**:设备命令的缓存时间,单位为秒,表示物联网平台在把命令下发给设备前缓存命令的有效时间,超过这个时间后命令将不再下发,默认值为172800s(48小时)。\n如果buffer_timeout设置为0,则无论物联网平台上设置的命令下发模式是什么,该命令都会立即下发给设备。",
+          "minimum": 0,
+          "maximum": 31536000,
+          "default": 172800
+        },
+        "response_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1800,
+          "description": "**参数说明**:命令响应的有效时间,单位为秒,表示设备接收到命令后,在response_timeout时间内响应有效,超过这个时间未收到命令的响应,则认为命令响应超时,默认值为1800s。",
+          "minimum": 1,
+          "maximum": 31536000,
+          "default": 1800
+        },
+        "mode": {
+          "type": "string",
+          "description": "**参数说明**:设备命令的下发模式,仅当buffer_timeout的值大于0时有效。\n- ACTIVE:主动模式,物联网平台主动将命令下发给设备。\n- PASSIVE:被动模式,物联网平台创建设备命令后,会直接缓存命令。等到设备再次上线或者上报上一条命令的执行结果后才下发命令。"
+        }
+      },
+      "title": "设备下发命令结构体",
+      "description": "给设备下发命令的命令内容,在动作的type为“DEVICE_CMD”时有效,且为必选",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "RuleAction": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "DEVICE_CMD",
+          "description": "**参数说明**:规则动作的类型,端侧执行只支持下发设备命令消息类型。\n**取值范围**:\n- DEVICE_CMD:下发设备命令消息类型。\n- SMN_FORWARDING:发送SMN消息类型。\n- DEVICE_ALARM:上报设备告警消息类型。当选择该类型时,condition中必须有DEVICE_DATA条件类型。该类型动作只能唯一。",
+          "pattern": "(DEVICE_CMD|SMN_FORWARDING|DEVICE_ALARM|DIS_FORWARDING|OBS_FORWARDING|ROMA_FORWARDING|IoTA_FORWARDING|KAFKA_FORWARDING)"
+        },
+        "device_command": {
+          "description": "下发设备命令消息内容。当type为DEVICE_CMD时,必填。",
+          "$ref": "#/definitions/ActionDeviceCommand"
+        },
+        "smn_forwarding": {
+          "description": "发送给SMN消息结构。当规则类型为DEVICE_LINKAGE且type为SMN_FORWARDING时,必填。",
+          "$ref": "#/definitions/ActionSmnForwarding"
+        },
+        "device_alarm": {
+          "description": "上报设备告警消息内容。当规则类型为DEVICE_LINKAGE且type为DEVICE_ALARM时,必填。",
+          "$ref": "#/definitions/ActionDeviceAlarm"
+        }
+      },
+      "title": "规则动作结构体",
+      "description": "规则动作结构体",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ],
+      "x-Doc-ignore": "dis_forwarding,obs_forwarding,roma_forwarding,iota_forwarding,kafka_forwarding"
+    },
+    "PropertyFilter": {
+      "type": "object",
+      "required": [
+        "operator",
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "example": "StreetLight/visibility",
+          "description": "**参数说明**:设备属性的路径信息,格式:service_id/DataProperty,例如门磁状态为“DoorWindow/status”。",
+          "maxLength": 128
+        },
+        "operator": {
+          "type": "string",
+          "example": "<",
+          "description": "**参数说明**:数据比较的操作符。\n**取值范围**:当前支持的操作符有:>,<,>=,<=,=,in:表示在指定值中匹配和between:表示数值区间。",
+          "pattern": "(>|<|>=|<=|=|between|in|geo.circle.in|geo.circle.out)"
+        },
+        "value": {
+          "type": "string",
+          "example": "30",
+          "description": "**参数说明**:数据比较表达式的右值。与数据比较操作符between联用时,右值表示最小值和最大值,用逗号隔开,如“20,30”表示大于等于20小于30。",
+          "maxLength": 64
+        },
+        "in_values": {
+          "type": "array",
+          "description": "**参数说明**:当operator为in时该字段必填,使用该字段传递比较表达式右值,上限为20个。",
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "x-maxLength": 20
+        },
+        "strategy": {
+          "description": "**参数说明**:规则条件的处理策略,用于确定规则是否判断上次数据是否满足条件。当rule_type为DEVICE_LINKAGE时,该参数值不能为空。端侧执行不支持该字段。",
+          "$ref": "#/definitions/Strategy"
+        }
+      },
+      "title": "设备属性过滤信息",
+      "description": "设备属性过滤信息,自定义结构。",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "DeviceLinkageStatusCondition": {
+      "type": "object",
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "example": "07b69d78-c716-4be6-9545-869920738397",
+          "description": "**参数说明**:设备ID,用于唯一标识一个设备,在注册设备时由物联网平台分配获得。存在该参数时设备状态触发根据指定设备触发,该参数值和product_id不能同时为空。如果该参数和product_id同时存在时,以该参数值对应的设备进行条件过滤。\n**取值范围**:长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "product_id": {
+          "type": "string",
+          "example": "074abacf-cdb1-4f52-8c88-5864e50d332c",
+          "description": "**参数说明**:设备关联的产品ID,用于唯一标识一个产品模型,创建产品后获得。方法请参见 [创建产品](https://support.huaweicloud.com/api-iothub/iot_06_v5_0050.html)。存在该参数且device_id为空时设备状态触发匹配该产品下所有设备触发,该参数值和device_id不能同时为空。",
+          "maxLength": 128
+        },
+        "status_list": {
+          "type": "array",
+          "example": "[ONLINE,OFFLINE]",
+          "description": "**参数说明**:状态列表,设备状态条件携带该参数。\n**取值范围**:\n- ONLINE:设备上线\n- OFFLINE:设备下线",
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "x-maxLength": 2
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "**持续时长**:设备状态持续时长,取值范围: 0-60(分钟)。",
+          "minimum": 0,
+          "maximum": 60,
+          "default": 0
+        }
+      },
+      "title": "设备联动状态类型",
+      "description": "条件中设备状态类型的信息,自定义结构。",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "Strategy": {
+      "type": "object",
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "example": "reverse",
+          "description": "**参数说明**:规则条件触发的判断策略,默认为pulse。\n**取值范围**:\n- pulse:设备上报的数据满足条件则触发,不判断上一次上报的数据。\n- reverse:设备上一次上报的数据不满足条件,本次上报的数据满足条件则触发。",
+          "pattern": "(pulse|reverse)"
+        },
+        "event_valid_time": {
+          "type": "integer",
+          "format": "int32",
+          "example": 300,
+          "description": "**参数说明**:设备数据的有效时间,单位为秒,设备数据的产生时间以上报数据中的eventTime为基准。",
+          "minimum": -1
+        }
+      },
+      "title": "条件处理策略",
+      "description": "配置条件处理策略,用于确定规则是否判断上次数据是否满足条件。当rule_type类型为 “DEVICE_LINKAGE”时,为必选参数。默认为pulse触发类型,事件有效性为永久有效",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "RuleCondition": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "DEVICE_DATA",
+          "description": "**参数说明**:规则条件的类型。\n**取值范围**:\n- DEVICE_DATA:设备属性数据类型条件。\n- SIMPLE_TIMER:简单定时类型条件。\n- DAILY_TIMER:每日定时类型条件。\n- DEVICE_LINKAGE_STATUS:设备状态类型条件。",
+          "pattern": "(DEVICE_DATA|DAILY_TIMER|SIMPLE_TIMER|DEVICE_LINKAGE_STATUS|DEVICE_STATUS|DEVICE_LIFE_CYCLE|DEVICE_MESSAGE|MESSAGE_RESULTS)"
+        },
+        "device_property_condition": {
+          "description": "**参数说明**:条件中设备数据类型的信息,当type为DEVICE_DATA时,为必选参数。",
+          "$ref": "#/definitions/DeviceDataCondition"
+        },
+        "simple_timer_condition": {
+          "description": "**参数说明**:条件中简单定时类型的信息,当type为SIMPLE_TIMER时,为必选参数。",
+          "$ref": "#/definitions/SimpleTimerType"
+        },
+        "daily_timer_condition": {
+          "description": "**参数说明**:条件中每日定时类型的信息,当type为DAILY_TIMER时,为必选参数。",
+          "$ref": "#/definitions/DailyTimerType"
+        },
+        "device_linkage_status_condition": {
+          "description": "**参数说明**:条件中设备状态类型的信息,当规则类型为DEVICE_LINKAGE且type为DEVICE_LINKAGE_STATUS时,为必选参数。",
+          "$ref": "#/definitions/DeviceLinkageStatusCondition"
+        }
+      },
+      "title": "规则条件结构体",
+      "description": "规则条件结构体",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ],
+      "x-Doc-ignore": "device_message_condition,device_status_condition"
+    },
+    "TimeRange": {
+      "type": "object",
+      "required": [
+        "end_time",
+        "start_time"
+      ],
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "example": "18:00",
+          "description": "**参数说明**:规则条件触发的开始时间,格式:HH:mm。",
+          "pattern": "^((1|0?)[0-9]|2[0-3]){1}:([0-5]{0,1}[0-9]){1}$"
+        },
+        "end_time": {
+          "type": "string",
+          "example": "23:00",
+          "description": "**参数说明**:规则条件触发的结束时间,格式:HH:mm。若结束时间与开始时间一致,则时间为全天。",
+          "pattern": "^((1|0?)[0-9]|2[0-3]){1}:([0-5]{0,1}[0-9]){1}$"
+        },
+        "days_of_week": {
+          "type": "string",
+          "example": "2,3,4,5,6",
+          "description": "**参数说明**:星期列表,以逗号分隔。1代表周日,2代表周一,依次类推,默认为每天。星期列表中的日期为开始时间的日期。",
+          "pattern": "^[1-7](,[1-7]){0,6}$"
+        }
+      },
+      "title": "规则有效时间段",
+      "description": "规则有效时间段",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "ActionDeviceAlarm": {
+      "type": "object",
+      "required": [
+        "alarm_status",
+        "name",
+        "severity"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "设备属性异常",
+          "description": "**参数说明**:告警名称。",
+          "maxLength": 256
+        },
+        "alarm_status": {
+          "type": "string",
+          "example": "fault",
+          "description": "**参数说明**:告警状态。\n**取值范围**:\n- fault:上报告警。\n- recovery:恢复告警。",
+          "pattern": "(fault|recovery)"
+        },
+        "severity": {
+          "type": "string",
+          "example": "warning",
+          "description": "**参数说明**:告警级别。\n**取值范围**:warning(警告)、minor(一般)、major(严重)和critical(致命)。",
+          "pattern": "(warning|minor|major|critical)"
+        },
+        "dimension": {
+          "type": "string",
+          "example": "device",
+          "description": "**参数说明**:告警维度,与告警名称和告警级别组合起来共同标识一条告警,默认不携带该字段为用户维度告警,支持设备维度和资源空间维度告警。\n**取值范围**:\n- device:设备维度。\n- app:资源空间维度。",
+          "pattern": "(device|app)"
+        },
+        "description": {
+          "type": "string",
+          "example": "****设备属性异常。",
+          "description": "**参数说明**:告警的描述信息。",
+          "maxLength": 256
+        }
+      },
+      "title": "上报设备告警消息内容",
+      "description": "上报设备告警消息结构",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "RuleResponse": {
+      "type": "object",
+      "required": [
+        "actions",
+        "condition_group",
+        "name",
+        "rule_type"
+      ],
+      "properties": {
+        "rule_id": {
+          "type": "string",
+          "description": "规则id。",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "规则名称。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "规则的描述信息。",
+          "maxLength": 256
+        },
+        "condition_group": {
+          "description": "规则的条件组,包含简单规则和复杂规则集合。",
+          "$ref": "#/definitions/ConditionGroup"
+        },
+        "actions": {
+          "type": "array",
+          "description": "规则的动作列表,单个规则最多支持设置10个动作。",
+          "items": {
+            "$ref": "#/definitions/RuleAction"
+          },
+          "x-maxLength": 10,
+          "x-minLength": 1
+        },
+        "rule_type": {
+          "type": "string",
+          "description": "规则的类型\n- DEVICE_LINKAGE:云端联动规则。\n- DEVICE_SIDE:端侧规则。",
+          "pattern": "(DEVICE_LINKAGE|DATA_FORWARDING|EDGE|DEVICE_SIDE)"
+        },
+        "status": {
+          "type": "string",
+          "description": "规则的状态,默认值:active。\n- active:激活。\n- inactive:未激活。",
+          "pattern": "(active|inactive)"
+        },
+        "app_id": {
+          "type": "string",
+          "description": "资源空间ID。此参数为非必选参数,存在多资源空间的用户需要使用该接口时,建议携带该参数指定创建的规则归属到哪个资源空间下,否则创建的规则将会归属到[默认资源空间](https://support.huaweicloud.com/usermanual-iothub/iot_01_0006.html#section0)下。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        },
+        "edge_node_ids": {
+          "type": "array",
+          "description": "归属边缘侧节点设备ID列表。",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          },
+          "x-maxLength": 100
+        },
+        "last_update_time": {
+          "type": "string",
+          "description": "规则最后更新时间,使用UTC时区,格式:yyyyMMdd'T'HHmmss'Z'。"
+        },
+        "device_side": {
+          "description": "**参数说明**:端侧执行下发设备信息,当规则类型为DEVICE_SIDE时,该参数必填。",
+          "$ref": "#/definitions/DeviceSide"
+        }
+      },
+      "title": "规则响应结构体",
+      "description": "规则响应结构体",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "DeviceSide": {
+      "type": "object",
+      "properties": {
+        "device_ids": {
+          "type": "array",
+          "example": [
+            "07b69d78-c716-4be6-9545-869920738397"
+          ],
+          "description": "**参数说明**:端侧执行下发的目标设备ID列表。设备ID,用于唯一标识一个设备,在注册设备时由物联网平台分配获得。",
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "maxItems": 5
+        }
+      },
+      "title": "端侧设备信息",
+      "description": "端侧设备信息",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "ActionSmnForwarding": {
+      "type": "object",
+      "required": [
+        "message_title",
+        "project_id",
+        "region_name",
+        "theme_name",
+        "topic_urn"
+      ],
+      "properties": {
+        "region_name": {
+          "type": "string",
+          "example": "region_name",
+          "description": "**参数说明**:SMN服务对应的region区域。",
+          "maxLength": 256
+        },
+        "project_id": {
+          "type": "string",
+          "example": "project_id",
+          "description": "**参数说明**:SMN服务对应的projectId信息。"
+        },
+        "theme_name": {
+          "type": "string",
+          "example": "theme_name",
+          "description": "**参数说明**:SMN服务对应的主题名称。",
+          "maxLength": 256
+        },
+        "topic_urn": {
+          "type": "string",
+          "example": "topic_urn",
+          "description": "**参数说明**:SMN服务对应的topic的主题URN。",
+          "maxLength": 256
+        },
+        "message_content": {
+          "type": "string",
+          "example": "message_content",
+          "description": "**参数说明**:短信或邮件的内容。",
+          "maxLength": 1024
+        },
+        "message_template_name": {
+          "type": "string",
+          "example": "message_template_name",
+          "description": "**参数说明**:SMN服务对应的模板名称。",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-_]{0,63}$"
+        },
+        "message_title": {
+          "type": "string",
+          "example": "message_title",
+          "description": "**参数说明**:短信或邮件的主题。最大长度支持UTF-8编码后的521个字节。"
+        }
+      },
+      "title": "SMN发送信息",
+      "description": "发送给SMN消息结构",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "DeviceDataCondition": {
+      "type": "object",
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "example": "07b69d78-c716-4be6-9545-869920738397",
+          "description": "**参数说明**:设备ID,用于唯一标识一个设备,在注册设备时由物联网平台分配获得。存在该参数时设备属性触发根据指定设备触发,该参数值和product_id不能同时为空。如果该参数和product_id同时存在时,以该参数值对应的设备进行条件过滤。\n**取值范围**:长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "product_id": {
+          "type": "string",
+          "example": "074abacf-cdb1-4f52-8c88-5864e50d332c",
+          "description": "**参数说明**:设备关联的产品ID,用于唯一标识一个产品模型,创建产品后获得。方法请参见 [创建产品](https://support.huaweicloud.com/api-iothub/iot_06_v5_0050.html)。存在该参数且device_id为空时设备属性触发匹配该产品下所有设备触发,该参数值和device_id不能同时为空。",
+          "maxLength": 128
+        },
+        "filters": {
+          "type": "array",
+          "description": "数据过滤条件。",
+          "items": {
+            "$ref": "#/definitions/PropertyFilter"
+          },
+          "x-maxLength": 10
+        }
+      },
+      "title": "设备属性数据类型",
+      "description": "条件中设备数据类型的信息,自定义结构。",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "DailyTimerType": {
+      "type": "object",
+      "required": [
+        "time"
+      ],
+      "properties": {
+        "time": {
+          "type": "string",
+          "example": "07:00",
+          "description": "**参数说明**:规则触发的时间,格式:HH:MM。",
+          "maxLength": 128,
+          "pattern": "^((1|0?)[0-9]|2[0-3]){1}:([0-5]{0,1}[0-9]){1}$"
+        },
+        "days_of_week": {
+          "type": "string",
+          "example": "2,3,4,5,6",
+          "description": "**参数说明**:星期列表,以逗号分隔。1代表周日,2代表周一,依次类推,默认为每天。",
+          "maxLength": 128,
+          "pattern": "^[1-7](,[1-7]){0,6}$"
+        }
+      },
+      "title": "每日定时类型",
+      "description": "条件中每日定时类型的信息,自定义结构。",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "Rule": {
+      "type": "object",
+      "required": [
+        "actions",
+        "condition_group",
+        "name",
+        "rule_type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "openLight",
+          "description": "**参数说明**:规则名称。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "**参数说明**:规则的描述信息。",
+          "maxLength": 256
+        },
+        "condition_group": {
+          "description": "**参数说明**:规则的条件组,包含简单规则和复杂规则集合。",
+          "$ref": "#/definitions/ConditionGroup"
+        },
+        "actions": {
+          "type": "array",
+          "description": "**参数说明**:规则的动作列表,单个规则最多支持设置10个动作。",
+          "items": {
+            "$ref": "#/definitions/RuleAction"
+          },
+          "x-maxLength": 10,
+          "x-minLength": 1
+        },
+        "rule_type": {
+          "type": "string",
+          "example": "DEVICE_LINKAGE",
+          "description": "**参数说明**:规则的类型。\n**取值范围**:\n- DEVICE_LINKAGE:云端联动规则。 \n- DEVICE_SIDE:端侧规则。",
+          "pattern": "(DEVICE_LINKAGE|DATA_FORWARDING|EDGE|DEVICE_SIDE)"
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数说明**:规则的状态,默认值:active。\n**取值范围**:\n- active:激活。\n- inactive:未激活。",
+          "pattern": "(active|inactive)"
+        },
+        "app_id": {
+          "type": "string",
+          "description": "**参数说明**:资源空间ID。此参数为非必选参数,存在多资源空间的用户需要使用该接口时,建议携带该参数指定创建的规则归属到哪个资源空间下,否则创建的规则将会归属到[默认资源空间](https://support.huaweicloud.com/usermanual-iothub/iot_01_0006.html#section0)下。\n**取值范围**:长度不超过36,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        },
+        "device_side": {
+          "description": "**参数说明**:端侧执行下发设备信息,当规则类型为DEVICE_SIDE时,该参数必填。",
+          "$ref": "#/definitions/DeviceSide"
+        }
+      },
+      "title": "规则请求结构体",
+      "description": "规则请求结构体",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "SimpleTimerType": {
+      "type": "object",
+      "required": [
+        "repeat_count",
+        "repeat_interval",
+        "start_time"
+      ],
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "example": "20190122T141500Z",
+          "description": "**参数说明**:规则触发的开始时间,使用UTC时区,格式:yyyyMMdd'T'HHmmss'Z'。",
+          "maxLength": 128
+        },
+        "repeat_interval": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数说明**:规则触发的重复时间间隔,单位为秒。",
+          "minimum": 1,
+          "maximum": 31536000
+        },
+        "repeat_count": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "**参数说明**:规则触发的重复次数。",
+          "minimum": 1,
+          "maximum": 9999
+        }
+      },
+      "title": "简单定时类型",
+      "description": "条件中简单定时类型的信息,自定义结构。",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "ActionDeviceCommand": {
+      "type": "object",
+      "required": [
+        "cmd"
+      ],
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "example": "3a9e52d9-3ebf-4985-89e9-6d2396748a2f",
+          "description": "**参数说明**:下发命令的设备ID。\n- 当创建设备数据规则时,若device_id为空,则命令下发给触发条件的设备。 \n- 当创建定时规则时,不允许为空。\n**取值范围**:长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "cmd": {
+          "description": "**参数说明**:下发的命令信息。",
+          "$ref": "#/definitions/CMD"
+        }
+      },
+      "title": "下发设备命令消息内容",
+      "description": "下发设备命令消息结构",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    },
+    "ConditionGroup": {
+      "type": "object",
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "description": "**参数说明**:规则的条件列表,单个规则最多支持设置10个条件。",
+          "items": {
+            "$ref": "#/definitions/RuleCondition"
+          },
+          "x-maxLength": 10
+        },
+        "logic": {
+          "type": "string",
+          "example": "or",
+          "description": "**参数说明**:规则条件列表中多个条件之间的逻辑关系,默认值:and。\n**取值范围**:\n- and:逻辑且。\n- or:逻辑或。",
+          "pattern": "(and|or)"
+        },
+        "time_range": {
+          "description": "**参数说明**:规则条件触发的有效时间段。",
+          "$ref": "#/definitions/TimeRange"
+        }
+      },
+      "title": "规则条件组",
+      "description": "规则条件组",
+      "x-onlyCustomAnnotation": true,
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@JsonIgnoreProperties(ignoreUnknown = true)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,237 @@
+{
+  "name": "ApplyForAccess",
+  "summary": "申请接入服务",
+  "tags": "接入管理",
+  "productshort": "LakeFormation",
+  "region_id": "ap-southeast-4",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/access": {
+      "post": {
+        "tags": [
+          "Access"
+        ],
+        "summary": "申请接入服务",
+        "description": "申请接入服务",
+        "operationId": "ApplyForAccess",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIjxxxxxxxxxxxxxxxxxxxxxxxx4qA="
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-zA-Z]{32}$",
+            "x-example": "41aaxxxxxxxxxxxxxxxxxxxxxxxcc046"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "LakeFormation实例ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{36}$",
+            "x-example": "d3fcxxxxxxxxxxxxxxxxxxxxxxxxxxxx8f1e"
+          },
+          {
+            "in": "body",
+            "name": "access_request_body",
+            "description": "申请接入信息",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccessRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-request-examples-text-1": {
+          "vpcep_id": "0612xxxxxxxxxxxxxxxxxxxxxxxxxxxxa8fb",
+          "domain": "domain"
+        },
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-enable-auth-anno": {
+          "type": "iam-token"
+        },
+        "x-iam-auth-meta-anno": {
+          "authLevel": "instance",
+          "abacAction": "lakeformation:instance:access",
+          "rbac": "te_admin"
+        },
+        "x-cts-meta-anno": {
+          "resourceType": "Instance",
+          "traceName": "applyForAccess",
+          "isAsyncApi": "false"
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/{project_id}/{instance_id}/access",
+        "x-request-examples-1": {
+          "vpcep_id": "0612xxxxxxxxxxxxxxxxxxxxxxxxxxxxa8fb",
+          "domain": "domain"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AccessRequestBody": {
+      "type": "array",
+      "description": "申请接入服务的请求信息",
+      "items": {
+        "$ref": "#/definitions/AccessRequestInfo"
+      },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "AccessRequestInfo": {
+      "type": "object",
+      "required": [
+        "domain",
+        "vpcep_id"
+      ],
+      "properties": {
+        "vpcep_id": {
+          "type": "string",
+          "description": "服务创建的id",
+          "maxLength": 64
+        },
+        "domain": {
+          "type": "string",
+          "description": "分组独立域名",
+          "maxLength": 100
+        }
+      },
+      "description": "申请接入服务的请求信息"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.ap-southeast-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

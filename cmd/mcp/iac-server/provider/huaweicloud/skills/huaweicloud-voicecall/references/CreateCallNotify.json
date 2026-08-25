@@ -1,0 +1,262 @@
+{
+  "name": "CreateCallNotify",
+  "summary": "语音通知",
+  "tags": "语音通知",
+  "productshort": "VoiceCall",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/rest/httpsessions/callnotify/v2.0": {
+      "post": {
+        "tags": [
+          "CallNotify"
+        ],
+        "summary": "语音通知",
+        "description": "语音通知",
+        "operationId": "CreateCallNotify",
+        "x-returnType": "ResponseEntity<ApiCommonResponse>",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-iftype": "OpenAPI_new",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "description": "固定填写为AKSK realm='SDP',profile='UsernameToken',type='Appkey'。"
+          },
+          {
+            "name": "X-AKSK",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "maxLength": 1024,
+            "description": "取值为UsernameToken Username='APP_Key的值', PasswordDigest='PasswordDigest的值', Nonce='随机数', Created='随机数生成时间'。"
+          },
+          {
+            "name": "CreateCallNotifyRequestBody",
+            "in": "body",
+            "description": "终止呼叫请求",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CallNotifyReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ApiCommonResponse"
+            },
+            "examples": {
+              "application/json": {
+                "resultcode": "0",
+                "resultdesc": "Success",
+                "sessionId": "1202_566_0_20161228102743@callenabler.home1.com",
+                "idlePort": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Authorization not contained in the HTTP header.",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "1023006"
+            ],
+            "examples": {
+              "application/json-1": {
+                "resultcode": "1023006",
+                "resultdesc": "Authorization not contained in the HTTP header."
+              }
+            }
+          },
+          "500": {
+            "description": "Internal system error.",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "1010001"
+            ],
+            "examples": {
+              "application/json-1": {
+                "resultcode": "1010001",
+                "resultdesc": "Internal system error."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiCommonResponse": {
+      "type": "object",
+      "properties": {
+        "resultcode": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "请求返回的结果码"
+        },
+        "resultdesc": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "请求返回的结果描述"
+        },
+        "sessionId": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "请求返回的会话sessionId,用于标记一路会话。如果请求失败,则sessionId为空表示会话建立失败"
+        },
+        "idlePort": {
+          "type": "integer",
+          "description": "请求参数中returnIdlePort为true时响应消息携带该参数"
+        }
+      },
+      "x-annotations": "@JsonInclude(value=JsonInclude.Include.NON_NULL)",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;"
+    },
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "resultcode": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "resultdesc": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "PlayContentInfo": {
+      "type": "object",
+      "properties": {
+        "notifyVoice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "通知语音的放音文件名。需要先通过放音文件管理页面上传放音文件并通过审核才能使用。",
+          "example": "notifyvoice.wav"
+        },
+        "templateId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "通知语音的放音文件名。需要先通过放音文件管理页面上传放音文件并通过审核才能使用。",
+          "example": "5435340572050112"
+        },
+        "templateParas": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "type": "string",
+            "x-minLength": 1,
+            "x-maxLength": 32
+          },
+          "description": "语音通知模板的变量值列表,用于依次填充templateId参数指定的模板内容中的变量",
+          "example": "['3','人民公园正门']"
+        },
+        "collectInd": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 32,
+          "description": "是否进行收号。若进行收号,请在语音通知内容播放完毕后的5秒之内进行按键操作,系统会将用户输入的号码通过语音通知呼叫状态通知API发送给SP",
+          "example": 1
+        },
+        "replayAfterCollection": {
+          "type": "string",
+          "enum": [
+            true,
+            false
+          ],
+          "default": false,
+          "description": "当collectInd字段设置为非0时此参数有效。true:播放,false:不播放",
+          "example": false
+        },
+        "collectContentTriggerReplaying": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "当replayAfterCollection字段设置为true时此参数有效。",
+          "example": "1"
+        }
+      }
+    },
+    "CallNotifyReq": {
+      "type": "object",
+      "required": [
+        "displayNbr",
+        "calleeNbr",
+        "playInfoList"
+      ],
+      "properties": {
+        "displayNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 31,
+          "description": "固话号码,被叫终端上显示的主叫号码,需要提前在订购号码页面申请该号码",
+          "example": "5435340572050112"
+        },
+        "calleeNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 31,
+          "description": "被叫号码",
+          "example": "134****0112"
+        },
+        "playInfoList": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/PlayContentInfo"
+          }
+        },
+        "statusUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此参数请采用BASE64编码进行加密。此字段用于设置SP接收状态上报的URL。",
+          "example": "https://IP:Port或域名"
+        },
+        "feeUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此参数请采用BASE64编码进行加密。此参数用于设置SP接收话单上报的URL。",
+          "example": "https://IP:Port或域名"
+        },
+        "returnIdlePort": {
+          "type": "string",
+          "enum": [
+            true,
+            false
+          ],
+          "default": false,
+          "description": "指示是否需要返回平台的空闲端口数量。true:需要返回,false:不需要返回",
+          "example": "false"
+        },
+        "userData": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "用户附属信息,此标识由第三方服务器定义,会在后续的通知消息中携带此信息",
+          "example": "****"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rtccall.cn-north-1.myhuaweicloud.cn",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}
