@@ -1,0 +1,305 @@
+{
+  "name": "SubscribeCertificate",
+  "summary": "购买SSL证书",
+  "tags": "证书订单管理",
+  "productshort": "SCM",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v3/scm/certificates/buy": {
+      "post": {
+        "tags": [
+          "证书订单管理"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "购买SSL证书",
+        "description": "购买SSL证书。",
+        "operationId": "SubscribeCertificate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "SubscribeCertificateRequestBody",
+            "in": "body",
+            "description": "requestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PurchaseCertificateRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回。",
+            "schema": {
+              "$ref": "#/definitions/PurchaseCertificateResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "order_id": "CS1803192259ROA8U",
+                "cert": [
+                  {
+                    "cert_id": "scs1481110651012"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "403": {
+            "description": "禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "404": {
+            "description": "访问页面未找到。"
+          },
+          "500": {
+            "description": "请求未完成,服务器内部异常。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "cert_brand": "GLOBALSIGN",
+          "cert_type": "OV_SSL_CERT",
+          "domain_type": "MULTI_DOMAIN",
+          "effective_time": 1,
+          "domain_numbers": 5,
+          "order_number": 1,
+          "agree_privacy_protection": true
+        },
+        "x-hc": "Y",
+        "x-hk": "Y",
+        "x-open-region-cloud": "hc,hk"
+      }
+    }
+  },
+  "definitions": {
+    "PurchaseCertificateRequestBody": {
+      "type": "object",
+      "required": [
+        "cert_brand",
+        "cert_type",
+        "domain_type",
+        "effective_time",
+        "domain_numbers",
+        "order_number",
+        "agree_privacy_protection"
+      ],
+      "properties": {
+        "cert_brand": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "证书品牌,取值如下:\n- GEOTRUST(购买RapidSSL请传该值)\n- GLOBALSIGN\n- SYMANTEC\n- CFCA\n- TRUSTASIA\n- VTRUS"
+        },
+        "cert_type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "证书类型,取值如下:\n- DV_SSL_CERT\n- DV_SSL_CERT_BASIC\n- EV_SSL_CERT\n- EV_SSL_CERT_PRO\n- OV_SSL_CERT\n- OV_SSL_CERT_PRO"
+        },
+        "domain_type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "域名类型,取值如下:\n- SINGLE_DOMAIN:单域名类型。\n- MULTI_DOMAIN:多域名类型。\n- WILDCARD:泛域名类型。"
+        },
+        "effective_time": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "format": "int8",
+          "description": "证书有效期(年)。"
+        },
+        "domain_numbers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int8",
+          "description": "域名数量。\n- 当“domain_type”选择的是“SINGLE_DOMAIN”或“WILDCARD”类型的证书时,域名数量取值为“1”。\n- 当“domain_type”选择的是“MULTI_DOMAIN”类型的证书时,域名数量取值范围为“2~100”。"
+        },
+        "order_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int32",
+          "description": "购买的证书数量。取值范围为1~100。"
+        },
+        "agree_privacy_protection": {
+          "type": "boolean",
+          "description": "是否同意隐私协议,此处仅能设置为true才能成功购买证书。\n- true:同意隐私协议。\n- false:不同意隐私协议。"
+        },
+        "primary_domain_type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "多域名中的主域名类型。\n- SINGLE_DOMAIN:主单域名\n- WILDCARD_DOMAIN:主泛域名"
+        },
+        "single_domain_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int8",
+          "description": "附加单域名数量。"
+        },
+        "wildcard_domain_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "format": "int8",
+          "description": "附加泛域名数量。"
+        },
+        "is_auto_pay": {
+          "type": "boolean",
+          "description": "是否开启自动支付。\n- true:开启自动支付。\n- false:不开启自动支付。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "企业多项目ID。用户未开通企业多项目时,不需要输入该字段。 用户开通企业多项目时,查询资源可以输入该字段。 若用户不输入该字段,默认查询租户所有有权限的企业多项目下的资源。 此时“enterprise_project_id”取值为“all”。 若用户输入该字段,取值满足以下任一条件。\n- 取值为“all”\n- 取值为“0”\n- 满足正则匹配:“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”",
+          "x-open-region-cloud": "hc"
+        },
+        "order_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "订单号。仅组合购买场景使用。"
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "标签列表。",
+          "items": {
+            "$ref": "#/definitions/ScsResourceTag"
+          }
+        }
+      },
+      "title": "PurchaseCertificateRequestBody"
+    },
+    "ScsResourceTag": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "description": "标签键。"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "标签值。"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息。"
+        }
+      },
+      "title": "Error"
+    },
+    "PurchaseCertificateResponseBody": {
+      "type": "object",
+      "required": [
+        "order_id",
+        "cert"
+      ],
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "订单号。"
+        },
+        "cert": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "description": "证书列表,详情请参见CertDetail字段数据结构说明。",
+          "items": {
+            "$ref": "#/definitions/CertDetail"
+          }
+        }
+      },
+      "title": "PurchaseCertificateResponseBody"
+    },
+    "CertDetail": {
+      "type": "object",
+      "required": [
+        "cert_id"
+      ],
+      "properties": {
+        "cert_id": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 16,
+          "description": "证书ID。"
+        }
+      },
+      "title": "CertDetail"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "scm.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

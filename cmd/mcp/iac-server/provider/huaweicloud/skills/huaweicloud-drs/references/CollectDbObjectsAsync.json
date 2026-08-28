@@ -1,0 +1,201 @@
+{
+  "name": "CollectDbObjectsAsync",
+  "summary": "提交查询数据库对象信息",
+  "tags": "实例数据库对象配置",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v5/{project_id}/jobs/{job_id}/db-objects/collect": {
+      "post": {
+        "x-request-examples-description-1": "查询已同步的对象信息。",
+        "x-request-examples-url-1": "https://{endpoint}/v5/054ba152d480d55b2f5dc0069e7ddef0/jobs/c7debc9c-8e09-4a5d-8dd6-cc44f78jb20r/db-objects/collect?type=synchronized",
+        "tags": [
+          "实例数据库对象配置"
+        ],
+        "operationId": "CollectDbObjectsAsync",
+        "consumes": [
+          "application/json"
+        ],
+        "summary": "提交查询数据库对象信息",
+        "description": "提交查询数据库对象信息。例如:\n- 当type取值为source时,表示查询源库库表信息。\n- 当源库库表信息有变化时,则type取值为source,is_refresh取值为true。\n- 当已同步到目标库的库表信息过大,需要提前将数据加载到缓存中时,type取值为synchronized。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "deprecated": true,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。\n获取方法请参见[获取项目ID。](https://support.huaweicloud.com/api-drs/drs_api_0106.html)"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "任务ID。"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "发送的实体的MIME类型。推荐用户默认使用application/json,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+            "type": "string",
+            "default": "application/json"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。\n\n用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。\n\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。",
+            "type": "string",
+            "default": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ]
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "偏移量,表示查询该偏移量后面的记录。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询返回记录的数量限制。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "description": "查询对象信息类型。\n取值:\n- source:查询源库对象信息。\n- modified:查询已选择的(已同步的和未下发的)对象信息。\n- synchronized:查询已同步的(已下发的)对象信息 , 使用场景在任务处于全量中或者增量中。",
+            "type": "string",
+            "enum": [
+              "source",
+              "modified",
+              "synchronized"
+            ]
+          },
+          {
+            "name": "is_refresh",
+            "in": "query",
+            "required": false,
+            "description": "是否强制刷新。\n取值:\n- true:是,表示从源库重新查询。   \n- false:否,表示从已缓存中数据查询。",
+            "type": "boolean"
+          },
+          {
+            "name": "db_names",
+            "in": "query",
+            "required": false,
+            "description": "查询指定库的信息。",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "id": "0eacda0b-9422-4535-8b62-537d1833638b",
+                "status": "pending",
+                "job_id": "2fccbe0d-4e6b-4957-981a-edca4e2jb201"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/UpdateObjectResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DRS.10000010",
+                "error_msg": "Job does not exist, please check job ID."
+              }
+            }
+          }
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "请求失败时返回的错误对象响应体。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12,
+          "example": "DRS.00000000"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "Success"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object"
+    },
+    "UpdateObjectResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "查询结果id"
+        },
+        "status": {
+          "type": "string",
+          "description": "查询状态\npending:处理中\nfailed:失败\nsuccess:成功",
+          "enum": [
+            "pending",
+            "failed",
+            "success"
+          ]
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务ID"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

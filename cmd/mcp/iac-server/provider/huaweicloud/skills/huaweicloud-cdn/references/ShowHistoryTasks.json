@@ -1,0 +1,235 @@
+{
+  "name": "ShowHistoryTasks",
+  "summary": "查询刷新预热任务",
+  "tags": "刷新预热",
+  "productshort": "CDN",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1.0/cdn/historytasks": {
+      "get": {
+        "deprecated": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "description": "查询刷新预热任务。",
+        "summary": "查询刷新预热任务",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "当用户开启企业项目功能时,该参数生效,表示查询资源所属项目,\"all\"表示所有项目。注意:当使用子帐号调用接口时,该参数必传。\n\n您可以通过调用企业项目管理服务(EPS)的查询企业项目列表接口(ListEnterpriseProject)查询企业项目id。",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "单页最大数量,取值范围为1-10000。page_size和page_number必须同时传值。默认值30。",
+            "type": "integer",
+            "default": 30,
+            "maximum": 10000,
+            "minimum": 1
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "description": "当前查询第几页,取值范围为1-65535。默认值1。",
+            "type": "integer",
+            "default": 1,
+            "maximum": 65535,
+            "minimum": 1
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "任务状态。 task_inprocess 表示任务处理中,task_done表示任务完成。",
+            "type": "string",
+            "enum": [
+              "task_inprocess",
+              "task_done"
+            ]
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "查询起始时间,相对于UTC 1970-01-01到当前时间相隔的毫秒数。",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "查询结束时间,相对于UTC 1970-01-01到当前时间相隔的毫秒数。",
+            "type": "integer",
+            "format": "int64",
+            "default": 1
+          },
+          {
+            "name": "order_field",
+            "in": "query",
+            "description": "用来排序的字段,支持的字段有“task_type”:任务的类型,“total”:url总数,“processing”:处理中的url个数, “succeed”:成功处理的url个数,“failed”:处理失败的url个数,“create_time”:任务的创建时间。order_field和order_type必须同时传值,否则使用默认值\"create_time\" 和 \"desc\":降序。",
+            "type": "string"
+          },
+          {
+            "name": "order_type",
+            "in": "query",
+            "description": "desc:降序,或者asc:升序。默认值desc。",
+            "type": "string"
+          },
+          {
+            "name": "file_type",
+            "in": "query",
+            "description": "默认是文件file。file:文件,directory:目录。",
+            "type": "string",
+            "enum": [
+              "file",
+              "directory"
+            ]
+          },
+          {
+            "name": "task_type",
+            "in": "query",
+            "description": "任务类型,refresh:刷新任务;preheating:预热任务",
+            "type": "string",
+            "enum": [
+              "refresh",
+              "preheating"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "total": 2,
+                "tasks": [
+                  {
+                    "id": "ff8080xxxxxxxxxxxxd816ff0128",
+                    "status": "task_inprocess",
+                    "processing": 2,
+                    "succeed": 0,
+                    "failed": 0,
+                    "task_type": "refresh",
+                    "total": 2,
+                    "create_time": 1534240233215,
+                    "file_type": "file"
+                  },
+                  {
+                    "id": "ff8080xxxxxxxxxxx4fe64797",
+                    "status": "task_inprocess",
+                    "processing": 1,
+                    "succeed": 0,
+                    "failed": 0,
+                    "task_type": "refresh",
+                    "total": 1,
+                    "create_time": 1534240219944,
+                    "file_type": "file"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RefreshTaskQueryResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://cdn.myhuaweicloud.com/v1.0/cdn/historytasks?status=task_inprocess&page_size=30&page_number=1&enterprise_project_id=0",
+        "operationId": "ShowHistoryTasks",
+        "tags": [
+          "刷新预热"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "RefreshTaskQueryResponse": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总共的任务个数。"
+        },
+        "tasks": {
+          "type": "array",
+          "description": "日志列表数据",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/TasksObject"
+          }
+        }
+      }
+    },
+    "TasksObject": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务id。"
+        },
+        "task_type": {
+          "type": "string",
+          "description": "任务的类型, 其值可以为refresh:刷新任务,或preheating:预热任务。",
+          "enum": [
+            "refresh",
+            "preheating"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "刷新结果。task_done表示刷新成功  ,task_inprocess表示刷新中。"
+        },
+        "processing": {
+          "type": "integer",
+          "format": "int32",
+          "description": "处理中的url个数。"
+        },
+        "succeed": {
+          "type": "integer",
+          "format": "int32",
+          "description": "成功处理的url个数。"
+        },
+        "failed": {
+          "type": "integer",
+          "format": "int32",
+          "description": "处理失败的url个数。"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "url总数。"
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "任务的创建时间,相对于UTC 1970-01-01到当前时间相隔的毫秒数。"
+        },
+        "file_type": {
+          "type": "string",
+          "description": "默认是文件file。file:文件,directory:目录。",
+          "enum": [
+            "file",
+            "directory"
+          ],
+          "example": "ipaddr"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cdn.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,230 @@
+{
+  "name": "ShowDiagnosisNode",
+  "summary": "查询指定诊断记录下的指定诊断步骤的详情",
+  "tags": "Diagnosis",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/diagnosis/tasks/{task_id}/node/{code}": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-requestHandler": true,
+        "x-responseHandler": true,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "Diagnosis"
+        ],
+        "summary": "查询指定诊断记录下的指定诊断步骤的详情",
+        "description": "查询指定诊断记录下的指定诊断步骤的详情",
+        "operationId": "ShowDiagnosisNode",
+        "x-imports": [
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta",
+          "com.huawei.clouds.wushan.auth.token.meta.BssOpType",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta"
+        ],
+        "x-method-annotations": [
+          "@IamAuthMeta(needApigwJwtAuthCheck = false, authLevel = IamAuthLevel.INSTANCE, abacAction = \"coc:job:get\", opType = BssOpType.QUERY, needAbacResourceCheck = true, authContextInitializer = ResourceDiagnosisAuthInitializer.class,needCbcCheck = false)",
+          "@CtsExtendMeta(resourceId = \"#taskId\", resourceName = \"diagnosisName\", resourceIdKey = \"task_id\")",
+          "@CtsMeta(resourceType = \"diagnosis\", traceName = \"showDiagnosisNode\", operationId = \"ShowDiagnosisNode\")"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "诊断工单ID",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "holmesInstall",
+              "dataCollection",
+              "diagnosisFault",
+              "holmesUnInstall",
+              "rdsDiagnosis",
+              "dcsDiagnosis",
+              "dmsDiagnosis",
+              "elbDiagnosis"
+            ],
+            "description": "诊断步骤编码",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "name": "instance_id",
+            "in": "query",
+            "required": true,
+            "description": "被诊断实例ID",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 128
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正确返回",
+            "schema": {
+              "$ref": "#/definitions/DiagnosisTaskNodeResponse"
+            }
+          },
+          "400": {
+            "description": "客户端错误",
+            "schema": {
+              "$ref": "#/definitions/BasicResponse"
+            }
+          },
+          "500": {
+            "description": "服务端错误",
+            "schema": {
+              "$ref": "#/definitions/BasicResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DiagnosisTaskNode": {
+      "description": "单诊断步骤结果对象",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicDTO"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "诊断步骤名称",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "name_zh": {
+              "type": "string",
+              "description": "诊断步骤名称(中文)",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "diagnosis_task_id": {
+              "type": "string",
+              "description": "诊断任务ID",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "status": {
+              "type": "string",
+              "description": "任务状态,waiting,executing,failed,finish,cancel",
+              "minLength": 0,
+              "maxLength": 32
+            }
+          }
+        }
+      ]
+    },
+    "BasicResponse": {
+      "type": "object",
+      "description": "基础响应对象",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "error_code",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "error_msg",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "BasicDTO": {
+      "type": "object",
+      "description": "基础请求对象",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "code": {
+          "type": "string",
+          "description": "code",
+          "maxLength": 64,
+          "minLength": 0
+        }
+      }
+    },
+    "DiagnosisTaskNodeResponse": {
+      "description": "诊断步骤响应结果",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "description": "诊断步骤结果",
+              "$ref": "#/definitions/DiagnosisTaskNodeDetail"
+            }
+          }
+        }
+      ]
+    },
+    "DiagnosisTaskNodeDetail": {
+      "description": "诊断步骤结果对象",
+      "allOf": [
+        {
+          "$ref": "#/definitions/DiagnosisTaskNode"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "diagnosis_record_id": {
+              "type": "string",
+              "description": "诊断步骤主键ID",
+              "minLength": 0,
+              "maxLength": 1024
+            },
+            "start_time": {
+              "type": "string",
+              "description": "诊断步骤开始时间",
+              "minLength": 0,
+              "maxLength": 32
+            },
+            "end_time": {
+              "type": "string",
+              "description": "诊断步骤结束时间",
+              "minLength": 0,
+              "maxLength": 32
+            },
+            "message": {
+              "type": "string",
+              "description": "诊断步骤执行结果",
+              "maxLength": 1000000,
+              "minLength": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

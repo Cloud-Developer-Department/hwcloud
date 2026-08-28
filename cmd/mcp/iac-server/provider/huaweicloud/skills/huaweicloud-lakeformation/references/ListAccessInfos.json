@@ -1,0 +1,252 @@
+{
+  "name": "ListAccessInfos",
+  "summary": "获取服务接入信息",
+  "tags": "接入管理",
+  "productshort": "LakeFormation",
+  "region_id": "la-north-2",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/access": {
+      "get": {
+        "tags": [
+          "Access"
+        ],
+        "summary": "获取服务接入信息",
+        "description": "根据LakeFormation实例获取服务实例相关的接入信息。",
+        "operationId": "ListAccessInfos",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIjxxxxxxxxxxxxxxxxxxxxxxxx4qA="
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-zA-Z]{32}$",
+            "x-example": "41aaxxxxxxxxxxxxxxxxxxxxxxxcc046"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "LakeFormation实例ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{36}$",
+            "x-example": "d3fcxxxxxxxxxxxxxxxxxxxxxxxxxxxx8f1e"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "分页查询时的偏移量",
+            "required": true,
+            "type": "integer",
+            "default": 0,
+            "maximum": 1000,
+            "minimum": 0,
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页一页显示数",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 1000,
+            "minimum": 1,
+            "x-example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "access_infos": [
+                  {
+                    "vpcep_service_name": "cn-north-7.apig.3ab1xxxxxxxxxxxxxxxxxxxxxxxxxxxxf524",
+                    "domain": "xxxxxxxxxxxxxxxxxxxxxxxxxxxx.com"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/AccessInfos"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-enable-auth-anno": {
+          "type": "iam-token"
+        },
+        "x-iam-auth-meta-anno": {
+          "authLevel": "instance",
+          "abacAction": "lakeformation:instance:describe",
+          "rbac": "te_admin"
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/{instance_id}/access"
+      }
+    }
+  },
+  "definitions": {
+    "AccessInfos": {
+      "properties": {
+        "access_infos": {
+          "type": "array",
+          "description": "accessinfo列表",
+          "items": {
+            "$ref": "#/definitions/AccessInfo"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "total": {
+          "type": "integer",
+          "description": "accessinfo总数",
+          "minimum": 0,
+          "maximum": 1000
+        }
+      },
+      "description": "接入信息列表"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "AccessInfo": {
+      "properties": {
+        "vpcep_service_name": {
+          "type": "string",
+          "description": "服务名称"
+        },
+        "domain": {
+          "type": "string",
+          "description": "分组独立域名"
+        }
+      },
+      "description": "接入信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.la-north-2.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,219 @@
+{
+  "name": "ImportModels",
+  "summary": "导入模型,关系建模,维度建模,码表,业务指标以及流程架构",
+  "tags": "导入导出接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/design/models/action": {
+      "post": {
+        "summary": "导入模型,关系建模,维度建模,码表,业务指标以及流程架构",
+        "description": "导入模型,关系建模,维度建模,码表,业务指标以及流程架构。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "doc-open",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/design/models/action?action-id=import_relation&skip_exist=false&model_id=1208730797675311104",
+        "x-request-examples-description-1": "上传模型excel,通过form表单提交,file为具体文件。",
+        "tags": [
+          "导入导出接口"
+        ],
+        "operationId": "ImportModels",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "$ref": "#/parameters/contextTypeParam"
+          },
+          {
+            "$ref": "#/parameters/languageParam"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "导入用的excel文件,大小必须小于4MB,且行数小于3000行。"
+          },
+          {
+            "in": "query",
+            "name": "action-id",
+            "description": "需要执行的动作,根据导入的对象不同而选择不同的导入动作。\n枚举值:\n  - import_relation: 导入关系模型:逻辑实体/物理表\n  - import_dimension: 导入维度表、事实表\n  - import_codetable: 导入码表\n  - import_datastandard: 导入数据标准\n  - import_bizmetric: 导入业务指标\n  - import_bizcatalog: 导入流程架构\n  - import_atomic: 导入原子指标\n  - import_derivative: 导入衍生指标\n  - import_compound: 导入复合指标\n  - import_aggregation: 导入汇总表",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "import_relation",
+              "import_dimension",
+              "import_codetable",
+              "import_datastandard",
+              "import_bizmetric",
+              "import_bizcatalog",
+              "import_atomic",
+              "import_derivative",
+              "import_compound",
+              "import_aggregation"
+            ]
+          },
+          {
+            "in": "query",
+            "name": "model_id",
+            "description": "关系建模的模型ID,在导入模型(import_relation)时必填。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "directory_id",
+            "description": "导入的目录id,在导入码表(import_codetable)和数据标准(import_datastandard)时生效,选填。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "skip-exist",
+            "description": "是否需要覆盖更新已有的实体。",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success,返回data数据是导入任务的uuid,可根据该uuid去查询导入结果。",
+            "schema": {
+              "$ref": "#/definitions/ExportDesignModelsResult"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/DsResponseVO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/DsResponseVO"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/DsResponseVO"
+            }
+          }
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "ExportDesignModelsResult": {
+      "type": "object",
+      "description": "Success,导出接口结果。",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "返回的数据信息。",
+          "properties": {
+            "uuid": {
+              "type": "string",
+              "description": "导入接口返回的唯一标识。",
+              "example": "fd653968-864b-45f6-9842-2b125d2dbfb8"
+            }
+          }
+        }
+      },
+      "example": {
+        "data": {
+          "uuid": "fd653968-864b-45f6-9842-2b125d2dbfb9"
+        }
+      }
+    },
+    "DsResponseVO": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "返回的数据信息。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "languageParam": {
+      "name": "X-Language",
+      "in": "header",
+      "required": false,
+      "description": "默认值:en-us\n可选,导入导出接口必填,可选值有:zh-cn、en-us,分别表示中文、英文。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "contextTypeParam": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "默认值:application/json;charset=UTF-8\n可选,有Body体的情况下必选,没有Body体则无需填写和校验。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

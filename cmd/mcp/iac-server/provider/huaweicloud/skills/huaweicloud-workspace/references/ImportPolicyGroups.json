@@ -1,0 +1,217 @@
+{
+  "name": "ImportPolicyGroups",
+  "summary": "导入策略组",
+  "tags": "策略组",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/policy-groups/import": {
+      "post": {
+        "tags": [
+          "PolicyGroup"
+        ],
+        "summary": "导入策略组",
+        "description": "以xml文件形式导入策略组。",
+        "operationId": "ImportPolicyGroups",
+        "schemes": [
+          "https"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "导入策略组xml文件。",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "导入成功。",
+            "examples": {
+              "application/json": {
+                "policy_group_name_list": [
+                  {
+                    "policy_group_name": "policyGroup_a",
+                    "description": ""
+                  },
+                  {
+                    "policy_group_name": "policyGroup_b",
+                    "description": ""
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ImportPolicyGroupRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "405": {
+            "description": "请求中指定的方法不被允许。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-imports": [
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta"
+        ],
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:policyGroups:import\", authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, needRbacCheck = false)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"importPolicyGroup\")"
+        ],
+        "x-request-examples-1": {
+          "file": "导入的策略组.xml"
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-api-type": "open-api",
+        "x-addValid": true
+      }
+    }
+  },
+  "definitions": {
+    "ImportPolicyGroupRsp": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "policy_group_name_list": {
+              "type": "array",
+              "description": "导入策略组所有名字列表。",
+              "items": {
+                "$ref": "#/definitions/PolicyGroupNameInfo"
+              },
+              "maxItems": 100,
+              "minItems": 1,
+              "x-maxLength": 100,
+              "x-minLength": 1
+            },
+            "failed_policy_group_name_list": {
+              "type": "array",
+              "description": "导入策略组失败名字列表。",
+              "items": {
+                "$ref": "#/definitions/PolicyGroupNameInfo"
+              },
+              "maxItems": 100,
+              "minItems": 1,
+              "x-maxLength": 100,
+              "x-minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "PolicyGroupNameInfo": {
+      "properties": {
+        "policy_group_name": {
+          "type": "string",
+          "description": "策略组名。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "description": {
+          "type": "string",
+          "description": "描述。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

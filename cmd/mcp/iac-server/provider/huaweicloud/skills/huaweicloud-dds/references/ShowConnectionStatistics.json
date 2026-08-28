@@ -1,0 +1,188 @@
+{
+  "name": "ShowConnectionStatistics",
+  "summary": "查询实例连接数统计信息",
+  "tags": "连接管理",
+  "productshort": "DDS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/conn-statistics": {
+      "get": {
+        "tags": [
+          "连接管理"
+        ],
+        "summary": "查询实例连接数统计信息",
+        "description": "查询客户端IP访问至DDS数据库实例的连接数统计信息。",
+        "operationId": "ShowConnectionStatistics",
+        "x-constraint": "- 冻结实例不支持该操作。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-open-region-cloud": "hc,hk",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID,可以调用“查询实例列表和详情”接口获取。如果未申请实例,可以调用“创建实例”接口创建。",
+            "required": true,
+            "type": "string",
+            "x-example": "e73893ef73754465a8bd2e0857bbf13ein02"
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "type": "string",
+            "description": "节点ID。\n- 如取空值,则默认查询实例下所有允许连接的节点的连接数信息。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ShowConnectionStatisticsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total_connections": 75,
+                "total_inner_connections": 50,
+                "total_outer_connections": 25,
+                "inner_connections": [
+                  {
+                    "client_ip": "10.10.10.24",
+                    "count": 9
+                  },
+                  {
+                    "client_ip": "9.3.185.42",
+                    "count": 6
+                  },
+                  {
+                    "client_ip": "10.10.4.156",
+                    "count": 3
+                  }
+                ],
+                "outer_connections": [
+                  {
+                    "client_ip": "10.10.10.25",
+                    "count": 11
+                  },
+                  {
+                    "client_ip": "9.3.185.46",
+                    "count": 8
+                  },
+                  {
+                    "client_ip": "10.10.4.157",
+                    "count": 4
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询实例下所有节点的连接统计信息",
+        "x-request-examples-url-1": "GET https://dds.ap-southeast1.myhuaweicloud.com/v3/0549b4a43100d4f32f51c01c2fe4acdb/instances/cc6345c64cec47499182467ea0dd432ain02/conn-statistics",
+        "x-request-examples-description-2": "查询实例下某个节点的连接统计信息:",
+        "x-request-examples-url-2": "GET https://dds.ap-southeast1.myhuaweicloud.com/v3/0549b4a43100d4f32f51c01c2fe4acdb/instances/ cc6345c64cec47499182467ea0dd432ain02/conn-statistics?node_id=51a90da2cfc846688abcdd23861077b5no02"
+      }
+    }
+  },
+  "definitions": {
+    "ShowConnectionStatisticsResponseBody": {
+      "required": [
+        "total_connections",
+        "total_inner_connections",
+        "total_outer_connections",
+        "inner_connections",
+        "outer_connections"
+      ],
+      "properties": {
+        "total_connections": {
+          "type": "integer",
+          "description": "总连接数,包括内部连接与外部连接。"
+        },
+        "total_inner_connections": {
+          "type": "integer",
+          "description": "内部总连接数。"
+        },
+        "total_outer_connections": {
+          "type": "integer",
+          "description": "外部总连接数。"
+        },
+        "inner_connections": {
+          "type": "array",
+          "description": "内部连接统计信息数组,最大记录数为200条。",
+          "items": {
+            "$ref": "#/definitions/QueryConnectionsResponse"
+          }
+        },
+        "outer_connections": {
+          "type": "array",
+          "description": "外部连接统计信息数组,最大记录数为200条。",
+          "items": {
+            "$ref": "#/definitions/QueryConnectionsResponse"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "QueryConnectionsResponse": {
+      "required": [
+        "client_ip",
+        "count"
+      ],
+      "properties": {
+        "client_ip": {
+          "type": "string",
+          "description": "连接到该实例或节点的客户端IP地址。"
+        },
+        "count": {
+          "type": "integer",
+          "description": "该IP对应的连接数。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dds.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

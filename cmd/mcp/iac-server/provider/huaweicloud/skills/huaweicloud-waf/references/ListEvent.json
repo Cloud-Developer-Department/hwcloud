@@ -1,0 +1,724 @@
+{
+  "name": "ListEvent",
+  "summary": "查询攻击事件列表",
+  "tags": "防护事件管理",
+  "productshort": "WAF",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/waf/event": {
+      "get": {
+        "x-request-examples-description-1": " 查询今天项目id为project_id的防护事件列表",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-hybridcloud": true,
+        "tags": [
+          "防护事件管理"
+        ],
+        "operationId": "ListEvent",
+        "description": "查询攻击事件列表,该API暂时不支持查询全部防护事件,pagesize参数不可设为-1,由于性能原因,数据量越大消耗的内存越大,后端最多限制查询10000条数据,例如:自定义时间段内的数据超过了10000条,就无法查出page为101,pagesize为100之后的数据,需要调整时间区间,再进行查询",
+        "summary": "查询攻击事件列表",
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数解释:**\n用户Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 4096
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "**参数解释:**\n内容类型\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\napplication/json;charset=utf8",
+            "type": "string",
+            "default": "application/json;charset=utf8"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "type": "string",
+            "description": "**参数解释:**\n客户端IP所属地理位置展示语言,默认值为en-us\n**约束限制:**\n不涉及\n**取值范围:**\n- zh-cn 中文\n- en-us 英文\n**默认取值:**\nen-us",
+            "required": false,
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释:**\n项目ID,对应华为云控制台用户名->我的凭证->项目列表->项目ID\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "您可以通过调用企业项目管理服务(EPS)的查询企业项目列表接口(ListEnterpriseProject)查询企业项目id。若需要查询当前用户所有企业项目绑定的资源信息,请传参all_granted_eps。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "recent",
+            "in": "query",
+            "description": "**参数解释:**\n查询日志的时间范围,recent参数与from、to必须使用其中一个。当同时使用recent参数与from、to时,以recent参数为准\n**约束限制:**\n不涉及\n**取值范围:**\n - yesterday:昨天\n - today:今天\n - 3days:近3天 \n - 1week:近7天 \n - 1month:近30天 \n**默认取值:**\n不涉及",
+            "type": "string",
+            "required": false,
+            "enum": [
+              "yesterday",
+              "today",
+              "3days",
+              "1week",
+              "1month"
+            ]
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "format": "int64",
+            "type": "integer",
+            "description": "**参数解释:**\n起始时间(毫秒时间戳),需要和to同时使用\n**约束限制:**\nfrom <= to\n**取值范围:**\nfrom ~ to 最大范围30天\n**默认取值:**\n不涉及",
+            "required": false
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "type": "integer",
+            "format": "int64",
+            "description": "**参数解释:**\n结束时间(毫秒时间戳),需要和from同时使用\n**约束限制:**\nfrom ~ to 最大范围30天\n**取值范围:**\n不能超过当天的结束时间\n**默认取值:**\n不涉及",
+            "required": false
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n防护事件id列表,支持模糊查询\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nids",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n防护事件id列表(排除搜索),支持模糊查询\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "attacks",
+            "in": "query",
+            "collectionFormat": "multi",
+            "type": "array",
+            "description": "**参数解释:**\n攻击类型\n**约束限制:**\n不涉及\n**取值范围:**\n- xss:XSS攻击 \n- botm:BOT攻击\n- webshell:网站木马 \n- vuln:其他漏洞攻击\n- sqli:sql注入攻击 \n- robot:恶意爬虫 \n- rfi:远程文件包含 \n- rce:远程代码执行\n- ptr:目录遍历\n- lfi:本地文件包含\n- antileakage:网站信息泄漏 \n- iprank:IP信誉库\n- custom_whiteblackip:IP黑白名单\n- custom_whiteip:白名单\n- custom_blackip:黑名单\n- custom_robot:扫描器爬虫\n- custom_geoip:地理访问控制\n- custom_idc_ip:IDC情报\n- custom_custom:精准防护 \n- cmdi:命令注入攻击 \n- cc:cc攻击 \n- antitamper:网页防篡改 \n- anticrawler:网站反爬虫  \n- third_bot_river:第三方反爬虫\n- antiscan_high_freq_scan:高频扫描封禁\n- antiscan_dir_traversal:目录遍历防护\n- illegal:非法请求\n- followed_action:攻击惩罚\n- advanced_bot:BOT管理\n- llm_prompt_injection:提示词注入攻击\n- llm_prompt_sensitive:提示词违规\n- llm_response_sensitive:响应违规\n**默认取值:**\n不涉及",
+            "items": {
+              "type": "string",
+              "enum": [
+                "xss",
+                "botm",
+                "webshell",
+                "vuln",
+                "sqli",
+                "robot",
+                "rfi",
+                "rce",
+                "ptr",
+                "lfi",
+                "antileakage",
+                "iprank",
+                "custom_whiteblackip",
+                "custom_whiteip",
+                "custom_blackip",
+                "custom_robot",
+                "custom_geoip",
+                "custom_idc_ip",
+                "custom_custom",
+                "cmdi",
+                "cc",
+                "antitamper",
+                "anticrawler",
+                "third_bot_river",
+                "antiscan_high_freq_scan",
+                "antiscan_dir_traversal",
+                "illegal",
+                "followed_action",
+                "advanced_bot",
+                "llm_prompt_injection",
+                "llm_prompt_sensitive",
+                "llm_response_sensitive"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "nattacks",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n攻击类型(排除搜索)\n**约束限制:**\n不涉及\n**取值范围:**\n- xss:XSS攻击 \n- botm:BOT攻击\n- webshell:网站木马 \n- vuln:其他漏洞攻击\n- sqli:sql注入攻击 \n- robot:恶意爬虫 \n- rfi:远程文件包含 \n- rce:远程代码执行\n- ptr:目录遍历\n- lfi:本地文件包含\n- antileakage:网站信息泄漏 \n- iprank:IP信誉库\n- custom_whiteblackip:IP黑白名单\n- custom_whiteip:白名单\n- custom_blackip:黑名单\n- custom_robot:扫描器爬虫\n- custom_geoip:地理访问控制\n- custom_idc_ip:IDC情报\n- custom_custom:精准防护 \n- cmdi:命令注入攻击 \n- cc:cc攻击 \n- antitamper:网页防篡改 \n- anticrawler:网站反爬虫  \n- third_bot_river:第三方反爬虫\n- antiscan_high_freq_scan:高频扫描封禁\n- antiscan_dir_traversal:目录遍历防护\n- illegal:非法请求\n- followed_action:攻击惩罚\n- advanced_bot:BOT管理\n- llm_prompt_injection:提示词注入攻击\n- llm_prompt_sensitive:提示词违规\n- llm_response_sensitive:响应违规\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "xss",
+                "botm",
+                "webshell",
+                "vuln",
+                "sqli",
+                "robot",
+                "rfi",
+                "rce",
+                "ptr",
+                "lfi",
+                "antileakage",
+                "iprank",
+                "custom_whiteblackip",
+                "custom_whiteip",
+                "custom_blackip",
+                "custom_robot",
+                "custom_geoip",
+                "custom_idc_ip",
+                "custom_custom",
+                "cmdi",
+                "cc",
+                "antitamper",
+                "anticrawler",
+                "third_bot_river",
+                "antiscan_high_freq_scan",
+                "antiscan_dir_traversal",
+                "illegal",
+                "followed_action",
+                "advanced_bot",
+                "llm_prompt_injection",
+                "llm_prompt_sensitive",
+                "llm_response_sensitive"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "rules",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n规则id列表\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "nrules",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n规则id列表(排除搜索)\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "sips",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n客户端IP列表\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "nsips",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n客户端IP列表(排除搜索)\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "sip",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n客户端IP,当query_mode为\"equal\"时为精确查询,否则模糊查询\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "string"
+          },
+          {
+            "name": "urls",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\nurl列表\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "nurls",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\nurl列表(排除搜索)\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\nURL,当query_mode为\"equal\"时为精确查询,否则模糊查询\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "string"
+          },
+          {
+            "name": "actions",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n防护动作列表\n**约束限制:**\n不涉及\n**取值范围:**\n- block:拦截\n- pass:放行\n- log:仅记录\n- captcha:人机验证\n- cache:不匹配\n- mask:过滤\n- js_challenge:JS挑战\n- advanced_captcha:高级人机验证\n- abort_response:中断响应\n- desensitize:脱敏\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "block",
+                "pass",
+                "log",
+                "captcha",
+                "cache",
+                "mask",
+                "js_challenge",
+                "advanced_captcha",
+                "abort_response",
+                "desensitize"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "nactions",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n防护动作列表(排除搜索)\n**约束限制:**\n不涉及\n**取值范围:**\n- block:拦截\n- pass:放行\n- log:仅记录\n- captcha:人机验证\n- cache:不匹配\n- mask:过滤\n- js_challenge:JS挑战\n- advanced_captcha:高级人机验证\n- abort_response:中断响应\n- desensitize:脱敏\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "block",
+                "pass",
+                "log",
+                "captcha",
+                "cache",
+                "mask",
+                "js_challenge",
+                "advanced_captcha",
+                "abort_response",
+                "desensitize"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n域名,支持模糊查询\n**约束限制:**\ndomain和ndomain不可同时查询,当两个都存在时以domain为准\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "string"
+          },
+          {
+            "name": "ndomain",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n域名(排除搜索),支持模糊查询\n**约束限制:**\ndomain和ndomain不可同时查询,当两个都存在时以domain为准\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "string"
+          },
+          {
+            "name": "domains",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n域名列表\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ip_countries",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n客户端IP所属国家列表\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "nip_countries",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n客户端IP所属国家列表(排除搜索)\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "ip_regions",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n客户端IP所属省份列表,仅中国省份生效\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "nip_regions",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n客户端IP所属身份列表(排除搜索),仅中国省份生效\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "response_codes",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n响应码列表\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "payload",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n恶意负载(被WAF识别的攻击片段):\nWeb 基础防护(SQL注入、XSS、命令注入等):被WAF识别的攻击片段\nCC 攻击:命中规则的请求次数\n精准防护、IP黑白名单、地理访问控制:空\n攻击惩罚:命中攻击惩罚的用户标识\n恶意爬虫:命中规则的 User-Agent 字段\n网页反爬虫:JS 脚本事件:js_verified(JS 脚本验证通过事件)和 js_challenge(发送 JS 验证内容事件)。如果请求验证失败则为空。\n网站信息泄露:敏感信息过滤为过滤类型,既电话号码,电子邮箱,身份证号;响应码拦截则为拦截的响应码值。\nBOT攻击:命中规则的User-Agent等异常请求特征,或AI行为检测结果的评分细节\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "string"
+          },
+          {
+            "name": "hosts",
+            "in": "query",
+            "collectionFormat": "multi",
+            "description": "**参数解释:**\n域名id列表,从获取防护网站列表(ListHost)接口获取域名id\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "instances",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n引擎实例id列表\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "**参数解释:**\n分页查询时,返回第几页数据\n**约束限制:**\n不涉及\n**取值范围:**\npage参数的实际有效范围取决于总数据量和pagesize的取值,不能大于总页数\n**默认取值:**\n1",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "pagesize",
+            "in": "query",
+            "description": "**参数解释:**\n分页查询时,每页包含的结果条数\n**约束限制:**\n不涉及\n**取值范围:**\n[0, 总数据量]\n**默认取值:**\n10",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n排序字段,默认attack_time,选择其他字段时,会按照指定字段和attack_time共同排序\n**约束限制:**\n不涉及\n**取值范围:**\n- attack_time 攻击时间\n- sort_ip 客户端IP\n- host 域名\n- geo_str 地理位置\n- component 应用组件\n- rule 规则ID\n- attack 事件类型(攻击类型)\n**默认取值:**\nattack_time",
+            "type": "string",
+            "enum": [
+              "attack_time",
+              "sort_ip",
+              "host",
+              "geo_str",
+              "component",
+              "rule",
+              "attack"
+            ]
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n排序方向\n**约束限制:**\n不涉及\n**取值范围:**\n- desc 降序\n- asc 升序\n**默认取值:**\ndesc",
+            "type": "string",
+            "enum": [
+              "desc",
+              "asc"
+            ]
+          },
+          {
+            "name": "query_mode",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释:**\n查询模式,仅影响参数sip、url\n**约束限制:**\n不涉及\n**取值范围:**\n- equal 精确查询\n- include 模糊查询\n**默认取值:**\ninclude",
+            "type": "string",
+            "enum": [
+              "equal",
+              "include"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/ListEventResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "items": [
+                  {
+                    "id": "04-0000-0000-0000-21120220421152601-2f7a5ceb",
+                    "time": 1650525961000,
+                    "policyid": "25f1d179896e4e3d87ceac0598f48d00",
+                    "host": "x.x.x.x:xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                    "url": "/osclass/oc-admin/index.php",
+                    "attack": "lfi",
+                    "rule": "040002",
+                    "payload": " file=../../../../../../../../../../etc/passwd",
+                    "payload_location": "params",
+                    "sip": "x.x.x.x",
+                    "action": "block",
+                    "request_line": "GET /osclass/oc-admin/index.php?page=appearance&action=render&file=../../../../../../../../../../etc/passwd",
+                    "headers": {
+                      "accept-language": "en",
+                      "ls-id": "xxxxx-xxxxx-xxxx-xxxx-9c302cb7c54a",
+                      "host": "x.x.x.x",
+                      "lb-id": "2f5f15ce-08f4-4df0-9899-ec0cc1fcdc52",
+                      "accept-encoding": "gzip",
+                      "accept": "*/*",
+                      "user-agent": "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.2309.372 Safari/537.36"
+                    },
+                    "cookie": "HWWAFSESID=2a1d773f9199d40a53; HWWAFSESTIME=1650525961805",
+                    "status": "418",
+                    "host_id": "6fbe595e7b874dbbb1505da3e8579b54",
+                    "response_time": 0,
+                    "response_size": 3318,
+                    "response_body": "",
+                    "process_time": 2,
+                    "request_body": "{}"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "请求失败",
+            "schema": {
+              "$ref": "#/definitions/RestErrorResponse"
+            }
+          },
+          "401": {
+            "description": "token权限不足",
+            "schema": {
+              "$ref": "#/definitions/RestErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/RestErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{Endpoint}/v1/{project_id}/waf/event?enterprise_project_id=0&page=1&pagesize=10&recent=today"
+      }
+    }
+  },
+  "definitions": {
+    "ListEventResponseBody": {
+      "description": "查询攻击事件详情",
+      "type": "object",
+      "properties": {
+        "total": {
+          "description": "攻击事件数量",
+          "type": "integer"
+        },
+        "items": {
+          "description": "攻击事件详情",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListEventItems"
+          }
+        }
+      }
+    },
+    "IAM5ErrorDetails": {
+      "description": "调用下游服务的报错信息集合,IAM5鉴权错误时才会返回此信息0。",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "下游服务错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "下游服务报错信息"
+        }
+      }
+    },
+    "ListEventItems": {
+      "description": "攻击类型",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "事件id",
+          "type": "string"
+        },
+        "time": {
+          "description": "攻击发生时的时间戳(毫秒)",
+          "type": "integer",
+          "format": "int64"
+        },
+        "policyid": {
+          "description": "策略id",
+          "type": "string"
+        },
+        "sip": {
+          "description": "源ip,Web访问者的IP地址(攻击者IP地址)",
+          "type": "string"
+        },
+        "host": {
+          "description": "域名",
+          "type": "string"
+        },
+        "url": {
+          "description": "攻击的url链接",
+          "type": "string"
+        },
+        "attack": {
+          "description": "攻击类型: \n - vuln:其它攻击类型 \n - sqli: sql注入攻击 \n - lfi: 本地文件包含\n - cmdi:命令注入攻击 \n - xss:XSS攻击 \n - robot:恶意爬虫 \n - rfi:远程文件包含 \n - custom_custom:精准防护 \n - webshell:网站木马 \n - custom_whiteblackip:黑白名单拦截 \n - custom_geoip:地理访问控制拦截 \n - antitamper:防篡改 \n - anticrawler:反爬虫  \n - leakage:网站信息防泄露 \n - illegal:非法请求 \n - antiscan_high_freq_scan:高频扫描封禁 \n - antiscan_dir_traversal:目录遍历防护",
+          "type": "string"
+        },
+        "rule": {
+          "description": "命中的规则id",
+          "type": "string"
+        },
+        "payload": {
+          "description": "恶意负载:\nWeb 基础防护(SQL注入、XSS、命令注入等):被WAF识别的攻击片段\nCC 攻击:命中规则的请求次数\n精准防护、IP黑白名单、地理访问控制:空\n攻击惩罚:命中攻击惩罚的用户标识\n恶意爬虫:命中规则的 User-Agent 字段\n网页反爬虫:JS 脚本事件:js_verified(JS 脚本验证通过事件)和 js_challenge(发送 JS 验证内容事件)。如果请求验证失败则为空。\n网站信息泄露:敏感信息过滤为过滤类型,既电话号码,电子邮箱,身份证号;响应码拦截则为拦截的响应码值。\nBOT攻击:命中规则的User-Agent等异常请求特征,或AI行为检测结果的评分细节",
+          "type": "string"
+        },
+        "payload_location": {
+          "description": "恶意载荷位置",
+          "type": "string"
+        },
+        "action": {
+          "description": "防护动作",
+          "type": "string"
+        },
+        "request_line": {
+          "description": "请求方法和路径",
+          "type": "string"
+        },
+        "headers": {
+          "description": "http请求header",
+          "type": "object"
+        },
+        "cookie": {
+          "description": "请求cookie",
+          "type": "string"
+        },
+        "status": {
+          "description": "响应码状态",
+          "type": "string"
+        },
+        "process_time": {
+          "description": "处理时长",
+          "type": "integer"
+        },
+        "region": {
+          "description": "地理位置",
+          "type": "string"
+        },
+        "host_id": {
+          "description": "域名id",
+          "type": "string"
+        },
+        "response_time": {
+          "description": "响应时长",
+          "type": "integer",
+          "format": "int64"
+        },
+        "response_size": {
+          "description": "响应体大小",
+          "type": "integer"
+        },
+        "response_body": {
+          "description": "响应体",
+          "type": "string"
+        },
+        "request_body": {
+          "description": "请求体",
+          "type": "string"
+        }
+      }
+    },
+    "RestErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "编码 (加密) 后的详细拒绝原因,用户可以自行调用 STS 服务的decode-authorization-message接口进行解码,可参考STS5联调自验证。IAM5鉴权错误时才会返回此字段。"
+        },
+        "details": {
+          "type": "array",
+          "description": "调用下游服务的报错信息集合,IAM5鉴权错误时才会返回此字段。",
+          "items": {
+            "$ref": "#/definitions/IAM5ErrorDetails"
+          }
+        }
+      },
+      "title": "RestErrorResponse"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "waf.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

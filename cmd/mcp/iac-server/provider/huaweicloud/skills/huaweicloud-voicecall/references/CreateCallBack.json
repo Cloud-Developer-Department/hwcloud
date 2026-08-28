@@ -1,0 +1,293 @@
+{
+  "name": "CreateCallBack",
+  "summary": "语音回呼",
+  "tags": "语音回呼",
+  "productshort": "VoiceCall",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/rest/httpsessions/click2Call/v2.0": {
+      "post": {
+        "tags": [
+          "CallBack"
+        ],
+        "summary": "语音回呼",
+        "description": "语音回呼",
+        "operationId": "CreateCallBack",
+        "x-returnType": "ResponseEntity<ApiCommonResponse>",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-iftype": "OpenAPI_new",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "description": "固定填写为AKSK realm='SDP',profile='UsernameToken',type='Appkey'。"
+          },
+          {
+            "name": "X-AKSK",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "maxLength": 1024,
+            "description": "取值为UsernameToken Username='APP_Key的值', PasswordDigest='PasswordDigest的值', Nonce='随机数', Created='随机数生成时间'。"
+          },
+          {
+            "name": "CallBackRequestBody",
+            "in": "body",
+            "description": "语音回呼请求",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CallBackReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ApiCommonResponse"
+            },
+            "examples": {
+              "application/json": {
+                "resultcode": "0",
+                "resultdesc": "Success",
+                "sessionId": "1202_566_0_20161228102743@callenabler.home1.com",
+                "idlePort": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Authorization not contained in the HTTP header.",
+            "schema": {
+              "$ref": "#/definitions/ApiCommonResponse"
+            },
+            "x-Error": [
+              "1023006"
+            ],
+            "examples": {
+              "application/json-1": {
+                "resultcode": "1023006",
+                "resultdesc": "Authorization not contained in the HTTP header.",
+                "sessionId": "",
+                "idlePort": ""
+              }
+            }
+          },
+          "500": {
+            "description": "Internal system error.",
+            "schema": {
+              "$ref": "#/definitions/ApiCommonResponse"
+            },
+            "x-Error": [
+              "1010001"
+            ],
+            "examples": {
+              "application/json-1": {
+                "resultcode": "1010001",
+                "resultdesc": "Internal system error.",
+                "sessionId": "",
+                "idlePort": ""
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiCommonResponse": {
+      "type": "object",
+      "properties": {
+        "resultcode": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "请求返回的结果码"
+        },
+        "resultdesc": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "请求返回的结果描述"
+        },
+        "sessionId": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "请求返回的会话sessionId,用于标记一路会话。如果请求失败,则sessionId为空表示会话建立失败"
+        },
+        "idlePort": {
+          "type": "integer",
+          "description": "请求参数中returnIdlePort为true时响应消息携带该参数"
+        }
+      },
+      "x-annotations": "@JsonInclude(value=JsonInclude.Include.NON_NULL)",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;"
+    },
+    "CallBackReq": {
+      "type": "object",
+      "required": [
+        "displayNbr",
+        "callerNbr",
+        "displayCalleeNbr",
+        "calleeNbr"
+      ],
+      "properties": {
+        "displayNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 32,
+          "description": "号码格式(固话):国家码+区号+固话,与号码管理页面的“固话号码”保持一致。",
+          "example": "5435340572050112"
+        },
+        "callerNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 32,
+          "description": "此字段定义用户在SP开发的应用中,通过语音回呼功能发起呼叫时所使用的主叫号码",
+          "example": "+86135***0002"
+        },
+        "displayCalleeNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 32,
+          "description": "此字段定义被叫用户收到语音通话平台的呼叫时,被叫用户终端的来电显示号码。需提前在订购号码页面申请该号码。",
+          "example": "+86135***0002"
+        },
+        "calleeNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 32,
+          "description": "此字段定义终端用户在SP开发的应用中通过语音回呼业务发起呼叫时所拨打的被叫号码",
+          "example": "+86135***0002"
+        },
+        "maxDuration": {
+          "type": "integer",
+          "format": "int32",
+          "description": "此字段用于设置允许单次通话进行的最长时间,通话时间从被叫接通的时刻开始计算",
+          "example": 0,
+          "default": 0
+        },
+        "lastMinVoice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "当maxDuration字段设置为非0时此参数有效。此参数用于设置最后一分钟放音提示音,此值填写SP定制的放音文件名",
+          "example": "lastmin_voice1.wav"
+        },
+        "lastMinToUE": {
+          "type": "string",
+          "enum": [
+            "toa",
+            "tob",
+            "both"
+          ],
+          "description": "当maxDuration字段设置为非0时此参数有效。此字段用于设置最后一分钟放音的播放对象。",
+          "example": "toa",
+          "default": "both"
+        },
+        "playPreVoice": {
+          "type": "string",
+          "enum": [
+            true,
+            false
+          ],
+          "description": "此字段用于设置主叫(callerNbr)应答语音回呼后,呼叫被叫(calleeNbr)前,是否向主叫(callerNbr)播放提示音。",
+          "example": "false",
+          "default": "false"
+        },
+        "preVoice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "当playPreVoice字段设置为true时此参数有效。此字段用于设置主叫(callerNbr)应答语音回呼后,呼叫被叫(calleeNbr)前向主叫播放的提示音,此值填写放音文件名",
+          "example": "pre_voice1.wav"
+        },
+        "waitVoice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此字段用于设置主叫应答语音回呼后的等待音,此值填写放音文件名",
+          "example": "wait_voice1.wav"
+        },
+        "calleeMedia": {
+          "type": "string",
+          "maxLength": 32,
+          "enum": [
+            "all",
+            "none",
+            "fail"
+          ],
+          "description": "该参数用于指定被叫的媒体音播放方式",
+          "default": "all",
+          "example": "all"
+        },
+        "statusUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此参数请采用BASE64编码进行加密。此字段用于设置SP接收状态上报的URL。",
+          "example": "https://IP:Port"
+        },
+        "feeUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此参数请采用BASE64编码进行加密。此参数用于设置SP接收话单上报的URL。",
+          "example": "https://IP:Port"
+        },
+        "recordFlag": {
+          "type": "string",
+          "enum": [
+            true,
+            false
+          ],
+          "description": "此字段设置语音回呼通话过程是否录音。",
+          "example": "false",
+          "default": "false"
+        },
+        "recordHintTone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此字段在recordFlag为true时才有效。此字段用于设置使用录音功能的提示音,参数传值为指定的放音文件名。",
+          "example": "recordhint_voice1.wav"
+        },
+        "partyTypeRequiredInDisconnect": {
+          "type": "string",
+          "enum": [
+            true,
+            false
+          ],
+          "description": "该参数用于指定语音通话平台给开发者发送disconnect的呼叫状态时,通知消息是否需要携带通话主动挂机的用户类型。",
+          "example": "false",
+          "default": "false"
+        },
+        "returnIdlePort": {
+          "type": "string",
+          "enum": [
+            true,
+            false
+          ],
+          "description": "指示是否需要返回平台空闲呼叫端口数量。",
+          "example": "true",
+          "default": "false"
+        },
+        "userData": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "此字段用于SP开发者自定义呼叫发起时,设置用户的附属信息,应用场景可以是当开发者想要对每一次呼叫的用户进行跟踪时,该参数可以携带用于标识用户的信息",
+          "example": "customerId123"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rtccall.cn-north-1.myhuaweicloud.cn",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

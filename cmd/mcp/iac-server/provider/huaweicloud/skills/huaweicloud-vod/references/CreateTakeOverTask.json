@@ -1,0 +1,188 @@
+{
+  "name": "CreateTakeOverTask",
+  "summary": "创建媒资:OBS托管方式",
+  "tags": "媒资上传",
+  "productshort": "VOD",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1.0/{project_id}/asset/obs/host/stock/task": {
+      "post": {
+        "x-publishpath": "vod_04_0051",
+        "x-request-examples-text-1": {
+          "bucket": "obs-gg",
+          "object": "1/Shoushu_FLV.flv",
+          "suffix": [],
+          "template_group_name": "original_template_group",
+          "host_type": 1,
+          "output_bucket": "obs-gg",
+          "output_path": "ouput/"
+        },
+        "description": "通过存量托管的方式,将已存储在OBS桶中的音视频文件同步到点播服务。\n\nOBS托管方式分为增量托管和存量托管,增量托管暂只支持通过视频点播控制台配置,配置后,若OBS有新增音视频文件,则会自动同步到点播服务中,具体请参见[增量托管](https://support.huaweicloud.com/usermanual-vod/vod010032.html)。两个托管方式都需要先将对应的OBS桶授权给点播服务,具体请参见[桶授权](https://support.huaweicloud.com/usermanual-vod/vod010031.html)。",
+        "summary": "创建媒资:OBS托管方式",
+        "operationId": "CreateTakeOverTask",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "媒资上传"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/usermanual-vod/vod_01_0058.html)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "CreateTakeOverTaskReq",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTakeOverTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "处理成功返回",
+            "schema": {
+              "$ref": "#/definitions/CreateTakeOverTaskRsp"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": "456"
+              }
+            }
+          },
+          "403": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10053",
+                "error_msg": "The request parameter is illegal, illegal field: {xx}."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v1.0/{project_id}/asset/obs/host/stock/task",
+        "x-request-examples-1": {
+          "bucket": "obs-gg",
+          "object": "1/Shoushu_FLV.flv",
+          "suffix": [],
+          "template_group_name": "original_template_group",
+          "host_type": 1,
+          "output_bucket": "obs-gg",
+          "output_path": "ouput/"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "CreateTakeOverTaskReq": {
+      "required": [
+        "bucket",
+        "object"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "源桶名。"
+        },
+        "object": {
+          "type": "string",
+          "description": "源目录名或源文件名。"
+        },
+        "suffix": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "批量托管时的文件后缀名列表。不传或传空值时,表示托管所有音视频文件,不进行后缀名过滤。"
+        },
+        "template_group_name": {
+          "type": "string",
+          "description": "转码模板组名称。\n\n若不为空,则使用指定的转码模板对上传的音视频进行转码,您可以在视频点播控制台配置转码模板,具体请参见转码设置。\n\n>\n若同时设置了“**template_group_name**”和“**workflow_name**”字段,则“**template_group_name**”字段生效。"
+        },
+        "workflow_name": {
+          "type": "string",
+          "description": "工作流名称。\n\n若不为空,则使用指定的工作流对上传的音视频进行处理,您可以在视频点播控制台配置工作流,具体请参见[工作流设置](https://support.huaweicloud.com/usermanual-vod/vod010041.html)。"
+        },
+        "host_type": {
+          "type": "integer",
+          "description": "表示音视频处理后生成的媒资文件所存储的位置类型。\n\n取值如下所示:\n- 0:表示存储到点播桶。\n- 1:表示存储在租户桶。\n- 2:表示存储到租户桶,并且存储路径与源文件一致。",
+          "default": 0
+        },
+        "output_bucket": {
+          "type": "string",
+          "description": "输出桶名,host_type为1时必选"
+        },
+        "output_path": {
+          "type": "string",
+          "description": "输出路径名,host_type为1时必选"
+        }
+      }
+    },
+    "CreateTakeOverTaskRsp": {
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务ID。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

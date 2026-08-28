@@ -1,0 +1,549 @@
+{
+  "name": "UpdateService",
+  "summary": "更新服务配置",
+  "tags": "服务管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/services/{service_id}": {
+      "put": {
+        "tags": [
+          "服务管理"
+        ],
+        "summary": "更新服务配置",
+        "description": "更新模型服务配置。也可以使用此接口启停服务。",
+        "operationId": "UpdateService",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户项目ID。获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "eae4ac05e51643c8a8ad644eace39981"
+          },
+          {
+            "name": "service_id",
+            "in": "path",
+            "description": "服务ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "a6f49042-771c-451a-bb53-e175fc7d95cf"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "body",
+            "name": "UpdateServiceRequestBody",
+            "description": "更新模型服务的请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateServiceRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "更新服务成功。",
+            "examples": {
+              "application/json": {}
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "x-is-registered": "Y",
+        "x-publish-doc": "Y",
+        "x-open-region-cloud": "hk,hc,fcs",
+        "x-request-examples-description-1": "如下以更新“real-time”类型的服务为例。",
+        "x-request-examples-text-1": {
+          "description": "",
+          "status": "running",
+          "config": [
+            {
+              "model_id": "xxxx",
+              "weight": "100",
+              "specification": "modelarts.vm.cpu.2u",
+              "instance_count": 1
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "description": "",
+          "status": "running",
+          "config": [
+            {
+              "model_id": "xxxx",
+              "weight": "100",
+              "specification": "modelarts.vm.cpu.2u",
+              "instance_count": 1
+            }
+          ]
+        },
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/{project_id}/services/{service_id}"
+      }
+    }
+  },
+  "definitions": {
+    "ServiceConfig": {
+      "properties": {
+        "custom_spec": {
+          "$ref": "#/definitions/CustomSpec"
+        },
+        "envs": {
+          "type": "object",
+          "example": {
+            "key": "value"
+          },
+          "description": "公共参数。运行模型需要的环境变量键值对,可选填,默认为空。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "specification": {
+          "type": "string",
+          "format": "float",
+          "description": "公共参数。资源规格,可通过查询支持的服务部署规格可获取规格列表。当前版本可选modelarts.vm.cpu.2u/modelarts.vm.gpu.pnt004(需申请)/modelarts.vm.ai1.snt3(需申请)/custom(仅支持在部署到专属资源池时使用),需申请的规格请提交工单,由ModelArts运维工程师添加权限。若配置为custom,需同时指定custom_spec参数。"
+        },
+        "weight": {
+          "type": "integer",
+          "description": "real-time类型必选。权重百分比,分配到此模型的流量权重,仅当infer_type为real-time时需要配置,多个权重相加必须等于100;当在一个在线服务中同时配置了多个模型版本且设置不同的流量权重比例时,持续地访问此服务的预测接口,ModelArts会按此权重比例将预测请求转发到对应的模型版本实例。",
+          "maximum": 100
+        },
+        "deploy_timeout_in_seconds": {
+          "type": "integer",
+          "description": "单个模型实例部署的超时时间。",
+          "minimum": 3,
+          "maximum": 120
+        },
+        "model_id": {
+          "type": "string",
+          "example": "eb6a4a8c-5713-4a27-b8ed-c7e694499af5",
+          "description": "公共参数。模型ID。通过调用查询AI应用列表接口可以获取。"
+        },
+        "src_path": {
+          "type": "string",
+          "example": "https://xxx.obs.myhwclouds.com/image/",
+          "description": "batch服务类型必选。批量任务输入数据的OBS路径。"
+        },
+        "req_uri": {
+          "type": "string",
+          "example": "/",
+          "description": "batch服务类型必选。批量任务中调用的推理接口,即模型镜像中暴露的REST接口,需要从模型的config.json文件中选取一个api路径用于此次推理;如使用ModelArts提供的预置推理镜像,则此接口为/。"
+        },
+        "mapping_type": {
+          "type": "string",
+          "example": "file",
+          "description": "batch服务类型必选。输入数据的映射类型,可选file或csv。\n- 选择file时,指每个推理请求对应到输入数据目录下的一个文件,当使用此方式时,此模型对应req_uri只能有一个输入参数且此参数的类型是file。\n- 选择csv时,指每个推理请求对应到csv里的一行数据,当使用此方式时,输入数据目录下的文件只能以.csv为后缀,且需配置mapping_rule参数,以表达推理请求体中各个参数对应到csv的索引。"
+        },
+        "cluster_id": {
+          "type": "string",
+          "example": "8abf68a969c3cb3a0169c4acb24b0000",
+          "description": "可选,部署服务时使用的资源池ID。对于rel-time和batch服务类型,为旧版专属资源池ID,配置此参数后,则使用集群的网络配置,vpc_id参数不生效,使用专属资源池部署服务时需确保集群状态正常,该参数优先级高于cluster_id,配置该参数时需要同时配置服务层级的cluster_id或pool_name参数,且该参数优先级高于服务层级的cluster_id及pool_name,当config内的cluster_id与pool_name均未配置时,会使用服务层级的cluster_id及pool_name参数,均不配置时则会使用共享资源池;对于edge服务类型,为边缘资源池ID,使用边缘资源池部署服务时需确保资源池状态正常,配置该参数时需要同时配置服务层级的cluster_id参数,且该参数优先级高于服务层级的cluster_id;当该参数未配置时,会使用服务层级的cluster_id参数。"
+        },
+        "pool_name": {
+          "type": "string",
+          "description": "real-time和batch服务类型可选。部署服务时使用的AI专属资源池弹性集群的资源池ID,使用专属资源池部署服务时需确保集群状态正常;该参数优先级高于cluster_id,配置该参数时需要同时配置服务层级的cluster_id或pool_name参数,且该参数优先级高于服务层级的cluster_id及pool_name;当config内的cluster_id与pool_name均未配置时,会使用服务层级的cluster_id及pool_name参数,均不配置时则会使用共享资源池。"
+        },
+        "nodes": {
+          "type": "array",
+          "description": "edge服务类型可选。边缘节点ID数组,节点ID为IEF(智能边缘平台)的边缘节点ID,在IEF上创建边缘节点后可得到。",
+          "items": {
+            "type": "string",
+            "example": "246cc2ca-6384-4363-9d12-0062863b3ff7"
+          }
+        },
+        "mapping_rule": {
+          "type": "object",
+          "example": "{}",
+          "description": "batch服务类型可选。输入参数与csv数据的映射关系,仅当mapping_type为csv时需要填写。映射规则与模型配置文件config.json中输入参数的定义方式相似,只需要在每一个基本类型(string/number/integer/boolean)的参数下配置index参数,指定使用csv数据中对应索引下标的数据作为此参数的值去发送推理请求,csv数据必须以英文半角逗号分隔,index从0开始计数,特殊地,当index为-1时忽略此参数。具体可参考创建批量服务的样例。"
+        },
+        "src_type": {
+          "type": "string",
+          "example": "ManifestFile",
+          "description": "batch服务类型必选。数据来源类型,可选填ManifestFile;默认为空,表示只读取src_path目录下的文件;当取值为ManifestFile时,src_path必须为具体的manifest路径,在manifest文件中可指定多个数据路径(参考推理manifest规范)。"
+        },
+        "dest_path": {
+          "type": "string",
+          "example": "https://xxx.obs.myhwclouds.com/res/",
+          "description": "batch服务类型必选。批量任务输出结果的OBS路径。"
+        },
+        "instance_count": {
+          "type": "integer",
+          "example": 1,
+          "description": "公共参数。模型部署的实例数,当前限制最大实例数为128,如需使用更多的实例数,需提交工单申请。",
+          "maximum": 5
+        },
+        "additional_properties": {
+          "additionalProperties": {
+            "$ref": "#/definitions/ModelAdditionalProperties"
+          },
+          "description": "模型部署附加属性,便于服务实例管理。",
+          "type": "object"
+        },
+        "affinity": {
+          "description": "服务亲和部署",
+          "$ref": "#/definitions/ServiceAffinity"
+        }
+      },
+      "description": "模型运行配置。",
+      "required": [
+        "specification",
+        "model_id",
+        "instance_count"
+      ],
+      "type": "object"
+    },
+    "CustomSpec": {
+      "required": [
+        "memory",
+        "cpu"
+      ],
+      "properties": {
+        "gpu_p4": {
+          "type": "number",
+          "format": "float",
+          "example": 0.0,
+          "description": "GPU个数,可选,默认不使用,支持配置小数,输入值不能小于0(最多支持2位小数,小数点后第3位做四舍五入处理)。"
+        },
+        "memory": {
+          "type": "integer",
+          "example": 8192,
+          "description": "内存,单位为MB,仅支持整数。"
+        },
+        "cpu": {
+          "type": "number",
+          "format": "float",
+          "example": 2.0,
+          "description": "CPU核数,支持配置小数,输入值不能小于0.01(最多支持2位小数,小数点后第3位做四舍五入处理)。"
+        },
+        "ascend_a310": {
+          "type": "integer",
+          "example": 0,
+          "description": "Ascend芯片个数,可选,默认不使用,不支持与gpu同时配置。"
+        }
+      },
+      "description": "自定义资源规格配置,仅当specification配置为custom时返回。",
+      "type": "object"
+    },
+    "PersistentVolumes": {
+      "type": "object",
+      "description": "持久化存储挂载配置。",
+      "required": [
+        "mount_path"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "存储卷的名称。"
+        },
+        "mount_path": {
+          "type": "string",
+          "description": "存储卷在容器中的挂载路径。如:/tmp。请不要挂载在系统目录下,如“/”、“/var/run”等,会导致容器异常。建议挂载在空目录下,若目录不为空,请确保目录下无影响容器启动的文件,否则文件会被替换,导致容器启动异常,工作负载创建失败。"
+        },
+        "storage_type": {
+          "type": "string",
+          "description": "挂载类型sfs_turbo极速文件系统挂载。"
+        },
+        "source_address": {
+          "type": "string",
+          "description": "挂载源路径,挂载为极速文件时为sfs turbo id。"
+        }
+      }
+    },
+    "ServiceAdditionalProperties": {
+      "type": "object",
+      "description": "服务级别附加属性,便于服务管理。",
+      "required": [
+        "smn_notification"
+      ],
+      "properties": {
+        "smn_notification": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SmnNotification"
+          },
+          "description": "smn消息通知结构,用于通知用户服务状态变化。"
+        },
+        "log_report_channels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LogReportPipeline"
+          },
+          "description": "日志通道组。没有配置或者数组长度为0时部署代表未启用LTS日志对接。开启后不支持修改。"
+        },
+        "websocket_upgrade": {
+          "type": "boolean",
+          "description": "服务接口是否升级为WebSocket。部署服务时,默认值为false;更新服务配置时,默认值为上一次设置的值。\n- false:不升级为WebSocket。\n- true:升级为WebSocket。开启后,不支持修改。开启WebSocket时,不支持同时设置“服务流量限制”。"
+        }
+      }
+    },
+    "AffinityPoolInfo": {
+      "type": "object",
+      "description": "资源池的节点信息,指定节点名称和节点所在的资源池名称",
+      "required": [
+        "pool_name",
+        "nodes"
+      ],
+      "properties": {
+        "pool_name": {
+          "type": "string",
+          "description": "集群名称,集群名称必须在外层pool_name中"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AffinityNodeInfo"
+          },
+          "description": "亲和的节点列表信息"
+        }
+      }
+    },
+    "ModelAdditionalProperties": {
+      "type": "object",
+      "description": "模型部署附加属性,便于服务实例管理。",
+      "properties": {
+        "log_volume": {
+          "items": {
+            "required": [
+              "host_path",
+              "mount_path"
+            ],
+            "$ref": "#/definitions/LogVolume"
+          },
+          "description": "主机日志目录挂载。\n仅支持使用专属资源池部署服务场景。如果用户使用公共资源池部署服务,则不支持配置该参数,否则会报错。",
+          "type": "array"
+        },
+        "max_surge": {
+          "type": "number",
+          "format": "float",
+          "description": "必须大于0,不配置默认值为1。当小于1时,代表滚动升级时增加的实例数的百分比;当大于1时,代表滚动升级时最大扩容的实例数。",
+          "default": 1,
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "max_unavailable": {
+          "type": "number",
+          "format": "float",
+          "description": "必须大于0,不配置默认值为0。当小于1时,代表滚动升级时允许缩容的实例数的百分比;当大于1时,代表滚动升级时允许缩容的实例数。",
+          "default": 0,
+          "minimum": 0
+        },
+        "termination_grace_period_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "容器优雅停止时间。",
+          "default": 240,
+          "minimum": 30,
+          "maximum": 300
+        },
+        "persistent_volumes": {
+          "type": "array",
+          "items": {
+            "required": [
+              "mount_path"
+            ],
+            "$ref": "#/definitions/PersistentVolumes"
+          },
+          "description": "持久化存储挂载配置。"
+        }
+      }
+    },
+    "UpdateServiceRequest": {
+      "properties": {
+        "schedule": {
+          "type": "array",
+          "description": "服务调度配置,仅在线服务可配置,默认不使用,服务长期运行。",
+          "items": {
+            "$ref": "#/definitions/Schedule"
+          }
+        },
+        "description": {
+          "type": "string",
+          "example": "update",
+          "description": "服务描述,不超过100个字符,不能包含字符有!<>=&\"'。不设置此参数表示不更新。"
+        },
+        "config": {
+          "type": "array",
+          "description": "服务配置,不设置此参数表示不更新。",
+          "items": {
+            "$ref": "#/definitions/ServiceConfig"
+          }
+        },
+        "status": {
+          "type": "string",
+          "example": "stopped",
+          "description": "服务状态,可设置状态为running或stopped来启动、停止服务,不设置此参数则不修改状态。status不可跟config同时修改,同时存在则只修改status。",
+          "enum": [
+            "running",
+            "stopped"
+          ]
+        },
+        "additional_properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ServiceAdditionalProperties"
+          },
+          "description": "服务级别附加属性,便于服务管理。"
+        }
+      },
+      "description": "更新服务的请求体信息。",
+      "type": "object"
+    },
+    "Schedule": {
+      "properties": {
+        "duration": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "对应时间单位的数值,比如2小时后停止,则time_unit填HOURS,duration填2。"
+        },
+        "time_unit": {
+          "type": "string",
+          "example": "HOURS",
+          "description": "调度时间单位,可选DAYS/HOURS/MINUTES。"
+        },
+        "type": {
+          "type": "string",
+          "example": "stop",
+          "description": "调度类型,当前仅支持取值为stop,即运行指定时间后自动停止。"
+        }
+      },
+      "description": "服务调度配置。",
+      "required": [
+        "duration",
+        "time_unit",
+        "type"
+      ]
+    },
+    "AffinityNodeInfo": {
+      "type": "object",
+      "description": "集群的亲和节点列表",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "节点名称,实际上对应的是节点的私有ip"
+        }
+      }
+    },
+    "LtsConfiguration": {
+      "type": "object",
+      "description": "LTS日志组和日志流配置。不填则默认自动创建日志组和日志流。",
+      "required": [
+        "log_group_id",
+        "log_stream_id"
+      ],
+      "properties": {
+        "log_group_id": {
+          "type": "string",
+          "description": "LTS日志组id,长度64。"
+        },
+        "log_stream_id": {
+          "type": "string",
+          "description": "LTS日志流id,长度64。"
+        }
+      }
+    },
+    "ServiceAffinity": {
+      "type": "object",
+      "properties": {
+        "node_affinity": {
+          "description": "节点亲和的时候填入该字段",
+          "$ref": "#/definitions/NodeAffinity"
+        }
+      }
+    },
+    "LogVolume": {
+      "type": "object",
+      "description": "主机日志目录挂载配置。",
+      "required": [
+        "host_path",
+        "mount_path"
+      ],
+      "properties": {
+        "host_path": {
+          "type": "string",
+          "description": "主机上要映射的日志路径。"
+        },
+        "mount_path": {
+          "type": "string",
+          "description": "容器中的日志路径。"
+        }
+      }
+    },
+    "NodeAffinity": {
+      "type": "object",
+      "description": "节点亲和的时候填入该字段",
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "description": "节点亲和的方式,required表示强亲和,服务实例只能调度到指定节点,指定节点不存在则失败。preferred表示弱亲和,服务实例倾向于调度到指定节点,指定节点不满足调度条件,则会调度到其他节点。"
+        },
+        "pool_infos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AffinityPoolInfo"
+          },
+          "description": "配置亲和策略到指定的集群,并指定集群的节点。"
+        }
+      }
+    },
+    "LogReportPipeline": {
+      "type": "object",
+      "description": "日志通道配置。",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "日志通道类型(目前支持LTS)。"
+        },
+        "configuration": {
+          "description": "LTS日志配置。",
+          "$ref": "#/definitions/LtsConfiguration"
+        }
+      }
+    },
+    "SmnNotification": {
+      "type": "object",
+      "description": "smn消息通知结构,用于通知用户服务状态变化。",
+      "required": [
+        "topic_urn",
+        "events"
+      ],
+      "properties": {
+        "topic_urn": {
+          "type": "string",
+          "description": "smn主题urn地址。"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": "事件ID,目前已有事件ID如下:\n- 1:failed\n- 3:running\n- 7:concerning\n- 11:pending"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

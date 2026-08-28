@@ -1,0 +1,197 @@
+{
+  "name": "CheckDrugLigandDifference",
+  "summary": "计算配体间的3D结构差异",
+  "tags": "IDrugCommonController",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/ligand/diff3d": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "CheckDrugLigandDifference",
+        "tags": [
+          "IDrugCommonController"
+        ],
+        "summary": "计算配体间的3D结构差异",
+        "description": "计算配体间的3D结构差异",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "CheckDrugLigandDifferenceRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "配体格式转换为SMILES请求体",
+            "schema": {
+              "$ref": "#/definitions/CheckLigandDifferenceReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "口袋检测成功响应",
+            "schema": {
+              "$ref": "#/definitions/CheckLigandDifferenceRsp"
+            },
+            "examples": {
+              "application/json": {
+                "result": 0.9
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ],
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "CheckLigandDifferenceReq": {
+      "type": "object",
+      "description": "配体差异计算请求体",
+      "required": [
+        "method",
+        "file",
+        "ref_file"
+      ],
+      "properties": {
+        "method": {
+          "$ref": "#/definitions/CheckLigandDifferenceMethod"
+        },
+        "file": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "配体文件"
+        },
+        "ref_file": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "参考的配体文件"
+        }
+      },
+      "example": {
+        "method": "RMSD",
+        "file": {
+          "source": "PRIVATE",
+          "url": "obs://bucket/path/to/file"
+        },
+        "ref_file": {
+          "source": "RAW",
+          "format": "SDF",
+          "data": "xxxxxxx"
+        }
+      }
+    },
+    "CheckLigandDifferenceRsp": {
+      "type": "object",
+      "description": "配体差异计算响应体",
+      "required": [
+        "result"
+      ],
+      "properties": {
+        "result": {
+          "type": "number",
+          "format": "float",
+          "description": "差异值",
+          "example": 0.9
+        }
+      }
+    },
+    "CheckLigandDifferenceMethod": {
+      "type": "string",
+      "enum": [
+        "RMSD",
+        "EMD"
+      ],
+      "description": "差异计算方法:RMSD、EMD"
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

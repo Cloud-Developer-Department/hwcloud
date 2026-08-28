@@ -1,0 +1,488 @@
+{
+  "name": "BatchWriteKv",
+  "summary": "批量写请求",
+  "tags": "KV接口",
+  "productshort": "KVS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/batch-write-kv": {
+      "post": {
+        "tags": [
+          "KV接口"
+        ],
+        "summary": "批量写请求",
+        "operationId": "BatchWriteKv",
+        "description": "批量写请求,其中可以携带一或多个表的不同kv的写操作,上传kv/删除kv。",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/bson"
+        ],
+        "produces": [
+          "application/bson"
+        ],
+        "parameters": [
+          {
+            "name": "store_name",
+            "in": "query",
+            "description": "仓名,全域唯一,不同租户的仓名不能相同。 \n- 格式:${prefix}-${region-code}-${account-id},其中prefix为自定义前缀,region-code为kvs集群所在的区域代码,account-id为用户的账户id\n- 取值字符限制:[a-z0-9-]+\n- 长度:[16,52]\n> \"-\"不能出现在名字头部或尾部",
+            "type": "string",
+            "x-location-cname": true
+          },
+          {
+            "in": "body",
+            "name": "BatchWriteKvRequestBody",
+            "description": "批量写请求的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchWriteKvRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "表示批量写请求请求成功",
+            "schema": {
+              "$ref": "#/definitions/BatchWriteKvResponseBody"
+            }
+          },
+          "400": {
+            "description": "BatchExceedLimit"
+          }
+        },
+        "x-request-examples-description-1": "批量写请求,向test_table_1表中插入和删除一个kv",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/batch-write-kv",
+        "x-request-examples-tags-1": "hws",
+        "x-request-examples-1": {
+          "table_opers": [
+            {
+              "table_batch": {
+                "table_name": "test_table_1",
+                "kv_opers": [
+                  {
+                    "put_kv": {
+                      "oper_id": 1,
+                      "kv_doc": {
+                        "owner": "user_3",
+                        "filename": "test_file_3"
+                      }
+                    }
+                  },
+                  {
+                    "delete_kv": {
+                      "oper_id": 2,
+                      "primary_key": {
+                        "owner": "user_2",
+                        "filename": "test_file_2"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "single_field_expression": {
+      "required": [
+        "field",
+        "func"
+      ],
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "条件字段。"
+        },
+        "func": {
+          "type": "string",
+          "description": "条件函数,取值如\"$gt\", $lt\",\"$gte\", $lte\" \"$eq\", \"$ne\", \"$prefix\", \"$exists\"。"
+        },
+        "value": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "value和value_array二选一。\n- value条件值,适用于除\"$in\", \"$nin\"外的func。\n- 字段名无意义,可以传空,也可以传字段名。\n- $exists值为true/false。\n> $prefix操作只适用于string和binary类型。"
+        },
+        "value_array": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "bson-document"
+          },
+          "description": "\"value\"和\"value_array\"二选一。\n- \"value_array\" 条件值列表, 值用于\"$in\", \"$nin\"。"
+        }
+      }
+    },
+    "expression": {
+      "type": "object",
+      "properties": {
+        "single_field_expression": {
+          "$ref": "#/definitions/single_field_expression",
+          "description": "单字段条件。"
+        },
+        "multi_field_expression": {
+          "$ref": "#/definitions/multi_field_expression",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "composed_expression": {
+          "$ref": "#/definitions/composed_expression",
+          "description": "组合条件, 逐层同级的子表达式嵌套。"
+        }
+      }
+    },
+    "multi_field_expression": {
+      "required": [
+        "expressions"
+      ],
+      "type": "object",
+      "properties": {
+        "logic": {
+          "type": "string",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/single_field_expression"
+          },
+          "description": "多个相同逻辑操作的单字段条件。"
+        }
+      }
+    },
+    "single_kv_expression": {
+      "required": [
+        "func"
+      ],
+      "type": "object",
+      "properties": {
+        "func": {
+          "type": "string",
+          "description": "取值:\"is_doc\", \"is_blob\", \"is_exist\", \"not_exist\"。"
+        }
+      }
+    },
+    "table_batch": {
+      "required": [
+        "table_name",
+        "kv_opers"
+      ],
+      "type": "object",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "表名,仓内唯一。\n- 长度:[3, 63]\n- 取值字符限制:[a-z0-9_-]+"
+        },
+        "kv_opers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/oper_item"
+          },
+          "description": "kv操作数组。"
+        }
+      },
+      "description": "单个表的所有kv操作。"
+    },
+    "BatchWriteKvRequestBody": {
+      "required": [
+        "table_opers"
+      ],
+      "type": "object",
+      "properties": {
+        "table_opers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/table_batch"
+          },
+          "description": "行操作数组,可以是多个表的操作。"
+        }
+      }
+    },
+    "update_kv": {
+      "required": [
+        "oper_id",
+        "primary_key"
+      ],
+      "type": "object",
+      "properties": {
+        "oper_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "请求内的操作编码,未成功的操作返回该标识。"
+        },
+        "primary_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "用户自定义的主键名及值。"
+        },
+        "update_fields": {
+          "$ref": "#/definitions/update_fields",
+          "description": "对kv_doc有效。"
+        },
+        "condition_expression": {
+          "$ref": "#/definitions/condition_expression",
+          "description": "条件表达式,参见conditional小节。\n- 长度:[8,4096]"
+        }
+      }
+    },
+    "kv_blob": {
+      "required": [
+        "primary_key"
+      ],
+      "type": "object",
+      "properties": {
+        "primary_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "用户自定义的主键名及值。\n> 内容字段:主键字段名和值,组合索引多个元素。"
+        },
+        "xblob": {
+          "type": "string",
+          "format": "bson-binary",
+          "description": "属性信息,最大2kb。"
+        },
+        "xattr": {
+          "type": "string",
+          "format": "bson-binary",
+          "description": "非结构化数据内容。"
+        }
+      }
+    },
+    "composed_expression": {
+      "required": [
+        "expressions"
+      ],
+      "type": "object",
+      "properties": {
+        "logic": {
+          "type": "string",
+          "description": "逻辑关系,取值如\"$and\", \"$or\", \"$nor\"。"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/expression"
+          },
+          "description": "多个相同优先级且相同逻辑的单字段或多字段条件。"
+        }
+      }
+    },
+    "update_fields": {
+      "type": "object",
+      "properties": {
+        "upsert": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "文档不存在时,插入该完整文档。"
+        },
+        "set": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "新增或覆盖更新1个或多个字段的值。\n> 禁止修改sortkey的字段。"
+        },
+        "add": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "对1个或多个字段做加法运算,并更新为运算后的值。"
+        },
+        "rmv": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "删除1个或多个字段。\n- 数组元素为待删除字段名。"
+        },
+        "insert": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "插入元素到数组中\n> 非数组返回失败。"
+        },
+        "delete": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "从数组中删除某个元素\n> 非数组返回失败。"
+        },
+        "update_blob": {
+          "$ref": "#/definitions/update_blob",
+          "description": "对kv_blob有效,修改局部数据。"
+        }
+      }
+    },
+    "table_oper_ids": {
+      "required": [
+        "table_name",
+        "kv_oper_ids"
+      ],
+      "type": "object",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "表名,仓内唯一。\n- 长度:[3, 63]\n- 取值字符限制:[a-z0-9_-]+"
+        },
+        "kv_oper_ids": {
+          "$ref": "#/definitions/kv_oper_ids",
+          "description": "kv操作数组。"
+        }
+      },
+      "description": "某个表的行操作数组, 可以是多个文档的put_kv或delete_kv。"
+    },
+    "put_kv": {
+      "required": [
+        "oper_id"
+      ],
+      "type": "object",
+      "properties": {
+        "oper_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "请求内的操作编码,未成功的操作返回该标识。"
+        },
+        "kv_doc": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "用户文档。"
+        },
+        "kv_blob": {
+          "$ref": "#/definitions/kv_blob",
+          "description": "用户非结构化数据。"
+        },
+        "condition_expression": {
+          "$ref": "#/definitions/condition_expression",
+          "description": "条件表达式,参见conditional小节。\n- 长度:[8,4096]"
+        }
+      }
+    },
+    "kv_oper_ids": {
+      "type": "object",
+      "properties": {
+        "put_kv_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": "上传kv操作, \"oper_id\"数组。\n- 数组元素:请求内的操作编码,未成功的操作返回该标识。"
+        },
+        "delete_kv_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": "请求内的操作编码,未成功的操作返回该标识。 - 数组元素:请求内的操作编码,未成功的操作返回该标识。"
+        },
+        "update_kv_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": "请求内的操作编码,未成功的操作返回该标识。 - 数组元素:请求内的操作编码,未成功的操作返回该标识。"
+        }
+      }
+    },
+    "oper_item": {
+      "type": "object",
+      "properties": {
+        "put_kv": {
+          "$ref": "#/definitions/put_kv",
+          "description": "上传kv操作。"
+        },
+        "delete_kv": {
+          "$ref": "#/definitions/delete_kv",
+          "description": "删除kv操作。"
+        },
+        "update_kv": {
+          "$ref": "#/definitions/update_kv",
+          "description": "更新kv操作。"
+        }
+      },
+      "description": "put_kv或delete_kv或update_kv操作。"
+    },
+    "BatchWriteKvResponseBody": {
+      "type": "object",
+      "properties": {
+        "unprocessed_opers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/table_oper_ids"
+          },
+          "description": "未处理的操作列表。"
+        }
+      }
+    },
+    "delete_kv": {
+      "required": [
+        "oper_id",
+        "primary_key"
+      ],
+      "type": "object",
+      "properties": {
+        "oper_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "请求内的操作编码,未成功的操作返回该标识。"
+        },
+        "primary_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "用户自定义的主键名及值。"
+        }
+      }
+    },
+    "update_blob": {
+      "type": "object",
+      "properties": {
+        "xattr": {
+          "type": "string",
+          "format": "bson-binary",
+          "description": "属性信息。"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "value部分的偏移位置。\n> - 超过value当前size无效\n> - \"offset\"与\"len\"与\"blob_data\" 要么都带,要么都不带。"
+        },
+        "len": {
+          "type": "integer",
+          "format": "int32",
+          "description": "更新内容长度。"
+        },
+        "blob_data": {
+          "type": "string",
+          "format": "bson-binary",
+          "description": "二进制内容。"
+        }
+      }
+    },
+    "condition_expression": {
+      "type": "object",
+      "properties": {
+        "single_field_expression": {
+          "$ref": "#/definitions/single_field_expression",
+          "description": "单字段条件。"
+        },
+        "multi_field_expression": {
+          "$ref": "#/definitions/multi_field_expression",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "composed_expression": {
+          "$ref": "#/definitions/composed_expression",
+          "description": "组合条件, 逐层同级的子表达式嵌套。"
+        },
+        "single_kv_expression": {
+          "$ref": "#/definitions/single_kv_expression",
+          "description": "文档表达式。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kvs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,426 @@
+{
+  "name": "ShowScanJobResults",
+  "summary": "查询指定任务扫描结果",
+  "tags": "敏感数据发现",
+  "productshort": "DSC",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/{project_id}/sdg/scan/job/{job_id}/results": {
+      "get": {
+        "x-request-examples-description-1": "查询指定任务扫描结果",
+        "x-request-examples-url-1": "GET /v1/{project_id}/sdg/scan/job/{job_id}/results",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "敏感数据发现"
+        ],
+        "summary": "查询指定任务扫描结果",
+        "description": "查询指定任务扫描结果",
+        "operationId": "ShowScanJobResults",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "任务ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "integer",
+            "default": 100,
+            "format": "int32"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "资产类型",
+            "required": false,
+            "type": "string",
+            "default": "DATABASE",
+            "enum": [
+              "DATABASE",
+              "OBS",
+              "BIGDATA"
+            ]
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "起始时间(预留,待启用)",
+            "required": false,
+            "type": "string",
+            "x-todo": true
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "结束时间(预留,待启用)",
+            "required": false,
+            "type": "string",
+            "x-todo": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ScanResultResponse"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "xxxxxx",
+                "job_name": "xxxxxx",
+                "type": "DATABASE",
+                "db_scan_result": {
+                  "total": 1,
+                  "db_scan_results": [
+                    {
+                      "task_id": "xxxxxx",
+                      "db_name": "xxxxxx",
+                      "table_id": "xxxxxx",
+                      "table_name": "student",
+                      "risk_level": 6,
+                      "sensitive_data_type": [
+                        "xxxxxx",
+                        "xxxxxx"
+                      ],
+                      "match_info": [
+                        {
+                          "column_name": "phone",
+                          "rule_name": "xxxxxx",
+                          "rule_id": "xxxxxx",
+                          "rule_risk_level": 6,
+                          "column_line": [
+                            1,
+                            3
+                          ]
+                        },
+                        {
+                          "column_name": "email",
+                          "rule_name": "xxxxxx",
+                          "rule_id": "xxxxxx",
+                          "rule_risk_level": 1,
+                          "column_line": [
+                            1,
+                            3
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "obs_scan_result": null,
+                "es_scan_result": null
+              }
+            }
+          },
+          "400": {
+            "description": "无效请求",
+            "examples": {
+              "application/json": {
+                "error_code": "dsc.40000011",
+                "error_msg": "Invalid parameter"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorReturnInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ObsScanResultInfo": {
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "bucket_id": {
+          "type": "string",
+          "description": "OBS桶ID"
+        },
+        "bucket_name": {
+          "type": "string",
+          "description": "OBS桶名称"
+        },
+        "file_path": {
+          "type": "string",
+          "description": "文件路径"
+        },
+        "file_name": {
+          "type": "string",
+          "description": "文件名"
+        },
+        "md5": {
+          "type": "string",
+          "description": "文件md5值"
+        },
+        "risk_level": {
+          "type": "integer",
+          "format": "int32",
+          "description": "风险等级"
+        },
+        "sensitive_data_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "风险数据类型"
+        }
+      }
+    },
+    "EsScanResultInfo": {
+      "description": "ES扫描结果信息",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "index_name": {
+          "type": "string",
+          "description": "索引名"
+        },
+        "type_id": {
+          "type": "string",
+          "description": "类型ID"
+        },
+        "type_name": {
+          "type": "string",
+          "description": "类型名"
+        },
+        "risk_level": {
+          "type": "integer",
+          "format": "int32",
+          "description": "风险等级"
+        },
+        "sensitive_data_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "敏感数据类型"
+        },
+        "match_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EsMatchInfo"
+          },
+          "description": "规则匹配具体信息"
+        }
+      }
+    },
+    "ObsScanResult": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "扫描结果总数"
+        },
+        "db_scan_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObsScanResultInfo"
+          },
+          "description": "OBS扫描结果列表"
+        }
+      },
+      "description": "OBS扫描结果"
+    },
+    "EsScanResult": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "扫描结果总数"
+        },
+        "db_scan_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EsScanResultInfo"
+          },
+          "description": "ES扫描结果列表"
+        }
+      },
+      "description": "ES扫描结果"
+    },
+    "DbScanResult": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "扫描结果总数"
+        },
+        "db_scan_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DbScanResultInfo"
+          },
+          "description": "数据库扫描结果列表"
+        }
+      },
+      "description": "数据库扫描结果"
+    },
+    "DbMatchInfo": {
+      "properties": {
+        "column_name": {
+          "type": "string",
+          "description": "列名"
+        },
+        "rule_name": {
+          "type": "string",
+          "description": "匹配的规则名"
+        },
+        "rule_id": {
+          "type": "string",
+          "description": "匹配的规则ID"
+        },
+        "rule_risk_level": {
+          "type": "integer",
+          "description": "匹配规则风险等级"
+        },
+        "column_line": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": "风险数据行"
+        }
+      }
+    },
+    "EsMatchInfo": {
+      "description": "ES数据项匹配信息",
+      "properties": {
+        "field_name": {
+          "type": "string",
+          "description": "数据字段名"
+        },
+        "rule_name": {
+          "type": "string",
+          "description": "规则名"
+        },
+        "rule_id": {
+          "type": "string",
+          "description": "规则ID"
+        },
+        "rule_risk_level": {
+          "type": "integer",
+          "format": "int32",
+          "description": "规则风险等级"
+        }
+      }
+    },
+    "ScanResultResponse": {
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "job_name": {
+          "type": "string",
+          "description": "任务名"
+        },
+        "type": {
+          "type": "string",
+          "description": "查询资产类型"
+        },
+        "db_scan_result": {
+          "$ref": "#/definitions/DbScanResult"
+        },
+        "obs_scan_result": {
+          "$ref": "#/definitions/ObsScanResult"
+        },
+        "es_scan_result": {
+          "$ref": "#/definitions/EsScanResult"
+        }
+      }
+    },
+    "ErrorReturnInfo": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ]
+    },
+    "DbScanResultInfo": {
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "db_name": {
+          "type": "string",
+          "description": "数据库名称"
+        },
+        "table_id": {
+          "type": "string",
+          "description": "表ID"
+        },
+        "table_name": {
+          "type": "string",
+          "description": "表名称"
+        },
+        "risk_level": {
+          "type": "integer",
+          "format": "int32",
+          "description": "风险等级"
+        },
+        "sensitive_data_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "匹配到的规则"
+        },
+        "match_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DbMatchInfo"
+          },
+          "description": "表中各列匹配到的规则"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sdg.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

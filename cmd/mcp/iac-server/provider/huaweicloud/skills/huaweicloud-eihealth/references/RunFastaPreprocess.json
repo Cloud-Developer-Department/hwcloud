@@ -1,0 +1,207 @@
+{
+  "name": "RunFastaPreprocess",
+  "summary": "受体预处理(Fasta格式)",
+  "tags": "药物通用接口",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/receptor/fasta-preprocess": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "RunFastaPreprocess",
+        "x-interface-name": "IDrugCommonController",
+        "x-ut-partial": true,
+        "tags": [
+          "药物通用接口"
+        ],
+        "summary": "受体预处理(Fasta格式)",
+        "description": "受体预处理(Fasta格式),用于前端计算预期扣费次数",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "RunFastaPreprocessRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "Fasta受体文件预览请求体",
+            "schema": {
+              "$ref": "#/definitions/RunFastaPreprocessReq"
+            }
+          }
+        ],
+        "x-request-examples-1": {
+          "file": {
+            "source": "PUBLIC",
+            "url": "https://eihealth-public-material.obs.cn-north-7.ulanqab.huawei.com/fake.fasta"
+          }
+        },
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/receptor/fasta-preprocess",
+        "x-request-examples-description-1": "Fasta受体文件预览",
+        "responses": {
+          "201": {
+            "description": "创建分子或分子复合物批量下载任务成功",
+            "schema": {
+              "$ref": "#/definitions/FastaPreviewRsp"
+            },
+            "examples": {
+              "application/json": {
+                "count": 100,
+                "has_more": false
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FastaReceptor": {
+      "description": "受体文件(Fasta格式)",
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.fasta",
+          "pattern": ".*\\.(fasta)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "FASTA",
+          "pattern": "^(FASTA)$",
+          "description": "文件格式,仅支持FASTA,仅数据源为RAW时提供",
+          "x-ut-exclude-equivalence": [
+            "INVALID"
+          ]
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "FastaPreviewRsp": {
+      "description": "受体文件(Fasta格式)",
+      "required": [
+        "count",
+        "has_more"
+      ],
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "已知的蛋白序列数量",
+          "default": 100,
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "example": 100
+        },
+        "has_more": {
+          "type": "boolean",
+          "description": "文件中是否还有更多氨基酸序列没有处理",
+          "example": false
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    },
+    "RunFastaPreprocessReq": {
+      "type": "object",
+      "description": "Fasta受体预览请求体",
+      "required": [
+        "file"
+      ],
+      "properties": {
+        "file": {
+          "$ref": "#/definitions/FastaReceptor",
+          "description": "受体文件"
+        },
+        "preview_count": {
+          "type": "integer",
+          "description": "预览数量",
+          "default": 1,
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "example": 1
+        },
+        "count_limit": {
+          "type": "integer",
+          "description": "计数上限",
+          "default": 100,
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "example": 100
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

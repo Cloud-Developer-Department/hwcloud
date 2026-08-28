@@ -1,0 +1,246 @@
+{
+  "name": "UpdateQueuePlan",
+  "summary": "修改队列定时扩缩容计划",
+  "tags": "已弃用-队列相关API",
+  "productshort": "DLI",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/queues/{queue_name}/plans/{plan_id}": {
+      "put": {
+        "tags": [
+          "已弃用-队列相关API"
+        ],
+        "summary": "修改队列定时扩缩容计划",
+        "description": "该API用于修改指定ID的队列定时扩缩容计划。",
+        "operationId": "UpdateQueuePlan",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "待修改的队列扩缩容计划的ID",
+            "required": true,
+            "type": "string",
+            "x-example": "3",
+            "x-order": 3
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。",
+            "required": true,
+            "type": "string",
+            "x-example": "48cc2c48765f481480c7db940d6409d1",
+            "x-order": 1
+          },
+          {
+            "name": "queue_name",
+            "in": "path",
+            "description": "待删除定时扩缩计划的队列名称",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "x-example": "queue1",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "xxx",
+            "x-order": 5
+          },
+          {
+            "in": "body",
+            "name": "UpdateQueuePlanRequestBody",
+            "description": "修改扩缩容计划请求body体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QueuePlanRequestBody"
+            },
+            "x-order": 4,
+            "x-example": {
+              "plan_name": "plan_Ad",
+              "target_cu": 64,
+              "start_hour": 19,
+              "start_minute": 30,
+              "repeat_day": [
+                "THURSDAY",
+                "friday"
+              ],
+              "activate": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "is_success": true,
+                "message": "",
+                "queue_name": "queue1",
+                "plan_id": 3
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/UpdateQueuePlanResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "DLI.0999",
+                "error_msg": "Queue plans create failed. The plan plan_A can not generate a scale plan, please check all time settings for the plan."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "deprecated": true,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hws_hk",
+        "x-apiErrorCodes": "[]",
+        "x-order": 2
+      }
+    }
+  },
+  "definitions": {
+    "FailResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息。"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateQueuePlanResponseBody": {
+      "properties": {
+        "queue_name": {
+          "type": "string",
+          "description": "定时扩缩容计划对应的队列名称"
+        },
+        "plan_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "扩缩容计划的ID编号"
+        },
+        "is_success": {
+          "type": "boolean",
+          "description": "请求执行是否成功。“true”表示请求执行成功。"
+        },
+        "message": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,信息可能为空。"
+        }
+      },
+      "description": "修改扩缩容计划成功后返回的信息。",
+      "type": "object"
+    },
+    "QueuePlanRequestBody": {
+      "required": [
+        "plan_name",
+        "target_cu",
+        "start_hour",
+        "start_minute",
+        "repeat_day"
+      ],
+      "properties": {
+        "plan_name": {
+          "type": "string",
+          "example": "如名称设置为“plan_A”,则\"plan_name\": \"plan_A\"",
+          "description": "队列扩缩容计划名称,名称只能包含数字、英文字母和下划线,但不能是纯数字,且不能以下划线开头。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^(?!_)(?![0-9]+$)[A-Za-z0-9_]*$"
+        },
+        "target_cu": {
+          "type": "integer",
+          "format": "int32",
+          "example": "\"target_cu\": 64",
+          "description": "队列扩缩容计划CU的目标值",
+          "minimum": 16
+        },
+        "start_hour": {
+          "type": "integer",
+          "format": "int32",
+          "example": "\"start_hour\": 20",
+          "description": "队列扩缩容计划起始小时时间",
+          "minimum": 0,
+          "maximum": 23
+        },
+        "start_minute": {
+          "type": "integer",
+          "format": "int32",
+          "example": "\"start_minute\": 30",
+          "description": "队列扩缩容计划的起始分钟时间",
+          "minimum": 0,
+          "maximum": 59
+        },
+        "repeat_day": {
+          "type": "array",
+          "description": "定时扩缩容计划的重复周期规律,可以选择周一到周日的某一天、某几天、或者不选择。如果不选择,则会在当前时间后的start_hour:start_minute时间点执行扩缩容计划。如:\"repeat_day\": [\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\",\"SUNDAY\"]",
+          "items": {
+            "type": "string",
+            "enum": [
+              "SUNDAY",
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY"
+            ]
+          },
+          "maxItems": 7,
+          "minItems": 0
+        },
+        "valid_date_begin": {
+          "type": "integer",
+          "format": "int64",
+          "example": "如2020-06-01 02:30:00的时间戳时间值为1590949800000,设置样例:\"valid_date_begin\": 1590949800000",
+          "description": "有效期开始时间(13位时间戳)"
+        },
+        "valid_date_end": {
+          "type": "integer",
+          "format": "int64",
+          "example": "如2020-06-10 02:30:00的时间戳值为1591727400000,设置样例:\"valid_date_end\": 1591727400000",
+          "description": "有效期结束时间(13位时间戳)"
+        },
+        "activate": {
+          "type": "boolean",
+          "example": false,
+          "description": "当前设置的扩缩容计划是否激活,默认为激活",
+          "default": true
+        }
+      },
+      "description": "创建扩缩容计划的body体。",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dli.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

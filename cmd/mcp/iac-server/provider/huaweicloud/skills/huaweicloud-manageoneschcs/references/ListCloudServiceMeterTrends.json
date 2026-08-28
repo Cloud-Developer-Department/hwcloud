@@ -1,0 +1,243 @@
+{
+  "name": "ListCloudServiceMeterTrends",
+  "summary": "云服务计量趋势信息查询",
+  "tags": "计量计价",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/metering/v3.0/metrics/cloud-service/trends": {
+      "post": {
+        "summary": "云服务计量趋势信息查询",
+        "description": "云服务计量趋势信息查询。",
+        "x-opseverity": "Minor",
+        "x-resource": "计量信息查询",
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > 计量计价”章节。",
+        "tags": [
+          "计量计价"
+        ],
+        "operationId": "ListCloudServiceMeterTrends",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-language",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "语言信息。",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ]
+          },
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "当前用户的token。用于鉴权,必须具有mo_bss_adm、vdc_adm、vdc_readonly、vdc_user、op_service角色。"
+          },
+          {
+            "name": "cloudServiceTrendRequest",
+            "in": "body",
+            "required": true,
+            "description": "云服务维度计量趋势查询参数。",
+            "schema": {
+              "$ref": "#/definitions/CloudServiceMeterTrendRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询云服务计量趋势成功。",
+            "schema": {
+              "$ref": "#/definitions/CloudServiceTrendStatResponseList"
+            },
+            "examples": {
+              "application/json": {
+                "trends": [
+                  {
+                    "key": "2017-08-01",
+                    "value": "0"
+                  },
+                  {
+                    "key": "2018-08-01",
+                    "value": "709873.630274"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "token鉴权失败"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/metering/v3.0/metrics/cloud-service/trends",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "trend_mode": "daily",
+          "tenant_id": "b1c65192-782b-4ca7-a988-8e96433cec51",
+          "tenant_type": "upperVDC",
+          "local": "zh_CN",
+          "start_time": "2018-08-01 00:00:00",
+          "end_time": "2018-08-22 00:00:00",
+          "time_zone": "Asia/Shanghai",
+          "resource_type": "hws.resource.type.vrmevs"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MeterTrend": {
+      "description": "云服务计量趋势信息。",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "description": "时间。",
+          "type": "string"
+        },
+        "value": {
+          "description": "费用。",
+          "type": "string"
+        }
+      }
+    },
+    "CloudServiceTrendStatResponseList": {
+      "description": "云服务计量趋势查询结果。",
+      "required": [
+        "trends"
+      ],
+      "properties": {
+        "trends": {
+          "description": "趋势信息列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MeterTrend"
+          }
+        }
+      }
+    },
+    "CloudServiceMeterTrendRequest": {
+      "description": "云服务维度计量趋势查询参数。",
+      "required": [
+        "trend_mode",
+        "tenant_id",
+        "resource_type",
+        "tenant_type",
+        "local",
+        "start_time",
+        "end_time",
+        "time_zone"
+      ],
+      "properties": {
+        "trend_mode": {
+          "description": "趋势显示模式。",
+          "type": "string",
+          "enum": [
+            "auto",
+            "daily",
+            "weekly",
+            "monthly"
+          ]
+        },
+        "tenant_id": {
+          "description": "VDC ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "resource_type": {
+          "description": "资源类型。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "tenant_type": {
+          "description": "租户类型。取值为:一级VDCID、已删除一级VDCID、租户ID、已删除租户ID、VDCID、已删除VDCID、资源空间Id、企业项目ID",
+          "type": "string",
+          "enum": [
+            "upperVDC",
+            "delUpperVDC",
+            "resTenant",
+            "delResTenant",
+            "vdcMgmt",
+            "delVdcMgmt",
+            "project",
+            "enterProj"
+          ]
+        },
+        "local": {
+          "description": "界面显示的语言类型。取值为:zh_CN(中文)或en_US(英文)。",
+          "type": "string",
+          "enum": [
+            "zh_CN",
+            "en_US"
+          ]
+        },
+        "start_time": {
+          "description": "开始时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "end_time": {
+          "description": "结束时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "time_zone": {
+          "description": "时区信息。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "region_id": {
+          "description": "地域ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "region_type": {
+          "description": "地域类型。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "az_id": {
+          "description": "可用分区ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

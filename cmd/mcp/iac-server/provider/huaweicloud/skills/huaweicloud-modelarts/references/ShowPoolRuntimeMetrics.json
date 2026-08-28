@@ -1,0 +1,245 @@
+{
+  "name": "ShowPoolRuntimeMetrics",
+  "summary": "查询资源实时利用率",
+  "tags": "资源管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/metrics/runtime/pools": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/metrics/runtime/pools",
+        "x-publish-doc": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-open-region-cloud": "hk,hc,hcso,hcs",
+        "x-support-sdk": "Y",
+        "tags": [
+          "资源指标"
+        ],
+        "summary": "查询资源实时利用率",
+        "description": "查询资源实时利用率接口用于获取当前项目下所有资源池的实时利用率信息。该接口适用于以下场景:当用户需要监控资源使用情况、进行资源优化、容量规划或故障排查时,可通过此接口查询资源池的实时利用率,包括CPU、内存、存储等资源的使用情况。使用该接口的前提条件是用户具有访问该项目的权限,并且资源池已存在且处于运行状态。查询操作完成后,接口将返回资源池的实时利用率数据,包含利用率百分比、资源类型、时间戳等详细信息。若用户无权限、资源池不存在或系统无法获取实时数据,接口将返回相应的错误信息。",
+        "operationId": "ShowPoolRuntimeMetrics",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释**:用户项目ID。获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "type": "string",
+            "required": true,
+            "x-open-region-cloud": "hk,hc,hcso,hcs"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK。",
+            "schema": {
+              "$ref": "#/definitions/PoolRuntimeMetricsList"
+            },
+            "examples": {
+              "application/json": {
+                "apiVersion": "v2",
+                "kind": "PoolMetricsList",
+                "items": [
+                  {
+                    "table": {
+                      "allocated": {
+                        "value": {
+                          "cpu": 5,
+                          "memory": "15548Mi",
+                          "tnt004": "1073m"
+                        },
+                        "timestamp": "2022-03-30T07:09:10Z",
+                        "window": "1m"
+                      },
+                      "capacity": {
+                        "value": {
+                          "cpu": 16,
+                          "memory": "64Gi",
+                          "tnt004": 2
+                        },
+                        "maxValue": {
+                          "cpu": 16,
+                          "memory": "64Gi",
+                          "tnt004": 2
+                        },
+                        "timestamp": "2022-03-30T07:09:10Z",
+                        "window": "1m"
+                      }
+                    },
+                    "metadata": {
+                      "name": "hougang-rse-pool"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MetricsItem": {
+      "description": "资源指标数据模型。",
+      "properties": {
+        "table": {
+          "description": "**参数解释**:资源列表。",
+          "type": "object",
+          "$ref": "#/definitions/MetricTableItem",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ResourceMetricsMetadata",
+          "description": "**参数解释**:资源指标的元信息。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        }
+      },
+      "type": "object"
+    },
+    "ResourceMetricsMetadata": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "hougang-rse-pool",
+          "description": "**参数解释**:资源指标的名称。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "labels": {
+          "type": "object",
+          "description": "**参数解释**:资源指标的标签信息",
+          "example": {
+            "user": "op_svc_vca",
+            "prjectId": "8deadcd3d6ed45f5bd9bca4b6d4b7249",
+            "physicalDedicate": 0,
+            "cpuType": "x86",
+            "bindClusterIds": "[\"6f8456e6-1b31-11ea-afc9-0255ac1001b2\"]",
+            "applicationType": "iva"
+          },
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "Value": {
+      "description": "资源量。",
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "string",
+          "description": "cpu量,即计算资源量。"
+        },
+        "memory": {
+          "type": "string",
+          "description": "内存。"
+        },
+        "tnt004": {
+          "type": "string",
+          "description": "GPU卡的数量。"
+        }
+      }
+    },
+    "Allocated": {
+      "description": "资源已分配量。",
+      "properties": {
+        "value": {
+          "$ref": "#/definitions/Value"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "UTC时间,格式yyyy-MM-dd'T'HH:mm:ss'Z'。",
+          "example": "2022-03-30T07:09:10Z"
+        },
+        "window": {
+          "type": "string",
+          "description": "统计间隔,1s表示1秒,1m表示1分钟,1h为1小时。",
+          "example": "1m"
+        }
+      }
+    },
+    "Capacity": {
+      "description": "资源总容量。",
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/definitions/Value",
+          "description": "资源量。"
+        },
+        "maxValue": {
+          "$ref": "#/definitions/Value",
+          "description": "最大弹性资源量。"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "UTC时间,格式yyyy-MM-dd'T'HH:mm:ss'Z'。",
+          "example": "2022-03-30T07:09:10Z"
+        },
+        "window": {
+          "type": "string",
+          "description": "统计间隔,1s表示1秒,1m表示1分钟,1h为1小时。",
+          "example": "1m"
+        }
+      }
+    },
+    "PoolRuntimeMetricsList": {
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "example": "os.modelarts.xxxxx/v2",
+          "description": "**参数解释**:资源版本。\n**取值范围**:可选值如下:\n- os.modelarts.xxxxx/v2",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "kind": {
+          "type": "string",
+          "example": "PoolMetricsList",
+          "description": "**参数解释**:资源类型。\n**取值范围**:可选值如下:\n- PoolMetricsList",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "items": {
+          "description": "**参数解释**:指标列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetricsItem"
+          },
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        }
+      },
+      "type": "object",
+      "description": "资源池实时利率信息列表。",
+      "required": [
+        "apiVersion",
+        "kind",
+        "items"
+      ]
+    },
+    "MetricTableItem": {
+      "type": "object",
+      "properties": {
+        "allocated": {
+          "description": "**参数解释**:已分配的资源信息。",
+          "$ref": "#/definitions/Allocated"
+        },
+        "capacity": {
+          "description": "**参数解释**:资源的容量信息。",
+          "$ref": "#/definitions/Capacity"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

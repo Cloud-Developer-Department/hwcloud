@@ -1,0 +1,357 @@
+{
+  "name": "ListDesktopsStatistics",
+  "summary": "桌面统计",
+  "tags": "报表统计",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/statistics": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "桌面统计",
+        "description": "统计租户下的普通桌面、桌面池状态,默认仅统计总数。",
+        "operationId": "ListDesktopsStatistics",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "desktop_type",
+            "in": "query",
+            "description": "桌面类型,为空时查所有桌面。\n- DEDICATED:普通桌面,包括专享桌面、专属桌面等\n- POOLED:池桌面,即桌面池里的桌面",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "minItems": 0
+          },
+          {
+            "name": "statistics_type",
+            "in": "query",
+            "description": "统计类型,为空时仅统计桌面总数 |- - attach-state 按照分配状态统计 - login-state 按照登录状态统计 - run-state 按照运行状态统计。",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "attach-state",
+                "login-state",
+                "run-state"
+              ]
+            },
+            "maxItems": 20,
+            "minItems": 0
+          },
+          {
+            "name": "desktop_pool_ids",
+            "in": "query",
+            "description": "待查询的桌面池ID列表",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 0,
+            "x-minLength": 0,
+            "x-maxLength": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "状态统计响应。",
+            "examples": {
+              "application/json": {
+                "total_num": 1
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DesktopStatisticsRsp"
+            }
+          },
+          "default": {
+            "description": "错误响应。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET /v2/9565be6e740941c493b38a1f46ecae6f/statistics",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-support-hcs": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "N",
+        "x-imports": [
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta"
+        ],
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT,  authContextInitializerName = \"workspaceCommonAuthContextInitializer\", abacAction = \"workspace:statistics:listDesktopStatus\",  needApigwJwtAuthCheck = false, needRbacCheck = false)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"listDesktopsStatistics\", traceNameCn = \"桌面统计\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "DesktopRunStatisticsRsp": {
+      "required": [
+        "active_num",
+        "error_num",
+        "hibernated_num",
+        "stop_num"
+      ],
+      "properties": {
+        "stop_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "已关机个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        },
+        "active_num": {
+          "type": "integer",
+          "format": "int32",
+          "example": 5,
+          "description": "运行中个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        },
+        "error_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "故障个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        },
+        "hibernated_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "已休眠个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        }
+      },
+      "description": "桌面运行状态。"
+    },
+    "DesktopStatisticsRsp": {
+      "properties": {
+        "total_num": {
+          "type": "integer",
+          "description": "桌面总数。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        },
+        "attach_statistics": {
+          "description": "分配情况统计。",
+          "$ref": "#/definitions/AttachStatistics"
+        },
+        "run_state_statistics": {
+          "description": "运行情况统计。",
+          "$ref": "#/definitions/DesktopRunStatisticsRsp"
+        },
+        "login_state_statistics": {
+          "description": "登录情况统计。",
+          "$ref": "#/definitions/DesktopLoginStatisticsRsp"
+        },
+        "desktop_pool_statistics": {
+          "type": "array",
+          "description": "每个桌面池的情况统计,当desktop_type指定为POOL时返回。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/DesktopPoolStatistics"
+          }
+        }
+      },
+      "description": "桌面状态统计。"
+    },
+    "DesktopLoginStatisticsRsp": {
+      "required": [
+        "disconnected_num",
+        "in_use_num",
+        "ready_num",
+        "stop_num",
+        "unregistered_num"
+      ],
+      "properties": {
+        "in_use_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "使用中个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        },
+        "unregistered_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "未注册个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        },
+        "unable_to_connect_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "无法连接个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        },
+        "ready_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "就绪个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        },
+        "disconnected_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "断开连接个数。",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0,
+          "x-is-registered": "N"
+        }
+      },
+      "description": "登录状态统计响应。"
+    },
+    "AttachStatistics": {
+      "properties": {
+        "attached_num": {
+          "type": "integer",
+          "description": "已分配个数。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        },
+        "unattached_num": {
+          "type": "integer",
+          "description": "未分配个数。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        },
+        "attaching_num": {
+          "type": "integer",
+          "description": "分配中个数。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        },
+        "attach_error_num": {
+          "type": "integer",
+          "description": "分配失败的个数。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        }
+      },
+      "description": "分配情况统计。"
+    },
+    "DesktopPoolStatistics": {
+      "properties": {
+        "desktop_pool_id": {
+          "type": "string",
+          "description": "桌面池id。",
+          "readOnly": true,
+          "default": "0",
+          "x-is-registered": "N"
+        },
+        "desktop_pool_name": {
+          "type": "string",
+          "description": "桌面池名称。",
+          "readOnly": true,
+          "default": "0",
+          "x-is-registered": "N"
+        },
+        "total_num": {
+          "type": "integer",
+          "description": "桌面总数。",
+          "readOnly": true,
+          "x-is-registered": "N"
+        },
+        "attach_statistics": {
+          "description": "分配情况统计。",
+          "$ref": "#/definitions/AttachStatistics"
+        },
+        "run_state_statistics": {
+          "description": "运行情况统计。",
+          "$ref": "#/definitions/DesktopRunStatisticsRsp"
+        },
+        "login_state_statistics": {
+          "description": "登录情况统计。",
+          "$ref": "#/definitions/DesktopLoginStatisticsRsp"
+        }
+      },
+      "description": "桌面池状态统计。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

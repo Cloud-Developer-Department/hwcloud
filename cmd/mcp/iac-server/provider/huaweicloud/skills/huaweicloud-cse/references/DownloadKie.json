@@ -1,0 +1,223 @@
+{
+  "name": "DownloadKie",
+  "summary": "导出kie配置",
+  "tags": "配置管理",
+  "productshort": "CSE",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v1/{project_id}/kie/download": {
+      "post": {
+        "description": "导出kie配置",
+        "summary": "导出kie配置",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "配置管理"
+        ],
+        "operationId": "DownloadKie",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-order": 3
+          },
+          {
+            "name": "X-Enterprise-Project-ID",
+            "description": "如果不带则默认企业项目为\"default\",ID为\"0\"",
+            "default": "0",
+            "type": "string",
+            "in": "header",
+            "required": false
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户子项目的唯一标识。字符长度为1~64。",
+            "required": true,
+            "type": "string",
+            "x-example": "79c4086f5f3a4e34a92601dfc64b1e8c",
+            "x-order": 2
+          },
+          {
+            "name": "x-engine-id",
+            "in": "header",
+            "description": "微服务引擎ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "bad98901-5c4b-44de-b266-bae3e2093058",
+            "x-order": 4
+          },
+          {
+            "name": "label",
+            "in": "query",
+            "description": "按label过滤项导出,格式为:{标签key}:{标签value}",
+            "type": "string",
+            "x-example": "environment:development"
+          },
+          {
+            "name": "match",
+            "in": "query",
+            "description": "对label过滤项的匹配选项,如果值为exact:表示严格匹配,包括label个数和内容相等;不填表示包含匹配",
+            "type": "string",
+            "enum": [
+              "exact"
+            ],
+            "x-example": "exact"
+          },
+          {
+            "name": "DownloadKieRequestBody",
+            "in": "body",
+            "description": "导出的配置ID列表,如不填时,按label匹配规则全量导出,如填写的id对应的label不匹配label过滤项,则导出会忽略此id。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DownloadKieReqBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "导出的文件内容,文件名会根据environment标签的值命名,如:label=environment:development,则文件名为development+时间戳.json,如:label=environment:,则文件名为default+时间戳.json,如不包含或包含多个environment,会以custom+时间戳.json命名",
+            "schema": {
+              "$ref": "#/definitions/DownloadKieResponseBody"
+            }
+          },
+          "400": {
+            "description": "错误的请求。",
+            "schema": {
+              "$ref": "#/definitions/BadRequest"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateKieReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "配置项的id。",
+          "type": "string",
+          "example": "46f9ae5f0d36c438d5d70392b42a2a1072879e8f7e373af4c021d1155bb5c4ac"
+        },
+        "key": {
+          "description": "配置项的key。",
+          "type": "string",
+          "default": "$random(6)-$date(yyyy-MM-dd-HH-mm-ss)"
+        },
+        "labels": {
+          "description": "配置项的标签",
+          "type": "object",
+          "example": {
+            "key": "value"
+          }
+        },
+        "value": {
+          "description": "配置项的值。",
+          "type": "string",
+          "default": "$random(20)"
+        },
+        "value_type": {
+          "description": "配置项value的类型。",
+          "type": "string",
+          "default": "text",
+          "example": "text"
+        },
+        "status": {
+          "description": "配置项的状态。",
+          "type": "string",
+          "default": "enabled",
+          "example": "enabled"
+        }
+      }
+    },
+    "BadRequest": {
+      "description": "错误的请求。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    },
+    "DownloadKieResponseBody": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "description": "导出文件的描述信息",
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string",
+              "description": "版本号",
+              "example": "1.0.0"
+            },
+            "annotations": {
+              "type": "object",
+              "description": "导出文件的其他信息"
+            }
+          }
+        },
+        "data": {
+          "description": "导出的配置项列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CreateKieReq"
+          }
+        }
+      }
+    },
+    "DownloadKieReqBody": {
+      "type": "object",
+      "required": [
+        "ids"
+      ],
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "配置ID的集合",
+          "example": [
+            "8a9e6a5d-8d65-48fb-a40c-5150c8479da8",
+            "ba9e6afe-8d65-48fb-a40c-5150c8479da8"
+          ]
+        }
+      }
+    },
+    "InternalServerError": {
+      "description": "服务内部错误",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cse.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

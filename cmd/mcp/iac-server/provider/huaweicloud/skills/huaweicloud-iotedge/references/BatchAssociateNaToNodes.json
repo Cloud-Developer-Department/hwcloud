@@ -1,0 +1,191 @@
+{
+  "name": "BatchAssociateNaToNodes",
+  "summary": "授权北向NA信息到边缘节点",
+  "tags": "北向NA管理",
+  "productshort": "IoTEdge",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/{project_id}/nas/{na_id}/nodes": {
+      "post": {
+        "tags": [
+          "NaManagement"
+        ],
+        "summary": "授权北向NA信息到边缘节点",
+        "description": "批量授权北向NA信息到边缘节点。\n已授权的边缘节点上的南向IA应用,可以通过部署在边缘节点上的api网关访问北向NA提供的接口。",
+        "operationId": "BatchAssociateNaToNodes",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-externalAPI": true,
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/na_id"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "description": "批量删除delete,批量添加add",
+            "required": true,
+            "type": "string",
+            "pattern": "(add|delete)",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "name": "BatchAuthorizeNaToNodesRequestBody",
+            "in": "body",
+            "description": "添加NA授权的节点请求的结构体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AuthorizeNa2NodesRequestDTO"
+            }
+          }
+        ],
+        "x-returnType": "ResponseEntity<BatchAuthorizedNodesResponseDTO>",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "x-SuccessCode": true,
+            "examples": {
+              "application/json": {
+                "nodes": [
+                  {
+                    "node_id": "node_id_1",
+                    "authorized_time": "2020-05-28T11:31:29.740Z"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchAuthorizedNodesResponseDTO"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IoTEdge.00000005"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IoTEdge.00000003",
+              "IoTEdge.03004001"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IoTEdge.00000001"
+            ]
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/nas/{na_id}/nodes",
+        "x-request-examples-1": {
+          "node_ids": {}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QueryAuthorizedNodeDTO": {
+      "title": "查询授权北向NA信息到边缘节点的返回结构体",
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "边缘节点ID",
+          "example": "node1"
+        },
+        "authorized_time": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "授权时间",
+          "example": "2020-05-28T11:31:29.740Z"
+        }
+      }
+    },
+    "BatchAuthorizedNodesResponseDTO": {
+      "title": "授权北向NA信息到边缘节点列表的返回结构体",
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "description": "授权北向NA信息到边缘节点列表的返回结构体,仅返回本次授权的节点列表信息",
+          "items": {
+            "$ref": "#/definitions/QueryAuthorizedNodeDTO"
+          }
+        }
+      }
+    },
+    "AuthorizeNa2NodesRequestDTO": {
+      "title": "授权北向NA信息到边缘节点的请求结构体",
+      "type": "object",
+      "x-imports": "java.util.List;",
+      "required": [
+        "node_ids"
+      ],
+      "properties": {
+        "node_ids": {
+          "type": "object",
+          "x-type": "List<@Pattern(regexp = \"^[a-zA-Z0-9-_/]*$\")String>",
+          "description": "授权北向NA信息到边缘节点的请求结构体"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。获取方法请参见 [获取项目ID](x-wc://file=zh-cn_topic_0225049489.xml)。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{1,32}$",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "minLength": 0,
+      "maxLength": 20000
+    },
+    "na_id": {
+      "name": "na_id",
+      "in": "path",
+      "description": "北向数据接收端点ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "(^[a-z0-9]([a-z0-9-])*[a-z0-9]$)|(^[a-z0-9]$)",
+      "x-example": "abcdefg"
+    }
+  },
+  "host": "iotedge-api.cn-east-3.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

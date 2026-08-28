@@ -1,0 +1,304 @@
+{
+  "name": "CreateEventSource",
+  "summary": "创建自定义事件源",
+  "tags": "事件源管理",
+  "productshort": "EG",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v1/{project_id}/sources": {
+      "post": {
+        "x-api-framework": "RestfulAPI",
+        "x-is-open-doc": "Y",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "事件源管理"
+        ],
+        "operationId": "CreateEventSource",
+        "summary": "创建自定义事件源",
+        "description": "创建用户自定义类型的事件源,只能指定自定义通道,不能指定系统通道。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/IamToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "CreateEventSourceRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "创建自定义事件源请求体",
+            "schema": {
+              "$ref": "#/definitions/CustomizeSourceCreateReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应",
+            "schema": {
+              "$ref": "#/definitions/CustomizeSourceInfo"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorInfo": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "EGS.00511000"
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "unknown"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "internal server error, unknown"
+        }
+      }
+    },
+    "RocketMqDetail": {
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "RocketMQ实例ID"
+        },
+        "group": {
+          "type": "string",
+          "description": "消费组"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Topic"
+        },
+        "access_key": {
+          "type": "string",
+          "description": "用户名"
+        },
+        "secret_key": {
+          "type": "string",
+          "description": "密钥"
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "虚拟私有云"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "子网"
+        },
+        "namesrv_address": {
+          "type": "string",
+          "description": "连接地址"
+        },
+        "ssl_enable": {
+          "type": "boolean",
+          "description": "SSL"
+        },
+        "enable_acl": {
+          "type": "boolean",
+          "description": "ACL访问控制"
+        }
+      },
+      "required": [
+        "group",
+        "topic",
+        "access_key",
+        "secret_key"
+      ]
+    },
+    "CustomizeSourceCreateReq": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "自定义事件源名称,租户下唯一,由小写字母、数字、点、下划线和中划线组成,必须以字母或数字开头,且不能以hc.开头",
+          "example": "first-source",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "事件源描述",
+          "example": "first event source",
+          "maxLength": 255
+        },
+        "channel_id": {
+          "type": "string",
+          "description": "指导事件源归属的事件通道ID",
+          "example": "bd14144e-8f3c-43d6-bdfd-bf09b52c2b96"
+        },
+        "type": {
+          "type": "string",
+          "description": "事件源类型",
+          "default": "APPLICATION",
+          "enum": [
+            "APPLICATION",
+            "RABBITMQ",
+            "ROCKETMQ"
+          ],
+          "example": "RABBITMQ"
+        },
+        "detail": {
+          "$ref": "#/definitions/RocketMqDetail",
+          "description": "json格式封装消息实例链接信息"
+        }
+      }
+    },
+    "CustomizeSourceInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "事件源ID",
+          "example": "90e0b962-c6c1-438c-ba8a-3024fe592bda"
+        },
+        "name": {
+          "type": "string",
+          "description": "事件源名称",
+          "example": "first-source"
+        },
+        "label": {
+          "type": "string",
+          "description": "事件源名称展示",
+          "example": "first-source"
+        },
+        "description": {
+          "type": "string",
+          "description": "事件源描述",
+          "example": "first event source"
+        },
+        "provider_type": {
+          "type": "string",
+          "description": "事件源提供方类型,OFFICIAL:官方云服务事件源;CUSTOM:用户创建的自定义事件源;PARTNER:伙伴事件源",
+          "enum": [
+            "OFFICIAL",
+            "CUSTOM",
+            "PARTNER"
+          ],
+          "example": "CUSTOM"
+        },
+        "event_types": {
+          "type": "array",
+          "description": "事件源提供的事件类型列表,只有官方云服务事件源提供事件类型",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "事件类型名称",
+                "example": "OBS:CloudTrace:ApiCall"
+              },
+              "description": {
+                "type": "string",
+                "description": "事件类型描述",
+                "example": "服务API调用类型事件"
+              }
+            }
+          }
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建UTC时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "更新UTC时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "channel_id": {
+          "type": "string",
+          "description": "事件源归属的事件通道ID",
+          "example": "bd14144e-8f3c-43d6-bdfd-bf09b52c2b96"
+        },
+        "channel_name": {
+          "type": "string",
+          "description": "事件源归属的事件通道名称",
+          "example": "channel"
+        },
+        "type": {
+          "type": "string",
+          "description": "事件源类型",
+          "example": "RABBITMQ"
+        },
+        "detail": {
+          "type": "object",
+          "description": "json格式封装消息实例链接信息:如RabbitMQ实例的instance_id字段、虚拟主机vhost字段、队列queue字段、用户名、密码等",
+          "example": "{\"instance_id\":\"ac14144e-9v3c-43d6-acfd-bf09b52c98uy\",\"user_name\":\"rabbitmq_user\",\"password\":\"changeme\",\"vhost_name\":\"vhost_name\",\"queue_name\":\"queue_name\"}"
+        },
+        "status": {
+          "type": "string",
+          "description": "自定义事件源状态",
+          "enum": [
+            "CREATE_FAILED",
+            "RUNNING",
+            "ERROR"
+          ],
+          "example": "RUNNING"
+        },
+        "error_info": {
+          "$ref": "#/definitions/ErrorInfo"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "租户资源空间ID",
+      "required": true,
+      "type": "string",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "IamToken": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "required": true,
+      "maxLength": 16384,
+      "minLength": 1
+    }
+  },
+  "host": "eg.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

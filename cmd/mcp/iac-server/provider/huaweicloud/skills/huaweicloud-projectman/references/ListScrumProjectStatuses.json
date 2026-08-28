@@ -1,0 +1,219 @@
+{
+  "name": "ListScrumProjectStatuses",
+  "summary": "查询项目的状态列表",
+  "tags": "Scrum项目的状态",
+  "productshort": "ProjectMan",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v4/projects/{project_id}/statuses": {
+      "get": {
+        "tags": [
+          "Scrum项目的状态"
+        ],
+        "summary": "查询项目的状态列表",
+        "operationId": "ListScrumProjectStatuses",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "pattern": "^[0-9a-z]{32}$",
+            "required": true,
+            "type": "string",
+            "description": "devcloud项目的32位id"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "description": "查询偏移量",
+            "required": false,
+            "default": 0
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "type": "integer",
+            "format": "int32",
+            "required": false,
+            "description": "一次返回的数据,最小1,最大100",
+            "maximum": 100,
+            "minimum": 1,
+            "default": 10
+          },
+          {
+            "in": "query",
+            "name": "tracker_id",
+            "type": "integer",
+            "format": "int32",
+            "description": "自定义字段支持的工作项类型 2任务/Task,3缺陷/Bug,5Epic,6Feature,7Story",
+            "x-example": 7
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListProjectStatusesResponseBody"
+            },
+            "examples": {
+              "application/json": "{\n  \"total\": 1,\n  \"issue_statuses\": [\n    {\n      \"id\": \"123cefde62004de2b62b5e8dd2c2b3af\",\n      \"status_id\": 1,\n      \"name\": \"新建\",\n      \"tracker_ids\": [\n        0\n      ],\n      \"status_attribute\": {\n        \"id\": 1,\n        \"name\": \"string\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/BadRequestError"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedRequestError"
+            }
+          }
+        },
+        "deprecated": false,
+        "description": "查询项目的状态列表",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "Get https://{endpoint}/v4/projects/0792b7d26cb74bd799cbae80063dc74a/statuses"
+      }
+    }
+  },
+  "definitions": {
+    "UnauthorizedRequestError": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "认证信息过期"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DEV.00000003"
+        }
+      }
+    },
+    "StatusAttribute": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态属性id",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "状态属性名称"
+        }
+      }
+    },
+    "BadRequestError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "参数错误"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "PM.00000001"
+        }
+      }
+    },
+    "ListProjectStatusesResponseBody": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态总数",
+          "example": 1
+        },
+        "issue_statuses": {
+          "description": "状态列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IssueStatus"
+          }
+        }
+      }
+    },
+    "IssueStatus": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "状态uuid",
+          "example": "123cefde62004de2b62b5e8dd2c2b3af"
+        },
+        "status_id": {
+          "description": "状态数字id",
+          "type": "integer",
+          "format": "int32",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "状态名称",
+          "example": "新建"
+        },
+        "tracker_ids": {
+          "type": "array",
+          "description": "关联的工作项类型列表",
+          "items": {
+            "type": "integer",
+            "format": "int32",
+            "description": "自定义字段支持的工作项类型 2任务/Task,3缺陷/Bug,5Epic,6Feature,7Story",
+            "x-example": 7
+          }
+        },
+        "status_attribute": {
+          "description": "状态属性类型 开始态,进行态,结束态",
+          "$ref": "#/definitions/StatusAttribute"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "projectman-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v4",
+  "method": "get",
+  "uri": null
+}

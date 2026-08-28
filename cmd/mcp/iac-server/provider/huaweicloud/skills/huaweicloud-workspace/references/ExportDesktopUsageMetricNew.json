@@ -1,0 +1,220 @@
+{
+  "name": "ExportDesktopUsageMetricNew",
+  "summary": "导出桌面使用统计数据",
+  "tags": "报表统计",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/statistics/metrics/desktops/export": {
+      "get": {
+        "tags": [
+          "StatisticsV3"
+        ],
+        "summary": "导出桌面使用统计数据",
+        "description": "导出桌面使用统计信息;\n云服务每天凌晨02:00进行聚合运算前一天00:00:00~23:59:59的使用时长,并将周期范围内的数据聚合到周期边界上\n跨天的记录会按照统计周期进行计算\n假设一天内桌面登录多次,09:00~12:00,13:00~21:00,22:00~01:00(次日):\n则当天的累计使用时长数据会被汇聚到23:59:59这个点;总使用时长为 3hours(09:00~12:00)+8hours(13:00~21:00)+2hours(22:00~00:00)\n仅能导出最近180天已进行汇聚计算的数据",
+        "operationId": "ExportDesktopUsageMetricNew",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "查询起始时间(0时区)\n云服务每天凌晨02:00进行聚合运算前一天00:00:00~23:59:59的使用时长,并将周期范围内的数据聚合到周期边界上\n跨天的记录会按照统计周期进行计算\n假设一天内桌面登录多次,09:00~12:00,13:00~21:00,22:00~01:00(次日):\n则当天的累计使用时长数据会被汇聚到23:59:59这个点;总使用时长为 3hours(09:00~12:00)+8hours(13:00~21:00)+2hours(22:00~00:00)\n如果查询的from-to不足一个周期内,可能造成查询到数据为空;",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": "1970-01-01T00:00:00Z"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "查询截止时间(0时区)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": "1970-01-01T01:00:00Z"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-annotations": [
+              "@Size(max = 255, min = 1)"
+            ]
+          },
+          {
+            "name": "resource_name",
+            "in": "query",
+            "description": "资源名称(模糊匹配)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": ""
+          },
+          {
+            "name": "min_idle_days",
+            "in": "query",
+            "description": "最小空闲天数。",
+            "required": false,
+            "type": "integer",
+            "maximum": 180,
+            "minimum": 0,
+            "x-example": "1"
+          },
+          {
+            "name": "max_idle_days",
+            "in": "query",
+            "description": "最大空闲天数\nmin_idle_days、max_idle_days都非空时,max_idle_days必须大于等于min_idle_days否则可能查询不到数据",
+            "required": false,
+            "type": "integer",
+            "maximum": 180,
+            "minimum": 0,
+            "x-example": "1"
+          },
+          {
+            "name": "usage_min_hours",
+            "in": "query",
+            "description": "使用时长(hour)最小值。",
+            "required": false,
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 0,
+            "x-example": "0"
+          },
+          {
+            "name": "usage_max_hours",
+            "in": "query",
+            "description": "使用时长(hour)最大值(必须大于等于usage_min_hours)。",
+            "required": false,
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 0,
+            "x-example": "0"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "企业项目ID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "x-example": "xxxxxxxxxx"
+          },
+          {
+            "name": "sort_field",
+            "in": "query",
+            "description": "按照指标进行排序\n* `desktop_usage` -  按照桌面使用时长排序\n* `desktop_idle_duration` -  按照桌面空闲周期排序",
+            "required": false,
+            "type": "string",
+            "pattern": "(desktop_usage|desktop_idle_duration)",
+            "x-example": "desktop_usage"
+          },
+          {
+            "name": "sort_type",
+            "in": "query",
+            "description": "按照指标进行排序的方向;需配合sort_field起义使用\n* `DESC` - 降序返回数据\n* `ASC` -  升序返回数据",
+            "required": false,
+            "type": "string",
+            "default": "DESC",
+            "pattern": "(ASC|DESC)",
+            "x-example": "DESC"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "导出任务id。",
+            "schema": {
+              "$ref": "#/definitions/ExportTaskRsp"
+            }
+          },
+          "400": {
+            "description": "客户端请求有误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-apig-version": "v3",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-imports": [
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta"
+        ],
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:statistics:exportDesktopMetrics\", authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, rbac = {\"te_admin\", \"wks_adm\"})",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"ExportDesktopStatisticMetricv3\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ExportTaskRsp": {
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+          "description": "导出任务id。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "description": "导出任务返回体。"
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

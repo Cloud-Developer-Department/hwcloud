@@ -1,0 +1,172 @@
+{
+  "name": "ShowTask",
+  "summary": "获取任务详情",
+  "tags": "OROAS Service",
+  "productshort": "OROAS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/oroas/{service_group}/{service_type}/tasks/{task_id}": {
+      "get": {
+        "tags": [
+          "OROAS Service"
+        ],
+        "summary": "获取任务详情",
+        "description": "获取任务详情",
+        "operationId": "ShowTask",
+        "consumes": [
+          "application/json;charset=utf-8"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Apig-AppCode"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_group",
+            "in": "path",
+            "description": "服务类别,针对不同服务类场景,为用户提前填充对应值,用户侧不需单独赋值;当前仅支持 二维切割 2dcut ,便于后续扩展",
+            "minLength": 0,
+            "maxLength": 128,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_type",
+            "in": "path",
+            "description": "子服务类型,针对不同服务,为用户提前填充对应值,用户侧不需单独赋值;服装切割固定为 irregular-textile,雕刻机切割固定为 engraving-machine-cutting, 板材切割固定为 regular-plate",
+            "minLength": 0,
+            "maxLength": 512,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "任务id",
+            "minLength": 36,
+            "maxLength": 36,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input_enable",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "description": "是否返回输入信息,默认为false; 当前暂不支持该功能,后续扩展"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "任务详情信息",
+            "schema": {
+              "$ref": "#/definitions/TaskDetailVo"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/ErrorResponse"
+          }
+        },
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "TaskDetailVo": {
+      "type": "object",
+      "description": "任务详细信息",
+      "required": [
+        "task_id",
+        "status",
+        "start_time",
+        "end_time",
+        "output_json"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "example": "86cbefe9-2adc-4186-b11b-dd4e4aabc36d",
+          "description": "任务编号",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "status": {
+          "type": "string",
+          "example": "Running",
+          "description": "任务运行状态,暂考虑取值仅为 Running/Failed/Successed",
+          "enum": [
+            "Running",
+            "Failed",
+            "Successed"
+          ]
+        },
+        "input_json": {
+          "type": "object",
+          "example": null,
+          "description": "如果提交任务使用了input_enable参数,并且创建任务使用的是json格式非文件方式,该值为输入的字符串; 对应数据结构参见创建任务时的结构体"
+        },
+        "input_url": {
+          "type": "string",
+          "example": null,
+          "description": "如果提交任务使用了input_enable参数,并且创建任务使用的是文件方式,该值为OBS对应的文件绝对路径",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "start_time": {
+          "type": "string",
+          "description": "开始时间(UTC)",
+          "format": "date-time",
+          "example": "2021-08-10T05:58:05Z"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间(UTC)",
+          "format": "date-time",
+          "example": "2021-08-10T05:58:05Z"
+        },
+        "create_time": {
+          "type": "string",
+          "description": "创建时间(UTC)",
+          "format": "date-time",
+          "example": "2021-08-10T05:58:05Z"
+        },
+        "output_json": {
+          "type": "object",
+          "description": "任务处理结果,json格式;每个子服务该对象结构不同,框架层不解析具体key,运行态直接拷贝算法服务返回信息、"
+        },
+        "output_url": {
+          "type": "string",
+          "description": "任务结果文件对应的绝对地址,具体值由租户OBS对应的待存储路径前缀和文件名组成,文件名服务端固定用task_id命名",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Apig-AppCode": {
+      "name": "X-Apig-AppCode",
+      "in": "header",
+      "required": true,
+      "description": "用户凭证",
+      "type": "string"
+    }
+  },
+  "host": "oroas.cn-north-7.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

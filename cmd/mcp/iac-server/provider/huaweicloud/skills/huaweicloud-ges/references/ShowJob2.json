@@ -1,0 +1,308 @@
+{
+  "name": "ShowJob2",
+  "summary": "查询Job状态-管理面",
+  "tags": "任务中心API",
+  "productshort": "GES",
+  "region_id": "cn-north-2",
+  "paths": {
+    "/v2/{project_id}/graphs/{graph_id}/jobs/{job_id}/status": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://Endpoint/v2/{project_id}/graphs/{graph_id}/jobs/{job_id}/status",
+        "tags": [
+          "任务中心API"
+        ],
+        "summary": "查询Job状态-管理面",
+        "description": "查询Job的执行状态。对创建图、关闭图、启动图、删除图、导入图等异步API命令下发后,会返回jobId,通过jobId查询任务的执行状态。",
+        "operationId": "ShowJob2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/graph_id"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Job ID。"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/ShowJobResp"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "ff80808167f09aaa0167f19b35ec0305",
+                "status": "success",
+                "job_type": "GraphManagement",
+                "job_name": "ImportGraph",
+                "related_graph": "GES_UI_AUTO",
+                "begin_time": "2018-11-27T21:39:00",
+                "end_time": "2018-11-27T21:39:56",
+                "job_detail": {
+                  "vertexset_path": [
+                    {
+                      "path": "ges-ui/auDatas/list_set_vertex.csv",
+                      "log": null,
+                      "cause": null,
+                      "status": "success"
+                    }
+                  ],
+                  "edgeset_path": [
+                    {
+                      "path": "ges-ui/auDatas/list_set_edge.csv",
+                      "log": null,
+                      "cause": null,
+                      "status": "success"
+                    }
+                  ],
+                  "schema_path": [
+                    {
+                      "path": "ges-ui/auDatas/list_set_schema.xml",
+                      "log": null,
+                      "cause": null,
+                      "status": "success"
+                    }
+                  ]
+                },
+                "job_progress": 0
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_msg": "can not find job, jobId is ff808081646e81d40164c5fb414b2b1a1",
+                "error_code": "GES.8301"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "type": "object",
+      "description": "错误响应体",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,字段可能为空。执行失败时,用于显示错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,字段可能为空。执行失败时,用于显示错误信息。"
+        }
+      }
+    },
+    "ShowJobResp": {
+      "type": "object",
+      "description": "查询Job状态-管理面响应体",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务ID。"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态。\n\n- pending:等待中\n- running:运行中\n- success:成功\n- failed:失败"
+        },
+        "job_type": {
+          "type": "string",
+          "description": "任务类型。"
+        },
+        "job_name": {
+          "type": "string",
+          "description": "任务名称。"
+        },
+        "related_graph": {
+          "type": "string",
+          "description": "关联图名称。"
+        },
+        "begin_time": {
+          "type": "string",
+          "description": "任务开始时间,格式为UTC,\"yyyy-MM-dd'T'HH:mm:ss\""
+        },
+        "end_time": {
+          "type": "string",
+          "description": "任务结束时间,格式为UTC,\"yyyy-MM-dd'T'HH:mm:ss\""
+        },
+        "job_detail": {
+          "description": "只有jobName为ImportGraph时才返回,用于显示导入图详情。",
+          "properties": {
+            "schema_path": {
+              "items": {
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "OBS文件路径。"
+                  },
+                  "log": {
+                    "type": "string",
+                    "description": "OBS文件导入日志存储文件。"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "OBS文件导入状态。\n\n- success:完全成功\n- failed:完全失败\n- partFailed:部分成功"
+                  },
+                  "cause": {
+                    "type": "string",
+                    "description": "导入失败原因。"
+                  },
+                  "total_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入总行数。其值为-1时表示当前版本没有返回该字段。"
+                  },
+                  "failed_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入失败行数。其值为-1时表示当前版本没有返回该字段。"
+                  },
+                  "successful_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入成功行数。其值为-1时表示当前版本没有返回该字段。"
+                  }
+                }
+              },
+              "description": "元数据路径。",
+              "type": "array"
+            },
+            "edgeset_path": {
+              "items": {
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "OBS文件路径。"
+                  },
+                  "log": {
+                    "type": "string",
+                    "description": "OBS文件导入日志存储文件。"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "OBS文件导入状态。\n\n- success:完全成功\n- failed:完全失败\n- partFailed:部分成功"
+                  },
+                  "cause": {
+                    "type": "string",
+                    "description": "导入失败原因。"
+                  },
+                  "total_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入总行数。其值为-1时表示当前版本没有返回该字段。"
+                  },
+                  "failed_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入失败行数。其值为-1时表示当前版本没有返回该字段。"
+                  },
+                  "successful_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入成功行数。其值为-1时表示当前版本没有返回该字段。"
+                  }
+                }
+              },
+              "description": "边数据集路径。",
+              "type": "array"
+            },
+            "vertexset_path": {
+              "items": {
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "OBS文件路径。"
+                  },
+                  "log": {
+                    "type": "string",
+                    "description": "OBS文件导入日志存储文件。"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "OBS文件导入状态。\n\n- success:完全成功\n- failed:完全失败\n- partFailed:部分成功"
+                  },
+                  "cause": {
+                    "type": "string",
+                    "description": "导入失败原因。"
+                  },
+                  "total_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入总行数。其值为-1时表示当前版本没有返回该字段。"
+                  },
+                  "failed_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入失败行数。其值为-1时表示当前版本没有返回该字段。"
+                  },
+                  "successful_lines": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "导入成功行数。其值为-1时表示当前版本没有返回该字段。"
+                  }
+                }
+              },
+              "description": "点数据集路径。",
+              "type": "array"
+            }
+          }
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "任务失败原因"
+        },
+        "job_progress": {
+          "type": "number",
+          "format": "double",
+          "description": "任务执行进度,预留字段,暂未使用。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "graph_id": {
+      "name": "graph_id",
+      "in": "path",
+      "required": true,
+      "description": "图ID。",
+      "type": "string"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目编号,用于资源隔离。",
+      "type": "string"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string"
+    }
+  },
+  "host": "ges.cn-north-2.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

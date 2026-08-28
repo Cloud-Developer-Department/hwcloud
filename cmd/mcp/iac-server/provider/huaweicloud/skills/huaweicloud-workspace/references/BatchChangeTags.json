@@ -1,0 +1,218 @@
+{
+  "name": "BatchChangeTags",
+  "summary": "批量添加或删除标签",
+  "tags": "桌面标签",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktops/{desktop_id}/tags/action": {
+      "post": {
+        "tags": [
+          "DesktopTag"
+        ],
+        "summary": "批量添加或删除标签",
+        "description": "为指定桌面批量添加或删除标签。创建时,如果创建的标签已经存在(key相同),则覆盖。删除时,如果删除的标签不存在,默认处理成功。",
+        "operationId": "BatchChangeTags",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "desktop_id",
+            "in": "path",
+            "description": "桌面id。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31e-d520xxxx-xxebedb6-e57xxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "BatchChangeTagsRequestBody",
+            "description": "批量添加或删除标签。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TagsReq"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "正常。"
+          },
+          "400": {
+            "description": "参数错误。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "无权限范围。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "资源不存在。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "action": "create",
+          "tags": [
+            {
+              "key": "key1",
+              "value": "value1"
+            },
+            {
+              "key": "key2",
+              "value": "value3"
+            }
+          ]
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceField = \"desktop_id\")",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE, abacAction = \"workspace:desktops:operateTags\",  needApigwJwtAuthCheck = false, authContextInitializerName = \"workspaceInstanceAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"batchUpgradeDesktopTags\", traceNameCn = \"批量添加或删除标签\")"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-text-1": {
+          "action": "create",
+          "tags": [
+            {
+              "key": "key1",
+              "value": "value1"
+            },
+            {
+              "key": "key2",
+              "value": "value3"
+            }
+          ]
+        },
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-support-isv": "ZR",
+        "x-apig-group": "public,internal_token",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "Tag": {
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "标签的键,不能为空,最大长度128个unicode字符。标签的键可以包含任意语种字母、数字、空格和_.:=+-@,但首尾不能含有空格,不能以_sys_开头。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "value": {
+          "type": "string",
+          "description": "标签的值,最大长度43个unicode字符。标签的值可以包含任意语种字母、数字、空格和_.:=+-@,但首尾不能含有空格。",
+          "minLength": 0,
+          "maxLength": 43,
+          "default": ""
+        }
+      },
+      "description": "标签。"
+    },
+    "TagsReq": {
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "操作字符串create或delete。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "tags": {
+          "type": "array",
+          "description": "标签对象。",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          },
+          "maxItems": 20,
+          "minItems": 0,
+          "x-maxLength": 20,
+          "x-minLength": 0
+        },
+        "sys_tags": {
+          "type": "array",
+          "description": "标签对象(已废弃)。",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          },
+          "maxItems": 20,
+          "minItems": 0,
+          "x-maxLength": 20,
+          "x-minLength": 0
+        }
+      },
+      "description": "批量修改标签请求。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

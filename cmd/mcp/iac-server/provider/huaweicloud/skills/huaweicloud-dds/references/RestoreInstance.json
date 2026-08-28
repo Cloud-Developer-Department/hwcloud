@@ -1,0 +1,189 @@
+{
+  "name": "RestoreInstance",
+  "summary": "恢复到当前实例",
+  "tags": "备份与恢复",
+  "productshort": "DDS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/instances/recovery": {
+      "post": {
+        "tags": [
+          "备份与恢复"
+        ],
+        "operationId": "RestoreInstance",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-open-region-cloud": "hc,hk",
+        "summary": "恢复到当前实例",
+        "description": "恢复到当前实例。",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "required": true,
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "RestoreInstanceRequestBody",
+            "in": "body",
+            "description": "请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RestoreInstanceRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/RestoreInstanceResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "f85104b5-4a9c-4e0f-9505-fc5409d8f7ae"
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "使用备份文件恢复",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/056538411200d4cd2f79c003c7606412/instances/recovery",
+        "x-request-examples-1": {
+          "source": {
+            "instance_id": "d8e6ca5a624745bcb546a227aa3ae1cfin02",
+            "type": "backup",
+            "backup_id": "2f4ddb93-b901-4b08-93d8-1d2e472f30fe"
+          },
+          "target": {
+            "instance_id": "d8e6ca5a624745bcb546a227aa3ae1cfin02"
+          }
+        },
+        "x-request-examples-description-2": "根据时间点恢复",
+        "x-request-examples-url-2": "POST https://{endpoint}/v3/056538411200d4cd2f79c003c7606412/instances/recovery",
+        "x-request-examples-2": {
+          "source": {
+            "instance_id": "d8e6ca5a624745bcb546a227aa3ae1cfin02",
+            "type": "timestamp",
+            "restore_time": 1532001446987
+          },
+          "target": {
+            "instance_id": "d8e6ca5a624745bcb546a227aa3ae1cfin02"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "Target": {
+      "required": [
+        "instance_id"
+      ],
+      "properties": {
+        "instance_id": {
+          "description": "实例ID,可以调用“查询实例列表和详情”接口获取。如果未申请实例,可以调用“创建实例”接口创建。",
+          "type": "string"
+        }
+      }
+    },
+    "RestoreInstanceRequestBody": {
+      "required": [
+        "source",
+        "target"
+      ],
+      "properties": {
+        "source": {
+          "description": "恢复数据源对象。",
+          "type": "object",
+          "$ref": "#/definitions/Source"
+        },
+        "target": {
+          "description": "恢复目标对象。",
+          "type": "object",
+          "$ref": "#/definitions/Target"
+        }
+      }
+    },
+    "Source": {
+      "required": [
+        "instance_id"
+      ],
+      "properties": {
+        "instance_id": {
+          "description": "实例ID,可以调用“查询实例列表和详情”接口获取。如果未申请实例,可以调用“创建实例”接口创建。",
+          "type": "string"
+        },
+        "type": {
+          "description": "表示恢复方式,枚举值:\n- “backup”,表示使用备份文件恢复,按照此方式恢复时,“type”字段为非必选,“backup_id”必选。\n- “timestamp”,表示按时间点恢复,按照此方式恢复时,“type”字段必选,“restore_time”必选。",
+          "type": "string"
+        },
+        "backup_id": {
+          "description": "用于恢复的备份ID。当使用备份文件恢复时需要指定该参数。",
+          "type": "string"
+        },
+        "restore_time": {
+          "description": "恢复数据的时间点,格式为UNIX时间戳,单位是毫秒,时区为UTC。",
+          "type": "string"
+        }
+      }
+    },
+    "RestoreInstanceResponseBody": {
+      "required": [
+        "job_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "恢复到当前实例的异步任务ID。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dds.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

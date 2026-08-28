@@ -1,0 +1,187 @@
+{
+  "name": "ShowFsDirUsage",
+  "summary": "查询目录资源使用情况",
+  "tags": "目录管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir-usage": {
+      "get": {
+        "tags": [
+          "目录管理"
+        ],
+        "summary": "查询目录资源使用情况",
+        "description": "查询目录资源使用情况(包括子目录的资源)。后端有5min的缓存时间,查询的数据可能有延迟。",
+        "x-constraint": "在2023年8月1号之后创建的文件系统支持该API操作。该接口仅适用于SFS Turbo上一代文件系统规格类型(标准型、标准型-增强版、性能型、性能型-增强版)。20MB/s/TiB、40MB/s/TiB、125MB/s/TiB、250MB/s/TiB、500MB/s/TiB、1000MB/s/TiB、HPC缓存型的SFS Turbo文件系统,请使用“创建文件系统异步任务”接口。该接口并发请求数过大可能会影响文件系统性能,建议同时提交的查询请求不要超过 4 个。查询超大目录耗时较久,请不要重复提交。",
+        "operationId": "ShowFsDirUsage",
+        "x-version": "v1",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "x-open-region-cloud": "hws,hws_hk,ctc,sbc",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "description": "账号的token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "description": "MIME类型, application/json",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "share_id",
+            "description": "文件系统ID",
+            "required": true,
+            "type": "string",
+            "x-example": "b959dfbb-xxxx-XXXX-xxxx-8930ec3a87b7"
+          },
+          {
+            "in": "query",
+            "name": "path",
+            "description": "文件系统内合法的目录全路径",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "目录资源使用情况",
+            "examples": {
+              "application/json": {
+                "dir_usage": {
+                  "used_capacity": 1024000
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowFsDirUsageResponseBody"
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            }
+          },
+          "400": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0102",
+                "errMsg": "Path is not directory"
+              }
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "Internal server error"
+              }
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "标准型文件系统ID为\"77ba6f4b-6365-4895-8dda-bc7142af4dde\",查询资源使用情况\n",
+        "x-request-examples-url-1": "GET HTTPS://{endpoint}/v1/{project_id}/sfs-turbo/shares/77ba6f4b-6365-4895-8dda-bc7142af4dde/fs/dir-usage",
+        "x-order": 7
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "ShowFsDirUsageResponseBody": {
+      "type": "object",
+      "description": "目录资源使用情况",
+      "required": [
+        "dir_usage"
+      ],
+      "properties": {
+        "dir_usage": {
+          "type": "object",
+          "description": "消息描述",
+          "$ref": "#/definitions/FsDirUasge"
+        }
+      }
+    },
+    "FsDirUasge": {
+      "type": "object",
+      "description": "目录资源使用情况(包含子目录)",
+      "required": [
+        "used_capacity"
+      ],
+      "properties": {
+        "used_capacity": {
+          "description": "占用容量,单位:byte",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

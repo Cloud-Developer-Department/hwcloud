@@ -1,0 +1,259 @@
+{
+  "name": "ShowQuotaDetails",
+  "summary": "查询租户单个站点配额详情",
+  "tags": "配额",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/quotas/detail": {
+      "get": {
+        "tags": [
+          "Quota"
+        ],
+        "summary": "查询租户单个站点配额详情",
+        "description": "查询租户单个站点配额详情。",
+        "operationId": "ShowQuotaDetails",
+        "schemes": [
+          "https"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "site_id",
+            "in": "query",
+            "description": "站点ID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          {
+            "name": "az_code",
+            "in": "query",
+            "description": "可用分区code。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询租户配额响应。",
+            "examples": {
+              "application/json": {
+                "resources": [
+                  {
+                    "type": "string",
+                    "quota": 2147483647,
+                    "used": 2147483647,
+                    "unit": "string"
+                  }
+                ],
+                "site_id": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowQuotaDetailsRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:quotas:get\", authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, needRbacCheck = false)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"showQuotaDetails\")"
+        ],
+        "x-request-examples-url-1": "GET /v2/29dfe82ada564ac2b927e1ff036d9a9b/quotas/detail?site_id=147258369&az_code=cn-north-7-ies-ohzce",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "SiteQuotaNoLimit": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/QuotaNoLimit"
+        },
+        {
+          "properties": {
+            "site_id": {
+              "type": "string",
+              "description": "站点ID。",
+              "readOnly": true
+            }
+          }
+        }
+      ],
+      "description": "单个站点的配额。"
+    },
+    "ShowQuotaDetailsRsp": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/SiteQuotaNoLimit"
+        }
+      ],
+      "description": "查询单个站点配额响应。"
+    },
+    "SimpleResourceNoUsed": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "资源类别。\ngeneral_instances:普通桌面\nMemory:内存\ncores:CPU\nvolumes:磁盘数量\nvolume_gigabytes:磁盘容量\ngpu_instances:GPU桌面\ndeh:云办公主机\nusers:用户\npolicy_groups: 策略组\nCores: CPU(配额工具使用)",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int32",
+          "description": "配额数。",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "description": "简单配额资源,没有已使用值。"
+    },
+    "QuotaNoLimit": {
+      "required": [
+        "resources"
+      ],
+      "properties": {
+        "resources": {
+          "type": "array",
+          "description": "配额资源列表。",
+          "items": {
+            "$ref": "#/definitions/ResourceNoLimit"
+          },
+          "maxItems": 100,
+          "minItems": 0,
+          "x-maxLength": 100,
+          "x-minLength": 0
+        }
+      },
+      "description": "租户配额对象,不包含最大值和最小值。"
+    },
+    "ResourceNoLimit": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/SimpleResource"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unit": {
+              "type": "string",
+              "description": "配额单位。",
+              "minLength": 0,
+              "maxLength": 255
+            }
+          }
+        }
+      ],
+      "description": "配额资源,不包含最大最小限制值。"
+    },
+    "SimpleResource": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/SimpleResourceNoUsed"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "used": {
+              "type": "integer",
+              "format": "int32",
+              "description": "配额已用值。",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          }
+        }
+      ],
+      "description": "简单配额资源。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

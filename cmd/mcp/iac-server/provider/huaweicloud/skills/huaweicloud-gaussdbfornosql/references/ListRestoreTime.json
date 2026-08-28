@@ -1,0 +1,172 @@
+{
+  "name": "ListRestoreTime",
+  "summary": "查询实例可恢复的时间段",
+  "tags": "备份与恢复",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/backups/restorable-time-periods": {
+      "get": {
+        "tags": [
+          "备份与恢复"
+        ],
+        "operationId": "ListRestoreTime",
+        "summary": "查询实例可恢复的时间段",
+        "description": "查询实例可恢复的时间段",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-constraint": "该接口支持如下数据库实例:\n- GeminiDB Cassandra\n- GeminiDB Influx\n\n使用该接口前,需确保自动备份策略已开启。\n该接口目前仅支持查询实例可恢复的时间点,所以“start_time”和“end_time”的参数取值是相同的。",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "description": "用户token。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "用户在某一region下的projectId。",
+            "x-example": "375d8d8fad1f43039e23d3b6c0f60a19"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例Id,可以调用[5.3.3 查询实例列表和详情](x-wc://file=zh-cn_topic_0000001397299481.xml)接口获取。如果未申请实例,可以调用[5.3.1 创建实例](x-wc://file=zh-cn_topic_0000001397139461.xml)接口创建。",
+            "x-example": "a4d8ea2584e047439a667703c0684119in06"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "查询的可恢复时间段的开始时间点,为yyyy-mm-ddThh:mm:ssZ字符串格式,T指某个时间的开始,Z指时区偏移量。\n\n[例如北京时间偏移显示为+0800。默认值为当前查询时间的前一天。]",
+            "x-example": "2022-06-01T18:50:20+0800"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "查询的可恢复时间段的结束时间点,为yyyy-mm-ddThh:mm:ssZ字符串格式,T指某个时间的开始,Z指时区偏移量。\n\n[例如北京时间偏移显示为+0800。默认值为当前查询时间。]",
+            "x-example": "2022-06-02T18:50:20+0800"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "description": "偏移量,表示查询该偏移量后面的记录,默认值为0。",
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "description": "查询返回记录的数量上限值,取值范围为0~1000,默认值为1000。",
+            "x-example": 1000
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/QueryRestorableTimeResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "restorable_time_periods": [
+                  {
+                    "start_time": 1607731200000,
+                    "end_time": 1607731200000
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/a4d8ea2584e047439a667703c0684119in06/backups/restorable-time-periods?start_time=2022-06-01T18:50:20+0800&end_time=2022-06-01T19:50:20+0800&offset=0&limit=1000"
+      }
+    }
+  },
+  "definitions": {
+    "RestorableTime": {
+      "required": [
+        "start_time",
+        "end_time"
+      ],
+      "description": "可恢复的时间段",
+      "properties": {
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "可恢复时间段的开始时间点,UNIX时间戳格式,单位是毫秒,时区是UTC。"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "可恢复时间段的结束时间点, UNIX时间戳格式,单位是毫秒,时区是UTC。"
+        }
+      }
+    },
+    "QueryRestorableTimeResponseBody": {
+      "required": [
+        "total_count"
+      ],
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "实例可恢复时间段总数"
+        },
+        "restorable_time_periods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RestorableTime"
+          },
+          "description": "实例可恢复的时间段"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

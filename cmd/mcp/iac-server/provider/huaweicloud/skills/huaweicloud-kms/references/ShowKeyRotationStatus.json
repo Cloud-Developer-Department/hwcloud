@@ -1,0 +1,198 @@
+{
+  "name": "ShowKeyRotationStatus",
+  "summary": "查询密钥轮换状态",
+  "tags": "密钥轮换管理",
+  "productshort": "KMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/kms/get-key-rotation-status": {
+      "post": {
+        "tags": [
+          "密钥轮换管理"
+        ],
+        "summary": "查询密钥轮换状态",
+        "description": "- 功能介绍:查询用户主密钥轮换状态。",
+        "operationId": "ShowKeyRotationStatus",
+        "produces": [
+          "application/json"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "ShowKeyRotationStatusRequestBody",
+            "in": "body",
+            "description": "get_key_rotation_status",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OperateKeyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/GetkeyRotationStatusResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "key_rotation_enabled": true,
+                "rotation_interval": 30,
+                "last_rotation_time": "1501578672000",
+                "number_of_rotations": 3
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "认证失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "资源不存在,资源未找到",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "请求未完成。服务器从上游服务器收到一个无效的响应",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "网关超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "GetkeyRotationStatusResponseBody": {
+      "properties": {
+        "key_rotation_enabled": {
+          "type": "boolean",
+          "description": "密钥轮换状态,默认为“false”,表示关闭密钥轮换功能。"
+        },
+        "rotation_interval": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 30,
+          "maximum": 365,
+          "description": "轮换周期,取值范围为30~365的整数。\n周期范围设置根据密钥使用频率进行,若密钥使用频率高,建议设置为短周期;反之,则设置为长周期。"
+        },
+        "last_rotation_time": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 13,
+          "description": "上一次密钥轮换时间。时间戳,即从1970年1月1日至该时间的总秒数。"
+        },
+        "number_of_rotations": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "密钥轮换次数。"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "error": {
+          "description": "错误信息返回体。",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          }
+        }
+      }
+    },
+    "OperateKeyRequestBody": {
+      "required": [
+        "key_id"
+      ],
+      "properties": {
+        "key_id": {
+          "minLength": 36,
+          "maxLength": 36,
+          "type": "string",
+          "description": "密钥ID,36字节,满足正则匹配“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”。\n例如:0d0466b0-e727-4d9c-b35d-f84bb474a37f。"
+        },
+        "sequence": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "请求消息序列号,36字节序列号。\n例如:919c82d4-8046-4722-9094-35c3c6524cff"
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

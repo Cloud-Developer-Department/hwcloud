@@ -1,0 +1,692 @@
+{
+  "name": "CreateDashboardWidgets",
+  "summary": "创建/复制/批量创建监控视图到指定的监控看板",
+  "tags": "监控视图",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/dashboards/{dashboard_id}/widgets": {
+      "post": {
+        "summary": "创建/复制/批量创建监控视图到指定的监控看板",
+        "description": "创建/复制/批量创建监控视图到指定的监控看板",
+        "x-support-sdk": "Y",
+        "x-constraint": "目前华东-青岛、拉美-墨西哥城一、土耳其-伊斯坦布尔、亚太-雅加达、中东-利雅得、亚太-马尼拉6个局点不支持该接口",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-version": "v2",
+        "x-open-region-cloud": "hc,hk,hws,hws_hk,hws_eu,hws_eu_wb,dt,dt_test,sbc,g42",
+        "operationId": "CreateDashboardWidgets",
+        "tags": [
+          "监控视图"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/ContentType"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/DashboardId"
+          },
+          {
+            "name": "CreateDashboardWidgetsRequestBody",
+            "in": "body",
+            "description": "**参数解释**:\n创建单指标条形图类型监控视图到指定监控看板请求体\n**约束限制**:\n不涉及。",
+            "schema": {
+              "$ref": "#/definitions/CreateDashboardWidgetsV2RequestBody"
+            }
+          }
+        ],
+        "x-request-examples-1": [
+          {
+            "metrics": [
+              {
+                "namespace": "SYS.ECS",
+                "dimensions": {
+                  "name": "instance_id",
+                  "filter_type": "specific_instances",
+                  "values": [
+                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                  ]
+                },
+                "metric_name": "cpu_util",
+                "alias": [
+                  "cpuutilalias"
+                ],
+                "extra_info": {
+                  "origin_metric_name": "cpu_util",
+                  "metric_prefix": "cpu",
+                  "metric_type": "type",
+                  "custom_proc_name": "app.sh"
+                }
+              }
+            ],
+            "view": "bar",
+            "metric_display_mode": "single",
+            "threshold": 0.7,
+            "threshold_enabled": true,
+            "title": "widget_title",
+            "properties": {
+              "filter": "topN",
+              "topN": 100,
+              "order": "desc"
+            },
+            "location": {
+              "left": 0,
+              "top": 0,
+              "width": 4,
+              "height": 3
+            },
+            "unit": "%"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BatchCreateWidgetsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "widget_ids": [
+                  "wgx234567890123456789012"
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request, 请求错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "401": {
+            "description": "Unauthorized, 未提供认证信息,或认证信息错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error, 请求未完成, 服务异常",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RollupDimension": {
+      "type": "string",
+      "description": "**参数解释**\n聚合维度\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,32]个字符\n**默认取值**\n不涉及",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-)*$",
+      "example": "instance_id"
+    },
+    "WidgetMetric": {
+      "type": "object",
+      "required": [
+        "namespace",
+        "dimensions",
+        "metric_name"
+      ],
+      "properties": {
+        "namespace": {
+          "description": "**参数解释**\n查询服务的命名空间,各服务命名空间请参阅[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)\n**约束限制**\n不涉及\n**取值范围**\n格式为service.item;service和item必须是字符串,必须以字母开头,只能包含0-9/a-z/A-Z/_。字符串的长度必须在 3 到 32个字符之间。\n**默认取值**\n不涉及",
+          "example": "SYS.XXX",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 32,
+          "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*\\.([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*$"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/DimensionInfo"
+        },
+        "metric_name": {
+          "$ref": "#/definitions/MultiMetricName"
+        },
+        "alias": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 200,
+          "description": "**参数解释**\n监控视图的指标别名列表\n**约束限制**\n当资源类型为指定资源时才允许传该参数\n包含的指标别名对象个数为[0,200]",
+          "example": [
+            "cpu_01",
+            "cpu_02"
+          ],
+          "items": {
+            "type": "string",
+            "description": "**参数解释**\n指标别名\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,128]个字符\n**默认取值**\n不涉及",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "extra_info": {
+          "$ref": "#/definitions/ExtraInfo"
+        },
+        "y_axis_position": {
+          "type": "string",
+          "description": "**参数解释**\n阈值线所在的Y轴位置\n**约束限制**\n不涉及               \n**取值范围**\n枚举值:\n- left 左Y轴\n- right 右Y轴\n**默认取值**\n不涉及",
+          "example": "left",
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "rollup_enable": {
+          "$ref": "#/definitions/RollupEnable"
+        },
+        "rollup_filter": {
+          "$ref": "#/definitions/RollupFilter"
+        },
+        "rollup_dimension": {
+          "$ref": "#/definitions/RollupDimension"
+        },
+        "last_week_compare_enable": {
+          "type": "boolean",
+          "description": "**参数解释**\n是否展示同比(上周同一时间)数据\n**约束限制**\n不涉及\n**取值范围**\n- true:展示\n- false:不展示\n**默认取值**\n不涉及",
+          "example": true
+        },
+        "yesterday_compare_enable": {
+          "type": "boolean",
+          "description": "**参数解释**\n是否展示环比(昨天同一时间)数据\n**约束限制**\n不涉及\n**取值范围**\n- true:展示\n- false:不展示\n**默认取值**\n不涉及",
+          "example": true
+        },
+        "metric_dimension": {
+          "description": "**参数解释**\n维度名称,多维度用逗号分隔,各服务资源的维度名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。必须以字母开头,只能包含0-9/a-z/A-Z/_/-,多维度用\",\"分隔,每个维度的最大长度为32。总长度为[1,131]个字符。目前最大支持4个维度。举例:单维度场景:instance_id;多维度场景:instance_id,disk。\n**约束限制**\n不涉及          \n**取值范围**\n长度为[1,131]个字符\n**默认取值**\n不涉及",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 131,
+          "example": "cluster,instance",
+          "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-){0,31}(,([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-){0,31}){0,3}$"
+        },
+        "top_num": {
+          "type": "integer",
+          "description": "**参数解释**\n展示数据数量\n**约束限制**\n不涉及                \n**取值范围**\n最小值为1,最大值为200\n**默认取值**\n不涉及",
+          "example": "10",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 200
+        },
+        "unit": {
+          "$ref": "#/definitions/UnitItem"
+        },
+        "order": {
+          "type": "string",
+          "description": "**参数解释**\n排序字段\n**约束限制**\n不涉及               \n**取值范围**\n- asc:正序\n- desc:倒序\n**默认取值**\n不涉及",
+          "example": "asc",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        "topn_metric_name": {
+          "$ref": "#/definitions/WidgetMetricName"
+        }
+      }
+    },
+    "RollupFilter": {
+      "type": "string",
+      "description": "**参数解释**\n聚合规则\n**约束限制**\n当rollup_enable开启时,rollup_filter和rollup_dimension必填\n**取值范围**\n- last:最新值\n- max:最大值\n- min:最小值\n- average:平均值\n- sum:求和值\n**默认取值**\n不涉及",
+      "enum": [
+        "last",
+        "max",
+        "min",
+        "average",
+        "sum"
+      ],
+      "example": "sum"
+    },
+    "DimensionInfo": {
+      "description": "**参数解释**\n维度信息列表。      \n**约束限制**\n不涉及",
+      "required": [
+        "name",
+        "filter_type"
+      ],
+      "properties": {
+        "name": {
+          "description": "**参数解释**:\n维度名称。\n**约束限制**\n不涉及\n**取值范围**:\n多维度用逗号分隔,各服务资源的维度名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。必须以字母开头,只能包含0-9/a-z/A-Z/_/-,多维度用\",\"分隔,每个维度的最大长度为32。总长度为[1,131]个字符。目前最大支持4个维度。举例:单维度场景:instance_id;多维度场景:instance_id,disk\n**默认取值**\n不涉及",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 131,
+          "example": "cluster,instance",
+          "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-){0,31}(,([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-){0,31}){0,3}$"
+        },
+        "filter_type": {
+          "description": "**参数解释**:\n资源类型。\n**约束限制**\n1、view参数取值为柱状图 条形图 环形柱状图 表格时,filter_type参数不支持指定资源类型\n2、rollup_enable参数为空时,filter_type参数不支持资源分组类型\n**取值范围**:\n- all_instances: 全部资源\n- specific_instances: 指定资源\n- resource_groups:资源分组\n**默认取值**\n不涉及",
+          "type": "string",
+          "example": "all_instances",
+          "enum": [
+            "all_instances",
+            "specific_instances",
+            "resource_groups"
+          ]
+        },
+        "values": {
+          "description": "**参数解释**:\n维度值列表。\n**约束限制**\n包含的维度值对象个数为[0,200]",
+          "example": [
+            "cluster-value-001,instance-value-001",
+            "cluster-value-002,instance-value-002"
+          ],
+          "minItems": 0,
+          "maxItems": 200,
+          "type": "array",
+          "items": {
+            "description": "**参数解释**:\n维度值。\n**约束限制**\n不涉及\n**取值范围**:\n多维度用逗号分隔,与维度名顺序一一对应,长度为[1,1024]个字符。\n**默认取值**\n不涉及",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "example": "cluster-001,instance-001",
+            "pattern": "^([a-z]|[A-Z]|[0-9]){1}([a-z]|[A-Z]|[0-9]|_|-|\\\\.|){0,255}(,([a-z]|[A-Z]|[0-9]){1}([a-z]|[A-Z]|[0-9]|_|-|\\\\.|){0,255}){0,3}$"
+          }
+        }
+      }
+    },
+    "MultiMetricName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1080,
+      "description": "**参数解释**\n多个指标名称\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,1080]个字符,多个指标名称之间用逗号隔开\n**默认取值**\n不涉及",
+      "example": "cpu_util,disk_util",
+      "pattern": "^([A-Za-z]){1}([0-9A-Za-z]|_|-|,)*$"
+    },
+    "CreateDashboardWidgetsV2RequestBody": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BaseWidgetInfo"
+      }
+    },
+    "BaseWidgetInfo": {
+      "type": "object",
+      "description": "**参数解释**\n监控视图信息\n**约束限制**\n不涉及",
+      "required": [
+        "metrics",
+        "title",
+        "view",
+        "metric_display_mode",
+        "location",
+        "threshold_enabled"
+      ],
+      "properties": {
+        "group_id": {
+          "description": "**参数解释**\n视图分组id\n**约束限制**\n不涉及          \n**取值范围**\n字符串必须以dg开头,包含22个字母和数字,长度为24个字符\n**默认取值**\n不涉及",
+          "type": "string",
+          "example": "grxxx",
+          "pattern": "^dg([a-z]|[A-Z]|[0-9]){22}|default$"
+        },
+        "metrics": {
+          "description": "**参数解释**\n指标列表\n**约束限制**\n包含的指标数量最多为200个,最少为1个",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/definitions/WidgetMetric"
+          }
+        },
+        "title": {
+          "type": "string",
+          "description": "**参数解释**\n监控视图标题\n**约束限制**\n不涉及          \n**取值范围**\n长度为[1,128]个字符,允许包括以下内容:1、中文汉字;2、拉丁字母;3、英文大小写字母;4、数字(0-9);5、符号: ” \" ≤ < > & % _ : / ; “ ' ? + , ~ , ( ) o ( ) [ . -\n**默认取值**\n不涉及",
+          "example": "xxx-cpu",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^([\\一-\\鿿]|[\\À-\\Ȅ]|[a-z]|[A-Z]|[0-9]|[\\\"”≤<>&%_:/;“'?+,~,() o\\\\(\\\\)\\\\[\\\\.\\\\-])( *([\\一-\\鿿]|[\\À-\\Ȅ]|[a-z]|[A-Z]|[0-9]|[\\\"”≤<>&%_:/;“'?+,~,() o\\\\(\\\\)\\\\[\\\\.\\\\-]))*$"
+        },
+        "threshold": {
+          "type": "number",
+          "description": "**参数解释**\n监控视图指标的阈值\n**约束限制**\n不涉及  \n**取值范围**\n最小值为0,最大值为1.7976931348623157e+308\n**默认取值**\n不涉及",
+          "example": 90,
+          "format": "double",
+          "minimum": 0,
+          "maximum": 1.7976931348623157e+308
+        },
+        "threshold_enabled": {
+          "type": "boolean",
+          "description": "**参数解释**\n阈值是否展示\n**约束限制**\n不涉及  \n**取值范围**\n- true:展示\n- false:不展示\n**默认取值**\n不涉及",
+          "example": true
+        },
+        "view": {
+          "type": "string",
+          "description": "**参数解释**\n监控视图图表类型\n**约束限制**\n不涉及  \n**取值范围**\n- bar:条形图\n- line:折线图\n- bar_chart:柱状图\n- table:表格\n- circular_bar:环形柱状图\n- area_chart:面积图\n- gauge:仪表盘\n- stat:数字\n**默认取值**\n不涉及",
+          "example": "bar",
+          "enum": [
+            "bar",
+            "line",
+            "bar_chart",
+            "table",
+            "circular_bar",
+            "area_chart",
+            "gauge",
+            "stat"
+          ]
+        },
+        "metric_display_mode": {
+          "type": "string",
+          "description": "**参数解释**\n指标展示类型\n**约束限制**\n不涉及  \n**取值范围**\n- single:单指标展示\n- multiple:多指标展示\n**默认取值**\n不涉及",
+          "example": "single",
+          "enum": [
+            "single",
+            "multiple"
+          ]
+        },
+        "properties": {
+          "description": "**参数解释**\n额外信息\n**约束限制**\n不涉及",
+          "properties": {
+            "filter": {
+              "type": "string",
+              "description": "**参数解释**\n聚合类型\n**约束限制**\n折线图不支持该参数\n**取值范围**\n目前只有TopN这一种类型\n**默认取值**\n不涉及",
+              "example": "topN",
+              "enum": [
+                "topN"
+              ]
+            },
+            "topN": {
+              "type": "integer",
+              "description": "**参数解释**\nTop前N个;折线图时为随机展示的时序数据条数\n**约束限制**\n不涉及              \n**取值范围**\n最小值为1,最大值为2147483647\n**默认取值**\n100",
+              "example": "10",
+              "format": "int32",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "order": {
+              "type": "string",
+              "description": "**参数解释**\n排序字段\n**约束限制**\n折线图不支持该参数  \n**取值范围**\n- asc:正序\n- desc:倒序\n**默认取值**\n不涉及",
+              "example": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "description": "**参数解释**\n监控视图的描述信息\n**约束限制**\n不涉及                \n**取值范围**\n长度为[0,200]个字符\n**默认取值**\n不涉及",
+              "example": "这是一个简单的视图描述",
+              "minLength": 0,
+              "maxLength": 200
+            },
+            "last_week_compare_enable": {
+              "type": "boolean",
+              "description": "**参数解释**\n是否展示同比(上周同一时间)数据\n**约束限制**\n不涉及                \n**取值范围**\n- true:展示\n- false:不展示\n**默认取值**\n不涉及",
+              "example": true
+            },
+            "yesterday_compare_enable": {
+              "type": "boolean",
+              "description": "**参数解释**\n是否展示环比(昨天同一时间)数据\n**约束限制**\n不涉及                \n**取值范围**\n- true:展示\n- false:不展示\n**默认取值**\n不涉及",
+              "example": true
+            },
+            "legend_location": {
+              "type": "string",
+              "description": "**参数解释**\n图例位置标记\n**约束限制**\n表格不支持该参数                \n**取值范围**\n- hide:表示隐藏图例\n- right:表示图例放在监控视图右侧\n- bottom:表示图例放在监控视图底部\n**默认取值**\n不涉及",
+              "example": "hide",
+              "enum": [
+                "hide",
+                "right",
+                "bottom"
+              ]
+            },
+            "legend_values": {
+              "type": "array",
+              "description": "**参数解释**\n当前时序数据需要在图例中展示的统计值名称列表\n**约束限制**\n表格不支持该参数;条形图和柱状图仅支持配置当前值",
+              "example": [
+                "max",
+                "min"
+              ],
+              "minItems": 0,
+              "maxItems": 6,
+              "items": {
+                "type": "string",
+                "description": "**参数解释**\n统计值名称\n**约束限制**\n不涉及\n**取值范围**\n- last:当前值\n- max:最大值\n- min:最小值\n- avg:平均值\n- sum:求和值\n**默认取值**\n不涉及",
+                "enum": [
+                  "last",
+                  "max",
+                  "min",
+                  "avg",
+                  "sum"
+                ]
+              }
+            },
+            "thresholds": {
+              "type": "array",
+              "description": "**参数解释**\n监控视图的阈值辅助线配置\n**约束限制**\n不涉及",
+              "minItems": 0,
+              "maxItems": 5,
+              "items": {
+                "$ref": "#/definitions/ThresholdInfo"
+              }
+            },
+            "is_all_compare_enable": {
+              "type": "boolean",
+              "description": "**参数解释**\n同比环比总开关是否生效\n**约束限制**\n不涉及              \n**取值范围**\n- true:生效\n- false:不生效\n**默认取值**\n不涉及",
+              "example": true
+            }
+          }
+        },
+        "location": {
+          "description": "**参数解释**\n监控视图图表坐标\n**约束限制**\n不涉及",
+          "required": [
+            "top",
+            "left",
+            "width",
+            "height"
+          ],
+          "properties": {
+            "top": {
+              "type": "integer",
+              "description": "**参数解释**\n监控视图的上坐标\n**约束限制**\n不涉及              \n**取值范围**\n最小值为0,最大值为2147483647\n**默认取值**\n不涉及",
+              "example": "0",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "left": {
+              "type": "integer",
+              "description": "**参数解释**\n监控视图的左坐标\n**约束限制**\n不涉及              \n**取值范围**\n最小值为0,最大值为9\n**默认取值**\n不涉及",
+              "example": "1",
+              "minimum": 0,
+              "maximum": 9
+            },
+            "width": {
+              "type": "integer",
+              "description": "**参数解释**\n监控视图图表宽度\n**约束限制**\n不涉及              \n**取值范围**\n最小值为3,最大值为12\n**默认取值**\n不涉及",
+              "example": "3",
+              "minimum": 3,
+              "maximum": 12
+            },
+            "height": {
+              "type": "integer",
+              "description": "**参数解释**\n监控视图图表高度\n**约束限制**\n不涉及              \n**取值范围**\n最小值为3,最大值为2147483647\n**默认取值**\n不涉及",
+              "example": "3",
+              "minimum": 3,
+              "maximum": 2147483647
+            }
+          }
+        },
+        "unit": {
+          "$ref": "#/definitions/UnitItem"
+        }
+      }
+    },
+    "ExtraInfo": {
+      "description": "**参数解释**\n指标信息\n**约束限制**\n不涉及",
+      "type": "object",
+      "required": [
+        "origin_metric_name"
+      ],
+      "properties": {
+        "origin_metric_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "**参数解释**\n指标名称\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,4096]个字符\n**默认取值**\n不涉及",
+          "example": "xxxx",
+          "pattern": "^([a-z]|[A-Z]|[0-9]|_|-|~|\\.|/|:)*$"
+        },
+        "metric_prefix": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "**参数解释**\n指标名称前缀\n**约束限制**\n不涉及          \n**取值范围**\n长度为[1,4096]个字符\n**默认取值**\n不涉及",
+          "example": "xxxx",
+          "pattern": "^([a-z]|[A-Z]|[0-9]|_|-|~|\\.|/|:)*$"
+        },
+        "metric_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "**参数解释**\n指标类型\n**约束限制**\n不涉及          \n**取值范围**\n长度为[1,32]个字符\n**默认取值**\n不涉及",
+          "example": "xxxx",
+          "pattern": "^([a-z]|[A-Z]|[0-9]|_|-|~|\\.|/|:)*$"
+        },
+        "custom_proc_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250,
+          "description": "**参数解释**\n自定义进程名称\n**约束限制**\n不涉及          \n**取值范围**\n长度为[1,250]个字符\n**默认取值**\n不涉及",
+          "example": "xxxx"
+        }
+      }
+    },
+    "RollupEnable": {
+      "type": "boolean",
+      "description": "**参数解释**\n是否开启聚合\n**约束限制**\n当rollup_enable开启时,rollup_filter和rollup_dimension必填\n**取值范围**\n- true:表示开启聚合\n- false:表示不开启聚合\n**默认取值**\nfalse",
+      "example": true
+    },
+    "GoAPIErrorResponseV2": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "ces.0001",
+          "description": "请求异常内部业务状态码",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "the request format is invalid",
+          "description": "请求异常信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "request_id": {
+          "type": "string",
+          "example": "txnEntry-DESKTOP-4LPFH08.txnId-466541d0-f1a6-429b-b747-98d4991671c1.ts-1637909316688.c-95",
+          "description": "请求ID",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "BatchCreateWidgetsResponseBody": {
+      "properties": {
+        "widget_ids": {
+          "description": "**参数解释**\n批量创建监控视图返回结果",
+          "type": "array",
+          "maxItems": 50,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "description": "**参数解释**\n监控看板id\n**取值范围**\n字符串必须以wg开头,包含22个字母和数字,长度为24个字符。",
+            "pattern": "^wg([a-z]|[A-Z]|[0-9]){22}$",
+            "example": "wgxxx-001"
+          }
+        }
+      }
+    },
+    "UnitItem": {
+      "type": "string",
+      "description": "**参数解释**\n单位\n**约束限制**\n不涉及\n**取值范围**\n长度为[0,32]个字符\n**默认取值**\n不涉及",
+      "minLength": 0,
+      "maxLength": 32,
+      "example": "byte/s"
+    },
+    "ThresholdInfo": {
+      "description": "**参数解释**\n监控视图的阈值辅助线配置\n**约束限制**\n不涉及",
+      "required": [
+        "threshold",
+        "threshold_color"
+      ],
+      "properties": {
+        "threshold": {
+          "type": "number",
+          "description": "**参数解释**\n监控视图辅助线的阈值\n**约束限制**\n不涉及\n**取值范围**\n最小值为0,最大值为2147483647\n**默认取值**\n不涉及",
+          "example": 90,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "threshold_color": {
+          "type": "string",
+          "description": "**参数解释**\n监控视图辅助线的颜色\n**约束限制**\n不涉及          \n**取值范围**\n- \"#B50E65\":紫色\n- \"#F23030\":红色\n- \"#FF8800\":橙色\n- \"#F2E70C\":黄色\n**默认取值**\n不涉及",
+          "example": "#F23030",
+          "enum": [
+            "#B50E65",
+            "#F23030",
+            "#FF8800",
+            "#F2E70C"
+          ]
+        }
+      }
+    },
+    "WidgetMetricName": {
+      "description": "**参数解释**\n资源的监控指标名称,必须以字母开头,只能包含0-9/a-z/A-Z/_,字符长度最短为1,最大为64;如:弹性云服务器中的监控指标cpu_util,表示弹性服务器的CPU使用率;文档数据库中的指标mongo001_command_ps,表示command执行频率;各服务资源的指标名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,96]个字符\n**默认取值**\n不涉及",
+      "type": "string",
+      "pattern": "^([A-Za-z]){1}([0-9A-Za-z]|_|-)*$",
+      "minLength": 1,
+      "maxLength": 96,
+      "example": "cpu_util"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符串的长度必须在 1 到 64个字符之间。\n**默认取值**:\n不涉及。",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "DashboardId": {
+      "name": "dashboard_id",
+      "in": "path",
+      "type": "string",
+      "required": true,
+      "description": "**参数解释**:\n监控看板id\n**约束限制**:\n不涉及。\n**取值范围**:\n以db开头,包含22个字母和数字,长度为24个字符\n**默认取值**:\n不涉及。",
+      "pattern": "^db([a-z]|[A-Z]|[0-9]){22}$",
+      "minItems": 24,
+      "maxItems": 24
+    },
+    "ContentType": {
+      "name": "Content-Type",
+      "in": "header",
+      "description": "**参数解释**:\n发送的实体的MIME类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为64。\n**默认取值**:\n默认使用application/json; charset=UTF-8。",
+      "required": false,
+      "type": "string",
+      "default": "application/json; charset=UTF-8",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-order": 1
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户Token。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为16384。\n**默认取值**:\n不涉及。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "x-order": 2
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,148 @@
+{
+  "name": "ResizeInstance",
+  "summary": "变更实例规格",
+  "tags": "生命周期管理",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/resize": {
+      "post": {
+        "summary": "变更实例规格",
+        "x-request-example1": {
+          "spec_code": "redis.cluster.au1.large.64",
+          "new_capacity": 64
+        },
+        "x-constraint": {},
+        "x-name": "变更实例规格",
+        "x-scope": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-produc-type": "dcs",
+        "description": "用户可以为状态为“运行中”的DCS缓存实例进行规格变更,当前仅能支持按需实例的同副本或分片数量的实例规格变更。",
+        "operationId": "ResizeInstance",
+        "responses": {
+          "204": {
+            "description": "缓存实例规格变更成功"
+          }
+        },
+        "x-request-examples-1": "POST https://{dcs_endpoint}/v2/{project_id}/instances/{instance_id}/resize",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "instance_id",
+            "x-example": "a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71",
+            "description": "实例ID。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "x-example": "a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71",
+            "description": "项目ID。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ResizeInstanceBody"
+            },
+            "in": "body",
+            "name": "ResizeInstanceRequestBody",
+            "description": "实例规格变更Body",
+            "required": true
+          }
+        ],
+        "tags": [
+          "生命周期管理"
+        ],
+        "x-apiexplorer-hide": false
+      }
+    }
+  },
+  "definitions": {
+    "BssParamEntity": {
+      "properties": {
+        "is_auto_pay": {
+          "description": "功能说明:下单订购后,是否自动从客户的账户中支付;默认是“不自动支付” 。\n\n取值范围:\n- true:是(自动支付,从账户余额自动扣费)\n- false:否(默认值,只提交订单不支付,需要客户手动去支付)\n\n约束:\n自动支付时,只能使用账户的现金支付;如果要使用代金券,请选择不自动支付,然后在用户费用中心,选择代金券支付。\n\n**如果没有设置成自动支付,即设置为false时,在创建实例之后,实例状态为“支付中”,用户必须在“费用中心 > 我的订单”,完成订单支付,否则订单一直在支付中,实例没有创建成功**。",
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "example": true
+        }
+      }
+    },
+    "ResizeInstanceBody": {
+      "properties": {
+        "spec_code": {
+          "description": "产品规格编码。具体查询方法如下:\n\n- 方法一:查询产品介绍中的[实例规格](https://support.huaweicloud.com/productdesc-dcs/dcs-pd-0522002.html)\n- 方法二:登录分布式缓存的控制台界面,点击购买缓存实例,查找对应的实例规格名称\n- 方法三:调用[查询产品规格](https://support.huaweicloud.com/api-dcs/ListFlavors.html)接口查询。",
+          "type": "string",
+          "example": "redis.cluster.xu1.large.64"
+        },
+        "new_capacity": {
+          "description": "新的缓存实例规格,单位:GB。\nRedis4.0版本及以上:单机和主备类型实例取值:0.125、0.25、0.5、1、2、4、8、16、32、64。Cluster集群实例规格支持24、32、48、64、96、128、192、256、384、512、768、1024。\nMemcached:单机和主备类型实例取值:2、4、8、16、32、64。",
+          "type": "integer",
+          "format": "int32",
+          "example": 4
+        },
+        "bss_param": {
+          "description": "表示包周期计费模式的相关参数,包周期实例变更规格时需要填写。",
+          "type": "object",
+          "$ref": "#/definitions/BssParamEntity"
+        },
+        "reserved_ip": {
+          "description": "需要保留的节点ip。cluster集群缩容时需要填写,不填写时系统将随机删除多余的分片",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": "192.168.0.125"
+          }
+        },
+        "change_type": {
+          "description": "变更类型,Redis 4.0或者5.0实例进行副本数变更时必选。\n- createReplication: 添加副本\n- deleteReplication: 删除副本\n- addSharding: 添加分片\n- instanceType: 实例类型变更,目前仅支持Redis 4.0/5.0/6.0实例中的主备实例/读写分离实例变更为proxy集群实例、proxy集群实例变更为主备实例/读写分离实例。",
+          "enum": [
+            "createReplication",
+            "deleteReplication",
+            "addSharding",
+            "instanceType"
+          ],
+          "type": "string",
+          "example": "createReplication"
+        },
+        "available_zones": {
+          "description": "Redis 4.0或者5.0主备实例进行添加副本时必选,指定每个副本所在的可用区Code,使用前需要先确认该可用区资源是否售罄。\n\n具体查询方法,请参考[查询可用区信息](https://support.huaweicloud.com/api-dcs/ListAvailableZones.html)",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": "cn-north-4a"
+          }
+        },
+        "node_list": {
+          "description": "Redis 4.0或者5.0主备实例进行删除副本时必选,指定需要删除的节点ID,目前仅支持一次删除一个副本。\n\n节点ID查询方法,请参考[查询分片信息](https://support.huaweicloud.com/api-dcs/ListGroupReplicationInfo.html)",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": "8abfa7aa79abeb780179acd18c7003bb"
+          }
+        },
+        "execute_immediately": {
+          "description": "是否立即变更。默认值为true。\n- true: 立即变更\n- false: 可维护时间窗内进行变更",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "spec_code",
+        "new_capacity"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

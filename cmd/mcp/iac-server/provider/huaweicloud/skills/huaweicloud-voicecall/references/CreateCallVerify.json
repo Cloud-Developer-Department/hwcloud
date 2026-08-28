@@ -1,0 +1,235 @@
+{
+  "name": "CreateCallVerify",
+  "summary": "语音验证码",
+  "tags": "语音验证码",
+  "productshort": "VoiceCall",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/rest/httpsessions/callVerify/v1.0": {
+      "post": {
+        "tags": [
+          "CallVerify"
+        ],
+        "summary": "语音验证码",
+        "description": "语音验证码",
+        "operationId": "CreateCallVerify",
+        "x-returnType": "ResponseEntity<ApiCommonResponse>",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-iftype": "OpenAPI_new",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "description": "固定填写为AKSK realm='SDP',profile='UsernameToken',type='Appkey'。"
+          },
+          {
+            "name": "X-AKSK",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "maxLength": 1024,
+            "description": "取值为UsernameToken Username='APP_Key的值', PasswordDigest='PasswordDigest的值', Nonce='随机数', Created='随机数生成时间'。"
+          },
+          {
+            "name": "CreateCallVerifyRequestBody",
+            "in": "body",
+            "description": "语音验证请求类",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CallVerifyReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ApiCommonResponse"
+            },
+            "examples": {
+              "application/json": {
+                "resultcode": "0",
+                "resultdesc": "Success",
+                "sessionId": "1202_566_0_20161228102743@callenabler.home1.com",
+                "idlePort": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Authorization not contained in the HTTP header.",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "1023006"
+            ],
+            "examples": {
+              "application/json-1": {
+                "resultcode": "1023006",
+                "resultdesc": "Authorization not contained in the HTTP header."
+              }
+            }
+          },
+          "500": {
+            "description": "Internal system error.",
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "1010001"
+            ],
+            "examples": {
+              "application/json-1": {
+                "resultcode": "1010001",
+                "resultdesc": "Internal system error."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiCommonResponse": {
+      "type": "object",
+      "properties": {
+        "resultcode": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "请求返回的结果码"
+        },
+        "resultdesc": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "请求返回的结果描述"
+        },
+        "sessionId": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "请求返回的会话sessionId,用于标记一路会话。如果请求失败,则sessionId为空表示会话建立失败"
+        },
+        "idlePort": {
+          "type": "integer",
+          "description": "请求参数中returnIdlePort为true时响应消息携带该参数"
+        }
+      },
+      "x-annotations": "@JsonInclude(value=JsonInclude.Include.NON_NULL)",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;"
+    },
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "resultcode": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "resultdesc": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "CallVerifyReq": {
+      "type": "object",
+      "required": [
+        "displayNbr",
+        "calleeNbr",
+        "languageType",
+        "preTone",
+        "verifyCode"
+      ],
+      "properties": {
+        "displayNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 31,
+          "description": "固话号码,被叫终端上显示的主叫号码,需要提前在订购号码页面申请该号码。",
+          "example": "+8675528****01"
+        },
+        "calleeNbr": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 31,
+          "description": "被叫号码。",
+          "example": "+86134****2222"
+        },
+        "languageType": {
+          "type": "integer",
+          "description": "验证码播放的语言类型。",
+          "example": 2
+        },
+        "preTone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "播放语音验证码之前需要播放的放音文件名,放音文件需要提前通过放音文件管理页面上传并审核通过才能使用。",
+          "example": "pretone.wav"
+        },
+        "verifyCode": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 8,
+          "description": "验证码:只支持0~9的数字,最大8位",
+          "example": "12345678"
+        },
+        "posTone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "播放语音验证码之后需要播放的放音文件名。",
+          "example": "postone.wav"
+        },
+        "times": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9,
+          "description": "播放次数:0~9。0表示无限循环",
+          "default": 3,
+          "example": 1
+        },
+        "statusUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此参数请采用BASE64编码进行加密。此字段用于设置SP接收状态上报的URL。",
+          "example": "https://IP:Port或域名"
+        },
+        "feeUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "此参数请采用BASE64编码进行加密。此参数用于设置SP接收话单上报的URL。",
+          "example": "https://IP:Port或域名"
+        },
+        "returnIdlePort": {
+          "type": "string",
+          "enum": [
+            true,
+            false
+          ],
+          "description": "指示是否需要返回空闲端口数量。true:需要返回,false:不需要返回。",
+          "default": "false",
+          "example": "false"
+        },
+        "userData": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "用户附属信息,此标识由第三方服务器定义,会在后续的通知消息中携带此信息。",
+          "example": "******"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rtccall.cn-north-1.myhuaweicloud.cn",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

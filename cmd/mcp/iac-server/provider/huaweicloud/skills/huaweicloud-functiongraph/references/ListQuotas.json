@@ -1,0 +1,207 @@
+{
+  "name": "ListQuotas",
+  "summary": "查询租户配额",
+  "tags": "函数配额",
+  "productshort": "FunctionGraph",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/fgs/quotas": {
+      "get": {
+        "tags": [
+          "函数配额"
+        ],
+        "summary": "查询租户配额",
+        "description": "查询租户配额",
+        "operationId": "ListQuotas",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Content-Type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "examples": {
+              "application/json": {
+                "quotas": {
+                  "resources": [
+                    {
+                      "quota": 60,
+                      "used": 3,
+                      "type": "fgs_func_scale_down_timeout"
+                    },
+                    {
+                      "quota": 100,
+                      "used": 22,
+                      "type": "fgs_func_occurs"
+                    },
+                    {
+                      "quota": 100,
+                      "used": 22,
+                      "type": "fgs_func_pat_idle_time"
+                    },
+                    {
+                      "quota": 100,
+                      "used": 22,
+                      "type": "fgs_func_num"
+                    },
+                    {
+                      "quota": 10240,
+                      "used": 22,
+                      "type": "fgs_func_code_size",
+                      "unit": "MB"
+                    },
+                    {
+                      "quota": 512,
+                      "used": 22,
+                      "type": "fgs_workflow_num"
+                    }
+                  ]
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListQuotasResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request 请求错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "401": {
+            "description": "Unauthorized 鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "403": {
+            "description": "Forbidden 没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error 服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询租户配额。",
+        "x-request-examples-url-1": "GET /v2/{project_id}/fgs/quotas",
+        "x-support-sdk": "Y",
+        "x-produc-type": "functiongraph"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    },
+    "Resources": {
+      "properties": {
+        "quota": {
+          "type": "integer",
+          "description": "函数配额限制。"
+        },
+        "used": {
+          "type": "integer",
+          "description": "已使用的配额。"
+        },
+        "type": {
+          "type": "string",
+          "description": "资源类型。\nfgs_func_scale_down_timeout:v1版本函数的实例闲置释放时间\nfgs_func_occurs:v1版本函数为实例数配额, v2版本函数为预留实例配额\nfgs_func_pat_idle_time:vpc函数的pat闲置释放时间\nfgs_func_num:用户函数数量配额\nfgs_func_code_size:用户函数总代码大小配额\nfgs_workflow_num:用户函数流数量配额\nfgs_on_demand_instance_limit:v2版本函数单函数最大实例数配额\nfgs_func_qos_limit 用户函数实例数配额",
+          "enum": [
+            "fgs_func_scale_down_timeout",
+            "fgs_func_occurs",
+            "fgs_func_pat_idle_time",
+            "fgs_func_num",
+            "fgs_func_code_size",
+            "fgs_workflow_num",
+            "fgs_on_demand_instance_limit",
+            "fgs_func_qos_limit"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "description": "资源的计数单位。fgs_func_code_size,单位为MB,其他场景无单位"
+        }
+      }
+    },
+    "ListQuotasResponseBody": {
+      "required": [
+        "quotas"
+      ],
+      "properties": {
+        "quotas": {
+          "$ref": "#/definitions/ListQuotasResult"
+        }
+      }
+    },
+    "ListQuotasResult": {
+      "required": [
+        "resources"
+      ],
+      "properties": {
+        "resources": {
+          "type": "array",
+          "description": "配额列表",
+          "items": {
+            "$ref": "#/definitions/Resources"
+          }
+        }
+      },
+      "description": "配额信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Content-Type": {
+      "in": "header",
+      "name": "Content-Type",
+      "type": "string",
+      "required": true,
+      "x-example": "application/json",
+      "default": "application/json",
+      "description": "消息体的类型(格式)"
+    },
+    "project_id": {
+      "in": "path",
+      "name": "project_id",
+      "required": true,
+      "type": "string",
+      "x-example": "46b6f338fc3445b8846c71dfb1fbd9e8",
+      "description": "租户项目 ID,获取方式请参见[获取项目ID](functiongraph_06_0260.xml)。"
+    },
+    "X-Auth-Token": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。"
+    }
+  },
+  "host": "functiongraph.ae-ad-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

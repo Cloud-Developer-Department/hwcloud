@@ -1,0 +1,234 @@
+{
+  "name": "UpgradeInstance",
+  "summary": "升级堡垒机实例",
+  "tags": "操作管理",
+  "productshort": "CBH",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/cbs/instance/upgrade": {
+      "post": {
+        "x-open-region-cloud": "hws,hws_hk,ctc,cmcc",
+        "tags": [
+          "操作管理"
+        ],
+        "operationId": "UpgradeInstance",
+        "summary": "升级堡垒机实例",
+        "description": "升级云堡垒机实例。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "in": "body",
+            "name": "UpgradeInstanceRequestBody",
+            "description": "UpgradeInstanceRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpgradeCbhRequestBody"
+            }
+          }
+        ],
+        "x-apigateway-ratelimit": "CBH_Server",
+        "responses": {
+          "200": {
+            "description": "Upgrade Cbh Instance Success"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp401"
+            }
+          },
+          "403": {
+            "description": "已是最新版本不需要升级/agent未启动",
+            "schema": {
+              "$ref": "#/definitions/ErrorUpgrade403"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UpgradeCbhRequestBody": {
+      "description": "云堡垒机实例请求对象。",
+      "required": [
+        "server_id",
+        "upgrade_time"
+      ],
+      "properties": {
+        "server_id": {
+          "type": "string",
+          "description": "实例id",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "upgrade_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "定时升级的时间,需要比当前时间大24小时",
+          "example": 1700118620000,
+          "maximum": 99999999999999,
+          "minimum": 0
+        },
+        "cancel": {
+          "type": "boolean",
+          "description": "是否取消升级定时任务,已开始任务不可取消。\n- true:取消\n- false:无影响"
+        }
+      },
+      "example": {
+        "server_id": "c7277d87-5a0d-4cfc-a418-97acb567cf29",
+        "upgrade_time": 1702974655000
+      },
+      "type": "object"
+    },
+    "ErrorUpgrade403": {
+      "description": "租户无权限操作。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "已是最新版本不需要升级/agent未启动。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 403,
+        "description": "已是最新版本不需要升级/agent未启动"
+      }
+    },
+    "ErrorRsp400": {
+      "description": "请求参数错误。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "请求参数错误。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 400,
+        "description": "请求参数错误。"
+      }
+    },
+    "ErrorRsp401": {
+      "description": "校验TOKEN失败。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "校验TOKEN失败。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 401,
+        "description": "校验TOKEN失败"
+      }
+    },
+    "ErrorRsp404": {
+      "description": "没有找到CBH资源。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "没有找到CBH资源。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 404,
+        "description": "没有找到CBH资源"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。\n\n获取方法详见API参考,附录\"获取项目ID\"",
+      "required": true,
+      "type": "string",
+      "x-example": "80baxxxxxxxxf9ad43xxxxxxxxx",
+      "minLength": 0,
+      "maxLength": 64
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n\n可参考\"IAM获取IAM用户Token\"获取",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIE5gYJKoZIhvcNAQcCoIIE1zCCXXXXXX...",
+      "minLength": 0,
+      "maxLength": 28000
+    }
+  },
+  "host": "cbh.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

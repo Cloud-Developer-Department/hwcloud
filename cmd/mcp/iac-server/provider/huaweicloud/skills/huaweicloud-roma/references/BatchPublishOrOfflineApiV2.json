@@ -1,0 +1,304 @@
+{
+  "name": "BatchPublishOrOfflineApiV2",
+  "summary": "批量发布或下线API",
+  "tags": "API管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/apis/publish": {
+      "post": {
+        "summary": "批量发布或下线API",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-order": 7,
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "tags": [
+          "API管理"
+        ],
+        "description": "将多个API发布到一个指定的环境,或将多个API从指定的环境下线。\n\n注意:当action = online时,接口返回的响应中publish_id,version_id, publish_time字段才有含义。",
+        "operationId": "BatchPublishOrOfflineApiV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "in": "query",
+            "required": true,
+            "name": "action",
+            "description": "- online:发布\n- offline:下线",
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "BatchPublishOrOfflineApiV2RequestBody",
+            "description": "批量发布或下线API的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApiBatchPublish"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "根据列表批量发布API到指定环境上",
+        "x-request-examples-1": {
+          "apis": [
+            "3a955b791bd24b1c9cd94c745f8d1aad",
+            "abd9c4b2ff974888b0ba79be7e6b2762"
+          ],
+          "env_id": "DEFAULT_ENVIRONMENT_RELEASE_ID",
+          "remark": "Publish to the production environment"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BatchPublishResult"
+            },
+            "examples": {
+              "application/json": {
+                "success": [
+                  {
+                    "publish_id": "9f27d1dc4f4242a9abf88e563dbfc33d",
+                    "api_id": "3a955b791bd24b1c9cd94c745f8d1aad",
+                    "api_name": "Api_mock",
+                    "env_id": "DEFAULT_ENVIRONMENT_RELEASE_ID",
+                    "version_id": "632b2c9e022941969af9a1d45735ae2c",
+                    "remark": "Publish to the production environment",
+                    "publish_time": "2020-08-03T03:01:31.26522821Z"
+                  }
+                ],
+                "failure": [
+                  {
+                    "api_id": "abd9c4b2ff974888b0ba79be7e6b2762",
+                    "error_code": "APIG.3002",
+                    "error_msg": "Api abd9c4b2ff974888b0ba79be7e6b2762 not found"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2011",
+                "error_msg": "Invalid parameter value: parameter action should be \\\"online\\\" or \\\"offline\\\""
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3030",
+                "error_msg": "The instance does not exist;id:f0fa1789-3b76-433b-a787-9892951c620ec"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiBatchPublish": {
+      "required": [
+        "env_id"
+      ],
+      "properties": {
+        "apis": {
+          "description": "需要发布或下线的API ID列表",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env_id": {
+          "description": "环境ID",
+          "type": "string"
+        },
+        "remark": {
+          "description": "对本次发布的描述信息\n\n字符长度不超过255\n> 中文字符必须为UTF-8或者unicode编码。",
+          "type": "string"
+        }
+      }
+    },
+    "BatchPublishResult": {
+      "properties": {
+        "success": {
+          "description": "发布或下线成功的信息",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PublishResp"
+          }
+        },
+        "failure": {
+          "description": "发布或下线失败的API及错误信息",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BatchFailure"
+          }
+        }
+      }
+    },
+    "PublishResp": {
+      "properties": {
+        "publish_id": {
+          "description": "发布记录的ID",
+          "type": "string",
+          "example": "5b729aa252764739be2c37ef0d66dc63"
+        },
+        "api_id": {
+          "description": "API编号",
+          "type": "string",
+          "example": "7addcd00cfab433984b1d8bf2fe08aaa"
+        },
+        "api_name": {
+          "description": "API名称",
+          "type": "string",
+          "example": "api_name"
+        },
+        "env_id": {
+          "description": "发布的环境编号",
+          "type": "string",
+          "example": "DEFAULT_ENVIRONMENT_RELEASE_ID"
+        },
+        "remark": {
+          "description": "发布描述",
+          "type": "string",
+          "example": "string"
+        },
+        "publish_time": {
+          "description": "发布时间",
+          "type": "string",
+          "format": "date-time",
+          "example": "2018-07-26T13:18:04.1079916Z"
+        },
+        "version_id": {
+          "description": "在线的版本号",
+          "type": "string",
+          "example": "3d9dcb733ba34352b0d02f85fd16b026"
+        }
+      }
+    },
+    "BatchFailure": {
+      "description": "批量操作失败的返回结果",
+      "properties": {
+        "api_id": {
+          "description": "操作失败的API ID",
+          "type": "string"
+        },
+        "api_name": {
+          "description": "操作失败的APi名称",
+          "type": "string"
+        },
+        "error_code": {
+          "description": "操作失败的错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "操作失败的错误信息",
+          "type": "string"
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

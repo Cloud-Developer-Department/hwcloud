@@ -1,0 +1,395 @@
+{
+  "name": "DeleteTable",
+  "summary": "删除表",
+  "tags": "表接口",
+  "productshort": "KVS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/delete-table": {
+      "post": {
+        "tags": [
+          "表接口"
+        ],
+        "summary": "删除表",
+        "operationId": "DeleteTable",
+        "description": "删除指定表及所有kv文档,表标记为删除后,空间不会立刻释放,并发的读写访问仍需继续完成。",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/bson"
+        ],
+        "produces": [
+          "application/bson"
+        ],
+        "parameters": [
+          {
+            "name": "store_name",
+            "in": "query",
+            "description": "仓名,全域唯一,不同租户的仓名不能相同。 \n- 格式:${prefix}-${region-code}-${account-id},其中prefix为自定义前缀,region-code为kvs集群所在的区域代码,account-id为用户的账户id\n- 取值字符限制:[a-z0-9-]+\n- 长度:[16,52]\n> \"-\"不能出现在名字头部或尾部",
+            "type": "string",
+            "x-location-cname": true
+          },
+          {
+            "in": "body",
+            "name": "DeleteTableRequestBody",
+            "description": "删除表的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeleteTableRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "表示删除表请求成功",
+            "schema": {
+              "$ref": "#/definitions/DeleteTableResponseBody"
+            },
+            "x-response-examples-description-1": "删除表信息的返回体",
+            "x-response-examples-tags-1": "hws",
+            "examples": {
+              "application/bson": {
+                "table_name": "test_table_1",
+                "primary_key_schema": {
+                  "shard_key_fields": [
+                    {
+                      "name": "owner",
+                      "order": true
+                    }
+                  ],
+                  "sort_key_fields": [
+                    {
+                      "name": "filename",
+                      "order": true
+                    }
+                  ]
+                },
+                "runtime_info": {
+                  "table_info": {
+                    "table_status": "ACTIVE"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "删除表名为test-table的表信息",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/delete-table",
+        "x-request-examples-tags-1": "hws",
+        "x-request-examples-1": {
+          "table_name": "test-table"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "secondary_index": {
+      "required": [
+        "index_name",
+        "sort_key_fields"
+      ],
+      "type": "object",
+      "description": "二级索引定义,元素key为数组下标。",
+      "properties": {
+        "index_name": {
+          "type": "string",
+          "description": "二级索引名称,表内唯一。"
+        },
+        "sort_key_fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/field"
+          },
+          "description": "排序键字段名数组,顺序组合。"
+        },
+        "abstract_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "摘要字段名数组。"
+        }
+      }
+    },
+    "global_secondary_index": {
+      "required": [
+        "index_name",
+        "shard_key_fields"
+      ],
+      "type": "object",
+      "properties": {
+        "index_name": {
+          "type": "string",
+          "description": "二级索引名称,表内唯一。"
+        },
+        "shard_key_fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/field"
+          },
+          "description": "分区键字段名数组,顺序组合。"
+        },
+        "shard_mode": {
+          "type": "string",
+          "description": "分区模式。"
+        },
+        "sort_key_fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/field"
+          },
+          "description": "排序键字段名数组,顺序组合。"
+        },
+        "abstract_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "摘要字段名数组。"
+        },
+        "provisioned_throughput": {
+          "$ref": "#/definitions/provisioned_throughput",
+          "description": "预置吞吐读写请求单元数,在bill_mode=\"provisioned\"有效"
+        }
+      }
+    },
+    "DeleteTableResponseBody": {
+      "required": [
+        "table_name",
+        "primary_key_schema",
+        "runtime_info"
+      ],
+      "type": "object",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "表名。\n- 长度:[3, 63]\n- 取值字符限制:[a-z0-9_-]+"
+        },
+        "primary_key_schema": {
+          "$ref": "#/definitions/primary_key_schema",
+          "description": "主键模板, 最多1个,必须指定主键schema。"
+        },
+        "local_secondary_index_schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/secondary_index"
+          },
+          "description": "本地二级索引模板,可以多个。"
+        },
+        "global_secondary_index_schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/global_secondary_index"
+          },
+          "description": "全局二级索引模板。"
+        },
+        "run_time_info": {
+          "$ref": "#/definitions/run_time_info",
+          "description": "运行信息。"
+        },
+        "ttl_specification": {
+          "$ref": "#/definitions/ttl_specification",
+          "description": "TTL信息。"
+        }
+      }
+    },
+    "global_secondary_index_info": {
+      "required": [
+        "index_name",
+        "index_status"
+      ],
+      "type": "object",
+      "properties": {
+        "index_name": {
+          "type": "string",
+          "description": "二级索引名称。"
+        },
+        "index_status": {
+          "type": "string",
+          "description": "二级索引名称。\n- \"creating\"\n- \"active\"\n- \"deleting\""
+        }
+      }
+    },
+    "secondary_index_info": {
+      "required": [
+        "index_name",
+        "index_status"
+      ],
+      "type": "object",
+      "properties": {
+        "index_name": {
+          "type": "string",
+          "description": "索引状态。\n- 长度:[1, 255]\n- 取值字符限制:[a-z0-9_-]+"
+        },
+        "index_status": {
+          "type": "string",
+          "description": "索引状态。\n- \"creating\"\n- \"active\"\n- \"deleting\""
+        }
+      }
+    },
+    "ttl_specification": {
+      "required": [
+        "enable"
+      ],
+      "type": "object",
+      "description": "TTL设置。非必填项,默认不启用TTL。",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "description": "TTL开关",
+          "default": false
+        },
+        "expire_after_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "生存时间,以秒为单位"
+        },
+        "field_name": {
+          "type": "string",
+          "description": "文档中记录TTL过期时间的字段名,字段值为UTC时间,单位秒"
+        }
+      }
+    },
+    "ErrorResp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "KVS.00000001",
+          "description": "请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "系统遇到内部错误,请重试。",
+          "description": "请求返回的错误信息。"
+        }
+      }
+    },
+    "provisioned_throughput": {
+      "required": [
+        "rcu",
+        "wcu"
+      ],
+      "type": "object",
+      "properties": {
+        "rcu": {
+          "type": "integer",
+          "format": "int64",
+          "description": "预置表级读请求单元数",
+          "default": 0
+        },
+        "wcu": {
+          "type": "integer",
+          "format": "int64",
+          "description": "预置表级写请求单元数",
+          "default": 0
+        }
+      }
+    },
+    "DeleteTableRequestBody": {
+      "required": [
+        "table_name"
+      ],
+      "type": "object",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "表名。\n- 长度:[3, 63]\n- 取值字符限制:[a-zA-Z0-9_-]+"
+        }
+      }
+    },
+    "field": {
+      "required": [
+        "name"
+      ],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "字段名。"
+        },
+        "order": {
+          "type": "boolean",
+          "description": "bool值预留无意义。"
+        }
+      }
+    },
+    "table_info": {
+      "type": "object",
+      "properties": {
+        "table_status": {
+          "type": "string",
+          "description": "表状态。\n- \"creating\"\n- \"active\"\n- \"deleting\""
+        }
+      }
+    },
+    "run_time_info": {
+      "required": [
+        "table_info"
+      ],
+      "type": "object",
+      "properties": {
+        "table_info": {
+          "$ref": "#/definitions/table_info",
+          "description": "表信息。"
+        },
+        "local_secondary_index_infos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/secondary_index_info"
+          },
+          "description": "索引状态。"
+        },
+        "global_secondary_index_infos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/global_secondary_index_info"
+          },
+          "description": "全局二级索引运行态。"
+        }
+      }
+    },
+    "primary_key_schema": {
+      "required": [
+        "shard_key_fields"
+      ],
+      "type": "object",
+      "properties": {
+        "shard_key_fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/field"
+          },
+          "description": "分区键字段名数组,顺序组合。"
+        },
+        "shard_mode": {
+          "type": "string",
+          "description": "分区模式。"
+        },
+        "sort_key_fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/field"
+          },
+          "description": "排序键字段名数组,顺序组合。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kvs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

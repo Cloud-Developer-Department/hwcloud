@@ -1,0 +1,218 @@
+{
+  "name": "ListSqlLimitRules",
+  "summary": "查询SQL限流规则列表",
+  "tags": "云DBA",
+  "productshort": "DAS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/sql-limit/rules": {
+      "get": {
+        "x-das-is-publish": "#ListSqlLimitRules_Placeholder#",
+        "x-request-examples-url-1": "GET https://das.cn-north-1.myhuaweicloud.com/v3/054c630ff780d4cc2f40c00d7f6fb21d/instances/d871e13ee1044e21a473330cd67047cbin01/sql-limit/rules?datastore_type=MySQL&offset=0&limit=10",
+        "x-request-examples-description-1": "查询SQL限流规则",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "云DBA"
+        ],
+        "summary": "查询SQL限流规则列表",
+        "description": "查询SQL限流规则。目前仅支持MySQL和PostgreSQL数据库。",
+        "operationId": "ListSqlLimitRules",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例ID"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "偏移量。从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询记录数。默认为100,不能为负数,最小值为1,最大值为100。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "datastore_type",
+            "in": "query",
+            "required": true,
+            "description": "数据库类型",
+            "type": "string",
+            "enum": [
+              "MySQL",
+              "PostgreSQL"
+            ]
+          },
+          {
+            "name": "database_name",
+            "in": "query",
+            "required": false,
+            "description": "数据库名(PostgreSQL必填)",
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户token",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "语言",
+            "type": "string",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ListSqlLimitRulesResp"
+            },
+            "examples": {
+              "application/json": {
+                "sql_limit_rules": [
+                  {
+                    "id": "6",
+                    "sql_type": "SELECT",
+                    "max_concurrency": 1,
+                    "pattern": "select~var~where~id"
+                  },
+                  {
+                    "id": "7",
+                    "sql_type": "UPDATE",
+                    "max_concurrency": 10,
+                    "pattern": "update~table01~where~id"
+                  }
+                ],
+                "total_count": 2
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-order": 20
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    },
+    "SqlLimitRule": {
+      "type": "object",
+      "description": "SQL限流规则",
+      "required": [
+        "id",
+        "sql_type",
+        "pattern",
+        "max_concurrency"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "SQL限流规则ID"
+        },
+        "sql_type": {
+          "type": "string",
+          "description": "SQL类型"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "限流规则"
+        },
+        "max_concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大并发数"
+        },
+        "max_waiting": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大等待时间"
+        }
+      }
+    },
+    "ListSqlLimitRulesResp": {
+      "type": "object",
+      "description": "查询SQL限流规则返回体",
+      "required": [
+        "sql_limit_rules",
+        "total_count"
+      ],
+      "properties": {
+        "sql_limit_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SqlLimitRule"
+          },
+          "description": "SQL限流规则列表"
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "SQL限流规则总数"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "das.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

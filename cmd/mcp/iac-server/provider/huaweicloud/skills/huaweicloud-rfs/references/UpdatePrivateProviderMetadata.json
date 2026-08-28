@@ -1,0 +1,197 @@
+{
+  "name": "UpdatePrivateProviderMetadata",
+  "summary": "更新私有provider元数据",
+  "tags": "资源编排-自定义provider",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/private-providers/{provider_name}/metadata": {
+      "patch": {
+        "tags": [
+          "CustomizedProvider"
+        ],
+        "summary": "更新私有provider元数据",
+        "description": "更新私有provider元数据(UpdatePrivateProviderMetadata)\n\n更新当前私有provider的元数据信息\n\n  * 目前只支持更新私有provider的描述\n  * 如果需要创建新的版本,请调用CreatePrivateProviderVersion\n  * 更新为增量更新,即如果某个参数不提供,则保持原始值\n  * 如果请求中没有需要被更新的参数,则返回400。注意:即使更新原始值和目标值一致也被认为是有效更新\n  * 更新后私有provider的更新时间(update_time)也会被更新\n  * 如果provider_name和provider_id同时存在,则资源编排服务会检查是否两个匹配,如果不匹配则会返回400。",
+        "operationId": "UpdatePrivateProviderMetadata",
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一Id,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "provider_name",
+            "in": "path",
+            "description": "私有provider(private-provider)的名称。此名字在domain_id+region下应唯一,可以使用小写英文、数字、中划线。仅支持以小写英文、数字开头结尾。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[0-9a-z]([0-9a-z-]*[0-9a-z])*$"
+          },
+          {
+            "in": "body",
+            "name": "UpdatePrivateProviderMetadataRequestBody",
+            "description": "UpdatePrivateProviderMetadata API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePrivateProviderMetadataRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "更新私有provider元数据成功"
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "私有provider不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "N",
+        "x-rfs-external": "N",
+        "x-request-examples-url-1": "PATCH https://{endpoint}/v1/private-providers/my-hello-world-provider-name/metadata",
+        "x-request-examples-description-1": "更新私有provider元数据",
+        "x-request-examples-1": {
+          "provider_description": "my first private provider"
+        },
+        "x-request-examples-url-2": "PATCH https://{endpoint}/v1/private-providers/my-hello-world-provider-name/metadata",
+        "x-request-examples-description-2": "更新私有provider元数据,并提供provider ID以校验是否与当前私有provider匹配",
+        "x-request-examples-2": {
+          "provider_description": "my first private provider",
+          "provider_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UpdatePrivateProviderMetadataRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateProviderDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderIdPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "PrivateProviderDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "provider_description": {
+          "type": "string",
+          "description": "私有provider(private-provider)的描述。可用于客户识别被管理的私有provider。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "provider_description": "my first hello world private provider"
+      }
+    },
+    "PrivateProviderIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "私有provider(private-provider)的唯一Id。\n\n此Id由资源编排服务在生成provider的时候生成,为UUID。\n\n由于私有provider名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的私有provider,删除,再重新创建一个同名私有provider。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有provider就是我以为的那个,而不是其他队友删除后创建的同名私有provider。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有provider所对应的Id都不相同,更新不会影响Id。如果给予的provider_id和当前provider的Id不一致,则返回400",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "provider_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "patch",
+  "uri": null
+}

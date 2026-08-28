@@ -1,0 +1,193 @@
+{
+  "name": "CheckVerifyCode",
+  "summary": "校验验证码",
+  "tags": "用户密码管理",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/usg/acs/verifycode/check": {
+      "put": {
+        "tags": [
+          "用户密码管理"
+        ],
+        "operationId": "CheckVerifyCode",
+        "summary": "校验验证码",
+        "description": "该接口提供校验验证码,服务器收到请求,返回结果。",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 7,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "Body的媒体格式。\n* 样例:application/json; charset=UTF-8",
+            "required": true,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "application/json; charset=UTF-8"
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "d887e3af87a84275bda637bfa44a2ada"
+          },
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "en-US"
+          },
+          {
+            "name": "verifyCodeCheckDTO",
+            "in": "body",
+            "description": "校验验证码信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VerifyCodeCheckDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "examples": {
+              "application/json": {
+                "token": "Sm7jODx4lZolwX6rxTszRTiEBB7sb8B50",
+                "expire": 180
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/VerifyCodeCheckResultDTO"
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "403": {
+            "description": "权限受限。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "423": {
+            "description": "帐号已被锁定。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          }
+        },
+        "x-imports": "com.huawei.springframework.response.dto.ResultDTO;com.huawei.usg.cloudsso.model.dto.VerifyCodeCheckResultDTO;com.huawei.springframework.om.trace.masker.annotation.*;com.huawei.springframework.om.trace.masker.base.*;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.oms.model.kafka.constants.oplog.*;",
+        "x-methodAnnotations": [
+          "@RequestMaskRule(type = Type.JSON, rules = {@Rule(path = \"user\", masker = LoginKeyMasker.class), @Rule(path = \"code\", masker = PasswordMasker.class)})",
+          "@OpLogFunction(opObject = OpObjectEnum.PASSWORD_SETTINGS, opType = OpTypeEnum.RETRIEVE_PASSWORD)"
+        ],
+        "x-returnType": "VerifyCodeCheckResultDTO",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/usg/acs/verifycode/check",
+        "x-request-examples-1": {
+          "code": "223143",
+          "user": "6pn5sq2cd02l828pk01wwy1i"
+        },
+        "x-request-examples-text-1": {
+          "code": "223143",
+          "user": "6pn5sq2cd02l828pk01wwy1i"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "VerifyCodeCheckDTO": {
+      "x-subPackage": "dto",
+      "required": [
+        "user",
+        "code"
+      ],
+      "properties": {
+        "user": {
+          "type": "string",
+          "description": "必须和发送验证码时带的用户身份信息相同。",
+          "maxLength": 255,
+          "minLength": 1,
+          "example": "6pn5sq2cd02l828pk01wwy1i"
+        },
+        "code": {
+          "type": "string",
+          "description": "验证码。",
+          "maxLength": 32,
+          "minLength": 1,
+          "example": "223143"
+        }
+      }
+    },
+    "ReturnCodeDTO": {
+      "x-subPackage": "discard",
+      "description": "错误码。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "example": "USG.206010000"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "example": "User name or password is incorrect"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求唯一标识。",
+          "example": "9655664f10724b398187598a1d5097c3"
+        }
+      }
+    },
+    "VerifyCodeCheckResultDTO": {
+      "x-subPackage": "dto",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "访问token字符串。",
+          "example": "Sm7jODx4lZolwX6rxTszRTiEBB7sb8B50"
+        },
+        "expire": {
+          "type": "integer",
+          "description": "过期时间,单位:秒。",
+          "example": 180
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

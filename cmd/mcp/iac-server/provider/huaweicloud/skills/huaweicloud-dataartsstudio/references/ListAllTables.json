@@ -1,0 +1,697 @@
+{
+  "name": "ListAllTables",
+  "summary": "查询多种类型的表信息",
+  "tags": "信息架构接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/design/all-tables": {
+      "get": {
+        "summary": "查询多种类型的表信息",
+        "description": "从信息架构中查询多种类型的表信息,包括逻辑实体、物理表、维度表、事实表、汇总表。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "doc-open",
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/design/all-tables?page_start=1&page_size=10&biz_type_list=TABLE_MODEL_LOGIC&biz_type_list=TABLE_MODEL&biz_type_list=DIMENSION_LOGIC_TABLE&biz_type_list=FACT_LOGIC_TABLE&biz_type_list=AGGREGATION_LOGIC_TABLE&advOnInitFlg=true",
+        "x-request-examples-description-1": "从信息架构中查询逻辑实体、物理表、维度表、事实表、汇总表的前十条数据。",
+        "tags": [
+          "信息架构接口"
+        ],
+        "operationId": "ListAllTables",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "$ref": "#/parameters/contextTypeParam"
+          },
+          {
+            "$ref": "#/parameters/nameParam"
+          },
+          {
+            "$ref": "#/parameters/createByParam"
+          },
+          {
+            "$ref": "#/parameters/bizStatusParam"
+          },
+          {
+            "$ref": "#/parameters/syncStatusParam"
+          },
+          {
+            "$ref": "#/parameters/syncKeyParam"
+          },
+          {
+            "$ref": "#/parameters/bizCatalogIdParam"
+          },
+          {
+            "$ref": "#/parameters/beginTimeParam"
+          },
+          {
+            "$ref": "#/parameters/endTimeParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
+          },
+          {
+            "$ref": "#/parameters/offsetParam"
+          },
+          {
+            "name": "biz_catalog_id_list",
+            "type": "array",
+            "in": "query",
+            "items": {
+              "type": "string"
+            },
+            "description": "所属主题的ID列表,ID字符串。"
+          },
+          {
+            "name": "biz_type_list",
+            "type": "array",
+            "in": "query",
+            "required": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "TABLE_MODEL_LOGIC",
+                "TABLE_MODEL",
+                "DIMENSION_LOGIC_TABLE",
+                "FACT_LOGIC_TABLE",
+                "AGGREGATION_LOGIC_TABLE"
+              ]
+            },
+            "description": "查询的表类型,必填。\n枚举值:\n  - TABLE_MODEL_LOGIC: 逻辑实体\n  - TABLE_MODEL: 物理表\n  - DIMENSION_LOGIC_TABLE: 维度表\n  - FACT_LOGIC_TABLE: 事实表\n  - AGGREGATION_LOGIC_TABLE: 汇总表"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success,返回data数据是AllTableVO列表。",
+            "schema": {
+              "$ref": "#/definitions/ListAllTablesResult"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AllTableVO": {
+      "type": "object",
+      "description": "总览表。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "l1的ID,ID字符串。"
+        },
+        "name": {
+          "type": "string",
+          "description": "l1名称。"
+        },
+        "tb_logic_guid": {
+          "type": "string",
+          "description": "表发布后对应的逻辑实体guid。"
+        },
+        "quality_id": {
+          "type": "string",
+          "description": "质量ID。"
+        },
+        "reversed": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否是逆向的。"
+        },
+        "partition_conf": {
+          "type": "string",
+          "description": "分区表达式。"
+        },
+        "dirty_out_switch": {
+          "type": "boolean",
+          "default": false,
+          "description": "异常数据输出开关。"
+        },
+        "dirty_out_database": {
+          "type": "string",
+          "description": "异常数据输出库。"
+        },
+        "dirty_out_prefix": {
+          "type": "string",
+          "description": "异常表前缀。"
+        },
+        "dirty_out_suffix": {
+          "type": "string",
+          "description": "异常表后缀。"
+        },
+        "tb_guid": {
+          "type": "string",
+          "description": "表发布后对应的物理表guid。"
+        },
+        "code": {
+          "type": "string",
+          "description": "编码。"
+        },
+        "create_by": {
+          "type": "string",
+          "description": "创建人。"
+        },
+        "tenant_id": {
+          "type": "string",
+          "description": "租户ID。"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述。",
+          "maxLength": 200
+        },
+        "status": {
+          "$ref": "#/definitions/BizStatusEnum"
+        },
+        "biz_type": {
+          "$ref": "#/definitions/BizTypeEnum"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "创建时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "更新时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "db_name": {
+          "type": "string",
+          "description": "数据库名。"
+        },
+        "dw_type": {
+          "$ref": "#/definitions/DwType",
+          "readOnly": true,
+          "description": "数据连接类型,只读。"
+        },
+        "queue_name": {
+          "type": "string",
+          "description": "dli数据连接执行sql所需的队列,数据连接类型为DLI时必须。"
+        },
+        "schema": {
+          "type": "string",
+          "description": "DWS类型需要。"
+        },
+        "l1": {
+          "$ref": "#/definitions/l1",
+          "description": "主题域分组。"
+        },
+        "l2": {
+          "$ref": "#/definitions/l2",
+          "description": "主题域。"
+        },
+        "l3": {
+          "$ref": "#/definitions/l3",
+          "description": "业务对象。"
+        },
+        "l1_id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "主题域分组ID,只读,ID字符串。"
+        },
+        "l2_id": {
+          "$ref": "#/definitions/l2_id",
+          "description": "主题域ID。"
+        },
+        "l3_id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "业务对象ID,只读,ID字符串。"
+        },
+        "new_biz": {
+          "$ref": "#/definitions/BizVersionManageVO"
+        },
+        "physical_table": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "生产环境创建表状态",
+          "readOnly": true
+        },
+        "dev_physical_table": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "开发环境创建表状态",
+          "readOnly": true
+        },
+        "technical_asset": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "技术资产同步状态,只读。",
+          "readOnly": true
+        },
+        "business_asset": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "业务资产同步状态,只读。",
+          "readOnly": true
+        },
+        "meta_data_link": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "资产关联状态,只读。",
+          "readOnly": true
+        },
+        "data_quality": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "质量作业状态,只读。",
+          "readOnly": true
+        },
+        "dlf_task": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "数据开发作业状态,只读。",
+          "readOnly": true
+        },
+        "materialization": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "码表数值落库状态,只读。",
+          "readOnly": true
+        },
+        "publish_to_dlm": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "DLM API生成状态,只读。",
+          "readOnly": true
+        },
+        "summary_status": {
+          "$ref": "#/definitions/SyncStatusEnum",
+          "description": "同步整体状态,只读。",
+          "readOnly": true
+        },
+        "standard_count": {
+          "type": "string",
+          "description": "标准数量,只读,ID字符串。",
+          "readOnly": true
+        },
+        "alias": {
+          "type": "string",
+          "description": "别名。"
+        },
+        "api_id": {
+          "type": "string",
+          "description": "汇总表API ID。"
+        },
+        "workspace_id": {
+          "type": "string",
+          "description": "工作空间ID。"
+        },
+        "workspace_name": {
+          "type": "string",
+          "description": "工作空间名称。"
+        },
+        "dev_version": {
+          "type": "string",
+          "readOnly": true,
+          "description": "开发环境版本,ID字符串。"
+        },
+        "prod_version": {
+          "type": "string",
+          "readOnly": true,
+          "description": "生产环境版本,ID字符串。"
+        },
+        "dev_version_name": {
+          "type": "string",
+          "readOnly": true,
+          "description": "开发环境版本名称"
+        },
+        "prod_version_name": {
+          "type": "string",
+          "readOnly": true,
+          "description": "生产环境版本名称"
+        },
+        "env_type": {
+          "readOnly": true,
+          "$ref": "#/definitions/EnvTypeEnum"
+        }
+      }
+    },
+    "l3": {
+      "type": "string",
+      "readOnly": true,
+      "description": "业务对象中文名,只读,创建和更新时无需填写。",
+      "example": "标准记录"
+    },
+    "l2": {
+      "type": "string",
+      "readOnly": true,
+      "description": "主题域中文名,只读,创建和更新时无需填写。",
+      "example": "行程记录"
+    },
+    "l1": {
+      "type": "string",
+      "readOnly": true,
+      "description": "主题域分组中文名,只读,创建和更新时无需填写。",
+      "example": "城市交通"
+    },
+    "SyncStatusEnum": {
+      "type": "string",
+      "description": "同步状态。\n枚举值:\n  - NO_NEED: 未同步\n  - CREATE_SUCCESS: 创建成功\n  - CREATE_FAILED: 创建失败\n  - UPDATE_SUCCESS: 更新成功\n  - UPDATE_FAILED: 更新失败\n  - SUMMARY_SUCCESS: 整体成功\n  - SUMMARY_FAILED: 整体失败\n  - RUNNING: 整体运行\n  - OFFLINE: 已下线",
+      "example": "CREATE_SUCCESS",
+      "enum": [
+        "NO_NEED",
+        "CREATE_SUCCESS",
+        "CREATE_FAILED",
+        "UPDATE_SUCCESS",
+        "UPDATE_FAILED",
+        "SUMMARY_SUCCESS",
+        "SUMMARY_FAILED",
+        "RUNNING",
+        "OFFLINE"
+      ]
+    },
+    "EnvTypeEnum": {
+      "type": "string",
+      "description": "开发生产环境类型。\n枚举值:\n  - INVALID_TYPE: 无效环境\n  - DEV_TYPE: 开发环境\n  - PROD_TYPE: 生产环境\n  - DEV_PROD_TYPE: 开发生产环境",
+      "enum": [
+        "INVALID_TYPE",
+        "DEV_TYPE",
+        "PROD_TYPE",
+        "DEV_PROD_TYPE"
+      ]
+    },
+    "BizVersionManageVO": {
+      "type": "object",
+      "description": "业务版本管理,只读。",
+      "default": null,
+      "readOnly": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID信息,ID字符串。"
+        },
+        "biz_type": {
+          "$ref": "#/definitions/BizTypeEnum"
+        },
+        "biz_id": {
+          "type": "string",
+          "description": "业务ID,ID字符串。"
+        },
+        "biz_info": {
+          "type": "string",
+          "description": "业务对象信息。"
+        },
+        "status": {
+          "$ref": "#/definitions/BizStatusEnum"
+        },
+        "biz_version": {
+          "type": "integer",
+          "readOnly": true,
+          "description": "业务版本,只读。"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "创建时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "更新时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        }
+      }
+    },
+    "l2_id": {
+      "type": "string",
+      "readOnly": true,
+      "description": "主题域ID,只读,创建和更新时无需填写。",
+      "example": "873232716601204736"
+    },
+    "BizStatusEnum": {
+      "type": "string",
+      "readOnly": true,
+      "description": "实体的发布状态,只读,创建和更新时无需填写。\n枚举值:\n  - DRAFT: 草稿\n  - PUBLISH_DEVELOPING: 发布待审核\n  - PUBLISHED: 已发布\n  - OFFLINE_DEVELOPING: 下线待审核\n  - OFFLINE: 已下线\n  - REJECT: 已驳回",
+      "example": "PUBLISHED",
+      "enum": [
+        "DRAFT",
+        "PUBLISH_DEVELOPING",
+        "PUBLISHED",
+        "OFFLINE_DEVELOPING",
+        "OFFLINE",
+        "REJECT"
+      ]
+    },
+    "BizTypeEnum": {
+      "type": "string",
+      "description": "业务实体类型。\n枚举值:\n - AGGREGATION_LOGIC_TABLE: 汇总表\n - ATOMIC_INDEX: 原子指标\n - ATOMIC_METRIC: 原子指标(新)\n - BIZ_CATALOG: 流程架构目录\n - BIZ_METRIC: 业务指标\n - CODE_TABLE: 码表\n - COMMON_CONDITION: 通用限定\n - COMPOSITE_METRIC: 复合指标(新)\n - COMPOUND_METRIC: 复合指标\n - CONDITION_GROUP: 限定分组\n - DEGENERATE_DIMENSION: 退化维度\n - DERIVATIVE_INDEX: 衍生指标\n - DERIVED_METRIC: 衍生指标(新)\n - DIMENSION: 维度\n - DIMENSION_ATTRIBUTE: 维度属性\n - DIMENSION_HIERARCHIES: 维度层级\n - DIMENSION_LOGIC_TABLE: 维度表\n - DIMENSION_TABLE_ATTRIBUTE: 维度属性\n - DIRECTORY: 目录\n - FACT_ATTRIBUTE: 事实表属性\n - FACT_DIMENSION: 事实表维度\n - FACT_LOGIC_TABLE: 事实表\n - FACT_MEASURE: 事实表度量\n - FUNCTION: 函数\n - INFO_ARCH: 信息架构(批量修改主题使用)\n - MODEL: 模型\n - QUALITY_RULE: 质量规则\n - SECRECY_LEVEL: 密级\n - STANDARD_ELEMENT: 数据标准\n - STANDARD_ELEMENT_TEMPLATE: 数据标准模板\n - SUBJECT: 主题\n - SUMMARY_DIMENSION_ATTRIBUTE: 汇总表维度属性\n - SUMMARY_INDEX: 汇总表指标属性\n - SUMMARY_TIME: 汇总表时间周期属性\n - TABLE_MODEL: 关系模型(逻辑模型/物理模型)\n - TABLE_MODEL_ATTRIBUTE: 关系模型属性(逻辑模型/物理模型)\n - TABLE_MODEL_LOGIC: 逻辑实体\n - TABLE_TYPE: 表类型\n - TAG: 标签\n - TIME_CONDITION: 时间限定",
+      "enum": [
+        "AGGREGATION_LOGIC_TABLE",
+        "ATOMIC_INDEX",
+        "ATOMIC_METRIC",
+        "BIZ_CATALOG",
+        "BIZ_METRIC",
+        "CODE_TABLE",
+        "COMMON_CONDITION",
+        "COMPOSITE_METRIC",
+        "COMPOUND_METRIC",
+        "CONDITION_GROUP",
+        "DEGENERATE_DIMENSION",
+        "DERIVATIVE_INDEX",
+        "DERIVED_METRIC",
+        "DIMENSION",
+        "DIMENSION_ATTRIBUTE",
+        "DIMENSION_HIERARCHIES",
+        "DIMENSION_LOGIC_TABLE",
+        "DIMENSION_TABLE_ATTRIBUTE",
+        "DIRECTORY",
+        "FACT_ATTRIBUTE",
+        "FACT_DIMENSION",
+        "FACT_LOGIC_TABLE",
+        "FACT_MEASURE",
+        "FUNCTION",
+        "INFO_ARCH",
+        "MODEL",
+        "QUALITY_RULE",
+        "SECRECY_LEVEL",
+        "STANDARD_ELEMENT",
+        "STANDARD_ELEMENT_TEMPLATE",
+        "SUBJECT",
+        "SUMMARY_DIMENSION_ATTRIBUTE",
+        "SUMMARY_INDEX",
+        "SUMMARY_TIME",
+        "TABLE_MODEL",
+        "TABLE_MODEL_ATTRIBUTE",
+        "TABLE_MODEL_LOGIC",
+        "TABLE_TYPE",
+        "TAG",
+        "TIME_CONDITION"
+      ],
+      "example": "TABLE_MODE"
+    },
+    "ListAllTablesResult": {
+      "type": "object",
+      "description": "信息架构查询多种表信息返回结果。",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "data,统一的返回结果的最外层数据结构。",
+          "properties": {
+            "value": {
+              "type": "object",
+              "description": "value,统一的返回结果的外层数据结构。",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "总量。"
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/AllTableVO"
+                  },
+                  "description": "查询到的审批单对象(AllTableVO)数组。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "DwType": {
+      "type": "string",
+      "description": "数据连接类型,对应表所在的数仓类型,取值可以为DLI、DWS、MRS_HIVE、POSTGRESQL、MRS_SPARK、CLICKHOUSE、MYSQL、ORACLE和DORIS等。",
+      "example": "MRS_HIVE"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "createByParam": {
+      "name": "create_by",
+      "in": "query",
+      "description": "按创建者查询。",
+      "required": false,
+      "type": "string"
+    },
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "limitParam": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页查询条数,即查询Y条数据。默认值50,取值范围[1,100]。",
+      "required": false,
+      "type": "integer",
+      "format": "int32",
+      "default": 50,
+      "maximum": 100
+    },
+    "bizStatusParam": {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "type": "string",
+      "description": "业务状态。\n枚举值:\n  - DRAFT: 草稿\n  - PUBLISH_DEVELOPING: 发布待审批\n  - PUBLISHED: 已发布\n  - OFFLINE_DEVELOPING: 下线待审批\n  - OFFLINE: 已下线\n  - REJECT: 已驳回",
+      "enum": [
+        "DRAFT",
+        "PUBLISH_DEVELOPING",
+        "PUBLISHED",
+        "OFFLINE_DEVELOPING",
+        "OFFLINE",
+        "REJECT"
+      ]
+    },
+    "offsetParam": {
+      "name": "offset",
+      "in": "query",
+      "description": "查询起始坐标,即跳过X条数据,仅支持0或limit的整数倍,不满足则向下取整,默认值0。",
+      "required": false,
+      "type": "integer",
+      "format": "int32",
+      "default": 0
+    },
+    "nameParam": {
+      "name": "name",
+      "in": "query",
+      "description": "按名称或编码模糊查询。",
+      "required": false,
+      "type": "string"
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "bizCatalogIdParam": {
+      "name": "biz_catalog_id",
+      "type": "string",
+      "required": false,
+      "in": "query",
+      "description": "所属的业务分层的ID。"
+    },
+    "beginTimeParam": {
+      "name": "begin_time",
+      "in": "query",
+      "description": "时间过滤左边界,与end_time一起使用,只支持时间范围过滤,单边过滤无效。格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。",
+      "required": false,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "syncStatusParam": {
+      "name": "sync_status",
+      "description": "同步状态枚举。\n枚举值:\n  - RUNNING: 同步中\n  - NO_NEED: 未同步\n  - SUMMARY_SUCCESS: 整体成功\n  - SUMMARY_FAILED: 整体失败",
+      "in": "query",
+      "required": false,
+      "type": "string",
+      "enum": [
+        "RUNNING",
+        "NO_NEED",
+        "SUMMARY_SUCCESS",
+        "SUMMARY_FAILED"
+      ]
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "contextTypeParam": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "默认值:application/json;charset=UTF-8\n可选,有Body体的情况下必选,没有Body体则无需填写和校验。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "endTimeParam": {
+      "name": "end_time",
+      "in": "query",
+      "description": "时间过滤右边界,与begin_time一起使用只支持时间范围过滤,单边过滤无效。格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。",
+      "required": false,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "syncKeyParam": {
+      "name": "sync_key",
+      "description": "同步任务类型枚举。\n枚举值:\n  - BUSINESS_ASSET: 同步业务资产\n  - DATA_QUALITY: 创建质量作业\n  - TECHNICAL_ASSET: 同步技术资产\n  - META_DATA_LINK: 资产关联\n  - PHYSICAL_TABLE: 创建表(生产环境)\n  - DEV_PHYSICAL_TABLE: 创建表(开发环境)\n  - DLF_TASK: 创建数据开发作业\n  - MATERIALIZATION: 数值落库(码表)\n  - PUBLISH_TO_DLM: 发布数据服务API\n  - SUMMARY_STATUS: 整体状态",
+      "in": "query",
+      "required": false,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BUSINESS_ASSET",
+          "DATA_QUALITY",
+          "TECHNICAL_ASSET",
+          "META_DATA_LINK",
+          "PHYSICAL_TABLE",
+          "DEV_PHYSICAL_TABLE",
+          "DLF_TASK",
+          "MATERIALIZATION",
+          "PUBLISH_TO_DLM",
+          "SUMMARY_STATUS"
+        ]
+      }
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

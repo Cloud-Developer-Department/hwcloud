@@ -1,0 +1,192 @@
+{
+  "name": "ListConfs",
+  "summary": "查询配置文件列表",
+  "tags": "Logstash接口",
+  "productshort": "CSS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/clusters/{cluster_id}/lgsconf/listconfs": {
+      "get": {
+        "x-request-examples-url": "GET /v1.0/6204a5bd270343b5885144cf9c8c158d/clusters/5c77b71c-5b35-4f50-8984-76387e42451a/lgsconf/listconfs",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-publishpath": "",
+        "tags": [
+          "Logstash接口"
+        ],
+        "summary": "查询配置文件列表",
+        "description": "该接口用于查询配置文件列表。",
+        "operationId": "ListConfs",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID。获取方法请参见[获取项目ID和名称](css_03_0071.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "6204a5bd270343b5885144cf9c8c158d"
+          },
+          {
+            "in": "path",
+            "name": "cluster_id",
+            "description": "指定查询集群ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "5c77b71c-5b35-4f50-8984-76387e42451a"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "type": "string",
+            "description": "指定查询起始值,默认值为1。",
+            "x-example": 1
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "string",
+            "description": "指定查询个数,默认值为10。",
+            "x-example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功。",
+            "examples": {
+              "application/json": {
+                "confs": [
+                  {
+                    "name": "conf1",
+                    "status": "available",
+                    "confContent": "xxxxxxxx",
+                    "setting": {
+                      "workers": 2,
+                      "batchSize": 125,
+                      "batchDelayMs": 50,
+                      "queueType": "persisted",
+                      "queueCheckPointWrites": 1024,
+                      "queueMaxBytesMb": 1024
+                    },
+                    "updateAt": "2021-09-29T02:44:44"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListConfsResp"
+            }
+          },
+          "400": {
+            "description": "非法请求。\n\n建议直接修改该请求,不要重试该请求。"
+          },
+          "409": {
+            "description": "服务器在完成请求时发生冲突。\n\n返回该状态码,表明客户端尝试创建的资源已经存在,或者由于冲突请求的更新操作不能被完成。"
+          },
+          "412": {
+            "description": "未满足前提条件,服务器未满足请求者在请求中设置的其中一个前提条件。"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "setting": {
+      "properties": {
+        "workers": {
+          "type": "integer",
+          "example": 2,
+          "description": "并行执行管道的Filters+Outputs阶段的工作线程数,默认值为CPU核数。"
+        },
+        "batch_size": {
+          "type": "integer",
+          "example": 125,
+          "description": "单个工作线程在尝试执行其Filters和Outputs之前将从inputs收集的最大事件数,该值较大通常更有效,但会增加内存开销,默认为125。"
+        },
+        "batch_delay_ms": {
+          "type": "integer",
+          "example": 50,
+          "description": "每个event被pipeline调度等待的最小时间。 单位毫秒。"
+        },
+        "queue_type": {
+          "type": "string",
+          "example": "persisted",
+          "description": "用于事件缓冲的内部队列模型。memory 为基于内存的传统队列,persisted为基于磁盘的ACKed持久化队列,默认值为memory。"
+        },
+        "queue_check_point_writes": {
+          "type": "integer",
+          "example": 1024,
+          "description": "如果使用持久化队列,则表示强制执行检查点之前写入的最大事件数,默认值为1024。"
+        },
+        "queue_max_bytes_mb": {
+          "type": "integer",
+          "example": 1024,
+          "description": "如果使用持久化队列,则表示持久化队列的总容量(以兆字节MB为单位),确保磁盘的容量大于该值,默认值为1024。"
+        }
+      },
+      "required": [
+        "queue_type"
+      ]
+    },
+    "ListConfsResp": {
+      "properties": {
+        "confs": {
+          "type": "array",
+          "description": "配置文件列表。",
+          "items": {
+            "$ref": "#/definitions/confs"
+          }
+        },
+        "totalSize": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "confs": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "conf1",
+          "description": "配置文件名称。"
+        },
+        "status": {
+          "type": "string",
+          "example": "available",
+          "description": "配置文件状态。"
+        },
+        "confContent": {
+          "type": "string",
+          "example": "xxxxxxxx",
+          "description": "配置文件内容。"
+        },
+        "setting": {
+          "$ref": "#/definitions/setting",
+          "description": "具体的配置内容对象。"
+        },
+        "updateAt": {
+          "type": "string",
+          "example": "2021-09-29T02:44:44",
+          "description": "更新时间。"
+        },
+        "desc": {
+          "type": "string",
+          "description": "**参数解释**:\n配置文件描述。\n**取值范围**:\n长度不超过128个字符。"
+        },
+        "sensitiveWordsShielding": {
+          "type": "boolean",
+          "description": "是否隐藏敏感词"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "css.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

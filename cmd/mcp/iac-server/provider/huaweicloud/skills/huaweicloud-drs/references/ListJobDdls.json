@@ -1,0 +1,275 @@
+{
+  "name": "ListJobDdls",
+  "summary": "查询增量DDL列表",
+  "tags": "配置管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v5/{project_id}/jobs/{job_id}/ddl": {
+      "get": {
+        "x-request-examples-url-1": "https://{endpoint}/v5/5237e10fe9aa4ad5b16b6a5245248314/jobs/7f486edc-6abb-4621-892b-4805221jb2h4/ddl",
+        "x-request-examples-description-1": "查询增量DDL历史列表。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "配置管理"
+        ],
+        "summary": "查询增量DDL列表",
+        "description": "查询增量DDL列表,可根据status查询",
+        "operationId": "ListJobDdls",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。 获取方法请参见[获取项目ID。](https://support.huaweicloud.com/api-drs/drs_api_0106.html)",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "description": "发送的实体的MIME类型。推荐用户默认使用application/json,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。 用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。 请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "偏移量,默认值为0,表示查询该偏移量后面的记录。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "exclusiveMaximum": true,
+            "maximum": 65535,
+            "exclusiveMinimum": true
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询返回记录的数量限制.默认值为10。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "exclusiveMaximum": true,
+            "maximum": 65535,
+            "exclusiveMinimum": true
+          },
+          {
+            "name": "start_seq_no",
+            "in": "query",
+            "required": false,
+            "description": "DDL序列起始值。",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "end_seq_no",
+            "in": "query",
+            "required": false,
+            "description": "DDL序列结束值。",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "DDL状态,0为无告警,1为告警中。",
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "任务ID。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/QueryDdlAlarmResp"
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "ddl_list": [
+                  {
+                    "seqno": 30,
+                    "checkpoint": "mysql-bin.000006:431;200e3d00-4a57-11ef-8a76-fa163ef2208a:7;200e3d00-4a57-11ef-8a76-fa163ef2208a:1-7",
+                    "status": 1,
+                    "ddl_timestamp": 1721894317000,
+                    "ddl_text": "/* sql from das */ALTER TABLE `test1`.`test1`\n\tADD COLUMN `sex` VARCHAR(32) NULL AFTER `name`",
+                    "exe_result": true,
+                    "record_time": 1721894318544,
+                    "clean_time": 1721897321317
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DRS.10000001",
+                "error_msg": "Failed."
+              }
+            }
+          }
+        },
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "QueryDdlAlarmResp": {
+      "type": "object",
+      "required": [
+        "ddl_list",
+        "count"
+      ],
+      "properties": {
+        "ddl_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DdlAlarmResp"
+          },
+          "description": "DDL告警信息列表。",
+          "minItems": 0,
+          "maxItems": 65535
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "列表中的项目总数,与分页无关。",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      },
+      "description": "DDL告警列表响应体。"
+    },
+    "ErrorResp": {
+      "description": "请求失败时返回的错误对象响应体。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12,
+          "example": "DRS.00000000"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "Success"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object"
+    },
+    "DdlAlarmResp": {
+      "type": "object",
+      "description": "DDL告警信息响应体。",
+      "required": [
+        "seqno",
+        "checkpoint",
+        "status",
+        "ddl_timestamp",
+        "ddl_text",
+        "exe_result",
+        "record_time"
+      ],
+      "properties": {
+        "seqno": {
+          "type": "integer",
+          "format": "int64",
+          "description": "记录唯一序号。"
+        },
+        "checkpoint": {
+          "type": "string",
+          "description": "数据源库位点。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "DDL告警状态。0无告警,1告警中。",
+          "exclusiveMinimum": true,
+          "exclusiveMaximum": true,
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "ddl_timestamp": {
+          "type": "integer",
+          "format": "int64",
+          "description": "DDL在源库执行时间。"
+        },
+        "ddl_text": {
+          "type": "string",
+          "description": "DDL内容。"
+        },
+        "exe_result": {
+          "type": "boolean",
+          "description": "DDL执行结果。false执行失败,true执行成功。"
+        },
+        "record_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "数据记录时间。"
+        },
+        "clean_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "DDL告警清理时间。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

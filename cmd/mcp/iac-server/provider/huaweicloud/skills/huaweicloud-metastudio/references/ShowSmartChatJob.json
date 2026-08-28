@@ -1,0 +1,612 @@
+{
+  "name": "ShowSmartChatJob",
+  "summary": "查询数字人智能交互任务",
+  "tags": "智能交互数字人对话任务管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/digital-human-chat/smart-chat-rooms/{room_id}/smart-chat-jobs/{job_id}/state": {
+      "get": {
+        "tags": [
+          "DialogManagement"
+        ],
+        "summary": "查询数字人智能交互任务",
+        "description": "该接口用于查询数字人智能交互任务。",
+        "operationId": "ShowSmartChatJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader-notgenerate"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader-notgenerate"
+          },
+          {
+            "$ref": "#/parameters/X-Project-IdHeader-notgenerate"
+          },
+          {
+            "$ref": "#/parameters/X-App-UserId-notgenerate"
+          },
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/Room-IdPath"
+          },
+          {
+            "$ref": "#/parameters/Job-IdPath-RegExp"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "examples": {
+              "application/json": {
+                "job_id": "38ch6xxxxxx5z233850af709crxxxxxx",
+                "state": "WAITING",
+                "start_time": "2023-01-18T16:29:36Z",
+                "end_time": "2023-01-18T16:30:36Z",
+                "duration": 60,
+                "rtc_room_info": {
+                  "app_id": "8cb83827a73d4d4f8191eae56bfea550",
+                  "room_id": "41c86xxxxxx34253850af102cdxxxxxx",
+                  "users": [
+                    {
+                      "user_type": "PLAYER",
+                      "user_id": "eca4e308c4ed49f0b3822e5de33b34b6",
+                      "signature": "83090ff53f3040xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf4cb21585b781",
+                      "ctime": 1702866202
+                    }
+                  ]
+                },
+                "chat_subtitle_config": {
+                  "dx": 256,
+                  "dy": 256,
+                  "width": 256,
+                  "height": 256
+                },
+                "video_config": {
+                  "width": 1920,
+                  "height": 1080
+                },
+                "chat_state": 0,
+                "chat_access_address": "Domain:443"
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SmartChatJobInfo"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-open-range": "public",
+        "x-imports": "com.huawei.springframework.advice.HttpStatusController;com.huawei.springframework.security.auth.annotation.TokenAuthorization;com.huawei.mss.ics.manage.constants.IcsValidateConstants;",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://metastudio.cn-north-4.myhuaweicloud.com/v1/70b76xxxxxx34253880af501cdxxxxxx/digital-human-chat/smart-chat-rooms/41c86xxxxxx34253850af102cdxxxxxx/smart-chat-jobs/38ch6xxxxxx5z233850af709crxxxxxx/state"
+      }
+    }
+  },
+  "definitions": {
+    "RTCRoomInfoList": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": "RTC应用ID。",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "room_id": {
+          "type": "string",
+          "description": "RTC房间ID。",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "users": {
+          "type": "array",
+          "description": "加入RTC房间用户信息。",
+          "items": {
+            "$ref": "#/definitions/RTCUserInfo"
+          },
+          "maxItems": 4,
+          "minItems": 2
+        }
+      },
+      "description": "RTC房间信息。"
+    },
+    "SmartChatJobInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/SmartChatJobBaseInfo"
+        },
+        {
+          "properties": {
+            "rtc_room_info": {
+              "$ref": "#/definitions/RTCRoomInfoList"
+            },
+            "chat_state": {
+              "type": "integer",
+              "example": 2,
+              "description": "数字人智能交互对话的状态。\n0: 等待建链\n1: 等待关闭链路\n2: 建链成功\n3: 进入休眠\n4: 等待休眠",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "language": {
+              "description": "智能交互语言\n* zh_CN:简体中文\n* en_US:英语",
+              "$ref": "#/definitions/LanguageEnum"
+            },
+            "chat_access_address": {
+              "type": "string",
+              "example": "xxx.xxx.xxx.xxx:443",
+              "description": "智能交互接入地址。",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "chat_access_rest_address": {
+              "type": "string",
+              "example": "xxx.xxx.xxx.xxx:443",
+              "description": "智能交互Rest接口接入地址。",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        }
+      ],
+      "description": "数字人智能交互对话任务信息。"
+    },
+    "RTCUserInfo": {
+      "type": "object",
+      "properties": {
+        "user_type": {
+          "type": "string",
+          "description": "用户类型。\n* CAPTURE: 直播助手,将摄像头获取视频流推送到RTC房间\n* ANIMATION: VDS服务,从RTC房间拉视频流生成动作数据\n* RENDER: 渲染服务,将动作数据渲染成数字人动画\n* PLAYER: 普通观看方,可选择原始视频流或者数字人动画视频流观看\n* INFERENCE_USER: 数字人推理端用户。从RTC房间接收音频流,并推送视频流到RTC房间\n* END_USER: 端侧用户。从推送音频流到RTC房间,并从RTC房间接收视频流",
+          "enum": [
+            "CAPTURE",
+            "ANIMATION",
+            "RENDER",
+            "PLAYER",
+            "INFERENCE_USER",
+            "END_USER"
+          ]
+        },
+        "user_id": {
+          "type": "string",
+          "description": "RTC用户ID。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "signature": {
+          "type": "string",
+          "description": "RTC鉴权token。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "ctime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "有效期。时间戳,单位:秒。",
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      },
+      "description": "接入RTC的用户信息。"
+    },
+    "SmartChatJobBaseInfo": {
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "example": "38ch6xxxxxx5z233850af709crxxxxxx",
+          "description": "数字人智能交互对话任务ID。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "state": {
+          "type": "string",
+          "example": "PROCESSING",
+          "description": "数字人智能交互对话任务的状态。\n* WAITING: 等待\n* PROCESSING: 处理中\n* SUCCEED: 成功\n* FAILED: 失败\n* DELETING: 删除中",
+          "minLength": 1,
+          "maxLength": 64,
+          "enum": [
+            "WAITING",
+            "PROCESSING",
+            "SUCCEED",
+            "FAILED",
+            "CANCELED",
+            "HEARTBEAT",
+            "IDLE",
+            "DELETING"
+          ]
+        },
+        "duration": {
+          "type": "number",
+          "format": "float",
+          "example": 300.0,
+          "description": "数字人智能交互对话时长,单位秒。",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "start_time": {
+          "type": "string",
+          "example": "2023-12-01T08:43:17Z",
+          "description": "数字人智能交互对话任务开始时间。格式遵循:RFC 3339 如\"2021-01-10T08:43:17Z\"。",
+          "minLength": 20,
+          "maxLength": 20
+        },
+        "end_time": {
+          "type": "string",
+          "example": "2023-12-01T10:13:14Z",
+          "description": "数字人智能交互对话任务结束时间。格式遵循:RFC 3339 如\"2021-01-10T08:43:17Z\"。",
+          "minLength": 20,
+          "maxLength": 20
+        },
+        "error_info": {
+          "description": "数字人智能交互对话任务出错信息。",
+          "$ref": "#/definitions/ErrorResponse"
+        },
+        "create_time": {
+          "type": "string",
+          "example": "2023-12-01T08:13:17Z",
+          "description": "数字人智能交互对话任务创建时间。格式遵循:RFC 3339 如\"2021-01-10T08:43:17Z\"。",
+          "minLength": 20,
+          "maxLength": 20
+        },
+        "lastupdate_time": {
+          "type": "string",
+          "example": "2023-12-01T08:15:13Z",
+          "description": "数字人智能交互对话任务最后更新时间。格式遵循:RFC 3339 如\"2021-01-10T08:43:17Z\"。",
+          "minLength": 20,
+          "maxLength": 20
+        },
+        "chat_subtitle_config": {
+          "description": "对话字幕配置",
+          "$ref": "#/definitions/SmartChatSubtitleConfig"
+        },
+        "video_config": {
+          "description": "视频输出配置。",
+          "$ref": "#/definitions/SmartChatVideoConfig"
+        },
+        "voice_config_list": {
+          "type": "array",
+          "description": "语音配置参数列表。",
+          "items": {
+            "$ref": "#/definitions/SmartChatVoiceConfig"
+          },
+          "maxItems": 100,
+          "minItems": 1
+        },
+        "chat_video_type": {
+          "type": "string",
+          "description": "智能交互对话端配置。\n* COMPUTER: 电脑端\n* MOBILE: 手机端\n* HUB: 大屏",
+          "minLength": 1,
+          "maxLength": 64,
+          "enum": [
+            "COMPUTER",
+            "MOBILE",
+            "HUB"
+          ]
+        },
+        "is_transparent": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否透明背景",
+          "default": false
+        },
+        "default_language": {
+          "type": "string",
+          "description": "默认语言,智能交互接口使用。默认值CN。\n* CN:中文。\n* EN:英文。\n* ESP:西班牙语(仅海外站点支持)\n* por:葡萄牙语(仅海外站点支持)\n* Arabic:阿拉伯语(仅海外站点支持)\n* Thai:泰语(仅海外站点支持)\n* fr:法语(仅海外站点支持)",
+          "enum": [
+            "CN",
+            "EN",
+            "ESP",
+            "por",
+            "Arabic",
+            "Thai",
+            "fr"
+          ],
+          "default": "CN"
+        },
+        "client_id": {
+          "type": "string",
+          "description": "clientId",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "is_pool_mode": {
+          "type": "boolean",
+          "description": "是否是资源池模式",
+          "default": false
+        },
+        "job_finish_reason": {
+          "type": "string",
+          "description": "对话结束原因\n* NORMAL:正常结束\n* MUTE_TIMEOUT:静音超时",
+          "enum": [
+            "NORMAL",
+            "MUTE_TIMEOUT"
+          ]
+        }
+      },
+      "description": "数字人智能交互对话任务信息。"
+    },
+    "LanguageEnum": {
+      "type": "string",
+      "description": "智能交互语言\n* zh_CN:简体中文(已下线,请使用CN)\n* en_US:英语(已下线,请使用EN)\n* CN:中文\n* EN:英文\n* ESP:西班牙语(仅海外站点支持)\n* por:葡萄牙语(仅海外站点支持)\n* Arabic:阿拉伯语(仅海外站点支持)\n* Thai:泰语(仅海外站点支持)\n* fr:法语(仅海外站点支持)",
+      "enum": [
+        "zh_CN",
+        "en_US",
+        "CN",
+        "EN",
+        "ESP",
+        "por",
+        "Arabic",
+        "Thai",
+        "fr"
+      ]
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "SmartChatVideoConfig": {
+      "properties": {
+        "width": {
+          "type": "integer",
+          "example": 1920,
+          "description": "视频宽度。\n\n单位:像素。\n\n最小值320,最大值2560。\n> * clip_mode=RESIZE时,当前支持1920x1080、1080x1920、1280x720、720x1280、3840x2160、2160x3840六种分辨率。4K分辨率视频需要分身数字人模型支持4K的情况下才能使用。\n> * clip_mode=CROP,裁剪后视频,(dx,dy)为原点,保留视频像宽度为width。\n> * 分身数字人直播目前只支持1080x1920。",
+          "minimum": 0,
+          "maximum": 3840
+        },
+        "height": {
+          "type": "integer",
+          "example": 1080,
+          "description": "视频高度。\n\n单位:像素。\n\n最小值320,最大值2560。\n> * clip_mode=RESIZE时,当前支持1920x1080、1080x1920、1280x720、720x1280、3840x2160、2160x3840六种分辨率分辨率。\n> * clip_mode=CROP,裁剪后视频,(dx,dy)为原点,保留视频像高度为height。\n> * 分身数字人直播目前只支持1080x1920。",
+          "minimum": 0,
+          "maximum": 3840
+        }
+      }
+    },
+    "SmartChatSubtitleConfig": {
+      "properties": {
+        "dx": {
+          "type": "integer",
+          "format": "int32",
+          "example": 256,
+          "description": "字幕左上角像素点坐标。\n\n> *横屏(16:9)视频像素为1920x1080;竖屏(9:16)视频像素为1080x1920。",
+          "minimum": 0,
+          "maximum": 1920
+        },
+        "dy": {
+          "type": "integer",
+          "format": "int32",
+          "example": 256,
+          "description": "字幕左上角像素点坐标。\n\n> *横屏(16:9)视频像素为1920x1080;竖屏(9:16)视频像素为1080x1920。",
+          "minimum": 0,
+          "maximum": 1920
+        },
+        "width": {
+          "type": "integer",
+          "format": "int32",
+          "example": 256,
+          "description": "图层图片宽度像素值(相对画布大小)。\n> 横屏(16:9)画布像素为1920x1080;竖屏(9:16)画布像素为1080x1920。",
+          "minimum": 1,
+          "maximum": 7680
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32",
+          "example": 256,
+          "description": "图层图片高度像素值(相对画布大小)。\n> 横屏(16:9)画布像素为1920x1080;竖屏(9:16)画布像素为1080x1920。",
+          "minimum": 1,
+          "maximum": 7680
+        }
+      },
+      "description": "字幕配置。"
+    },
+    "SmartChatVoiceConfig": {
+      "properties": {
+        "voice_asset_id": {
+          "type": "string",
+          "description": "语音合成特征字符串",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "speed": {
+          "type": "integer",
+          "format": "int32",
+          "description": "语速。默认值100,最小值50,最大值200。\n> 当取值为“100”时,表示一个成年人正常的语速,约为250字/分钟。",
+          "minimum": 50,
+          "maximum": 200,
+          "default": 100
+        },
+        "pitch": {
+          "type": "integer",
+          "format": "int32",
+          "description": "音高。默认值100,最小值50,最大值200。",
+          "minimum": 50,
+          "maximum": 200,
+          "default": 100
+        },
+        "volume": {
+          "type": "integer",
+          "format": "int32",
+          "description": "音量。默认值140,最小值90,最大值240。",
+          "minimum": 90,
+          "maximum": 240,
+          "default": 140
+        },
+        "provider": {
+          "type": "string",
+          "description": "第三方TTS供应商类型。\n* XIMALAYA:喜马拉雅TTS\n* HUAWEI_EI:EI TTS\n* MOBVOI:出门问问TTS",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "language": {
+          "type": "string",
+          "description": "语言类型。默认值CN。\n* CN:中文。\n* EN:英文。\n* ESP:西班牙语(仅海外站点支持)\n* por:葡萄牙语(仅海外站点支持)\n* Arabic:阿拉伯语(仅海外站点支持)\n* Thai:泰语(仅海外站点支持)\n* fr:法语(仅海外站点支持)",
+          "enum": [
+            "CN",
+            "EN",
+            "ESP",
+            "por",
+            "Arabic",
+            "Thai",
+            "fr"
+          ],
+          "default": "CN"
+        },
+        "language_desc": {
+          "type": "string",
+          "description": "语言描述。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "description": "语音配置参数"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "X-App-UserId-notgenerate": {
+      "name": "X-App-UserId",
+      "in": "header",
+      "description": "第三方用户ID。不允许输入中文。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-notgenerate": true,
+      "x-example": "abcdefg1234567",
+      "x-apig-registered": false
+    },
+    "X-Sdk-DateHeader-notgenerate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-example": "20191115T033655Z",
+      "x-notgenerate": true,
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader-notgenerate": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-notgenerate": true,
+      "x-apig-registered": false
+    },
+    "Job-IdPath-RegExp": {
+      "name": "job_id",
+      "in": "path",
+      "description": "任务ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)",
+        "@Pattern(regexp = IcsValidateConstants.JOB_ID_PATTERN)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Project-IdHeader-notgenerate": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+      "x-notgenerate": true,
+      "x-apig-registered": false
+    },
+    "Room-IdPath": {
+      "name": "room_id",
+      "in": "path",
+      "description": "智能交互对话ID,获取方法请参考[创建智能交互对话直播间](CreateSmartChatRoom.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)",
+        "@Pattern(regexp = IcsValidateConstants.ROOM_ID_PATTERN)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    }
+  },
+  "host": "metastudio.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

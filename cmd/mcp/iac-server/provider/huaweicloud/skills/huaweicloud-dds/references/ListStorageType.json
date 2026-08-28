@@ -1,0 +1,202 @@
+{
+  "name": "ListStorageType",
+  "summary": "查询数据库磁盘类型",
+  "tags": "引擎版本和规格",
+  "productshort": "DDS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/storage-type": {
+      "get": {
+        "tags": [
+          "引擎版本和规格"
+        ],
+        "operationId": "ListStorageType",
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-open-region-cloud": "hc,hk",
+        "summary": "查询数据库磁盘类型",
+        "description": "查询当前区域下的数据库磁盘类型。",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "engine_name",
+            "in": "query",
+            "description": "数据库版本类型:\n- 取值为“DDS-Community”。",
+            "type": "string",
+            "enum": [
+              "DDS-Community",
+              "DDS-Enhanced"
+            ],
+            "x-example": "DDS-Community"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ListStorageTypeResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "storage_type": [
+                  {
+                    "name": "ULTRAHIGH",
+                    "az_status": {
+                      "az1": "normal",
+                      "az2": "normal"
+                    }
+                  }
+                ],
+                "dss_pool_info": [
+                  {
+                    "az_name": "az1xahz",
+                    "free_capacity_gb": 150,
+                    "dss_pool_volume_type": "ULTRAHIGH",
+                    "dss_pool_id": "f5f84ed7-6f19-4bd4-99d7-b450ad6cc4df",
+                    "dss_pool_status": "available"
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/storage-type"
+      }
+    }
+  },
+  "definitions": {
+    "ListStorageTypeResponseBody": {
+      "required": [
+        "storage_type",
+        "dss_pool_info"
+      ],
+      "properties": {
+        "storage_type": {
+          "description": "实例磁盘类型信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Storage"
+          }
+        },
+        "dss_pool_info": {
+          "description": "实例专属存储信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DssPoolInfo"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "AzStatus": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "其中key是可用区编号,value是规格所在az的状态,包含以下状态:\n- normal,在售。\n- unsupported,暂不支持该规格。\n- sellout,售罄。",
+      "example": {
+        "az1": "normal"
+      }
+    },
+    "DssPoolInfo": {
+      "description": "实例专属存储信息。",
+      "required": [
+        "az_name",
+        "free_capacity_gb",
+        "dss_pool_volume_type",
+        "dss_pool_id",
+        "dss_pool_status"
+      ],
+      "properties": {
+        "az_name": {
+          "type": "string",
+          "description": "专属存储池所在az",
+          "example": "az1xhz"
+        },
+        "free_capacity_gb": {
+          "type": "string",
+          "description": "专属存储池免费空间大小,单位GB",
+          "example": "8645"
+        },
+        "dss_pool_volume_type": {
+          "type": "string",
+          "description": "专属存储池磁盘类型名称,可能取值如下:\n - ULTRAHIGH,表示SSD。",
+          "example": "ULTRAHIGH"
+        },
+        "dss_pool_id": {
+          "type": "string",
+          "description": "专属存储池ID",
+          "example": "f5f84ed7-6f19-4bd4-99d7-b450ad6cc4de"
+        },
+        "dss_pool_status": {
+          "type": "string",
+          "description": "专属存储池当前状态,可能取值如下:\n- available,表示可用。\n- deploying,表示正在部署。\n- enlarging,表示正在扩容。\n- frozen,表示冻结。\n- sellout,表示售罄。",
+          "example": "available"
+        }
+      }
+    },
+    "Storage": {
+      "description": "实例磁盘类型信息。",
+      "required": [
+        "name",
+        "az_status"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "磁盘类型名称,可能取值如下:\n- ULTRAHIGH,表示SSD。",
+          "example": "ULTRAHIGH"
+        },
+        "az_status": {
+          "$ref": "#/definitions/AzStatus"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dds.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,409 @@
+{
+  "name": "UpdateWebinar",
+  "summary": "编辑网络研讨会",
+  "tags": "网络研讨会管理",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/wss/webinar/open/conferences": {
+      "put": {
+        "tags": [
+          "网络研讨会管理"
+        ],
+        "operationId": "UpdateWebinar",
+        "summary": "编辑网络研讨会",
+        "description": "该接口用于修改已创建的网络研讨会。网络研讨会开始后不能修改。",
+        "x-apiexplorer-auth": false,
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-order": 2,
+        "x-open-region-cloud": "hc",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Access-Token"
+          },
+          {
+            "$ref": "#/parameters/X-Request-ID"
+          },
+          {
+            "$ref": "#/parameters/Accept-Language"
+          },
+          {
+            "name": "EditWebinarRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "编辑网络研讨会请求。",
+            "schema": {
+              "$ref": "#/definitions/OpenEditConfReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。"
+          },
+          "400": {
+            "description": "参数异常。",
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "401": {
+            "description": "未鉴权或鉴权失败。",
+            "examples": {
+              "application/json": {
+                "error_code": "WSS.301000095",
+                "error_msg": "USER_TOKEN_AUTH_FAILED"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "403": {
+            "description": "权限受限。",
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "WSS.301000099",
+                "error_msg": "PARAM.SYSTEM.ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          }
+        },
+        "x-imports": [
+          "com.huawei.springframework.security.auth.annotation.TokenAuthorization;",
+          "com.huawei.meeting.framework.log.AuditLogInfo;",
+          "com.huawei.meeting.framework.log.SecurityLogInfo;",
+          "com.huawei.springframework.security.auth.constants.*;"
+        ],
+        "x-methodAnnotations": [
+          "@TokenAuthorization(userType = {UserTypeEnum.CORP_MEMBER}, adminType = {AdminTypeEnum.DEFAULT_ADMIN ,AdminTypeEnum.COMMON_ADMIN, AdminTypeEnum.NOT_ADMIN})",
+          "@AuditLogInfo(logType = \"CORP\", opObjectStr = \"I18n.OpLog.Webinar\", opTypeStr = \"I18n.OpLog.Mod\")"
+        ],
+        "x-name": "编辑网络研讨会",
+        "x-request-examples-description-1": "修改周期会议为每周一,三召开",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/wss/webinar/conferences",
+        "x-request-examples-1": {
+          "conferenceId": "924125475",
+          "subject": "周例行网络研讨会",
+          "description": "周例行网络研讨会,每周一,周三召开。",
+          "startTime": "2020-12-12 09:30",
+          "duration": 120,
+          "timeZoneId": 56,
+          "attendees": [
+            {
+              "userAccount": "zhangsan@example.com",
+              "userName": "zhangshan",
+              "phone": "+99111215337819478",
+              "email": "zhangsan@example.com",
+              "sms": "+8613600000001",
+              "type": "normal"
+            },
+            {
+              "userName": "lisi",
+              "phone": "+99111215337819479",
+              "email": "lisi@example.com",
+              "sms": "+8613600000002",
+              "type": "normal"
+            }
+          ],
+          "notifySetting": {
+            "enableCalendar": true,
+            "enableSms": true,
+            "enableEmail": true
+          },
+          "guestPasswd": "222222",
+          "audiencePasswd": "333333",
+          "scope": 0,
+          "audienceScope": 0
+        }
+      }
+    }
+  },
+  "definitions": {
+    "YesNoEnum": {
+      "type": "string",
+      "description": "是、否 通用枚举",
+      "enum": [
+        "Y",
+        "N"
+      ]
+    },
+    "OpenAttendeeEntity": {
+      "type": "object",
+      "title": "OpenAttendeeEntity",
+      "description": "与会嘉宾列表。",
+      "x-imports": [
+        "com.huawei.meeting.webinar.web.model.*;",
+        "com.huawei.meeting.framework.common.annotation.*;",
+        "com.fasterxml.jackson.annotation.*;",
+        "lombok.*;",
+        "org.hibernate.validator.constraints.Length;"
+      ],
+      "x-annotations": [
+        " @EqualsAndHashCode",
+        " @EncryptDecryptClass",
+        " @JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "required": [
+        "appId"
+      ],
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "App ID。如果是APP ID鉴权场景,此项必填。参考[App ID的申请](https://support.huaweicloud.com/devg-meeting/meeting_20_0011.html#section1)。",
+          "example": "af87ec8167ef1edf003df339533f9741"
+        },
+        "userAccount": {
+          "type": "string",
+          "description": "嘉宾的帐号。\n* 如果是帐号/密码鉴权场景: 选填,表示华为云会议帐号ID\n* 如果是APP ID鉴权场景:必填,表示第三方的User ID,同时需要携带参数appId",
+          "example": "alice@example.com"
+        },
+        "userName": {
+          "type": "string",
+          "description": "嘉宾的名称。长度限制为96个字符。",
+          "example": "Alice"
+        },
+        "deptName": {
+          "type": "string",
+          "description": "部门名称,最大128字符。",
+          "example": "部门A"
+        },
+        "phone": {
+          "type": "string",
+          "description": "号码。支持SIP号码或者手机号码。\n* 如果是帐号/密码鉴权场景:必填\n* 如果是APP ID鉴权场景:选填\n> * 号码可以通过[查询企业通讯](https://support.huaweicloud.com/api-meeting/meeting_21_0512.html)接口录获取。返回的number是SIP号码,phone是手机号码\n> * 填SIP号码系统会呼叫对应的软终端或者硬终端;填手机号码系统会呼叫手机\n> * 呼叫手机需要开通PSTN权限,否则无法呼叫",
+          "example": 99111215337819478
+        },
+        "email": {
+          "type": "string",
+          "description": "邮件地址。需要发邮件通知时填写。",
+          "example": "alice@example.com"
+        },
+        "sms": {
+          "type": "string",
+          "description": "短信通知的手机号码。需要发短信通知时填写。",
+          "example": "+86XXXXXXXXXXX"
+        },
+        "isHardTerminal": {
+          "type": "boolean",
+          "description": "是否硬终端(会议室或硬终端)。",
+          "example": false
+        }
+      }
+    },
+    "OpenNotifySetting": {
+      "type": "object",
+      "title": "OpenNotifySetting",
+      "description": "网络研讨会通知配置。",
+      "required": [
+        "enableCalendar",
+        "enableSms",
+        "enableEmail"
+      ],
+      "x-imports": [
+        "com.huawei.meeting.webinar.constant.CalendarType;",
+        "com.fasterxml.jackson.annotation.*;"
+      ],
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "properties": {
+        "enableCalendar": {
+          "description": "发送邮件日历是否开启。\n* Y:开启\n* N: 不开启",
+          "type": "string",
+          "example": "Y"
+        },
+        "enableSms": {
+          "description": "发送短信通知是否开启。\n* Y:开启\n* N: 不开启",
+          "type": "string",
+          "example": "Y"
+        },
+        "enableEmail": {
+          "description": "发送邮件是否开启。\n* Y:开启\n* N: 不开启",
+          "type": "string",
+          "example": "N"
+        }
+      }
+    },
+    "RestFailedResult": {
+      "description": "处理失败返回结果。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "结果码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "结果描述。"
+        }
+      }
+    },
+    "OpenEditConfReq": {
+      "type": "object",
+      "title": "OpenEditConfReq",
+      "description": "编辑网路研讨会议。",
+      "required": [
+        "conferenceId",
+        "subject",
+        "startTime",
+        "duration",
+        "timeZoneId"
+      ],
+      "x-imports": [
+        "com.huawei.meeting.webinar.web.model.*;",
+        "org.hibernate.validator.constraints.Length;",
+        "com.fasterxml.jackson.databind.annotation.*;",
+        "com.huawei.meeting.framework.validator.DateFormatValid;",
+        "com.huawei.meeting.framework.serializer.*;",
+        "com.fasterxml.jackson.annotation.*;"
+      ],
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "properties": {
+        "conferenceId": {
+          "type": "string",
+          "description": "网络研讨会ID。",
+          "example": 924125475
+        },
+        "subject": {
+          "type": "string",
+          "description": "网络研讨会主题。长度限制为128个字符。",
+          "example": "周例行网络研讨会"
+        },
+        "description": {
+          "type": "string",
+          "description": "网络研讨会描述,长度限制为1000个字符。",
+          "example": "周例行网络研讨会,每周一,周三召开。"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "网络研讨会开始时间(UTC时间),格式“yyyy-MM-dd HH:mm”。",
+          "example": "2020-12-12 10:30"
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int32",
+          "description": "网络研讨会持续时长,单位分钟,取值范围[15,1440]。",
+          "example": 120
+        },
+        "timeZoneId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "会议通知中会议时间的时区信息。时区信息,参考[时区映射关系](https://support.huaweicloud.com/api-meeting/meeting_21_0110.html#ZH-CN_TOPIC_0212714472__table137407441463)。\n> * 举例:“timeZoneID”:\"26\",则通过华为云会议发送的会议通知中的时间将会标记为如“2021/11/11 星期四 00:00 - 02:00 (GMT) 格林威治标准时间:都柏林, 爱丁堡, 里斯本, 伦敦”。",
+          "example": 56
+        },
+        "attendees": {
+          "type": "array",
+          "description": "与会嘉宾列表。\n> 观众只能自己通过链接或者会议ID+密码加入,不支持被邀请。",
+          "items": {
+            "$ref": "#/definitions/OpenAttendeeEntity"
+          }
+        },
+        "notifySetting": {
+          "$ref": "#/definitions/OpenNotifySetting"
+        },
+        "guestPasswd": {
+          "type": "string",
+          "description": "嘉宾密码(4-16位长度的纯数字)。",
+          "example": 222222
+        },
+        "audiencePasswd": {
+          "type": "string",
+          "description": "观众密码(4-16位长度的纯数字)。",
+          "example": 333333
+        },
+        "callRestriction": {
+          "type": "boolean",
+          "description": "入会范围开关。",
+          "example": false
+        },
+        "scope": {
+          "type": "integer",
+          "description": "主持人、嘉宾入会范围。\n* 0: 所有用户\n* 2: 企业内用户\n* 3: 被邀请用户",
+          "example": 0
+        },
+        "audienceScope": {
+          "type": "integer",
+          "description": "观众入会范围。\n* 0: 所有用户\n* 2: 企业内用户和被邀请用户",
+          "example": 0
+        },
+        "enableRecording": {
+          "description": "开启录制,Y-开启,N-不开启",
+          "$ref": "#/definitions/YesNoEnum",
+          "example": "Y"
+        },
+        "liveAddress": {
+          "type": "string",
+          "description": "主流直播推流地址,在录播类型为 :直播、直播+录播时有效。最大不超过255个字符。",
+          "maxLength": 255,
+          "minLength": 0,
+          "example": "rtmp://example/live"
+        },
+        "auxAddress": {
+          "type": "string",
+          "description": "辅流直播推流地址,在录播类型为 :直播、直播+录播时有效。最大不超过255个字符。",
+          "maxLength": 255,
+          "minLength": 0,
+          "example": "rtmp://example/aux"
+        },
+        "liveUrl": {
+          "type": "string",
+          "description": "直播房间地址,在录播类型为录播+直播推流时有效。最大不超过255个字符。",
+          "maxLength": 255,
+          "minLength": 0,
+          "example": "https://example/watch"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Request-ID": {
+      "name": "X-Request-Id",
+      "in": "header",
+      "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+      "required": false,
+      "type": "string",
+      "x-example": "208b6e4c92074487bc43292f8554561e"
+    },
+    "Accept-Language": {
+      "name": "Accept-Language",
+      "in": "header",
+      "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+      "required": false,
+      "type": "string",
+      "x-example": "zh-CN"
+    },
+    "X-Access-Token": {
+      "name": "X-Access-Token",
+      "in": "header",
+      "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+      "required": true,
+      "format": "password",
+      "type": "string",
+      "x-example": "stb42Kw30IPpsIRm3DhsE0ym7B2tdAHcwfyY"
+    }
+  },
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

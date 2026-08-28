@@ -1,0 +1,277 @@
+{
+  "name": "ListStackOutputs",
+  "summary": "列举资源栈输出",
+  "tags": "资源编排-资源栈",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/outputs": {
+      "get": {
+        "tags": [
+          "Stack"
+        ],
+        "summary": "列举资源栈输出",
+        "description": "列举资源栈输出(ListStackOutputs)\n\n此API用于列举该资源栈的所有输出\n\n资源栈输出为用户在模板中定义的 output 语句块在部署结束后所产生的返回信息,用户可在部署结束后,调用此API获取其具体的输出信息\n\n当资源栈状态处于非终态(状态以`IN_PROGRESS`结尾)状态时,此API将返回空。非终态包括但不限于以下状态:\n  * 正在部署(DEPLOYMENT_IN_PROGRESS)\n  * 正在删除(DELETION_IN_PROGRESS)\n  * 正在回滚(ROLLBACK_IN_PROGRESS)\n\noutput为HCL官方定义的语法,其返回信息类似于常见编程语言中的返回值,详细定义请参考HCL官方的说明\n支持分页返回。如果响应中存在next_marker,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null",
+        "operationId": "ListStackOutputs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "stack_id",
+            "in": "query",
+            "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页标记。当一页无法返回所有结果,上一次的请求将返回next_marker以指引还有更多页数,用户可以将next_marker中的值放到此处以查询下一页的信息。此marker只能用于与上一请求指定的相同参数的请求。不指定时默认从第一页开始查询。",
+            "required": false,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页返回的最多结果数量",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "maximum": 1000,
+            "minimum": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列举资源栈输出成功",
+            "examples": {
+              "x-response-examples-1": {
+                "outputs": [
+                  {
+                    "name": "my_first_vpc",
+                    "sensitive": true,
+                    "type": "<sensitive>",
+                    "value": "<sensitive>",
+                    "description": "type and value is invisible when sensitive is true."
+                  },
+                  {
+                    "name": "my_second_vpc",
+                    "type": "string",
+                    "value": "\"huaweicloud_vpc.my_second_vpc\"",
+                    "description": "type and value is real when sensitive not set or is false."
+                  }
+                ],
+                "page_info": {
+                  "current_count": 2,
+                  "previous_marker": "zxc1oHc08HcCmypYGTsOoRcvoHUvHRUAW5NOSnc1oHc08HcCPZrwP5NOeTlRiukJgtGxeujJeuGwGIihaIUCmypYGTsOtqvKPr2xmH8fPqpGWyQ0axGwGZp9aqvx8pQ7m5FvGTsJiKk7gtNFiuaxetdRCks="
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListStackOutputsResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源栈不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/outputs",
+        "x-request-examples-description-1": "列举资源栈输出",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/outputs?stack_id=ea6a4f0e-ee8a-494e-b12a-8be4a1e65af2",
+        "x-request-examples-description-2": "列举资源栈输出,并提供资源栈id以校验是否与当前资源栈匹配"
+      }
+    }
+  },
+  "definitions": {
+    "StackOutput": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "资源栈输出的名称,由用户在模板中定义\n\n以 HCL 模板为例,name 为 vpc_id\n\n```hcl\noutput \"vpc_id\" {\n  value = huaweicloud_vpc.my_hello_world_vpc.id\n}\n```\n\n以 json 模板为例,name 为 vpc_id\n```json\n{\n  \"output\": {\n    \"vpc_id\": [\n      {\n        \"value\": \"${huaweicloud_vpc.my_hello_world_vpc.id}\"\n      }\n    ]\n  }\n}\n```"
+        },
+        "description": {
+          "type": "string",
+          "description": "资源栈输出的描述,由用户在模板中定义"
+        },
+        "type": {
+          "type": "string",
+          "description": "资源栈输出的类型"
+        },
+        "value": {
+          "type": "string",
+          "description": "资源栈输出的值"
+        },
+        "sensitive": {
+          "type": "boolean",
+          "description": "标识该资源栈输出是否为敏感信息,由用户在模板中定义\n\n如果用户在模板中将该输出定义为sensitive,则返回体中该输出的value和type不会返回真实值,而是返回`<sensitive>`"
+        }
+      },
+      "description": "资源栈输出"
+    },
+    "PageInfo": {
+      "type": "object",
+      "properties": {
+        "next_marker": {
+          "type": "string",
+          "description": "向后分页标识符。如果存在,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "向前分页标识符。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "current_count": {
+          "type": "integer",
+          "description": "本页显示的条目数量。",
+          "x-omitempty": false
+        }
+      },
+      "description": "分页信息",
+      "x-isnullable": false
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "ListStackOutputsResponseBody": {
+      "type": "object",
+      "properties": {
+        "outputs": {
+          "type": "array",
+          "description": "资源栈输出列表",
+          "items": {
+            "$ref": "#/definitions/StackOutput"
+          },
+          "x-omitempty": false
+        },
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageInfo"
+        }
+      },
+      "description": "ListStackOutputs API的响应Body体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

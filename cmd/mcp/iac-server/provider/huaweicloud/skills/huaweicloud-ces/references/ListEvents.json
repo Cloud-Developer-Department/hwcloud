@@ -1,0 +1,322 @@
+{
+  "name": "ListEvents",
+  "summary": "查询事件监控列表",
+  "tags": "事件监控",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/V1.0/{project_id}/events": {
+      "get": {
+        "tags": [
+          "事件监控"
+        ],
+        "summary": "查询事件监控列表",
+        "description": "查询事件监控列表,包括系统事件和自定义事件。",
+        "operationId": "ListEvents",
+        "x-ces-version": "v1",
+        "x-api-type": "open-api",
+        "x-php-exclude": "Y",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ContentType"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "event_type",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释**\n事件类型\n**约束限制**\n不涉及\n**取值范围**\n枚举值:\n- EVENT.SYS 系统事件\n- EVENT.CUSTOM 自定义事件\n**默认取值**\n不涉及",
+            "enum": [
+              "EVENT.SYS",
+              "EVENT.CUSTOM"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "sub_event_type",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释**\n事件子类型\n**约束限制**\n不涉及\n**取值范围**\n枚举值:\n- SUB_EVENT.OPS 运维事件\n- SUB_EVENT.PLAN 计划事件\n- SUB_EVENT.CUSTOM 自定义事件\n**默认取值**\n不涉及",
+            "enum": [
+              "SUB_EVENT.OPS",
+              "SUB_EVENT.PLAN",
+              "SUB_EVENT.CUSTOM"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "event_name",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释**\n事件名称,值为系统产生的事件名称,或用户自定义上报的事件名称\n**约束限制**\n不涉及\n**取值范围**\n必须以字母(大写或小写)开头,后面可以跟零个或多个字母(大写或小写)、数字、下划线(_),长度为[1,64]个字符\n**默认取值**\n不涉及",
+            "type": "string",
+            "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*$",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释**\n查询数据起始时间,UNIX时间戳,单位毫秒\n**约束限制**\n不涉及\n**取值范围**\n毫秒级时间戳,范围为[1111111111111,9999999999999]\n**默认取值**\n不涉及",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1111111111111,
+            "maximum": 9999999999999
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释**\n查询数据截止时间,UNIX时间戳,单位毫秒\n**约束限制**\nfrom必须小于to\n**取值范围**\n毫秒级时间戳,范围为[1111111111111,9999999999999]\n**默认取值**\n不涉及",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1111111111111,
+            "maximum": 9999999999999
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释**\n分页起始值\n**约束限制**\n不涉及\n**取值范围**\n非负整数\n**默认取值**\n0",
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "**参数解释**\n单次查询的条数限制\n**约束限制**\n不涉及\n**取值范围**\n条数限制为[1,100]\n**默认取值**\n100",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListEventsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "events": [
+                  {
+                    "event_name": "rebootServer",
+                    "event_type": "EVENT.SYS",
+                    "sub_event_type": "SUB_EVENT.OPS",
+                    "event_count": 5,
+                    "latest_occur_time": 1606302400000,
+                    "latest_event_source": "SYS.ECS"
+                  },
+                  {
+                    "event_name": "deleteVolume",
+                    "event_type": "EVENT.SYS",
+                    "sub_event_type": "SUB_EVENT.PLAN",
+                    "event_count": 6,
+                    "latest_occur_time": 1606300359126,
+                    "latest_event_source": "SYS.EVS"
+                  },
+                  {
+                    "event_name": "event_001",
+                    "event_type": "EVENT.CUSTOM",
+                    "sub_event_type": "SUB_EVENT.CUSTOM",
+                    "event_count": 4,
+                    "latest_occur_time": 1606499035522,
+                    "latest_event_source": "TEST.System"
+                  }
+                ],
+                "meta_data": {
+                  "total": 10
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string",
+              "description": "请求错误。"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string",
+              "description": "未提供认证信息,或认证信息错误。"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "string",
+              "description": "请求页面被禁止访问。"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "schema": {
+              "type": "string",
+              "description": "请求超出了服务器的等待时间。"
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "schema": {
+              "type": "string",
+              "description": "请求过多。"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string",
+              "description": "请求未完成,服务异常。"
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "schema": {
+              "type": "string",
+              "description": "系统暂时不可用,请求受限。"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "上报事件",
+        "x-constraint": "",
+        "x-version": "V1",
+        "x-scope": "Commercial",
+        "x-order": 3,
+        "x-request-examples-1": "/V1.0/{project_id}/events?start=0&limit=10&to=1606557500911&from=1605952700911",
+        "x-request-examples-text-1": "/V1.0/{project_id}/events?start=0&limit=10&to=1606557500911&from=1605952700911",
+        "x-is-registered": "Y",
+        "x-first-open-time": "",
+        "x-source": "SelfDeveloped",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ListEventsResponseBody": {
+      "description": "**参数解释**\n查询事件监控列表响应体",
+      "properties": {
+        "events": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 999999,
+          "description": "**参数解释**\n一条或者多条事件数据",
+          "items": {
+            "$ref": "#/definitions/EventInfo"
+          }
+        },
+        "meta_data": {
+          "$ref": "#/definitions/TotalMetaData"
+        }
+      }
+    },
+    "EventInfo": {
+      "description": "**参数解释**\n事件监控信息",
+      "properties": {
+        "event_name": {
+          "type": "string",
+          "description": "**参数解释**\n事件名称\n**取值范围**\n不涉及",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "EVENT.SYS",
+            "EVENT.CUSTOM"
+          ],
+          "description": "**参数解释**\n事件类型\n**取值范围**\n枚举值:\n- EVENT.SYS 系统事件\n- EVENT.CUSTOM 自定义事件"
+        },
+        "sub_event_type": {
+          "type": "string",
+          "description": "**参数解释**\n事件子类型\n**取值范围**\n枚举值:\n- SUB_EVENT.OPS 运维事件\n- SUB_EVENT.PLAN 计划事件\n- SUB_EVENT.CUSTOM 自定义事件",
+          "enum": [
+            "SUB_EVENT.OPS",
+            "SUB_EVENT.PLAN",
+            "SUB_EVENT.CUSTOM"
+          ]
+        },
+        "event_count": {
+          "type": "integer",
+          "description": "**参数解释**\n选择查询的时间范围内,此事件发生的数量\n**取值范围**\n不涉及",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 999999
+        },
+        "latest_occur_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**\n此事件最近一次发生的时间\n**取值范围**\n不涉及",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "latest_event_source": {
+          "type": "string",
+          "description": "**参数解释**\n事件来源,如果是系统事件则值为各服务的命名空间。\n各服务命名空间请参阅[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)。如果是自定义事件,则为用户自定义上报定义。\n**取值范围**\n不涉及",
+          "minLength": 1,
+          "maxLength": 9999
+        }
+      }
+    },
+    "TotalMetaData": {
+      "description": "**参数解释**:\n查询结果元数据统计个数。",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "**参数解释**:\n总条数。\n**取值范围**:\n在[0,2147483647]区间内。",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,64]个字符。\n**默认取值**:\n不涉及。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ContentType": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "**参数解释**:\n发送的实体的MIME类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,64]个字符。\n**默认取值**:\n默认使用 application/json; charset=UTF-8,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+      "type": "string",
+      "default": "application/json; charset=UTF-8",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-order": 1
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "**参数解释**:\n用户Token。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,16384]个字符。\n**默认取值**:\n不涉及。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "x-order": 2
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

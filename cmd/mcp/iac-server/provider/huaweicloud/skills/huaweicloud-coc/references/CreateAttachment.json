@@ -1,0 +1,226 @@
+{
+  "name": "CreateAttachment",
+  "summary": "上传附件",
+  "tags": "ExternalCocTicket",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{ticket_type}/attachments": {
+      "post": {
+        "tags": [
+          "ExternalCocTicket"
+        ],
+        "operationId": "CreateAttachment",
+        "summary": "上传附件",
+        "description": "上传附件,创建工单(事件单、变更单、问题单)的场景下,如需上传附件,需要先调用该接口将文件上传到obs。上传成功时,该接口将返回文档唯一id。支持文件类型:.jpg,.png,.docx,.txt,.pdf,且文本大小不超10M。",
+        "x-is-registered": "Y",
+        "x-sre-api-type": "D",
+        "x-classAnnotation": "@EnableAuth(type = \"${wushan.integration.common.auth.type}\")",
+        "x-methodAnnotations": [
+          "@CoaAuthMeta(action = \"gocm:CreateAttachment\")",
+          "@CoaAuthExtendMeta(userType=UserTypeEnum.MAN_MACHINE_ACCOUNT)",
+          "@IamAuthMeta(authLevel = IamAuthLevel.TOKEN, abacAction = \"coc:ticket:uploadFile\", opType = BssOpType.RESOURCE, needApigwJwtAuthCheck = false, authContextInitializer = IAMCustomAuthContextInitializer.class)",
+          "@AuditLog(operation = \"gocm:CreateAttachment\", risk = \"middle\", resourceType = GomResourceTypeEnum.ATTACHMENT, resourceId = \"gocm:AttachmentId=#ticketType\", resourceName = \"#ticketType\")",
+          "@CtsMeta(resourceType = \"Attachment\", traceName = \"uploadFileTicket\", operationId = \"CreateAttachment\")",
+          "@CtsExtendMeta(resourceId = \"#ticketType\", resourceName = \"#ticketType\")",
+          "@QuotaCheck(needTicketType = true, operateId = \"operate\")"
+        ],
+        "x-imports": "com.huawei.globaloperationmgmt.common.auth.IAMCustomAuthContextInitializer;com.huawei.clouds.wushan.auth.token.meta.BssOpType;com.huawei.globaloperationmgmt.common.enums.GomResourceTypeEnum;com.huawei.clouds.wushan.integration.common.auth.EnableAuth;com.huawei.clouds.wushan.coa.abac.auth.CoaAuth;com.huawei.clouds.wushan.coa.CoaAuthMeta;com.huawei.globaloperationmgmt.common.enums.UserTypeEnum;com.huawei.globaloperationmgmt.common.apos.CoaAuthExtendMeta;com.huawei.globaloperationmgmt.common.apos.AuditLog;com.huawei.clouds.wushan.auth.token.IamAuthMeta;com.huawei.clouds.wushan.auth.token.IamAuthLevel;com.huawei.clouds.wushan.cts.meta.CtsMeta;com.huawei.globaloperationmgmt.common.apos.CtsExtendMeta;com.huawei.globaloperationmgmt.common.apos.QuotaCheck;",
+        "x-support-sdk": "Y",
+        "x-access-level": "ReadWrite",
+        "x-risk-level": "middle",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ticket_type",
+            "in": "path",
+            "description": "**参数解释:**\n需要创建的工单类型,此处为固定值incident。此处的ticket_type传递的值为固定值incident,但是创建变更单或者问题单时,如需上传附件使用的依然是此接口。\n**约束限制:**\n不涉及\n**取值范围:**\n固定值incident\n**默认取值:**\n不涉及",
+            "required": true,
+            "default": "incident",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "description": "**参数解释:**\n需要上传的文件,以表单的形式上传。\n**约束限制:**\n内容为二进制binary文本。支持文件类型:.jpg,.png,.docx,.txt,.pdf,且文本大小不超10M。\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+          }
+        ],
+        "x-request-examples-description-1": "上传附件请求示例。",
+        "x-request-examples-url-1": "https://{Endpoint}/v1/incident/attachments",
+        "x-request-examples-1": "form-data表单:\nkey: file\nvalue: binary二进制文件",
+        "responses": {
+          "200": {
+            "description": "请求成功。\n更多状态码请参考[状态码](coc_api_05_03.xml)。",
+            "schema": {
+              "$ref": "#/definitions/CommonUploadFileResponse"
+            },
+            "examples": {
+              "application/json": {
+                "name": "uploadFile.doc",
+                "id": "78f86d47-55d6-4e98-ba51-b293ac95bc8a",
+                "error_code": "GOM.00000000",
+                "error_msg": null,
+                "provider_code": "049",
+                "data": {
+                  "doc_id": "78f86d47-55d6-4e98-ba51-b293ac95bc8a",
+                  "doc_name": "uploadFile.doc"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "服务器未能处理请求。\n更多状态码请参考[状态码](coc_api_05_03.xml)。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "GOM.00007256",
+                "error_msg": "参数错误",
+                "provider_code": "049",
+                "data": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UploadFileResponse": {
+      "type": "object",
+      "description": "上传附件返回体。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResponseBodyTemplate"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "#/definitions/ExternalAttachment"
+            }
+          }
+        }
+      ]
+    },
+    "ResponseBodyTemplate": {
+      "type": "object",
+      "description": "通用返回体,用于文档生成。",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "业务code,0 代表业务成功,其他数值代表有错误,详情请见错误码。",
+          "example": "0",
+          "minLength": 0,
+          "maxLength": 10,
+          "default": "0"
+        },
+        "provider_code": {
+          "type": "string",
+          "description": "服务编码。",
+          "example": "049",
+          "minLength": 0,
+          "maxLength": 255,
+          "default": "049"
+        },
+        "msg": {
+          "type": "string",
+          "description": "错误信息,code为0,此值为空;code不为0,此处为具体的错误描述。",
+          "example": null,
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "CommonUploadFileResponse": {
+      "type": "object",
+      "description": "上传附件返回体。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UploadFileResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 255,
+              "description": "**参数解释:**\n附件文件名。\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 255,
+              "description": "**参数解释:**\n附件唯一id。\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+            }
+          }
+        }
+      ]
+    },
+    "ExternalAttachment": {
+      "type": "object",
+      "description": "上传成功后的附件信息。",
+      "properties": {
+        "doc_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "附件唯一id。"
+        },
+        "doc_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "附件文件名。"
+        }
+      }
+    },
+    "BaseResponse": {
+      "type": "object",
+      "description": "--",
+      "required": [
+        "provider_code",
+        "error_code"
+      ],
+      "properties": {
+        "provider_code": {
+          "type": "string",
+          "description": "服务标识",
+          "default": 4,
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "error_code": {
+          "type": "string",
+          "description": "请求响应代码,范围:0000~9999,正常时取值:0",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求响应描述",
+          "minLength": 0,
+          "maxLength": 10240
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,245 @@
+{
+  "name": "AssociateRequestThrottlingPolicyV2",
+  "summary": "绑定流控策略",
+  "tags": "API绑定流控策略",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/throttle-bindings": {
+      "post": {
+        "summary": "绑定流控策略",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-order": 1,
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "将流控策略应用于API,则所有对该API的访问将会受到该流控策略的限制。\n\n\n当一定时间内的访问次数超过流控策略设置的API最大访问次数限制后,后续的访问将会被拒绝,从而能够较好的保护后端API免受异常流量的冲击,保障服务的稳定运行。\n\n\n为指定的API绑定流控策略,绑定时,需要指定在哪个环境上生效。同一个API发布到不同的环境可以绑定不同的流控策略;一个API在发布到特定环境后只能绑定一个默认的流控策略。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "API绑定流控策略"
+        ],
+        "operationId": "AssociateRequestThrottlingPolicyV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ThrottleApiBindingCreate"
+            },
+            "in": "body",
+            "name": "AssociateRequestThrottlingPolicyV2RequestBody",
+            "description": "绑定流控策略的请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "为API绑定指定的流控策略",
+        "x-request-examples-1": {
+          "publish_ids": [
+            "40e7162dc6b94bbbbb1a60d2a24b1b0c"
+          ],
+          "strategy_id": "3437448ad06f4e0c91a224183116e965"
+        },
+        "responses": {
+          "201": {
+            "schema": {
+              "$ref": "#/definitions/ThrottleApiBindingPage"
+            },
+            "examples": {
+              "application/json": {
+                "throttle_applys": [
+                  {
+                    "publish_id": "40e7162dc6b94bbbbb1a60d2a24b1b0c",
+                    "scope": 1,
+                    "strategy_id": "3437448ad06f4e0c91a224183116e965",
+                    "apply_time": "2020-08-03T12:25:52.257613934Z",
+                    "id": "3e06ac135e18477e918060d3c59d6f6a"
+                  }
+                ]
+              }
+            },
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3005",
+                "error_msg": "Request throttling policy 3437448ad06f4e0c91a224183116e965 does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ThrottleApiBindingCreate": {
+      "required": [
+        "strategy_id",
+        "publish_ids"
+      ],
+      "properties": {
+        "strategy_id": {
+          "description": "流控策略编号",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65,
+          "pattern": "^[a-zA-Z0-9-_]{0,64}$",
+          "example": "0325b6712d504614986822102262695d"
+        },
+        "publish_ids": {
+          "description": "API的发布记录编号",
+          "type": "array",
+          "example": [
+            "374a6d5a20c74ea182e119fce4556956",
+            "65e6fe531ac34481ba369f0bc6f22057"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ThrottleApiBindingPage": {
+      "properties": {
+        "throttle_applys": {
+          "description": "API与流控策略的绑定关系列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ThrottleApiBinding"
+          }
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "ThrottleApiBinding": {
+      "properties": {
+        "publish_id": {
+          "description": "API的发布记录编号",
+          "type": "string"
+        },
+        "scope": {
+          "description": "策略作用域,取值如下:\n- 1:整个API\n- 2: 单个用户\n- 3:单个APP\n\n目前只支持1",
+          "enum": [
+            1,
+            2,
+            3
+          ],
+          "type": "integer",
+          "format": "int32"
+        },
+        "strategy_id": {
+          "description": "流控策略的ID",
+          "type": "string"
+        },
+        "apply_time": {
+          "description": "绑定时间",
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "description": "绑定关系的ID",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

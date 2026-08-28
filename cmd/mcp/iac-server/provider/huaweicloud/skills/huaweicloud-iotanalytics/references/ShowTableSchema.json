@@ -1,0 +1,251 @@
+{
+  "name": "ShowTableSchema",
+  "summary": "查询离线数据表结构",
+  "tags": "离线数据表管理",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/tables/{table_id}/schema": {
+      "get": {
+        "tags": [
+          "table"
+        ],
+        "summary": "查询离线数据表结构",
+        "description": "查询离线数据表结构。",
+        "operationId": "ShowTableSchema",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "pattern": "^\\S+$",
+            "x-maxLength": 65535
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。获取方式请参考获取项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[a-z0-9]{32}$",
+            "x-maxLength": 32,
+            "x-minLength": 32
+          },
+          {
+            "name": "table_id",
+            "in": "path",
+            "description": "表ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[0-9a-zA-Z]+$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/GetTableSchemaResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000001",
+              "IoTA.99000002",
+              "IoTA.99000004",
+              "IoTA.99000005",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.04010609"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999",
+              "IoTA.04010612"
+            ]
+          }
+        },
+        "security": [
+          {
+            "iota_auth": [
+              "write:iota",
+              "read:iota"
+            ]
+          }
+        ],
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "GetTableSchemaResponseBody": {
+      "type": "object",
+      "required": [
+        "column_count",
+        "columns",
+        "table_type"
+      ],
+      "properties": {
+        "table_id": {
+          "type": "string",
+          "description": "表ID。"
+        },
+        "table_name": {
+          "type": "string",
+          "description": "表名。"
+        },
+        "table_alias": {
+          "type": "string",
+          "description": "表别名。"
+        },
+        "tags": {
+          "type": "string",
+          "description": "标签。"
+        },
+        "column_count": {
+          "type": "integer",
+          "description": "表的总列数。"
+        },
+        "columns": {
+          "type": "array",
+          "description": "表的列信息,包含列名称、类型和描述信息。",
+          "items": {
+            "$ref": "#/definitions/Column"
+          }
+        },
+        "table_type": {
+          "type": "string",
+          "description": "表类型,包括“MANAGED”,“EXTERNAL”和“VIEW”。"
+        },
+        "data_type": {
+          "type": "string",
+          "description": "数据类型,包括“csv”,“parquet”。"
+        },
+        "data_location": {
+          "type": "string",
+          "description": "数据存储的路径,以“s3a”开头。"
+        },
+        "storage_properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KeyValue"
+          }
+        }
+      }
+    },
+    "KeyValue": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "键。"
+        },
+        "value": {
+          "type": "string",
+          "description": "值。"
+        }
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "Column": {
+      "type": "object",
+      "required": [
+        "column_name",
+        "type"
+      ],
+      "properties": {
+        "column_name": {
+          "type": "string",
+          "description": "列名称。",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z]+[_0-9a-zA-Z]*$"
+        },
+        "description": {
+          "type": "string",
+          "description": "列描述。",
+          "maxLength": 256
+        },
+        "type": {
+          "type": "string",
+          "description": "列类型。",
+          "maxLength": 32
+        },
+        "is_partition_column": {
+          "type": "boolean",
+          "description": "是否分区列。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

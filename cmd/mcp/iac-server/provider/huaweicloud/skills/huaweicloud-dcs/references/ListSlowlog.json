@@ -1,0 +1,224 @@
+{
+  "name": "ListSlowlog",
+  "summary": "查询慢日志",
+  "tags": "日志管理",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/slowlog": {
+      "get": {
+        "tags": [
+          "日志管理"
+        ],
+        "summary": "查询慢日志",
+        "description": "查询慢日志。",
+        "operationId": "ListSlowlog",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "5560df16-cebf-4473-95c4-d1b573c16e79"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询, offset大于等于0",
+            "required": false,
+            "type": "integer",
+            "x-example": "0"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的条目数量。",
+            "required": false,
+            "type": "integer",
+            "x-example": "10"
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "description": "返回结果按该关键字排序,支持start_time,duration,默认为“start_time”",
+            "enum": [
+              "start_time",
+              "duration"
+            ],
+            "required": false,
+            "type": "string",
+            "x-example": "start_time"
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "降序或升序(分别对应desc和asc,默认为“desc”)",
+            "enum": [
+              "desc",
+              "asc"
+            ],
+            "required": false,
+            "type": "string",
+            "x-example": "desc"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "查询开始时间,时间为UTC时间的Unix时间戳。如:1598803200000。",
+            "required": true,
+            "type": "string",
+            "x-example": "1598803200000"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "查询结束时间,时间为UTC时间的Unix时间戳。如:1599494399000。",
+            "required": true,
+            "type": "string",
+            "x-example": "1599494399000"
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "查询节点,分为proxy和server。",
+            "required": false,
+            "type": "string",
+            "x-example": "server"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询慢日志成功。",
+            "schema": {
+              "$ref": "#/definitions/SlowlogResponse"
+            },
+            "examples": {
+              "application/json": {
+                "total_num": 1,
+                "count": 1,
+                "slowlogs": [
+                  {
+                    "id": 1,
+                    "start_time": "2020-06-19T07:06:07Z",
+                    "command": "SLOWLOG GET 128",
+                    "duration": "17",
+                    "shard_name": "group-0",
+                    "database_id": 1,
+                    "username": "default"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "非法请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "DCS.4800",
+                "error_msg": "Invalid start_time in the request."
+              }
+            }
+          },
+          "401": {
+            "description": "认证信息非法。"
+          },
+          "403": {
+            "description": "请求被拒绝访问。"
+          },
+          "404": {
+            "description": "所请求的资源不存在。"
+          },
+          "500": {
+            "description": "内部服务错误。"
+          }
+        },
+        "x-constraint": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-produc-type": "dcs",
+        "x-name": "查询慢日志",
+        "x-scope": "",
+        "x-request-examples-url-1": "GET https://dcs.cn-south-1.myhuaweicloud.com/v2/a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71/instances/5560df16-cebf-4473-95c4-d1b573c16e79/slowlog?start_time=1598803200000&end_time=1599494399000"
+      }
+    }
+  },
+  "definitions": {
+    "SlowlogResponse": {
+      "description": "查询慢日志返回体",
+      "properties": {
+        "total_num": {
+          "description": "慢日志总条数",
+          "type": "integer"
+        },
+        "count": {
+          "description": "总数",
+          "type": "integer"
+        },
+        "slowlogs": {
+          "description": "慢日志列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SlowlogItem"
+          }
+        }
+      }
+    },
+    "SlowlogItem": {
+      "description": "慢日志单个条目",
+      "properties": {
+        "id": {
+          "description": "慢日志的唯一标识",
+          "type": "integer"
+        },
+        "command": {
+          "description": "慢命令",
+          "type": "string"
+        },
+        "start_time": {
+          "description": "执行开始时间,格式为“2020-06-19T07:06:07Z”",
+          "type": "string"
+        },
+        "duration": {
+          "description": "持续时间,单位是ms",
+          "type": "string"
+        },
+        "shard_name": {
+          "description": "慢命令所在的分片名称,仅在实例类型为集群时支持",
+          "type": "string"
+        },
+        "database_id": {
+          "description": "数据库id,当前只对指定客户开放",
+          "type": "integer"
+        },
+        "username": {
+          "description": "操作慢日志的账号名称,当前只对指定客户开放",
+          "type": "string"
+        },
+        "node_role": {
+          "description": "**参数解释**:\n节点类型。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        },
+        "client_ip": {
+          "description": "**参数解释**:\n客户端IP地址。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,169 @@
+{
+  "name": "ResetMessageOffsetWithEngine",
+  "summary": "重置消费组消费进度到指定位置",
+  "tags": "消费组管理",
+  "productshort": "Kafka",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset": {
+      "put": {
+        "x-is-registered": "Y",
+        "tags": [
+          "消费组管理"
+        ],
+        "summary": "重置消费组消费进度到指定位置",
+        "description": "Kafka实例不支持在线重置消费进度。在执行重置消费进度之前,必须停止被重置消费组客户端。\n\n停止待重置消费组客户端,然后等待一段时间(即ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG配置的时间,默认为1000毫秒)后,服务端才认为此消费组客户端已下线。",
+        "operationId": "ResetMessageOffsetWithEngine",
+        "x-api-type": "open-api",
+        "responses": {
+          "204": {
+            "description": "重置消费组消息进度到指定位置操作成功。"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID。",
+            "type": "string",
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e5xxxxxxxxx",
+            "x-order": 1
+          },
+          {
+            "in": "path",
+            "name": "instance_id",
+            "description": "实例ID。",
+            "type": "string",
+            "required": true,
+            "x-order": 2
+          },
+          {
+            "in": "path",
+            "name": "group",
+            "description": "消费组名称。",
+            "type": "string",
+            "required": true,
+            "x-order": 3
+          },
+          {
+            "name": "ResetMessageOffsetWithEngineRequestBody",
+            "in": "body",
+            "description": "请求消息。",
+            "schema": {
+              "$ref": "#/definitions/ResetMessageOffsetReq"
+            },
+            "required": true,
+            "x-order": 4
+          }
+        ],
+        "x-produc-type": "kafka",
+        "x-hybridcloud": true,
+        "x-name": "重置消费组消费进度到指定位置",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hws,hws_hk,ctc,fcs,cmcc,sbc,hk_sbc,tm,hk_tm,hws_eu,ax",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset",
+        "x-request-examples-description-1": "重置的消费进度到指定偏移量。",
+        "x-request-examples-1": {
+          "topic": "test",
+          "partition": 0,
+          "message_offset": 10
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset",
+        "x-request-examples-description-2": "重置的消费进度到指定时间。",
+        "x-request-examples-2": {
+          "topic": "test",
+          "partition": 0,
+          "timestamp": 1571812144000
+        },
+        "schemes": [
+          "https"
+        ],
+        "security": [
+          {
+            "IAM_AUTH_TYPE_NEW": []
+          }
+        ],
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#dms_endpoint#",
+            "description": "",
+            "method": "put",
+            "path": "/v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset",
+            "scheme": "https",
+            "timeout": 60000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "path",
+              "name": "instance_id",
+              "origin": "REQUEST",
+              "value": "instance_id"
+            },
+            {
+              "description": "",
+              "in": "path",
+              "name": "project_id",
+              "origin": "REQUEST",
+              "value": "project_id"
+            },
+            {
+              "description": "",
+              "in": "path",
+              "name": "group",
+              "origin": "REQUEST",
+              "value": "group"
+            }
+          ],
+          "type": "HTTP"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-ratelimit": "dms01",
+        "x-apigateway-request-type": "public"
+      }
+    }
+  },
+  "definitions": {
+    "ResetMessageOffsetReq": {
+      "type": "object",
+      "properties": {
+        "topic": {
+          "description": "Topic名称。",
+          "type": "string"
+        },
+        "partition": {
+          "description": "分区编号,默认值为-1,若传入值为-1,则重置所有分区。",
+          "type": "integer"
+        },
+        "message_offset": {
+          "description": "重置消费进度到指定偏移量。\n- 如果传入offset小于当前最小的offset,则重置到最小的offset。\n- 如果大于最大的offset,则重置到最大的offset。\n\n**message_offset、timestamp二者必选其一。**",
+          "type": "integer",
+          "format": "int64"
+        },
+        "timestamp": {
+          "description": "重置消费进度到指定时间,格式为unix时间戳,单位为毫秒。\n- 如果传入timestamp早于当前最早的timestamp,则重置到最早的timestamp。\n- 如果晚于最晚的timestamp,则重置到最晚的timestamp。\n\n**message_offset、timestamp二者必选其一。**",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "required": [
+        "topic",
+        "partition"
+      ],
+      "example": {
+        "topic": "test",
+        "partition": 0,
+        "message_offset": 10
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

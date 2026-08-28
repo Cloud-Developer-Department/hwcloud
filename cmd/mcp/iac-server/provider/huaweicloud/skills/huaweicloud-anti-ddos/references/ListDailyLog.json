@@ -1,0 +1,214 @@
+{
+  "name": "ListDailyLog",
+  "summary": "查询指定EIP异常事件",
+  "tags": "DDoS防护管理",
+  "productshort": "Anti-DDoS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/antiddos/{floating_ip_id}/logs": {
+      "get": {
+        "tags": [
+          "DDoS防护管理"
+        ],
+        "summary": "查询指定EIP异常事件",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "description": "查询指定EIP在过去24小时之内的异常事件信息,异常事件包括清洗事件和黑洞事件,查询延迟在5分钟之内。",
+        "operationId": "ListDailyLog",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "application/json;charset=utf8",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Content-Type请求头"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 64,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "floating_ip_id",
+            "in": "path",
+            "description": "用户EIP对应的ID",
+            "required": true,
+            "minLength": 32,
+            "maxLength": 64,
+            "type": "string"
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "可选范围:\n- desc:表示时间降序\n- asc:表示时间升序\n默认值为“desc”。",
+            "required": false,
+            "enum": [
+              "desc",
+              "asc"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "返回结果个数限制,此次查询返回数量最大值,取值范围:1~100,与offset配合使用。\n若“limit”与“offset”均不携带则返回所有主机列表。",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 3,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,“limit”携带时此字段有效。",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 10,
+            "type": "string"
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "description": "用户EIP",
+            "required": false,
+            "minLength": 7,
+            "maxLength": 128,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "examples": {
+              "application/json": {
+                "total": 0,
+                "logs": []
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DailyLogs"
+            }
+          }
+        },
+        "x-order": 6
+      }
+    }
+  },
+  "definitions": {
+    "DailyLog": {
+      "type": "object",
+      "required": [
+        "start_time",
+        "end_time",
+        "status",
+        "trigger_bps",
+        "trigger_pps",
+        "trigger_http_pps"
+      ],
+      "description": "EIP异常事件响应体",
+      "properties": {
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "maximum": 9999999999999,
+          "description": "开始时间"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "maximum": 9999999999999,
+          "description": "结束时间"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "enum": [
+            1,
+            2
+          ],
+          "description": "防护状态,可选范围:\n- 1:表示清洗\n- 2:表示黑洞"
+        },
+        "trigger_bps": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "触发时流量"
+        },
+        "trigger_pps": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "触发时报文速率"
+        },
+        "trigger_http_pps": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "触发时HTTP请求速率"
+        }
+      }
+    },
+    "DailyLogs": {
+      "type": "object",
+      "required": [
+        "total",
+        "logs"
+      ],
+      "description": "EIP防护流量响应体",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "弹性IP总数"
+        },
+        "logs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 2147483647,
+          "description": "异常事件列表",
+          "items": {
+            "$ref": "#/definitions/DailyLog"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "antiddos.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

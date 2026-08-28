@@ -1,0 +1,481 @@
+{
+  "name": "CreateCloudTableTransferTask",
+  "summary": "添加CloudTable转储任务",
+  "tags": "转储任务管理",
+  "productshort": "DIS",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v2/{project_id}/streams/{stream_name}/transfer-tasks": {
+      "post": {
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "添加CloudTable HBase转储任务",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v2/{project_id}/streams/{stream_name}/transfer-tasks",
+        "x-request-examples-1": {
+          "destination_type": "CLOUDTABLE",
+          "cloudtable_destination_descriptor": {
+            "task_name": "hbasetask",
+            "consumer_strategy": "TRIM_HORIZON",
+            "agency_name": "dis_admin_agency",
+            "cloudtable_cluster_name": "cloudtablecluster",
+            "cloudtable_cluster_id": "b8c095e2-db5f-4732-8a1d-eacd662e35dc",
+            "cloudtable_table_name": "cloudtabletable",
+            "cloudtable_row_key_delimiter": "|",
+            "retry_duration": 1800,
+            "obs_backup_bucket_path": "obsbackupbucket",
+            "backup_file_prefix": "",
+            "cloudtable_schema": {
+              "row_key": [
+                {
+                  "value": "datavalue",
+                  "type": "String"
+                }
+              ],
+              "columns": [
+                {
+                  "column_family_name": "cfname1",
+                  "column_name": "ID",
+                  "value": "datavalue1",
+                  "type": "String"
+                },
+                {
+                  "column_family_name": "cfname2",
+                  "column_name": "VALUE",
+                  "value": "datavalue2",
+                  "type": "String"
+                }
+              ]
+            }
+          }
+        },
+        "x-request-examples-description-2": "添加CloudTable OpenTSDB转储任务",
+        "x-request-examples-url-2": "POST https://{Endpoint}/v2/{project_id}/streams/{stream_name}/transfer-tasks",
+        "x-request-examples-2": {
+          "destination_type": "CLOUDTABLE",
+          "cloudtable_destination_descriptor": {
+            "task_name": "opentsdbtask",
+            "consumer_strategy": "LATEST",
+            "agency_name": "dis_admin_agency",
+            "cloudtable_cluster_name": "cloudtablecluster",
+            "cloudtable_cluster_id": "b8c095e2-db5f-4732-8a1d-eacd662e35dc",
+            "retry_duration": 1800,
+            "obs_backup_bucket_path": "obsbackupbucket",
+            "backup_file_prefix": "",
+            "opentsdb_schema": [
+              {
+                "metric": [
+                  {
+                    "type": "Constant",
+                    "value": "age"
+                  }
+                ],
+                "timestamp": {
+                  "value": "date",
+                  "type": "String",
+                  "format": "yyyy/MM/dd HH:mm:ss"
+                },
+                "value": {
+                  "value": "value",
+                  "type": "Bigint"
+                },
+                "tags": [
+                  {
+                    "name": "name",
+                    "value": "name",
+                    "type": "Bigint"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "x-support-sdk": "N",
+        "tags": [
+          "转储任务管理"
+        ],
+        "description": "本接口用于添加CloudTable转储任务。",
+        "operationId": "CreateCloudTableTransferTask",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "添加CloudTable转储任务",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "x-example": "new-stream",
+            "description": "已创建的通道名称。",
+            "required": true,
+            "type": "string",
+            "maxLength": 60
+          },
+          {
+            "name": "CreateCloudTableTransferTaskRequestBody",
+            "in": "body",
+            "description": "CreateCloudTableTransferTaskRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCloudTableTransferTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "正常返回"
+          }
+        },
+        "security": [
+          {
+            "aksk": []
+          }
+        ],
+        "x-version": "v2"
+      }
+    }
+  },
+  "definitions": {
+    "OpenTSDBTimestamp": {
+      "required": [
+        "type",
+        "value",
+        "format"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "- Timestamp类型表示通道内用户数据对应JSON属性的取值为Timestamp类型,不需要进行数据格式转换就可以生成OpenTSDB的timestamp。\n- String类型表示通道内用户数据对应JSON属性的取值为Date格式,需要进行数据格式转换才能生成OpenTSDB的timestamp。"
+        },
+        "value": {
+          "type": "string",
+          "description": "通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        },
+        "format": {
+          "type": "string",
+          "description": "“type”为“String”类型时必选。表示通道内用户数据对应JSON属性的取值为Date格式,需要根据format字段进行数据格式转换生成OpenTSDB的timestamp。\n\n取值范围:\n\n- yyyy/MM/dd HH:mm:ss\n- MM/dd/yyyy HH:mm:ss\n- dd/MM/yyyy HH:mm:ss\n- yyyy-MM-dd HH:mm:ss\n- MM-dd-yyyy HH:mm:ss\n- dd-MM-yyyy HH:mm:ss"
+        }
+      },
+      "description": "CloudTable集群OpenTSDB 数据timestamp的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB数据的timestamp。"
+    },
+    "OpenTSDBValue": {
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "通道内用户JSON数据对应JSON属性的类型名称。\n\n取值范围:\n\n- Bigint\n- Double\n- Boolean\n- Timestamp\n- String\n- Decimal"
+        },
+        "value": {
+          "type": "string",
+          "description": "常量或通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        }
+      },
+      "description": "CloudTable集群OpenTSDB 数据value的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB 数据的value。"
+    },
+    "OpenTSDBSchema": {
+      "properties": {
+        "metric": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OpenTSDBMetric"
+          },
+          "description": "CloudTable集群OpenTSDB数据metric的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB数据的metric。"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/OpenTSDBTimestamp"
+        },
+        "value": {
+          "$ref": "#/definitions/OpenTSDBValue"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OpenTSDBTags"
+          },
+          "description": "CloudTable集群OpenTSDB数据tags的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB数据的tags。"
+        }
+      },
+      "xml": {
+        "name": "OpenTSDBSchema"
+      },
+      "required": [
+        "metric",
+        "timestamp",
+        "value",
+        "tags"
+      ],
+      "description": "转储OpenTSDB时必选,与“cloudtable_schema”二选一,表示CloudTable集群OpenTSDB数据的Schema配置。用于将通道内的JSON数据进行格式转换并导入Cloudtable的OpenTSDB。"
+    },
+    "CommonDestinationDescriptor": {
+      "description": "转储任务请求体公共部分。",
+      "required": [
+        "task_name",
+        "agency_name",
+        "deliver_time_interval"
+      ],
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "description": "转储任务的名称。  任务名称由英文字母、数字、中划线和下划线组成。长度为1~64个字符。",
+          "x-example": "new-task"
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "在统一身份认证服务(IAM)中创建委托的名称,DIS需要获取IAM委托信息去访问您指定的资源。创建委托的参数设置如下:\n- 委托类型:云服务\n- 云服务:DIS\n- 持续时间:永久\n- “所属区域”为“全局服务”,“项目”为“对象存储服务”对应的“策略”包含“Tenant Administrator”。\n如果已经创建过委托,可以使用IAM服务提供的查询委托列表接口,获取有效可用的委托名称。\n取值范围:长度不超过64位,且不可配置为空。\n\n如果有在Console控制台使用转储任务,会提示自动创建委托,自动创建的委托名称为:dis_admin_agency",
+          "maxLength": 64,
+          "x-example": "dis_admin_agency"
+        },
+        "deliver_time_interval": {
+          "type": "integer",
+          "default": 300,
+          "description": "根据用户配置的时间,周期性的将数据导入OBS,若某个时间段内无数据,则此时间段不会生成打包文件。\n\n单位:秒",
+          "maximum": 900,
+          "minimum": 30,
+          "format": "int32"
+        },
+        "consumer_strategy": {
+          "type": "string",
+          "default": "LATEST",
+          "description": "偏移量。\n\n- LATEST:最大偏移量,即获取最新的数据。\n- TRIM_HORIZON:最小偏移量,即读取最早的数据。",
+          "enum": [
+            "LATEST",
+            "TRIM_HORIZON"
+          ]
+        }
+      }
+    },
+    "CloudtableSchema": {
+      "properties": {
+        "row_key": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RowKey"
+          },
+          "description": "CloudTable集群HBase数据rowkey的Schema配置,用于将通道内的JSON数据生成HBase数据的rowkey。\n\n取值范围:1~64。"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Column"
+          },
+          "description": "CloudTable集群HBase数据列的Schema配置,用于将通道内的JSON数据生成HBase数据的列。\n\n取值范围:1~4096。"
+        }
+      },
+      "xml": {
+        "name": "CloudtableSchema"
+      },
+      "required": [
+        "row_key",
+        "columns"
+      ],
+      "description": "转储HBase时必选,与“opentsdb_schema”二选一,表示CloudTable集群HBase数据的Schema配置。用于将通道内的JSON数据进行格式转换并导入Cloudtable的HBase表中。"
+    },
+    "CloudtableDestinationDescriptorRequest": {
+      "xml": {
+        "name": "CloudtableDestinationDescriptorRequest"
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "cloudtable_cluster_name",
+            "cloudtable_cluster_id"
+          ],
+          "properties": {
+            "cloudtable_cluster_name": {
+              "type": "string",
+              "description": "存储该通道数据的CloudTable集群名称。\n\n如果选择转储OpenTSDB,则集群必须开启OpenTSDB。"
+            },
+            "cloudtable_cluster_id": {
+              "type": "string",
+              "description": "存储该通道数据的CloudTable集群ID。\n\n如果选择转储OpenTSDB,则集群必须开启OpenTSDB。"
+            },
+            "cloudtable_table_name": {
+              "type": "string",
+              "description": "转储HBase时必选,表示存储该通道数据的CloudTable集群HBase表名称。"
+            },
+            "cloudtable_schema": {
+              "$ref": "#/definitions/CloudtableSchema"
+            },
+            "opentsdb_schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OpenTSDBSchema"
+              },
+              "description": "转储OpenTSDB时必选,与“cloudtable_schema”二选一,表示CloudTable集群OpenTSDB数据的Schema配置。用于将通道内的JSON数据进行格式转换并导入Cloudtable的OpenTSDB。"
+            },
+            "cloudtable_row_key_delimiter": {
+              "type": "string",
+              "description": "转储HBase的rowkey分隔符,用于分隔生成rowKey的用户数据。取值范围:”, ”、 ”. ”、 ”|”、 ”; ”、 ”\\”、 ”-”、 ”_”、 ”~”\n\n缺省值:”.”"
+            },
+            "obs_backup_bucket_path": {
+              "type": "string",
+              "description": "用户数据转储CloudTable服务失败时,可选择将转储失败的数据备份至OBS服务,此参数为OBS服务的桶名称。"
+            },
+            "backup_file_prefix": {
+              "type": "string",
+              "description": "用户数据转储CloudTable服务失败时,可选择将转储失败的数据备份至OBS服务,此参数为OBS桶下的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字和下划线。\n\n最大长度:最大长度为50个字符。\n\n默认配置为空。"
+            },
+            "retry_duration": {
+              "type": "string",
+              "description": "用户数据导入CloudTable服务失败的失效重试时间。超出此时效,转储CloudTable失败的数据将备份至“OBS桶/ backup_file_prefix /cloudtable_error”或“OBS桶/ backup_file_prefix /opentsdb_error”目录下。\n\n取值范围: 0~7200。\n\n单位:秒。\n\n默认配置为1800。"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为CloudTable的参数列表。"
+    },
+    "OpenTSDBMetric": {
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "- Constant表示metric为常量value的值。\n- String表示metric为通道内用户数据对应JSON属性的取值,且该JOSN属性的取值为String。",
+          "enum": [
+            "Constant",
+            "String"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "description": "常量或通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和点。"
+        }
+      }
+    },
+    "OpenTSDBTags": {
+      "required": [
+        "name",
+        "type",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "存储该通道数据的OpenTSDB数据的tag名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        },
+        "type": {
+          "type": "string",
+          "description": "通道内用户JSON数据对应JSON属性的类型名称。\n\n取值范围:\n\n- Bigint\n- Double\n- Boolean\n- Timestamp\n- String\n- Decimal"
+        },
+        "value": {
+          "type": "string",
+          "description": "常量或通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        }
+      }
+    },
+    "CreateCloudTableTransferTaskReq": {
+      "required": [
+        "destination_type"
+      ],
+      "properties": {
+        "destination_type": {
+          "type": "string",
+          "example": "OBS",
+          "description": "转储任务类型。\n\n- OBS:转储到OBS\n- MRS:转储到MRS\n- DLI:转储到DLI\n- CLOUDTABLE:转储到CloudTable\n- DWS:转储到DWS",
+          "default": "NOWHERE",
+          "enum": [
+            "CLOUDTABLE"
+          ]
+        },
+        "cloudtable_destination_descriptor": {
+          "$ref": "#/definitions/CloudtableDestinationDescriptorRequest"
+        }
+      }
+    },
+    "RowKey": {
+      "required": [
+        "value",
+        "type"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性名,用于生成HBase数据的rowkey。"
+        },
+        "type": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性的类型名称。",
+          "enum": [
+            "Bigint",
+            "Double",
+            "Boolean",
+            "Timestamp",
+            "String",
+            "Decimal"
+          ]
+        }
+      }
+    },
+    "Column": {
+      "properties": {
+        "column_family_name": {
+          "type": "string",
+          "description": "存储该通道数据的HBase表数据的列族名称。"
+        },
+        "column_name": {
+          "type": "string",
+          "description": "存储该通道数据的HBase表数据的列名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        },
+        "value": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性名,用于生成HBase数据的列值。"
+        },
+        "type": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性的类型名称。",
+          "enum": [
+            "Bigint",
+            "Double",
+            "Boolean",
+            "Timestamp",
+            "String",
+            "Decimal"
+          ]
+        }
+      },
+      "xml": {
+        "name": "SchemaField"
+      },
+      "required": [
+        "column_family_name",
+        "column_name",
+        "value",
+        "type"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dis.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

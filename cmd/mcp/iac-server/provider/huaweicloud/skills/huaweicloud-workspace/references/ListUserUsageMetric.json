@@ -1,0 +1,296 @@
+{
+  "name": "ListUserUsageMetric",
+  "summary": "查询用户使用统计数据",
+  "tags": "报表统计",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/statistics/metrics/users": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "查询用户使用统计数据",
+        "description": "查询用户使用统计信息;\n最多查询30天内的数据;",
+        "operationId": "ListUserUsageMetric",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "查询起始时间(0时区)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": "1970-01-01T00:00:00Z"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "查询截止时间(0时区)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-example": "1970-01-01T01:00:00Z"
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "description": "用户名(模糊匹配)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "x-example": "xxx"
+          },
+          {
+            "name": "usage_min_hours",
+            "in": "query",
+            "description": "使用时长最小值。",
+            "required": false,
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 0,
+            "x-example": "0"
+          },
+          {
+            "name": "usage_max_hours",
+            "in": "query",
+            "description": "使用时长最大值\nusage_min_hours和usage_max_hours同时存在时,usage_max_hours必须大于等于usage_min_hours",
+            "required": false,
+            "type": "integer",
+            "maximum": 2147483646,
+            "minimum": 0,
+            "x-example": "0"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "企业项目ID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          {
+            "name": "sort_field",
+            "in": "query",
+            "description": "按照指标进行排序\n* `user_usage` -  按照用户使用时长排序",
+            "required": false,
+            "type": "string",
+            "pattern": "(user_usage)",
+            "x-example": "user_usage"
+          },
+          {
+            "name": "sort_type",
+            "in": "query",
+            "description": "按照指标进行排序的方向;需配合sort_field一起使用\n* `DESC` - 降序返回数据\n* `ASC` -  升序返回数据",
+            "required": false,
+            "type": "string",
+            "default": "DESC",
+            "pattern": "(ASC|DESC)",
+            "x-example": "DESC"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "description": "域名",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "local.com"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "查询的偏移量,默认值0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 2147483646,
+            "minimum": 0,
+            "x-example": "0"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit范围[1-100],默认值0。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "x-example": "10"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功。",
+            "examples": {
+              "application/json": {
+                "count": 0,
+                "items": [
+                  {
+                    "username": "xxxx",
+                    "metric": [
+                      {
+                        "metric_name": "desktop_state",
+                        "metric_value": 10
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListUserMetricResp"
+            }
+          },
+          "400": {
+            "description": "客户端请求有误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT, abacAction = \"workspace:statistics:listUserMetrics\", authContextInitializerName = \"workspaceCommonAuthContextInitializer\", needApigwJwtAuthCheck = false, rbac = {\"te_admin\", \"wks_adm\"})",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"ListUserUsageMetric\")"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "UserMetric": {
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "xxxx",
+          "description": "用户名称。",
+          "readOnly": true
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。",
+          "readOnly": true
+        },
+        "metric": {
+          "type": "array",
+          "description": "桌面使用统计信息\n* `user_usage` -  用户使用时长(单位:秒),同一时间登录多台PC的话;相应的时间会累加\n* `user_login_count` -  用户登录次数(单位:次)\n* `user_login_success_count` -  用户登录成功次数(单位:次)\n* `user_login_fail_count` -  用户登录失败次数(单位:次)",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/Metric"
+          }
+        }
+      }
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "metric_name": {
+          "type": "string",
+          "example": "desktop_state",
+          "description": "指标名称。",
+          "readOnly": true
+        },
+        "metric_value": {
+          "type": "number",
+          "format": "double",
+          "example": 10.0,
+          "description": "指标值。",
+          "readOnly": true
+        }
+      },
+      "description": "指标。"
+    },
+    "ListUserMetricResp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "example": 0,
+          "description": "总数。",
+          "readOnly": true
+        },
+        "items": {
+          "type": "array",
+          "description": "用户统计指标。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/UserMetric"
+          }
+        }
+      },
+      "description": "查询用户统计指标响应。"
+    },
+    "ErrorRsp": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。",
+      "required": true,
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+      "x-annotations": [
+        "@Size(max = 255, min = 1)"
+      ]
+    }
+  },
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

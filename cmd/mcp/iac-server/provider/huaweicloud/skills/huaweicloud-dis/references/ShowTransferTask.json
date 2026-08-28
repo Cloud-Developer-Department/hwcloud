@@ -1,0 +1,818 @@
+{
+  "name": "ShowTransferTask",
+  "summary": "查询转储任务详情",
+  "tags": "转储任务管理",
+  "productshort": "DIS",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/streams/{stream_name}/transfer-tasks/{task_name}": {
+      "get": {
+        "x-version": "v2",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "查询转储任务详情",
+        "x-request-examples-url-1": "GET https://{Endpoint}/v2/{project_id}/streams/{stream_name}/transfer-tasks/{task_name}",
+        "x-request-examples-1": "",
+        "x-source": "SelfDeveloped",
+        "x-timeout": "60s",
+        "x-support-sdk": "Y",
+        "description": "查询转储任务详情。",
+        "summary": "查询转储任务详情",
+        "operationId": "ShowTransferTask",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "description": "已创建的通道的名称。",
+            "required": true,
+            "type": "string",
+            "x-example": "new-stream",
+            "x-order": 1
+          },
+          {
+            "name": "task_name",
+            "in": "path",
+            "description": "待删除的转储任务名称。",
+            "required": true,
+            "type": "string",
+            "x-example": "new-task",
+            "x-order": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回",
+            "examples": {
+              "application/json": {
+                "stream_id": "RdMFID6edQdf8eDzc9e",
+                "stream_name": "newstream",
+                "task_name": "newtask",
+                "task_id": "As805BudhcH1lDs6gbn",
+                "destination_type": "OBS",
+                "state": "RUNNING",
+                "create_time": 1606554932552,
+                "last_transfer_timestamp": 1606984428612,
+                "obs_destination_description": {
+                  "agency_name": "dis_admin_agency",
+                  "file_prefix\"": "",
+                  "partition_format": "yyyy/MM/dd",
+                  "obs_bucket_path": "obsbucket",
+                  "deliver_time_interval": 60,
+                  "consumer_strategy": "LATEST",
+                  "retry_duration": 0,
+                  "destination_file_type": "text",
+                  "record_delimiter": "\n"
+                },
+                "partitions": [
+                  {
+                    "partitionId": "shardId-0000000000",
+                    "discard": 0,
+                    "state": "RUNNING",
+                    "last_transfer_timestamp": 1606984428612,
+                    "last_transfer_offset": 289897
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DescribeTransferTaskResult"
+            }
+          }
+        },
+        "tags": [
+          "转储任务管理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ProcessingSchema": {
+      "required": [
+        "timestamp_name",
+        "timestamp_type"
+      ],
+      "properties": {
+        "timestamp_name": {
+          "type": "string",
+          "description": "源数据时间戳的属性名称。",
+          "format": "int32"
+        },
+        "timestamp_type": {
+          "type": "string",
+          "description": "源数据时间戳的类型。\n\n- String\n- Timestamp:Long类型的13位时间戳",
+          "format": "int32"
+        },
+        "timestamp_format": {
+          "type": "string",
+          "description": "源数据时间戳的类型为String时必选,用于根据时间戳格式生成OBS的时间目录。",
+          "format": "int32"
+        }
+      },
+      "description": "根据源数据的时间戳和已配置的\"partition_format\"生成对应的转储时间目录。将源数据的时间戳使用“yyyy/MM/dd/HH/mm”格式生成分区字符串,用来定义写到OBS的Object文件所在的目录层次结构。"
+    },
+    "OpenTSDBValue": {
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "通道内用户JSON数据对应JSON属性的类型名称。\n\n取值范围:\n\n- Bigint\n- Double\n- Boolean\n- Timestamp\n- String\n- Decimal"
+        },
+        "value": {
+          "type": "string",
+          "description": "常量或通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        }
+      },
+      "description": "CloudTable集群OpenTSDB 数据value的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB 数据的value。"
+    },
+    "Options": {
+      "properties": {
+        "fill_missing_fields": {
+          "type": "string",
+          "description": "数据入库时,数据源文件中某行的最后一个字段缺失时,请选择是直接将字段设为Null,还是在错误表中报错提示。\n\n取值范围:\n\n\n- true/on\n- false/off\n\n缺省值:false/off",
+          "enum": [
+            "true/on",
+            "false/off"
+          ]
+        },
+        "ignore_extra_data": {
+          "type": "string",
+          "description": "数据源文件中的字段比外表定义列数多时,是否忽略多出的列。该参数只在数据导入过程中使用。\n\n取值范围:\n\n- true/on\n- false/off\n\n缺省值:false/off",
+          "enum": [
+            "true/on",
+            "false/off"
+          ]
+        },
+        "compatible_illegal_chars": {
+          "type": "string",
+          "description": "导入非法字符容错参数。是将非法字符按照转换规则转换后入库,还是报错中止导入。\n\n取值范围:\n\n- true/on\n- false/off\n\n缺省值:false/off",
+          "enum": [
+            "true/on",
+            "false/off"
+          ]
+        },
+        "reject_limit": {
+          "type": "string",
+          "description": "指定本次数据导入允许出现的数据格式错误个数,当导入过程中出现的数据格式错误未达到限定值时,本次数据导入可以成功。\n\n取值范围:\n\n- 整型值\n- unlimited(无限制)\n\n缺省值为0,有错误信息立即返回。"
+        },
+        "error_table_name": {
+          "type": "string",
+          "description": "用于记录数据格式错误信息的错误表表名。并行导入结束后查询此错误信息表,能够获取详细的错误信息。"
+        }
+      },
+      "xml": {
+        "name": "Options"
+      },
+      "description": "DWS容错性选项(用于指定外表数据的各类参数)。"
+    },
+    "CloudtableSchema": {
+      "properties": {
+        "row_key": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RowKey"
+          },
+          "description": "CloudTable集群HBase数据rowkey的Schema配置,用于将通道内的JSON数据生成HBase数据的rowkey。\n\n取值范围:1~64。"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Column"
+          },
+          "description": "CloudTable集群HBase数据列的Schema配置,用于将通道内的JSON数据生成HBase数据的列。\n\n取值范围:1~4096。"
+        }
+      },
+      "xml": {
+        "name": "CloudtableSchema"
+      },
+      "required": [
+        "row_key",
+        "columns"
+      ],
+      "description": "转储HBase时必选,与“opentsdb_schema”二选一,表示CloudTable集群HBase数据的Schema配置。用于将通道内的JSON数据进行格式转换并导入Cloudtable的HBase表中。"
+    },
+    "CloudtableDestinationDescriptorRequest": {
+      "xml": {
+        "name": "CloudtableDestinationDescriptorRequest"
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "cloudtable_cluster_name",
+            "cloudtable_cluster_id"
+          ],
+          "properties": {
+            "cloudtable_cluster_name": {
+              "type": "string",
+              "description": "存储该通道数据的CloudTable集群名称。\n\n如果选择转储OpenTSDB,则集群必须开启OpenTSDB。"
+            },
+            "cloudtable_cluster_id": {
+              "type": "string",
+              "description": "存储该通道数据的CloudTable集群ID。\n\n如果选择转储OpenTSDB,则集群必须开启OpenTSDB。"
+            },
+            "cloudtable_table_name": {
+              "type": "string",
+              "description": "转储HBase时必选,表示存储该通道数据的CloudTable集群HBase表名称。"
+            },
+            "cloudtable_schema": {
+              "$ref": "#/definitions/CloudtableSchema"
+            },
+            "opentsdb_schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OpenTSDBSchema"
+              },
+              "description": "转储OpenTSDB时必选,与“cloudtable_schema”二选一,表示CloudTable集群OpenTSDB数据的Schema配置。用于将通道内的JSON数据进行格式转换并导入Cloudtable的OpenTSDB。"
+            },
+            "cloudtable_row_key_delimiter": {
+              "type": "string",
+              "description": "转储HBase的rowkey分隔符,用于分隔生成rowKey的用户数据。取值范围:”, ”、 ”. ”、 ”|”、 ”; ”、 ”\\”、 ”-”、 ”_”、 ”~”\n\n缺省值:”.”"
+            },
+            "obs_backup_bucket_path": {
+              "type": "string",
+              "description": "用户数据转储CloudTable服务失败时,可选择将转储失败的数据备份至OBS服务,此参数为OBS服务的桶名称。"
+            },
+            "backup_file_prefix": {
+              "type": "string",
+              "description": "用户数据转储CloudTable服务失败时,可选择将转储失败的数据备份至OBS服务,此参数为OBS桶下的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字和下划线。\n\n最大长度:最大长度为50个字符。\n\n默认配置为空。"
+            },
+            "retry_duration": {
+              "type": "string",
+              "description": "用户数据导入CloudTable服务失败的失效重试时间。超出此时效,转储CloudTable失败的数据将备份至“OBS桶/ backup_file_prefix /cloudtable_error”或“OBS桶/ backup_file_prefix /opentsdb_error”目录下。\n\n取值范围: 0~7200。\n\n单位:秒。\n\n默认配置为1800。"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为CloudTable的参数列表。"
+    },
+    "OpenTSDBMetric": {
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "- Constant表示metric为常量value的值。\n- String表示metric为通道内用户数据对应JSON属性的取值,且该JOSN属性的取值为String。",
+          "enum": [
+            "Constant",
+            "String"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "description": "常量或通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和点。"
+        }
+      }
+    },
+    "RowKey": {
+      "required": [
+        "value",
+        "type"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性名,用于生成HBase数据的rowkey。"
+        },
+        "type": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性的类型名称。",
+          "enum": [
+            "Bigint",
+            "Double",
+            "Boolean",
+            "Timestamp",
+            "String",
+            "Decimal"
+          ]
+        }
+      }
+    },
+    "MRSDestinationDescriptorRequest": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "mrs_cluster_name",
+            "mrs_cluster_id",
+            "mrs_hdfs_path",
+            "obs_bucket_path"
+          ],
+          "properties": {
+            "mrs_cluster_name": {
+              "type": "string",
+              "description": "存储该通道数据的MRS集群名称。\n\n说明:\n\n仅支持非Kerberos认证的MRS集群。"
+            },
+            "mrs_cluster_id": {
+              "type": "string",
+              "description": "存储该通道数据的MRS集群ID。"
+            },
+            "mrs_hdfs_path": {
+              "type": "string",
+              "description": "存储该通道数据的MRS集群的HDFS路径。"
+            },
+            "file_prefix": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶下的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字、下划线和斜杠,最大长度为50个字符。\n\n默认配置为空。"
+            },
+            "hdfs_prefix_folder": {
+              "type": "string",
+              "description": "在MRS集群HDFS中存储通道文件的自定义目录,多级目录可用\"/\"进行分隔。\n\n取值范围:0~50个字符。\n\n默认配置为空。"
+            },
+            "obs_bucket_path": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶名称。"
+            },
+            "retry_duration": {
+              "type": "string",
+              "description": "用户数据转储失败的失效重试时间。重试时间超过该配置项配置的值,则将转储失败的数据备份至“OBS桶/\nfile_prefix/mrs_error”目录下。\n\n取值范围:0~7200。\n\n单位:秒。\n\n默认配置为1800。\n\n配置为“0”表示DIS服务不会在转储失败时进行重试。"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为MRS的参数列表。"
+    },
+    "DWSDestinationDescriptorRequest": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "dws_cluster_name",
+            "dws_cluster_id",
+            "dws_database_name",
+            "dws_schema",
+            "dws_table_name",
+            "dws_delimiter",
+            "user_name",
+            "user_password",
+            "kms_user_key_name",
+            "kms_user_key_id",
+            "obs_bucket_path"
+          ],
+          "properties": {
+            "dws_cluster_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS集群名称。"
+            },
+            "dws_cluster_id": {
+              "type": "string",
+              "description": "存储该通道数据的DWS集群ID。"
+            },
+            "dws_database_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库名称。"
+            },
+            "dws_schema": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库模式。"
+            },
+            "dws_table_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库模式下的数据表。"
+            },
+            "dws_delimiter": {
+              "type": "string",
+              "description": "用户数据的字段分隔符,根据此分隔符分隔用户数据插入DWS数据表的相应列。\n\n取值范围:“,”、“;”和“|”三种字符中的一个。"
+            },
+            "user_name": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库的用户名。"
+            },
+            "user_password": {
+              "type": "string",
+              "description": "存储该通道数据的DWS数据库的密码。"
+            },
+            "kms_user_key_name": {
+              "type": "string",
+              "description": "用户在密钥管理服务(简称KMS)创建的用户主密钥名称,用于加密存储DWS数据库的密码。"
+            },
+            "kms_user_key_id": {
+              "type": "string",
+              "description": "用户在密钥管理服务(简称KMS)创建的用户主密钥ID,用于加密存储DWS数据库的密码。"
+            },
+            "obs_bucket_path": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶名称。"
+            },
+            "file_prefix": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶下的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字、下划线和斜杠,最大长度为50个字符。\n\n默认配置为空。"
+            },
+            "retry_duration": {
+              "type": "string",
+              "description": "用户数据导入DWS集群失败的重试失效时间。超出此配置项配置的时间,转储DWS失败的数据将备份至“OBS桶/ file_prefix/dws_error”目录下。\n\n取值范围: 0~7200。\n\n单位:秒。\n\n默认配置为1800。"
+            },
+            "dws_table_columns": {
+              "type": "string",
+              "description": "指定要转储到DWS表中的列,为null或者为空则默认全列。比如“c1,c2”表示将Schema中c1和c2这两列转储到DWS。\n\n默认为空。",
+              "example": "c1,c2,c3"
+            },
+            "options": {
+              "$ref": "#/definitions/Options"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为DWS的参数列表。"
+    },
+    "DescribeTransferTaskResult": {
+      "properties": {
+        "stream_name": {
+          "type": "string",
+          "description": "该转储任务所属通道名称。",
+          "format": "int64"
+        },
+        "task_name": {
+          "type": "string",
+          "description": "转储任务名称。",
+          "format": "int64"
+        },
+        "state": {
+          "type": "string",
+          "description": "转储任务状态。\n\n- ERROR:错误。\n- STARTING:启动中。\n- PAUSED:已停止。\n- RUNNING:运行中。\n- DELETE:已删除。\n- ABNORMAL:异常。",
+          "enum": [
+            "ERROR",
+            "STARTING",
+            "PAUSED",
+            "RUNNING",
+            "DELETE",
+            "ABNORMAL"
+          ],
+          "format": "int32",
+          "example": "RUNNING"
+        },
+        "destination_type": {
+          "type": "string",
+          "description": "转储任务类型。\n\n- OBS:转储到OBS。\n- MRS:转储到MRS。\n- DLI:转储到DLI。\n- CLOUDTABLE:转储到CloudTable。\n- DWS:转储到DWS。",
+          "enum": [
+            "OBS",
+            "MRS",
+            "DLI",
+            "CLOUDTABLE",
+            "DWS"
+          ],
+          "format": "int32",
+          "example": "OBS"
+        },
+        "create_time": {
+          "type": "integer",
+          "description": "转储任务创建时间。",
+          "format": "int64"
+        },
+        "last_transfer_timestamp": {
+          "type": "integer",
+          "description": "转储任务最近一次转储时间。",
+          "format": "int64"
+        },
+        "partitions": {
+          "type": "array",
+          "description": "分区转储详情列表。",
+          "items": {
+            "$ref": "#/definitions/PartitionResult"
+          }
+        },
+        "obs_destination_description": {
+          "$ref": "#/definitions/OBSDestinationDescriptorRequest"
+        },
+        "dws_destination_descripton": {
+          "$ref": "#/definitions/DWSDestinationDescriptorRequest"
+        },
+        "mrs_destination_description": {
+          "$ref": "#/definitions/MRSDestinationDescriptorRequest"
+        },
+        "dli_destination_description": {
+          "$ref": "#/definitions/DliDestinationDescriptorRequest"
+        },
+        "cloudtable_destination_descripton": {
+          "$ref": "#/definitions/CloudtableDestinationDescriptorRequest"
+        }
+      }
+    },
+    "OpenTSDBTimestamp": {
+      "required": [
+        "type",
+        "value",
+        "format"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "- Timestamp类型表示通道内用户数据对应JSON属性的取值为Timestamp类型,不需要进行数据格式转换就可以生成OpenTSDB的timestamp。\n- String类型表示通道内用户数据对应JSON属性的取值为Date格式,需要进行数据格式转换才能生成OpenTSDB的timestamp。"
+        },
+        "value": {
+          "type": "string",
+          "description": "通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        },
+        "format": {
+          "type": "string",
+          "description": "“type”为“String”类型时必选。表示通道内用户数据对应JSON属性的取值为Date格式,需要根据format字段进行数据格式转换生成OpenTSDB的timestamp。\n\n取值范围:\n\n- yyyy/MM/dd HH:mm:ss\n- MM/dd/yyyy HH:mm:ss\n- dd/MM/yyyy HH:mm:ss\n- yyyy-MM-dd HH:mm:ss\n- MM-dd-yyyy HH:mm:ss\n- dd-MM-yyyy HH:mm:ss"
+        }
+      },
+      "description": "CloudTable集群OpenTSDB 数据timestamp的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB数据的timestamp。"
+    },
+    "OpenTSDBSchema": {
+      "properties": {
+        "metric": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OpenTSDBMetric"
+          },
+          "description": "CloudTable集群OpenTSDB数据metric的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB数据的metric。"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/OpenTSDBTimestamp"
+        },
+        "value": {
+          "$ref": "#/definitions/OpenTSDBValue"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OpenTSDBTags"
+          },
+          "description": "CloudTable集群OpenTSDB数据tags的Schema配置,用于将通道内的JSON数据进行格式转换生成OpenTSDB数据的tags。"
+        }
+      },
+      "xml": {
+        "name": "OpenTSDBSchema"
+      },
+      "required": [
+        "metric",
+        "timestamp",
+        "value",
+        "tags"
+      ],
+      "description": "转储OpenTSDB时必选,与“cloudtable_schema”二选一,表示CloudTable集群OpenTSDB数据的Schema配置。用于将通道内的JSON数据进行格式转换并导入Cloudtable的OpenTSDB。"
+    },
+    "CommonDestinationDescriptor": {
+      "description": "转储任务请求体公共部分。",
+      "required": [
+        "task_name",
+        "agency_name",
+        "deliver_time_interval"
+      ],
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "description": "转储任务的名称。  任务名称由英文字母、数字、中划线和下划线组成。长度为1~64个字符。",
+          "x-example": "new-task"
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "在统一身份认证服务(IAM)中创建委托的名称,DIS需要获取IAM委托信息去访问您指定的资源。创建委托的参数设置如下:\n- 委托类型:云服务\n- 云服务:DIS\n- 持续时间:永久\n- “所属区域”为“全局服务”,“项目”为“对象存储服务”对应的“策略”包含“Tenant Administrator”。\n如果已经创建过委托,可以使用IAM服务提供的查询委托列表接口,获取有效可用的委托名称。\n取值范围:长度不超过64位,且不可配置为空。\n\n如果有在Console控制台使用转储任务,会提示自动创建委托,自动创建的委托名称为:dis_admin_agency",
+          "maxLength": 64,
+          "x-example": "dis_admin_agency"
+        },
+        "deliver_time_interval": {
+          "type": "integer",
+          "default": 300,
+          "description": "根据用户配置的时间,周期性的将数据导入OBS,若某个时间段内无数据,则此时间段不会生成打包文件。\n\n单位:秒",
+          "maximum": 900,
+          "minimum": 30,
+          "format": "int32"
+        },
+        "consumer_strategy": {
+          "type": "string",
+          "default": "LATEST",
+          "description": "偏移量。\n\n- LATEST:最大偏移量,即获取最新的数据。\n- TRIM_HORIZON:最小偏移量,即读取最早的数据。",
+          "enum": [
+            "LATEST",
+            "TRIM_HORIZON"
+          ]
+        }
+      }
+    },
+    "OpenTSDBTags": {
+      "required": [
+        "name",
+        "type",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "存储该通道数据的OpenTSDB数据的tag名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        },
+        "type": {
+          "type": "string",
+          "description": "通道内用户JSON数据对应JSON属性的类型名称。\n\n取值范围:\n\n- Bigint\n- Double\n- Boolean\n- Timestamp\n- String\n- Decimal"
+        },
+        "value": {
+          "type": "string",
+          "description": "常量或通道内用户数据的JSON属性名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        }
+      }
+    },
+    "OBSDestinationDescriptorRequest": {
+      "xml": {
+        "name": "OBSDestinationDescriptorRequest"
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "obs_bucket_path"
+          ],
+          "properties": {
+            "file_prefix": {
+              "type": "string",
+              "example": "prefix1/prefix2",
+              "description": "在OBS中存储通道文件的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字、下划线和斜杠,最大长度为50个字符。\n\n默认配置为空。",
+              "maxLength": 50
+            },
+            "partition_format": {
+              "type": "string",
+              "example": "yyyy/MM/dd",
+              "description": "将转储文件的生成时间使用“yyyy/MM/dd/HH/mm”格式生成分区字符串,用来定义写到OBS的Object文件所在的目录层次结构。\n\n- N/A:置空,不使用日期时间目录。\n- yyyy:年\n- yyyy/MM:年/\n- yyyy/MM/dd:年/月/日\n- yyyy/MM/dd/HH:年/月/日/时\n- yyyy/MM/dd/HH/mm:年/月/日/时/分\n\n例如:2017/11/10/14/49,目录结构就是“2017 > 11 > 10 > 14 > 49”,“2017”表示最外层文件夹。\n\n默认值:空\n\n说明:\n\n数据转储成功后,存储的目录结构为“obs_bucket_path/file_prefix/partition_format”。",
+              "enum": [
+                "yyyy",
+                "yyyy/MM",
+                "yyyy/MM/dd",
+                "yyyy/MM/dd/HH",
+                "yyyy/MM/dd/HH/mm"
+              ]
+            },
+            "obs_bucket_path": {
+              "type": "string",
+              "example": "new-obs-bucket",
+              "description": "存储该通道数据的OBS桶名称。"
+            },
+            "destination_file_type": {
+              "type": "string",
+              "example": "text",
+              "description": "转储文件格式。\n\n- text:转储目标格式为TEXT,缺省值\n- parquet:转储目标格式为Parquet\n- carbon:转储目标格式为Carbon\n\n说明:\n\n“源数据类型”为“JSON”,“转储服务类型”为“OBS”时才可选择“parquet”或“carbon”格式。",
+              "default": "text",
+              "enum": [
+                "text",
+                "parquet",
+                "carbon"
+              ]
+            },
+            "processing_schema": {
+              "$ref": "#/definitions/ProcessingSchema"
+            },
+            "record_delimiter": {
+              "type": "string",
+              "example": "\n",
+              "description": "转储文件的记录分隔符,用于分隔写入转储文件的用户数据。\n\n取值范围:\n\n- 逗号 \",\",默认值\n- 分号 \";\"\n- 竖线 \"|\"\n- 换行符 \"\\n\"",
+              "default": "\\n",
+              "format": "int32"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为OBS的参数列表。"
+    },
+    "DliDestinationDescriptorRequest": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "dli_database_name",
+            "dli_table_name",
+            "obs_bucket_path"
+          ],
+          "properties": {
+            "dli_database_name": {
+              "type": "string",
+              "description": "存储该通道数据的DLI数据库名称。"
+            },
+            "dli_table_name": {
+              "type": "string",
+              "description": "存储该通道数据的DLI表名称。\n\n说明:\n\n仅支持数据位置为DLI的表,且用户需具有该表的插入权限。"
+            },
+            "obs_bucket_path": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶名称。"
+            },
+            "file_prefix": {
+              "type": "string",
+              "description": "临时存储该通道数据的OBS桶下的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字、下划线和斜杠,最大长度为50个字符。\n\n默认配置为空。"
+            },
+            "retry_duration": {
+              "type": "string",
+              "description": "用户数据导入DLI失败的失效重试时间。重试时间超过该配置项配置的值,则将转储失败的数据备份至“OBS桶/ file_prefix/dli_error”目录下。\n取值范围:0~7200。\n单位:秒。\n默认配置为1800。\n配置为“0”表示DIS服务不会在转储失败时进行重试。"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为DLI的参数列表。"
+    },
+    "PartitionResult": {
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "分区的当前状态。\n\n- CREATING:创建中\n- ACTIVE:可用\n- DELETED:删除中\n- EXPIRED:已过期",
+          "enum": [
+            "CREATING",
+            "ACTIVE",
+            "DELETED",
+            "EXPIRED"
+          ]
+        },
+        "partition_id": {
+          "type": "string",
+          "description": "分区的唯一标识符。"
+        },
+        "hash_range": {
+          "type": "string",
+          "description": "分区的可能哈希键值范围。"
+        },
+        "sequence_number_range": {
+          "type": "string",
+          "description": "分区的序列号范围。"
+        },
+        "parent_partitions": {
+          "type": "string",
+          "description": "父分区。"
+        }
+      }
+    },
+    "Column": {
+      "properties": {
+        "column_family_name": {
+          "type": "string",
+          "description": "存储该通道数据的HBase表数据的列族名称。"
+        },
+        "column_name": {
+          "type": "string",
+          "description": "存储该通道数据的HBase表数据的列名称。\n\n取值范围:1~32,只能包含英文字母、数字和下划线。"
+        },
+        "value": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性名,用于生成HBase数据的列值。"
+        },
+        "type": {
+          "type": "string",
+          "description": "通道内JSON数据的JSON属性的类型名称。",
+          "enum": [
+            "Bigint",
+            "Double",
+            "Boolean",
+            "Timestamp",
+            "String",
+            "Decimal"
+          ]
+        }
+      },
+      "xml": {
+        "name": "SchemaField"
+      },
+      "required": [
+        "column_family_name",
+        "column_name",
+        "value",
+        "type"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dis.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

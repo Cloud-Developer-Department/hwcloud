@@ -1,0 +1,248 @@
+{
+  "name": "ListCorpConfigInfo",
+  "summary": "查询企业系统配置",
+  "tags": "租户配置",
+  "productshort": "WorkspaceApp",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/bundles/batch-query-config-info": {
+      "post": {
+        "tags": [
+          "ApplicationConfig"
+        ],
+        "summary": "查询企业系统配置",
+        "description": "配置加载顺序: 查询企业级配置--> 查不到则赋默认阿波罗配置--> 阿波罗没有则不返回。",
+        "operationId": "ListCorpConfigInfo",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 2147483647,
+            "minLength": 0,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目唯一标识。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "ListCorpConfigInfoRequestBody",
+            "description": "请求的key集合。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListConfigInfoReq"
+            }
+          }
+        ],
+        "security": [
+          {
+            "apig-auth-iam-used-authn5": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应。",
+            "examples": {
+              "application/json": {
+                "config_infos": [
+                  {
+                    "config_key": "165454xx5845",
+                    "config_value": "165454xx5845"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListConfigInfoResp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BadRequestErrorResp"
+            }
+          },
+          "503": {
+            "description": "服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/ServiceUnavailableErrorResp"
+            }
+          }
+        },
+        "x-request-examples-text-1": {
+          "items": [
+            "3f791197-d166-4c8e-81e4-38c40ffc1989",
+            "3f791197-d166-4c8e-81e4-38c40ffc1981"
+          ]
+        },
+        "x-request-examples-1": {
+          "items": [
+            "3f791197-d166-4c8e-81e4-38c40ffc1989",
+            "3f791197-d166-4c8e-81e4-38c40ffc1981"
+          ]
+        },
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal,public",
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-ratelimit": "workspace_default_get",
+        "x-apigateway-backend": {
+          "type": "HTTP-VPC",
+          "httpVpcEndpoints": {
+            "name": "wks-bundlemanager-lb",
+            "description": "",
+            "method": "POST",
+            "path": "/v1/{project_id}/bundles/batch-query-config-info",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "header",
+              "name": "X-Auth-Token",
+              "origin": "request",
+              "value": "X-Auth-Token"
+            },
+            {
+              "description": "",
+              "in": "path",
+              "name": "project_id",
+              "origin": "request",
+              "value": "project_id"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ServiceUnavailableErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00050902",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The service is now unavailable to process the request.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ListConfigInfoResp": {
+      "properties": {
+        "config_infos": {
+          "type": "array",
+          "description": "批量配置项列表。",
+          "items": {
+            "$ref": "#/definitions/CorpConfigInfo"
+          },
+          "maxItems": 20,
+          "minItems": 0
+        }
+      },
+      "description": "批量配置项返回。"
+    },
+    "ConfigKeyStringSet": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "example": [
+            "3f791197-d166-4c8e-81e4-38c40ffc1989",
+            "3f791197-d166-4c8e-81e4-38c40ffc1981"
+          ],
+          "description": "查询企业配置请求的key,一次请求数量区间 [0, 100]。",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "description": "查询企业配置请求的key。",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "maxItems": 100,
+          "minItems": 0
+        }
+      },
+      "description": "查询配置的key。"
+    },
+    "ListConfigInfoReq": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ConfigKeyStringSet"
+        }
+      ],
+      "description": "批量查询企业配置请求。"
+    },
+    "CorpConfigInfo": {
+      "type": "object",
+      "properties": {
+        "config_key": {
+          "type": "string",
+          "example": "165454xx5845",
+          "description": "查询的配置configKey。",
+          "readOnly": true
+        },
+        "config_value": {
+          "type": "string",
+          "example": "165454xx5845",
+          "description": "根据configKey查到的configValue。",
+          "readOnly": true
+        }
+      },
+      "description": "企业配置。"
+    },
+    "BadRequestErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211102",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The parameter is invalid.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

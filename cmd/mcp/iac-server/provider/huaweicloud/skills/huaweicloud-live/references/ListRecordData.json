@@ -1,0 +1,217 @@
+{
+  "name": "ListRecordData",
+  "summary": "查询录制用量接口",
+  "tags": "数据统计分析",
+  "productshort": "Live",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v2/{project_id}/stats/record": {
+      "get": {
+        "tags": [
+          "DataStatisticsAnalysis"
+        ],
+        "summary": "查询录制用量接口",
+        "description": "查询直播租户每小时录制的最大并发数,计算1小时内每分钟的并发总路数,取最大值做为统计值。  最大查询跨度31天,最大查询周期90天。",
+        "operationId": "ListRecordData",
+        "deprecated": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-external-api": true,
+        "x-interface-frequency": "HIGH",
+        "x-constraint": "该接口暂只支持查询部署在新版视频直播服务上的域名的相关数据(不包含“华北-北京一”)。此约束条件仅适用于中国站。",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。使用Token鉴权方式时必选。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带的鉴权信息。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+          },
+          {
+            "name": "X-Sdk-Date",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "20191115T033655Z"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-live/live_03_0023.html)。\n",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "in": "query",
+            "name": "publish_domain",
+            "description": "推流域名。\n",
+            "type": "string",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "description": "起始时间。日期格式按照ISO8601表示法,并使用UTC时间。格式为:YYYY-MM-DDThh:mm:ssZ。\n\n非整点时间按小时取整,若start_time为2020-08-18T07:20:40Z,则实际查询起始时间为2020-08-18T07:00:00Z。\n\n若start_time为空,则默认查询最近24小时数据。\n",
+            "type": "string",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "description": "结束时间。日期格式按照ISO8601表示法,并使用UTC时间。格式为:YYYY-MM-DDThh:mm:ssZ。\n\n非整点时间按小时取整,若end_time为2020-08-18T08:20:40Z,则实际查询起始时间为2020-08-18T08:00:00Z。\n\n若参数为空,默认为当前时间。结束时间需大于起始时间。\n",
+            "type": "string",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 64
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。\n",
+            "schema": {
+              "$ref": "#/definitions/RecordDataRsp"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求的唯一标识。"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "record_data_list": [
+                  {
+                    "time": "2020-08-18T07:00:00Z",
+                    "concurrent_count": 20
+                  },
+                  {
+                    "time": "2020-08-18T08:00:00Z",
+                    "concurrent_count": 15
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。\n",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求的唯一标识。"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Invalid request parameter: publish_domain"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询直播录制用量",
+        "x-request-examples-url-1": "GET /v2/{project_id}/stats/record?start_time=2020-08-18T07:00:00Z&end_time=2020-08-18T08:00:00Z\n"
+      }
+    }
+  },
+  "definitions": {
+    "RecordDataRsp": {
+      "type": "object",
+      "properties": {
+        "record_data_list": {
+          "description": "采样数据列表。\n",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 744,
+          "items": {
+            "$ref": "#/definitions/RecordData"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "RecordData": {
+      "type": "object",
+      "properties": {
+        "concurrent_count": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "最大并发路数。"
+        },
+        "time": {
+          "type": "string",
+          "description": "采样时间,每小时内最大并发路数时间点。日期格式按照ISO8601表示法,并使用UTC时间。 格式为:YYYY-MM-DDThh:mm:ssZ 。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,180 @@
+{
+  "name": "ShowHisAlarmCsns",
+  "summary": "查询历史告警流水号",
+  "tags": "告警管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/fault/v1/history-alarms/csns": {
+      "post": {
+        "summary": "查询历史告警流水号",
+        "description": "历史告警初始查询,获取告警流水号列表。\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| >=99%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量(tiny2)|1tps|\n|吞吐量(small)|1tps|\n|吞吐量(medium)|1tps|\n|吞吐量(large)|1tps|\n|TP50请求时延|10000ms|\n|TP99.9请求时延|120000ms|",
+        "x-precautions": "此接口必须在HTTPS通道上访问。查询条件建议包含索引字段,避免查询时间过长导致性能问题。建议字段:OCCURUTC(优先选择)、ALARMID、CSN、MEDN、MODN、NATIVEMEDN、TENANTID...",
+        "tags": [
+          "告警管理"
+        ],
+        "operationId": "ShowHisAlarmCsns",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queryParam",
+            "in": "body",
+            "description": "查询参数。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AlarmQueryParam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询结果,返回符合条件的告警数、告警流水号。",
+            "examples": {
+              "application/json": {
+                "count": 10,
+                "sizeExceeded": true,
+                "csns": [
+                  80301534,
+                  80297793,
+                  80296264,
+                  80296236,
+                  80282656,
+                  80281893,
+                  80280083,
+                  80279399,
+                  80243521,
+                  80243514
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数非法。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/fault/v1/history-alarms/csns",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "query": {
+            "filters": [
+              {
+                "name": "OCCURUTC",
+                "field": "OCCURUTC",
+                "operator": "BETWEEN",
+                "values": [
+                  "1490976000000",
+                  "1491235200000"
+                ]
+              }
+            ],
+            "expression": ""
+          },
+          "sort": [
+            {
+              "field": "CSN",
+              "order": "desc"
+            }
+          ],
+          "size": 20
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AlarmQueryParam": {
+      "description": "当前告警/历史告警/被屏蔽告警/事件 查询参数",
+      "properties": {
+        "dataType": {
+          "description": "该参数只对“/fmdata/v1/alarms”的post方法必要,可取值为:current-当前告警查询,history-历史告警查询,shielded-屏蔽告警查询,event-事件查询",
+          "type": "string"
+        },
+        "query": {
+          "description": "过滤条件",
+          "$ref": "#/definitions/QueryContext"
+        },
+        "sort": {
+          "description": "排序条件",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/QSortField"
+          }
+        },
+        "size": {
+          "description": "返回的结果集最大条数,按设置的排序条件,返回最前的N条记录。无此条件或者不是正整数时,表示查询全部。结果集最大不超过2万条。",
+          "type": "integer",
+          "format": "int32",
+          "default": 2147483647
+        }
+      }
+    },
+    "QFilterElement": {
+      "description": "单个过滤条件",
+      "properties": {
+        "name": {
+          "description": "条件名称,唯一标识一个过滤条件",
+          "type": "string"
+        },
+        "field": {
+          "description": "条件对应的字段名称,当前支持的字段有:",
+          "type": "string"
+        },
+        "operator": {
+          "description": "条件操作符,当前支持的操作符有:\"=\"等于,\"<\"小于,\"<=\"小于等于,\">\"大于,\">=\"大于等于,\"!=\"不等于,\"in\"属于集合,\"like\"包含字符串,\"between\"介于两个数字之间",
+          "type": "string"
+        },
+        "values": {
+          "description": "条件取值",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "QSortField": {
+      "description": "单个排序条件",
+      "properties": {
+        "field": {
+          "description": "排序字段",
+          "type": "string"
+        },
+        "order": {
+          "description": "升降序,“ASC”升序,“DESC”降序",
+          "type": "string"
+        }
+      }
+    },
+    "QueryContext": {
+      "description": "查询过滤条件",
+      "properties": {
+        "filters": {
+          "description": "一组过滤条件的集合",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/QFilterElement"
+          }
+        },
+        "expression": {
+          "description": "由\"and\"、\"or\"、\"not\"、括号和QFilterElement的name组成的条件逻辑表达式。目前只支持\"and\"关系;没有该tag时默认所有条件元素为\"and\"关系",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

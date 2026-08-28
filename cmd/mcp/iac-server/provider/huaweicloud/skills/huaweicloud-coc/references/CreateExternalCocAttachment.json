@@ -1,0 +1,186 @@
+{
+  "name": "CreateExternalCocAttachment",
+  "summary": "上传附件",
+  "tags": "ExternalCocIncident",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/external/incident/attachments": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-api-mode": "tent-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "上传附件",
+        "description": "上传附件,创建事件单的场景下,如需上传附件,需要先调用该接口将文件上传到obs。上传成功时,该接口将返回文档唯一id。支持文件类型:.jpg,.png,.docx,.txt,.pdf,且文本大小不超10M",
+        "x-iftype": "OpenAPI",
+        "tags": [
+          "ExternalCocIncident"
+        ],
+        "operationId": "CreateExternalCocAttachment",
+        "x-imports": "com.huawei.globaloperationmgmt.common.auth.IAMCustomAuthContextInitializer;com.huawei.globaloperationmgmt.common.apos.AuditLog;com.huawei.globaloperationmgmt.common.enums.GomResourceTypeEnum;com.huawei.clouds.wushan.integration.common.auth.EnableAuth;com.huawei.globaloperationmgmt.common.enums.UserTypeEnum;com.huawei.globaloperationmgmt.common.apos.CoaAuthExtendMeta;com.huawei.clouds.wushan.coa.CoaAuthMeta;org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;com.huawei.globaloperationmgmt.common.auth.InnerApi;com.huawei.globaloperationmgmt.common.models.BaseResponse;com.huawei.globaloperationmgmt.common.apos.OlderResponseAdaptation;",
+        "x-methodAnnotations": [
+          "@IamAuthMeta(authLevel = IamAuthLevel.TOKEN, abacAction = \"coc:ticket:uploadFile\", opType = BssOpType.RESOURCE, needApigwJwtAuthCheck = false, authContextInitializer = IAMCustomAuthContextInitializer.class)",
+          "@CtsMeta(resourceType = \"Ticket\", traceName = \"createExternalCocAttachment\", operationId = \"CreateExternalCocAttachment\")",
+          "@QuotaCheck(featureId = \"coc.basic_functions\", operateId = \"operate\")"
+        ],
+        "x-access-level": "ReadWrite",
+        "x-risk-level": "middle",
+        "x-sre-api-type": "D",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "description": "需要上传的文件,以表单的形式上传,内容为二进制binary文本。支持文件类型:.jpg,.png,.docx,.txt,.pdf,且文本大小不超10M。"
+          }
+        ],
+        "x-request-examples-description-1": "上传附件请求示例。",
+        "x-request-examples-url-1": "https://{Endpoint}/v1/external/incident/attachments",
+        "x-request-examples-1": "key: file\nvalue: binary二进制文件",
+        "responses": {
+          "200": {
+            "description": "请求成功。\n更多状态码请参考[状态码](coc_api_05_03.xml)。",
+            "schema": {
+              "$ref": "#/definitions/AttachmentResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "GOM.00000000",
+                "error_msg": null,
+                "provider_code": "049",
+                "data": {
+                  "doc_id": "78f86d47-55d6-4e98-ba51-b293ac95bc8a",
+                  "doc_name": "uploadFile.doc"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "服务器未能处理请求。\n更多状态码请参考[状态码](coc_api_05_03.xml)。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "GOM.00007256",
+                "error_msg": "参数错误",
+                "provider_code": "049",
+                "data": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResponseBodyTemplate": {
+      "type": "object",
+      "description": "通用返回体,用于文档生成。",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "业务code,0 代表业务成功,其他数值代表有错误,详情请见错误码。",
+          "example": "0",
+          "minLength": 0,
+          "maxLength": 10,
+          "default": "0"
+        },
+        "provider_code": {
+          "type": "string",
+          "description": "服务编码。",
+          "example": "049",
+          "minLength": 0,
+          "maxLength": 255,
+          "default": "049"
+        },
+        "msg": {
+          "type": "string",
+          "description": "错误信息,code为0,此值为空;code不为0,此处为具体的错误描述。",
+          "example": null,
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "AttachmentResponse": {
+      "type": "object",
+      "description": "上传附件返回体。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResponseBodyTemplate"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "#/definitions/ExternalAttachment"
+            }
+          }
+        }
+      ]
+    },
+    "ExternalAttachment": {
+      "type": "object",
+      "description": "上传成功后的附件信息。",
+      "properties": {
+        "doc_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "附件唯一id。"
+        },
+        "doc_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "附件文件名。"
+        }
+      }
+    },
+    "BaseResponse": {
+      "type": "object",
+      "description": "--",
+      "required": [
+        "provider_code",
+        "error_code"
+      ],
+      "properties": {
+        "provider_code": {
+          "type": "string",
+          "description": "服务标识",
+          "default": 4,
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "error_code": {
+          "type": "string",
+          "description": "请求响应代码,范围:0000~9999,正常时取值:0",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求响应描述",
+          "minLength": 0,
+          "maxLength": 10240
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

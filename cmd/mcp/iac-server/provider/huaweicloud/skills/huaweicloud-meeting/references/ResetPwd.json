@@ -1,0 +1,186 @@
+{
+  "name": "ResetPwd",
+  "summary": "用户重置密码",
+  "tags": "用户密码管理",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/usg/acs/password/reset": {
+      "put": {
+        "tags": [
+          "用户密码管理"
+        ],
+        "summary": "用户重置密码",
+        "description": "该接口提供给用户重置密码功能,服务器收到请求,重新设置用户密码并返回结果。",
+        "operationId": "ResetPwd",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 8,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Access-Token",
+            "in": "header",
+            "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+            "required": true,
+            "format": "password",
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "stbfGNkV7fZy2uZJJsQkOHhRthKm5shsWiyv"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "Body的媒体格式。\n* 样例:application/json; charset=UTF-8",
+            "required": true,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "application/json; charset=UTF-8"
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "d887e3af87a84275bda637bfa44a2ada"
+          },
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "en-US"
+          },
+          {
+            "name": "resetPwdReqDTOV1",
+            "in": "body",
+            "description": "忘记密码信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResetPwdReqDTOV1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。"
+          },
+          "400": {
+            "description": "参数异常。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "401": {
+            "description": "未鉴权或鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "403": {
+            "description": "权限受限。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@RequestMaskRule(type = Type.JSON, rules = {@Rule(path = \"user\", masker = LoginKeyMasker.class), @Rule(path = \"newPwd\", masker = PasswordMasker.class)})",
+          "@OpLogFunction(opObject = OpObjectEnum.PASSWORD_SETTINGS, opType = OpTypeEnum.RETRIEVE_PASSWORD)"
+        ],
+        "x-imports": "com.huawei.springframework.response.dto.ResultDTO;com.huawei.springframework.security.auth.annotation.TokenAuthorization;com.huawei.springframework.security.auth.constants.*;com.huawei.springframework.om.trace.masker.annotation.*;com.huawei.springframework.om.trace.masker.base.*;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.oms.model.kafka.constants.oplog.*;",
+        "x-returnType": "void",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/usg/acs/password/reset",
+        "x-request-examples-1": {
+          "passWordType": 0,
+          "user": "6pn5sq2cd02l828pk01wwy1i",
+          "newPwd": "Huawei123"
+        },
+        "x-request-examples-text-1": {
+          "passWordType": 0,
+          "user": "6pn5sq2cd02l828pk01wwy1i",
+          "newPwd": "Huawei123"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResetPwdReqDTOV1": {
+      "x-subPackage": "dto",
+      "required": [
+        "user",
+        "newPwd"
+      ],
+      "properties": {
+        "user": {
+          "type": "string",
+          "description": "用户身份信息(手机号码或邮箱帐号或用户真实帐号)。",
+          "maxLength": 255,
+          "minLength": 1,
+          "example": "6pn5sq2cd02l828pk01wwy1i"
+        },
+        "newPwd": {
+          "type": "string",
+          "description": "用户新的登录密码。\n密码要求:\n* 长度范围要求8~32\n* 至少包含大小写字母、数字\n* 不能包含3个以上重复字符\n* 密码不能包含与其对应的用户名(不区分大小写)以及逆序的用户名(不区分大小写)",
+          "maxLength": 32,
+          "minLength": 8,
+          "example": "Huawei123"
+        },
+        "passWordType": {
+          "type": "integer",
+          "description": "* 1:临时密码,重置完密码后登录Web Portal根据配置可能需要强制修改密码\n* 非1:正式密码,重置完密码后登录Web Portal不需要强制修改密码",
+          "example": 1
+        }
+      }
+    },
+    "ReturnCodeDTO": {
+      "x-subPackage": "discard",
+      "description": "错误码。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "example": "USG.206010000"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "example": "User name or password is incorrect"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求唯一标识。",
+          "example": "9655664f10724b398187598a1d5097c3"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

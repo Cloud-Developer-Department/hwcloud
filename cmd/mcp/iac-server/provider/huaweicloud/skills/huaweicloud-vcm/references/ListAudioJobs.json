@@ -1,0 +1,325 @@
+{
+  "name": "ListAudioJobs",
+  "summary": "查询作业列表",
+  "tags": "长语音内容审核",
+  "productshort": "VCM",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/services/audio-moderation/tasks": {
+      "get": {
+        "tags": [
+          "长语音内容审核"
+        ],
+        "operationId": "ListAudioJobs",
+        "summary": "查询作业列表",
+        "description": "查询作业列表",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户的project_id\n\n登录华为云 -> 用户中心 -> 我的凭证 -> api凭证\n即可查看对应区域的项目ID。\n",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 36
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功返回示例",
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "tasks": [
+                  {
+                    "id": "f0262988822c4fb1ad48afce869f9d1f",
+                    "name": "task-test",
+                    "creator": "moderation",
+                    "project_id": "44069fxxxxxxxxxxxxxxx",
+                    "description": "description",
+                    "service_name": "audio-moderation",
+                    "service_version": "1.0",
+                    "service_title": {
+                      "en": "audio-moderation",
+                      "zh": "音频审核"
+                    },
+                    "created_at": "2022-03-03T06:47:32Z",
+                    "updated_at": "2022-03-03T06:47:50Z",
+                    "state": "FAILED",
+                    "input": {
+                      "type": "url",
+                      "data": [
+                        {
+                          "url": "https://obs-audio-moderatin/input/audio.acc"
+                        }
+                      ]
+                    },
+                    "output": {
+                      "hosting": {
+                        "obs": [
+                          ""
+                        ]
+                      }
+                    },
+                    "service_config": {
+                      "common": {
+                        "categories": "porn,politics"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListAudioJobsResponseBody"
+            }
+          },
+          "400": {
+            "description": "响应失败返回示例",
+            "examples": {
+              "application/json": {
+                "error_code": "",
+                "error_msg": ""
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET /v2/{project_id}/services/audio-moderation/task"
+      }
+    }
+  },
+  "definitions": {
+    "CheckAudioJobResponseBody": {
+      "description": "返回数据",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "作业ID."
+        },
+        "description": {
+          "type": "string",
+          "description": "作业描述"
+        },
+        "state": {
+          "type": "string",
+          "description": "作业状态:\n  - PENDING_CREATE:等待中\n  - SCHEDULING:调度中\n  - CREATE_FAIL:创建失败\n  - STARTING:启动中\n  - RUNNING:运行中\n  - SUCCEEDED:运行成功\n  - FAILED:运行失败\n  - PENDING_DELETE:删除中\n  - DELETE_FAIL:删除失败\n  - ABNORMAL:运行异常"
+        },
+        "name": {
+          "type": "string",
+          "description": "作业名称."
+        },
+        "service_config": {
+          "$ref": "#/definitions/AudioServiceConfig"
+        },
+        "input": {
+          "type": "object",
+          "description": "音频数据的输入列表",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "视频数据的输入类型:\n- obs:表示从华为云 OBS 中读取视频数据。\n- url:表示从指定的 URL 地址中读取视频数据。\n",
+              "enum": [
+                "obs",
+                "url"
+              ]
+            },
+            "data": {
+              "type": "array",
+              "description": "数据输入内容",
+              "items": {
+                "$ref": "#/definitions/AudioInputData"
+              }
+            }
+          }
+        },
+        "output": {
+          "$ref": "#/definitions/AudioResponseOutput"
+        },
+        "service_version": {
+          "type": "string",
+          "description": "服务版本"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "创建时间"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "修改时间"
+        }
+      }
+    },
+    "AudioResponseOutputHosting": {
+      "description": "托管输出位置",
+      "type": "object",
+      "properties": {
+        "obs": {
+          "type": "array",
+          "description": "结果文件result.json的OBS信息。",
+          "items": {
+            "$ref": "#/definitions/AudioOutputHostingObs"
+          }
+        },
+        "result_json_overdue_at": {
+          "type": "string",
+          "description": "托管文件result.json的过期日期,文件默认保存48小时。\n\nresult.json文件生成且未过期时,会有这个字段。\n"
+        },
+        "check_obs_after_end_state": {
+          "type": "boolean",
+          "description": "True表示校验obs。"
+        }
+      }
+    },
+    "AudioServiceConfig": {
+      "required": [
+        "common"
+      ],
+      "type": "object",
+      "description": "配置",
+      "properties": {
+        "common": {
+          "required": [
+            "categories"
+          ],
+          "type": "object",
+          "description": "检测场景",
+          "properties": {
+            "categories": {
+              "type": "string",
+              "description": "检测场景。\n- politics:政治人物的检测。\n- porn:涉黄内容元素的检测。\n可通过配置上述场景,来完成对应场景元素的检测。\n"
+            }
+          }
+        }
+      }
+    },
+    "AudioInputData": {
+      "type": "object",
+      "description": "音频数据输入列表",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "type为obs时输入参数\n\nOBS桶名称。\n"
+        },
+        "path": {
+          "type": "string",
+          "description": "type为obs时输入参数\n\nOBS桶内的路径,例如“output/c1.mp4”。\n"
+        },
+        "url": {
+          "type": "string",
+          "description": "type为url时输入参数\n\n视频数据的URL,目前支持OBS URL,且需要设置该URL对匿名用户可读权限。\n"
+        }
+      }
+    },
+    "ListAudioJobsResponseBody": {
+      "description": "作业列表",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "number",
+          "format": "integer",
+          "description": "作业数量"
+        },
+        "tasks": {
+          "type": "array",
+          "description": "作业列表",
+          "items": {
+            "$ref": "#/definitions/CheckAudioJobResponseBody"
+          }
+        }
+      }
+    },
+    "AudioOutputObs": {
+      "type": "object",
+      "description": "音频数据的输出列表",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "example": "video-test",
+          "description": "存储结果文件的OBS桶名。"
+        },
+        "path": {
+          "type": "string",
+          "example": "output/",
+          "description": "结果文件的OBS桶内路径,例如“output/”。"
+        }
+      }
+    },
+    "AudioResponseOutput": {
+      "type": "object",
+      "description": "音频数据的输出列表",
+      "properties": {
+        "obs": {
+          "description": "obs输出位置",
+          "type": "object",
+          "$ref": "#/definitions/AudioOutputObs"
+        },
+        "hosting": {
+          "description": "托管输出位置",
+          "type": "object",
+          "$ref": "#/definitions/AudioResponseOutputHosting"
+        }
+      }
+    },
+    "AudioOutputHostingObs": {
+      "type": "object",
+      "description": "结果文件result.json的OBS信息。",
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "obs桶名称",
+          "example": "video-test"
+        },
+        "path": {
+          "type": "string",
+          "description": "输出obs路径",
+          "example": "output/"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iva.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

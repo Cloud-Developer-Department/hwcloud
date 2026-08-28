@@ -1,0 +1,255 @@
+{
+  "name": "ListIncidentSimpleTickets",
+  "summary": "查询简易版事件单列表",
+  "tags": "ExternalCocIncident",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/incident-tickets": {
+      "get": {
+        "tags": [
+          "ExternalCocIncident"
+        ],
+        "summary": "查询简易版事件单列表",
+        "description": "该接口可分页查询到事件单列表信息,分页参数为limit与offset。该接口不支持对事件单进行除分页参数外的条件过滤,且返回的列表字段相对简单,只有事件单标题、事件单单号、描述信息、工单状态、事件级别、企业项目ID、事件单来源、创建人及责任人。",
+        "x-methodAnnotations": [
+          "@IamAuthMeta(authLevel = IamAuthLevel.TOKEN, abacAction = \"coc:ticket:list\", opType = BssOpType.QUERY, needApigwJwtAuthCheck = false, authContextInitializer = IAMCustomAuthContextInitializer.class)",
+          "@QuotaCheck(featureId = \"coc.incident_center\")"
+        ],
+        "x-sre-api-type": "D",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-publish": true,
+        "operationId": "ListIncidentSimpleTickets",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "列表查询接口分页参数,表示当前查询第几页,1表示查询第一页。",
+            "type": "integer",
+            "format": "int32",
+            "default": 1,
+            "allowEmptyValue": true,
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "列表查询接口分页参数,表示一页查询多少条数据,该值需大于等于1且为整数,表示分页查询时每一页最多查到的数量。",
+            "type": "integer",
+            "format": "int32",
+            "default": 50,
+            "allowEmptyValue": true,
+            "minimum": 1,
+            "maximum": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。\n更多状态码请参考[状态码](coc_api_05_03.xml)。",
+            "schema": {
+              "$ref": "#/definitions/ListIncidentSimpleTicketResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "GOM.00000000",
+                "error_msg": null,
+                "provider_code": "049",
+                "data": {
+                  "total": 1,
+                  "IncidentSimpleTicketInfos": [
+                    {
+                      "title": "incident title",
+                      "ticket_id": "IM202506091611180193863384",
+                      "description": "incident description",
+                      "status": "INCIDENT_STATUS_TRIGGERED",
+                      "level": "level_50",
+                      "enterprise_project": "0",
+                      "source": "incident_source_manual",
+                      "creator": "653989085ba7487184d7cf219b8aa51e",
+                      "assignee": [
+                        "001427162ad8453ba6678d7cdb36bb59"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "服务器未能处理请求。\n更多状态码请参考[状态码](coc_api_05_03.xml)。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "GOM.00007256",
+                "error_msg": "参数错误",
+                "provider_code": "049",
+                "data": null
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询简易版事件单列表。",
+        "x-request-examples-url-1": "https://{Endpoint}/v1/incident-tickets?offset=1&limit=10"
+      }
+    }
+  },
+  "definitions": {
+    "ListIncidentSimpleTicketResponse": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "x-maxLength": 100,
+              "x-minLength": 0,
+              "description": "根据条件查到的事件单信息",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "查询到的事件单总数量",
+                  "example": 100,
+                  "minimum": 0,
+                  "maximum": 9223372036854775807
+                },
+                "IncidentSimpleTicketInfos": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/IncidentSimpleTicketInfo"
+                  },
+                  "description": "事件单工单详情信息"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "IncidentSimpleTicketInfo": {
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "XX服务故障",
+          "description": "事件单标题",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "ticket_id": {
+          "type": "string",
+          "description": "事件单单号",
+          "example": "IM202506051651290199975850",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "description": {
+          "type": "string",
+          "description": "事件单描述",
+          "example": "XX服务故障影响XX,请分析处理",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "status": {
+          "type": "string",
+          "description": "事件状态\n参考:枚举 [事件状态](coc_api_04_03_001_006.xml) incident_status",
+          "example": "resolved",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "level": {
+          "type": "string",
+          "description": "事件级别\n参考:枚举 [事件级别](coc_api_04_03_001_006.xml) incident_level",
+          "example": "level_01",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "enterprise_project": {
+          "type": "string",
+          "description": "企业项目ID",
+          "example": "enterprise_project_01"
+        },
+        "source": {
+          "type": "string",
+          "description": "单据来源\n参考:枚举 [事件来源](coc_api_04_03_001_006.xml) incident_source",
+          "example": "incident_source_manual",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "creator": {
+          "type": "string",
+          "description": "创建人工号",
+          "example": "user_001",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "assignee": {
+          "type": "array",
+          "description": "当前责任人,可能存在多个责任人使用列表展示,内容为责任人用户ID信息",
+          "minItems": 0,
+          "maxItems": 200,
+          "x-annotations": [
+            "@Size(max = 200, min = 0)"
+          ],
+          "x-minLength": 0,
+          "x-maxLength": 200,
+          "items": {
+            "type": "string",
+            "example": "user_001",
+            "minLength": 0,
+            "maxLength": 255
+          }
+        }
+      }
+    },
+    "BaseResponse": {
+      "type": "object",
+      "description": "--",
+      "required": [
+        "provider_code",
+        "error_code"
+      ],
+      "properties": {
+        "provider_code": {
+          "type": "string",
+          "description": "服务标识",
+          "default": 4,
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "error_code": {
+          "type": "string",
+          "description": "请求响应代码,范围:0000~9999,正常时取值:0",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求响应描述",
+          "minLength": 0,
+          "maxLength": 10240
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,187 @@
+{
+  "name": "CheckMobileCapability",
+  "summary": "查询手机号智能信息解析能力",
+  "tags": "智能信息解析",
+  "productshort": "KooMessage",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/aim/mobile-capabilities/check": {
+      "post": {
+        "tags": [
+          "AIMResolveTask"
+        ],
+        "summary": "查询手机号智能信息解析能力",
+        "description": "用户在下发智能信息前,通过此接口批量查询对应手机的智能信息解析能力。",
+        "operationId": "CheckMobileCapability",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "请求体参数类型,该字段必须设置为:application/json。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "CheckMobileCapabilityRequestBody",
+            "description": "智能信息能力查询报文。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CheckMobileCapabilityRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "返回信息。",
+            "examples": {
+              "application/json": {
+                "supported_mobiles": [
+                  "131****0000"
+                ],
+                "unsupported_mobiles": [
+                  "131****0001"
+                ],
+                "tpl_id": "600000001"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CheckMobileCapabilityRsp"
+            }
+          },
+          "400": {
+            "description": "非法参数。",
+            "schema": {
+              "$ref": "#/definitions/AimErrorMsg"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/AimErrorMsg"
+            }
+          }
+        },
+        "x-opseverity": "Info",
+        "x-apigateway-request-type": "Public",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-description-1": "检查手机号智能信息解析能力-原始手机号。模板ID为\"600000001\",手机号码不加密。",
+        "x-request-examples-url-1": "https://koomessage.myhuaweicloud.cn/v1/aim/mobile-capabilities/check",
+        "x-request-examples-1": {
+          "mobiles": [
+            "131****0000",
+            "131****0001"
+          ],
+          "encryption_alg": "NONE",
+          "tpl_id": "600000001"
+        },
+        "x-request-examples-description-2": "检查手机号智能信息解析能力-SHA1加密。模板ID为\"600000001\",加密方式为\"SHA1\"。",
+        "x-request-examples-url-2": "https://koomessage.myhuaweicloud.cn/v1/aim/mobile-capabilities/check",
+        "x-request-examples-2": {
+          "mobiles": [
+            "de005a80a77f52080d7c67c65ba8663e5b0f0be1",
+            "1837ec7308eb38494fda35da8a34038ab7533e6a"
+          ],
+          "encryption_alg": "SHA1",
+          "tpl_id": "600000001"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CheckMobileCapabilityRsp": {
+      "properties": {
+        "supported_mobiles": {
+          "type": "array",
+          "description": "支持智能信息手机号码列表。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unsupported_mobiles": {
+          "type": "array",
+          "description": "不支持智能信息手机号码列表。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tpl_id": {
+          "type": "string",
+          "example": "6000001",
+          "description": "智能信息模板ID,由9位数字组成。\n"
+        }
+      },
+      "description": "校验AIM能力消息体。"
+    },
+    "AimErrorMsg": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "结果状态码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "结果详情。"
+        },
+        "error_message": {
+          "description": "结果详情。\n\n> 该字段在以后可能会废弃,建议使用error_msg字段对接。\n"
+        }
+      },
+      "description": "错误模型。"
+    },
+    "CheckMobileCapabilityRequestBody": {
+      "required": [
+        "mobiles"
+      ],
+      "properties": {
+        "mobiles": {
+          "type": "array",
+          "example": [
+            "130****0000"
+          ],
+          "description": "待查询的手机号码,一次最多请求100个。\n\n>不加密时,参数可传入纯手机号或国家码加手机号,国家码不带“+”号,例如国内手机号“131****0000”,参数可传入“131****0000”、“86131****0000”、“0086131****0000”。使用SHA1加密,mobiles传入号码国家码与手机号码的SHA1算法后的摘要,国家码格式为纯数字,不带“+”,去掉前面的0,例如国内手机号“131****0000”,使用“86131****0000”进行SHA1加密。\n",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "maxItems": 100,
+          "minItems": 1
+        },
+        "tpl_id": {
+          "type": "string",
+          "example": "6000001",
+          "description": "智能信息模板ID,由9位数字组成。\n> - 填写时,根据该模板所支持的厂商返回手机终端展示智能信息的能力状态\n> - 不填则返回手机终端在所有厂商展示智能信息的能力状态\n",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "encryption_alg": {
+          "type": "string",
+          "description": "加密类型。\n\n- NONE:不加密\n- SHA1:使用SHA1加密算法加密\n\n> 默认为NONE。\n"
+        }
+      },
+      "description": "校验AIM能力消息体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koomessage.myhuaweicloud.cn",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

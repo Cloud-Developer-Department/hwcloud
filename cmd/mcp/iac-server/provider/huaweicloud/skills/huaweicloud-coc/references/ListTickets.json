@@ -1,0 +1,790 @@
+{
+  "name": "ListTickets",
+  "summary": "搜索工单",
+  "tags": "ExternalCocTicket",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{ticket_type}/list-tickets": {
+      "post": {
+        "tags": [
+          "ExternalCOCTicket"
+        ],
+        "operationId": "ListTickets",
+        "summary": "搜索工单",
+        "description": "List ticket",
+        "x-is-registered": "N",
+        "x-sre-api-type": "D",
+        "x-methodAnnotations": [
+          "@CoaCustomizeAuthMeta",
+          "@CoaAuthExtendMeta(userType=UserTypeEnum.MAN_MACHINE_ACCOUNT)",
+          "@IamAuthMeta(authLevel = IamAuthLevel.TOKEN, abacAction = \"coc:ticket:list\", opType = BssOpType.QUERY, needApigwJwtAuthCheck = false, authContextInitializer = IAMCustomAuthContextInitializer.class)",
+          "@CtsMeta(resourceType = \"Ticket\", traceName = \"listTickets\", operationId = \"ListTickets\", isReadOnly = true)",
+          "@CtsExtendMeta(resourceId = \"#ticketType\", resourceName = \"#ticketType\")",
+          "@QuotaCheck(needTicketType = true)"
+        ],
+        "x-support-sdk": "Y",
+        "x-access-level": "List",
+        "x-risk-level": "low",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ticket_type",
+            "in": "path",
+            "description": "工单类型",
+            "required": true,
+            "default": "incident",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          {
+            "name": "ListTicketsRequestBody",
+            "in": "body",
+            "description": "查询参数。",
+            "x-en-description": "Query parameters.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListTicketParamsWithPage"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "搜索工单",
+            "x-en-description": "The list is returned.",
+            "schema": {
+              "$ref": "#/definitions/ListTicketResponseInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListTicketParamsWithPage": {
+      "description": "带分页信息的查询",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ListTicketParams"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "page": {
+              "description": "当前页",
+              "type": "integer",
+              "format": "int32",
+              "default": 1,
+              "maximum": 1024000,
+              "minimum": 0
+            },
+            "per_page": {
+              "description": "每页数量",
+              "type": "integer",
+              "format": "int32",
+              "default": 10,
+              "maximum": 200,
+              "minimum": 0
+            },
+            "contain_all": {
+              "description": "是否返回所有数据",
+              "type": "boolean",
+              "default": false
+            },
+            "contain_total": {
+              "description": "是否返回总数",
+              "type": "boolean",
+              "default": true
+            },
+            "contain_sub_ticket": {
+              "description": "是否包含子单",
+              "type": "boolean",
+              "default": true
+            },
+            "ticket_types": {
+              "type": "array",
+              "maxItems": 5,
+              "minItems": 0,
+              "x-maxLength": 5,
+              "x-minLength": 0,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "description": "搜索的工单类型"
+            }
+          }
+        }
+      ]
+    },
+    "ListTicketResponseInfo": {
+      "description": "工单详情",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "description": "数据",
+              "type": "object",
+              "properties": {
+                "total": {
+                  "description": "总数",
+                  "type": "integer",
+                  "format": "int64",
+                  "maximum": 9999999999999,
+                  "minimum": 0
+                },
+                "tickets": {
+                  "description": "搜索结果",
+                  "x-maxLength": 1024,
+                  "x-minLength": 0,
+                  "maxItems": 1024,
+                  "minItems": 0,
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CocTicketDetailInfoResponseData"
+                  }
+                },
+                "count_results": {
+                  "description": "批量计数",
+                  "maxItems": 100,
+                  "minItems": 0,
+                  "x-maxLength": 100,
+                  "x-minLength": 0,
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64",
+                    "maximum": 9999999999999,
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CocTicketDetailInfoResponseData": {
+      "type": "object",
+      "description": "CocTicketDetailInfoResponseData。",
+      "properties": {
+        "issue_correlation_sla": {
+          "type": "string",
+          "description": "问题关联SLA。",
+          "example": "ISU20250624155318016689487",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "level": {
+          "type": "string",
+          "description": "问题单级别。",
+          "example": "issues_level_2000",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "root_cause_cloud_service": {
+          "type": "string",
+          "description": "问题单责任服务。",
+          "example": "648b019409d3ba76cf5e4eb7",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "root_cause_type": {
+          "type": "string",
+          "description": "问题单根因分类。",
+          "example": "issues_root_cause_type_4000",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "current_cloud_service_id": {
+          "type": "string",
+          "description": "问题单服务。",
+          "example": "648b019409d3ba76cf5e4eb7",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "issue_contact_person": {
+          "type": "string",
+          "description": "问题单接口人。",
+          "example": "5e65c4eb605642938d6457255f41daf5",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "issue_version": {
+          "type": "string",
+          "description": "发现问题版本号。",
+          "example": 123,
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "source": {
+          "type": "string",
+          "description": "问题单来源。",
+          "example": "issues_mgmt_associated_type_1000",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "commit_upload_attachment": {
+          "type": "string",
+          "description": "上传附件。",
+          "example": "b7d346ca-5bbf-4163-bd17-1ebaae814b2a",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "source_id": {
+          "type": "string",
+          "description": "问题单来源id。",
+          "example": "IM202506241442480104061383",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "enterprise_project": {
+          "type": "string",
+          "description": "问题单企业项目。",
+          "example": "d8122f7c-7bf3-47fd-a9e9-8f7511854e5b",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "virtual_schedule_type": {
+          "type": "string",
+          "description": "问题单排班类型。",
+          "example": "issues_mgmt_virtual_schedule_type_2000",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "title": {
+          "type": "string",
+          "description": "问题单标题。",
+          "example": "title",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "regions": {
+          "type": "string",
+          "description": "问题单region信息。",
+          "example": "xxx",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "description": {
+          "type": "string",
+          "description": "问题单描述。",
+          "example": "问题单描述",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "root_cause_comment": {
+          "type": "string",
+          "description": "问题单根因分析。",
+          "example": "根因分析情况",
+          "minLength": 0,
+          "maxLength": 99999
+        },
+        "solution": {
+          "type": "string",
+          "description": "问题单解决方案。",
+          "example": "title",
+          "minLength": 0,
+          "maxLength": 99999
+        },
+        "regions_serch": {
+          "type": "string",
+          "description": "问题单区域搜索。",
+          "example": "xxx",
+          "minLength": 0,
+          "maxLength": 99999
+        },
+        "level_approve_config": {
+          "type": "string",
+          "description": "问题单级别审批配置。",
+          "minLength": 0,
+          "maxLength": 9999999
+        },
+        "suspension_approve_config": {
+          "type": "string",
+          "description": "问题单挂起审批配置。",
+          "minLength": 0,
+          "maxLength": 9999999
+        },
+        "handle_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "处理时长。",
+          "example": 1705025720537,
+          "minimum": 1,
+          "maximum": 9999999999
+        },
+        "fount_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "发现时间。",
+          "example": 1705025720537,
+          "minimum": 1,
+          "maximum": 9999999999
+        },
+        "is_common_issue": {
+          "type": "boolean",
+          "description": "是否共性问题。",
+          "example": false
+        },
+        "is_need_change": {
+          "type": "boolean",
+          "description": "问题单是否需要变更。",
+          "example": false
+        },
+        "is_enable_suspension": {
+          "type": "boolean",
+          "description": "问题单是否开启挂起。",
+          "example": false
+        },
+        "is_start_process_async": {
+          "type": "boolean",
+          "description": "是否启动异步流程。",
+          "example": false
+        },
+        "is_update_null": {
+          "type": "boolean",
+          "description": "是否重新提交空字段。",
+          "example": false
+        },
+        "creator": {
+          "type": "string",
+          "description": "问题单创建人。",
+          "example": "5e65c4eb605642938d6457255f41daf5",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "operator": {
+          "type": "string",
+          "description": "问题单操作人。",
+          "example": "5e65c4eb605642938d6457255f41daf5",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "is_return_full_info": {
+          "type": "boolean",
+          "description": "是否返回所有字段信息。",
+          "example": false
+        },
+        "is_start_process": {
+          "type": "boolean",
+          "description": "是否启动流程。",
+          "example": false
+        },
+        "ticket_id": {
+          "type": "string",
+          "description": "问题单工单ID。",
+          "example": "ISU20250624155318016689487",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "real_ticket_id": {
+          "type": "string",
+          "description": "问题单工单单号。",
+          "example": "ISU20250624155318016689487",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "assignee": {
+          "type": "string",
+          "description": "问题单当前责任人。",
+          "example": "5e65c4eb605642938d6457255f41daf5",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "participator": {
+          "type": "string",
+          "description": "问题单参与人。",
+          "example": "5e65c4eb605642938d6457255f41daf5",
+          "minLength": 0,
+          "maxLength": 999999
+        },
+        "work_flow_status": {
+          "type": "string",
+          "description": "问题单状态。",
+          "example": "issues_work_flow_status_12000",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "engine_error_msg": {
+          "type": "string",
+          "description": "流程状态。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "baseline_status": {
+          "type": "string",
+          "description": "基线状态。",
+          "example": "issues_mgmt_draft",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "ticket_type": {
+          "type": "string",
+          "description": "工单类型。",
+          "example": "issues_type_11000",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "phase": {
+          "type": "string",
+          "description": "问题单当前阶段信息。",
+          "example": "issues_phase_4000",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "sub_tickets": {
+          "type": "array",
+          "description": "变更子单信息。",
+          "example": null,
+          "minItems": 0,
+          "maxItems": 10000,
+          "items": {
+            "properties": {
+              "change_ticket_id": {
+                "type": "string",
+                "description": "变更单单号。",
+                "example": "CM202504291142240121933869",
+                "minLength": 0,
+                "maxLength": 100
+              },
+              "change_ticket_id_sub": {
+                "type": "string",
+                "description": "变更子单单号。",
+                "example": "CM202504291142240121933869",
+                "minLength": 0,
+                "maxLength": 100
+              },
+              "whether_to_change": {
+                "type": "boolean",
+                "description": "是否需要变更。",
+                "example": true
+              },
+              "is_deleted": {
+                "type": "boolean",
+                "description": "是否已删除。",
+                "example": false
+              },
+              "id": {
+                "type": "string",
+                "description": "变更工单ID",
+                "example": "8d16c32b6f594f1fb18f977809a7ada3",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "main_ticket_id": {
+                "type": "string",
+                "description": "变更工单主键ID。",
+                "example": "73763727-55c4-42cd-922c-0dd6db3ea236",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "parent_ticket_id": {
+                "type": "string",
+                "description": "父级工单ID。",
+                "example": "73763727-55c4-42cd-922c-0dd6db3ea236",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "ticket_id": {
+                "type": "string",
+                "description": "问题单ID。",
+                "example": "12bcb0eb-971b-44a0-a74c-f7f9d6533aa9",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "real_ticket_id": {
+                "type": "string",
+                "description": "问题单单号。",
+                "example": "ISU20250701162147017853726001",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "ticket_path": {
+                "type": "string",
+                "description": "工单路径。",
+                "example": "73763727-55c4-42cd-922c-0dd6db3ea236:regions:xxx",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "target_value": {
+                "type": "string",
+                "description": "region信息。",
+                "example": "xxx",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "target_type": {
+                "type": "string",
+                "description": "子单类型。",
+                "example": "regions",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "create_time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "创建时间。",
+                "example": 1677674295413,
+                "maximum": 9999999999999,
+                "minimum": 0
+              },
+              "update_time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "更新时间。",
+                "example": 1677674295413,
+                "maximum": 9999999999999,
+                "minimum": 0
+              },
+              "creator": {
+                "type": "string",
+                "description": "创单人。",
+                "example": "25819b46251b46218bf6ad238ddd860c",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "operator": {
+                "type": "string",
+                "description": "操作人。",
+                "example": "25819b46251b46218bf6ad238ddd860c",
+                "minLength": 0,
+                "maxLength": 255
+              }
+            }
+          }
+        },
+        "enum_data_list": {
+          "type": "array",
+          "description": "枚举列表。",
+          "minItems": 0,
+          "maxItems": 100000000,
+          "items": {
+            "$ref": "#/definitions/IssuesTicketInfoEnumData"
+          }
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 50,
+          "minLength": 0,
+          "description": "主键uuid",
+          "example": "53f8de3617b26fdcef78b76d98c3e06f"
+        },
+        "meta_data_version": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "description": "应用版本",
+          "example": "1"
+        },
+        "update_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "更新时间。",
+          "example": 1705025720537,
+          "minimum": 1,
+          "maximum": 9999999999
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "创单时间戳。",
+          "example": 1705025720537,
+          "maximum": 999999999,
+          "minimum": 0
+        },
+        "is_deleted": {
+          "type": "boolean",
+          "description": "工单是否被删除。",
+          "example": false
+        },
+        "ticket_type_id": {
+          "type": "string",
+          "description": "工单类型。",
+          "example": "issues_mgmt",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "_form_info": {
+          "type": "object",
+          "description": "动作信息。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "ListTicketParams": {
+      "type": "object",
+      "properties": {
+        "string_filters": {
+          "description": "字符串搜索条件,可根据该条件搜索到具体的工单。",
+          "x-maxLength": 20,
+          "x-minLength": 0,
+          "maxItems": 20,
+          "minItems": 0,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectFilter"
+          }
+        },
+        "sort_filter": {
+          "description": "查询到的历史记录排序条件,可根据操作记录的创建时间进行排序,详见请求样例。",
+          "$ref": "#/definitions/ObjectFilter"
+        }
+      }
+    },
+    "ObjectFilter": {
+      "x-imports": "java.lang.Object",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 255,
+          "minLength": 0,
+          "description": "条件名称",
+          "example": "title_like"
+        },
+        "operator": {
+          "type": "string",
+          "example": "in",
+          "maxLength": 20,
+          "minLength": 0,
+          "description": "操作符 in/like/startwith/endwith/=/!=/>/<等"
+        },
+        "field": {
+          "type": "string",
+          "maxLength": 255,
+          "minLength": 0,
+          "description": "字段名称",
+          "example": "title"
+        },
+        "values": {
+          "description": "搜索值",
+          "x-maxLength": 1024,
+          "x-minLength": 0,
+          "minItems": 0,
+          "maxItems": 1024,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "x-type": "Object",
+            "minLength": 0,
+            "maxLength": 255
+          }
+        }
+      }
+    },
+    "BaseResponse": {
+      "type": "object",
+      "description": "--",
+      "required": [
+        "provider_code",
+        "error_code"
+      ],
+      "properties": {
+        "provider_code": {
+          "type": "string",
+          "description": "服务标识",
+          "default": 4,
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "error_code": {
+          "type": "string",
+          "description": "请求响应代码,范围:0000~9999,正常时取值:0",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求响应描述",
+          "minLength": 0,
+          "maxLength": 10240
+        }
+      }
+    },
+    "IssuesTicketInfoEnumData": {
+      "type": "object",
+      "description": "单据枚举。",
+      "properties": {
+        "is_deleted": {
+          "type": "boolean",
+          "description": "是否已删除。",
+          "example": false
+        },
+        "match_type": {
+          "type": "string",
+          "description": "匹配的枚举类型。",
+          "example": "reference__base_config.User",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "ticket_id": {
+          "type": "string",
+          "description": "当前工单ID。",
+          "example": "73763727-55c4-42cd-922c-0dd6db3ea236",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "real_ticket_id": {
+          "type": "string",
+          "description": "工单单号。",
+          "example": "ISU20250701162147017853726",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "name_zh": {
+          "type": "string",
+          "description": "中文名称。",
+          "example": "个人",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "name_en": {
+          "type": "string",
+          "description": "英文名称。",
+          "example": "Individuals",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "biz_id": {
+          "type": "string",
+          "description": "枚举值对应的唯一id,当match_type为reference__base_config.User时,biz_id的值为操作用户唯一Id。",
+          "example": "96d9d36ef5e74f7aa54122586d5df0d5",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "prop_id": {
+          "type": "string",
+          "description": "当前枚举值对应的类型。",
+          "example": "virtual_schedule_type",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "model_id": {
+          "type": "string",
+          "description": "后台不同应用对应的模型id。",
+          "example": "TicketInfo",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

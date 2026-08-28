@@ -1,0 +1,186 @@
+{
+  "name": "ShowConfigQuota",
+  "summary": "查询防火墙配额信息",
+  "tags": "防火墙管理",
+  "productshort": "CFW",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/cfw/{fw_instance_id}/quota": {
+      "get": {
+        "tags": [
+          "Firewall Management"
+        ],
+        "summary": "查询防火墙配额信息",
+        "description": "查询防火墙配额信息",
+        "operationId": "ShowConfigQuota",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释**:\n项目ID,用于明确项目归属,配置后可通过该ID查询项目下资产,可以从调API处获取,也可以从控制台获取。[项目ID获取方式](cfw_02_0015.xml)\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 0
+          },
+          {
+            "name": "fw_instance_id",
+            "in": "path",
+            "description": "**参数解释**:\n防火墙ID,用户创建防火墙实例后产生的唯一ID,配置后可区分不同防火墙,可通过[防火墙ID获取方式](cfw_02_0028.xml)获取\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+          },
+          {
+            "name": "config_type",
+            "in": "query",
+            "description": "**参数解释**:\n防火墙配额类型\n**约束限制**:\n不涉及\n**取值范围**:\n  ACL:ACL规则配额\n  DNS_DOMAIN_SET:网络域名组配额\n  DOMAIN:域名组域名成员配额\n  DOMAIN_DEVICE:域名设备配额\n  DNS_DOMAIN_SET_PARSE_IP:网络域名组解析IP配额\n  APPLICATION_DOMAIN_SET:应用域名组配额\n  APPLICATION_DOMAIN_SET_ITEM:应用域名组域名成员配额\n  APPLICATION_DOMAIN_SET_ITEM_DEVICE:应用域名组设备配额\n  ADDR_SET:地址组配额\n  ADDR_SET_ITEM:地址组IP地址成员配额\n  ADDR_SET_ITEM_DEVICE:地址组IP地址设备配额\n  SERV_SET:服务组配额\n  SERV_SET_ITEM:服务组服务成员配额\n  SERV_SET_ITEM_DEVICE:服务组服务设备配额\n  BLACKLIST:黑名单配额\n  WHITELIST:白名单配额\n  PRIVATE_NETWORK_SEGMENT:私网网段配额\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
+          },
+          {
+            "name": "set_id",
+            "in": "query",
+            "description": "**参数解释**:\n组Id,查询IP地址组地址成员配额,域名组域名成员配额,服务组服务成员配额时必传,地址组id,可通过查询地址组列表接口查询获得,通过返回值中的data.records.set_id(.表示各对象之间层级的区分)获得,域名组id,可通过查询域名组列表接口查询获得,通过返回值中的data.records.set_id(.表示各对象之间层级的区分)获得,服务组id,可通过获取服务组列表接口查询获得,通过返回值中的data.records.set_id(.表示各对象之间层级的区分)获得。\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": false,
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "max_quota": 3801,
+                  "used_quota": 4,
+                  "quota_type": "ADDR_SET",
+                  "item_info": {
+                    "max_quota": 30001,
+                    "used_quota": 97
+                  }
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowConfigQuotaResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "CFW.00200003",
+                "error_msg": "参数错误"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "https://{Endpoint}/v2/5de88e3e18124fa99675fb51ceceaa31/quota?config_type=ACL",
+        "x-request-examples-description-1": "查询项目ID为eb7accd78ea845078275b2ad5280a109防火墙ID为8a996d43-75bd-48b4-b1b8-de0706b72b8f的防火墙配额信息,类型为ACL",
+        "x-method-annotations": [
+          "@IamAuthMeta(rbac = {RoleConst.READ_ONLY, RoleConst.TE_ADMIN, RoleConst.OP_SERVICE, RoleConst.TE_ADMIN_RESTRICTED, RoleConst.TE_ADMIN_SUSPENDED}, needRbacCheck = false, needCbcCheck = false, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthAction(iam3Action = IamV3Action.GET_CFW_LIST, iam5Action = CommonConstant.IAM5_LIST_FIREWALL_INSTANCE, idType = IdTypeEnum.FW_INSTANCE_ID)",
+          "@IamAuthMetaV5(needCbcCheck = false, needAbacResourceCheck = true, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthParam(instanceId = \"fw_instance_id\")"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "ShowConfigQuotaResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/ShowConfigQuotaDto"
+        }
+      },
+      "title": "ShowConfigQuotaResp"
+    },
+    "ShowConfigQuotaDto": {
+      "type": "object",
+      "properties": {
+        "item_info": {
+          "description": "**参数解释**:\n防火墙配额信息\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "$ref": "#/definitions/ItemInfo"
+        },
+        "max_quota": {
+          "type": "integer",
+          "description": "**参数解释**:\n防火墙成员最大配额\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "readOnly": true
+        },
+        "quota_type": {
+          "type": "string",
+          "description": "**参数解释**:\n防火墙成员配额类型\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "readOnly": true
+        },
+        "used_quota": {
+          "type": "integer",
+          "description": "**参数解释**:\n已使用配额\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "readOnly": true
+        }
+      },
+      "title": "ShowConfigQuotaDto"
+    },
+    "ItemInfo": {
+      "type": "object",
+      "properties": {
+        "max_quota": {
+          "type": "integer",
+          "description": "**参数解释**:\n最大配额\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "readOnly": true
+        },
+        "used_quota": {
+          "type": "integer",
+          "description": "**参数解释**:\n已使用配额\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "readOnly": true
+        },
+        "extras_info": {
+          "type": "object",
+          "description": "**参数解释**:\n额外参数,ACL和网络域名使用\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "readOnly": true,
+          "additionalProperties": {
+            "type": "string",
+            "readOnly": true
+          }
+        }
+      },
+      "title": "ItemInfo"
+    },
+    "ErrorRsp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:\n错误描述\n**取值范围**:\n不涉及",
+          "readOnly": true
+        }
+      },
+      "description": "**参数解释**:\n失败时返回的错误信息\n**取值范围**:\n不涉及"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cfw.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

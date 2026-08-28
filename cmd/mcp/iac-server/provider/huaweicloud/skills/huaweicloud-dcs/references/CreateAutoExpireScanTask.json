@@ -1,0 +1,185 @@
+{
+  "name": "CreateAutoExpireScanTask",
+  "summary": "创建过期key扫描任务",
+  "tags": "缓存分析",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/scan-expire-keys-task": {
+      "post": {
+        "tags": [
+          "缓存分析"
+        ],
+        "summary": "创建过期key扫描任务",
+        "x-open-region-cloud": "hws,hws_hk,hws_eu,otc,ocb,sbc,g42,tm,ctc,cmcc",
+        "description": "创建过期key扫描任务(Redis 3.0 不支持过期key扫描)。\n过期key扫描会对键空间进行Redis的scan扫描,释放内存中已过期但是由于惰性删除机制而没有释放的内存空间。\n过期key扫描在主节点上执行,会对实例性能有一定的影响,建议不要在业务高峰期进行。",
+        "operationId": "CreateAutoExpireScanTask",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "5560df16-cebf-4473-95c4-d1b573c16e79"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建过期key扫描任务成功。",
+            "schema": {
+              "$ref": "#/definitions/AutoExpireScanHistoryDetailResponse"
+            },
+            "examples": {
+              "application/json": {
+                "id": "aa735b6f-3d70-44e3-9771-66c6fae7459a",
+                "instance_id": "5560df16-cebf-4473-95c4-d1b573c16e79",
+                "status": "waiting",
+                "scan_type": "manual",
+                "created_at": "2020-06-15T02:21:18.669Z"
+              }
+            }
+          },
+          "400": {
+            "description": "非法请求。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DCS.4818",
+                "error_msg": "Do not support auto expire scan."
+              }
+            }
+          },
+          "401": {
+            "description": "认证信息非法。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "请求被拒绝访问。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "所请求的资源不存在。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "内部服务错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-constraint": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-name": "创建过期key扫描任务",
+        "x-scope": "",
+        "x-request-examples-url-1": "POST https://{dcs_endpoint}/v2/a4d31cb6-3d72-4fdc-8ec9-6e3a41e47f71/instances/5560df16-cebf-4473-95c4-d1b573c16e79/scan-expire-keys-task"
+      }
+    }
+  },
+  "definitions": {
+    "AutoExpireScanHistoryDetailResponse": {
+      "description": "查询过期key扫描记录详情返回体",
+      "properties": {
+        "id": {
+          "description": "过期key扫描记录ID",
+          "type": "string",
+          "example": "0ccb25d5-27cf-4188-b5ea-987730a85371",
+          "format": "uuid",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "instance_id": {
+          "type": "string",
+          "example": "4cd5dbb8-aacd-4603-b817-3e97d48c7a20",
+          "description": "实例ID",
+          "format": "uuid",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "status": {
+          "description": "扫描任务状态",
+          "enum": [
+            "waiting",
+            "running",
+            "success",
+            "failed"
+          ],
+          "type": "string",
+          "example": "success"
+        },
+        "scan_type": {
+          "description": "扫描方式",
+          "enum": [
+            "manual",
+            "auto"
+          ],
+          "type": "string",
+          "example": "manual"
+        },
+        "created_at": {
+          "description": "扫描任务创建时间,格式为:\"2020-06-15T02:21:18.669Z\"",
+          "type": "string",
+          "example": "2020-06-15T02:21:18.669Z"
+        },
+        "started_at": {
+          "description": "扫描任务开始时间,格式为:\"2020-06-15T02:21:18.669Z\"(创建扫描任务时此值为null,不返回)",
+          "type": "string",
+          "example": "2020-06-15T02:21:23.534Z"
+        },
+        "finished_at": {
+          "description": "扫描任务结束时间,格式为:\"2020-06-15T02:21:18.669Z\"(创建扫描任务时此值为null,不返回)",
+          "type": "string",
+          "example": "2020-06-15T02:21:25.588Z"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "description": "错误响应体",
+      "properties": {
+        "error_msg": {
+          "description": "错误信息",
+          "type": "string",
+          "example": "Invalid capacity parameter in the request.",
+          "maxLength": 1024
+        },
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "example": "DCS.4062",
+          "maxLength": 9
+        },
+        "error_ext_msg": {
+          "description": "扩展错误信息(暂未使用,赋值为null)",
+          "type": "string",
+          "example": null,
+          "maxLength": 1024
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,248 @@
+{
+  "name": "ShowAccessService",
+  "summary": "查询租户当前的接入服务授权",
+  "tags": "服务授权管理",
+  "productshort": "LakeFormation",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v1/{project_id}/access-service": {
+      "get": {
+        "tags": [
+          "GrantAccess"
+        ],
+        "description": "查询租户当前的接入服务授权",
+        "operationId": "ShowAccessService",
+        "summary": "查询租户当前的接入服务授权",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-enable-auth-anno": {
+          "type": "iam-token"
+        },
+        "x-iam-auth-meta-anno": {
+          "authLevel": "project",
+          "abacAction": "lakeformation:instance:describe",
+          "rbac": "te_admin",
+          "supportAllGrantedEps": "true"
+        },
+        "produces": [
+          "application/json"
+        ],
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/access-service",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 65534,
+            "x-example": "MIIjxxxxxxxxxxxxxxxxxxxxxxxx4qA="
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号。获取方法,请参见[获取项目ID](lakeformation_04_0026.xml)。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-zA-Z]{32}$",
+            "x-example": "41aaxxxxxxxxxxxxxxxxxxxxxxxcc046"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "租户协议查询响应体",
+            "schema": {
+              "$ref": "#/definitions/AccessServiceResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "access_services": [
+                  {
+                    "name": "DLI",
+                    "description": "Data Lake Insight",
+                    "grant": true
+                  },
+                  {
+                    "name": "DWS",
+                    "description": "Data Warehouse Service",
+                    "grant": true
+                  },
+                  {
+                    "name": "MA",
+                    "description": "ModelArts",
+                    "grant": true
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID,定位辅助信息。"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "error_code": null,
+                  "error_msg": null,
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AccessServiceInfo": {
+      "type": "object",
+      "description": "接入服务授权信息",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "接入服务名称。最大长度为20个字符。",
+          "maxLength": 20,
+          "minLength": 0
+        },
+        "description": {
+          "type": "string",
+          "description": "接入服务描述。最大长度为500个字符。",
+          "maxLength": 500,
+          "minLength": 0
+        },
+        "grant": {
+          "type": "boolean",
+          "description": "是否授权。值为true或false。",
+          "pattern": "false|true",
+          "example": true
+        }
+      }
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "AccessServiceResponseBody": {
+      "type": "object",
+      "description": "接入服务授权信息列表",
+      "properties": {
+        "access_services": {
+          "type": "array",
+          "description": "接入服务授权信息列表",
+          "items": {
+            "$ref": "#/definitions/AccessServiceInfo"
+          },
+          "minItems": 0,
+          "maxItems": 100000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.cn-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

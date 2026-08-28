@@ -1,0 +1,443 @@
+{
+  "name": "ListStackInstances",
+  "summary": "列举资源栈实例",
+  "tags": "资源编排-资源栈集",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/stack-sets/{stack_set_name}/stack-instances": {
+      "get": {
+        "tags": [
+          "StackSet"
+        ],
+        "summary": "列举资源栈实例",
+        "description": "列举资源栈实例(ListStackInstances)\n\n此API用于列举指定资源栈集下指定局点(region)或指定成员账号(stack_domain_id)或全部资源栈实例\n\n* 可以使用filter作为过滤器,过滤出指定局点(region)或指定成员账号(stack_domain_id)下的资源栈实例\n* 可以使用sort_key和sort_dir两个关键字对返回结果按创建时间(create_time)进行排序。给予的sort_key和sort_dir数量须一致,否则返回400。如果未给予sort_key和sort_dir,则默认按照创建时间降序排序。\n* 如果指定资源栈集下没有任何资源栈实例,则返回空list\n* 支持分页返回。如果响应中存在next_marker,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null",
+        "operationId": "ListStackInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "stack_set_name",
+            "in": "path",
+            "description": "资源栈集的名称。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "stack_set_id",
+            "in": "query",
+            "description": "资源栈集(stack_set)的唯一ID。\n\n此ID由资源编排服务在生成资源栈集的时候生成,为UUID。\n\n由于资源栈集名称仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈集,删除,再重新创建一个同名资源栈集。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈集就是我认为的那个,而不是其他队友删除后创建的同名资源栈集。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈集所对应的ID都不相同,更新不会影响ID。如果给予的stack_set_id和当前资源栈集的ID不一致,则返回400",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "过滤条件\n\n* 与(AND)运算符使用逗号(,)定义\n* 或(OR)运算符使用竖线(|)定义,OR运算符优先级高于AND运算符\n* 不支持括号\n* 过滤运算符仅支持双等号(==)\n* 过滤参数名及其值仅支持包含大小写英文、数字和下划线\n* 过滤条件中禁止使用分号,如果有分号,则此条过滤会被忽略\n* 一个过滤参数仅能与一个与条件相关,一个与条件中的多个或条件仅能与一个过滤参数相关",
+            "required": false,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 0
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "description": "排序字段,仅支持给予create_time",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "create_time"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "指定升序还是降序\n  * `asc` - 升序\n  * `desc` - 降序",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "call_identity",
+            "in": "query",
+            "description": "仅支持资源栈集权限模式为SERVICE_MANAGED时指定该参数。用于指定用户是以组织管理账号还是成员账号中的服务委托管理员身份调用资源栈集。默认为SELF。\n\n无论指定何种用户身份,创建或部署的资源栈集始终在组织管理账号名下。\n  * `SELF` - 以组织管理账号身份调用。\n  * `DELEGATED_ADMIN` - 以服务委托管理员身份调用。用户的华为云账号必须在组织中已经被注册为”资源编排资源栈集服务“的委托管理员。",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SELF",
+              "DELEGATED_ADMIN"
+            ],
+            "x-isnullable": true
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页标记。当一页无法返回所有结果,上一次的请求将返回next_marker以指引还有更多页数,用户可以将next_marker中的值放到此处以查询下一页的信息。此marker只能用于与上一请求指定的相同参数的请求。不指定时默认从第一页开始查询。",
+            "required": false,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页返回的最多结果数量",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "maximum": 1000,
+            "minimum": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列举资源栈实例成功",
+            "examples": {
+              "x-response-examples-1": {
+                "stack_instances": [
+                  {
+                    "stack_set_id": "f689e9fd-97e7-4185-bd8a-7d5f708d45d7",
+                    "stack_set_name": "my_hello_world_stack_set",
+                    "latest_stack_set_operation_id": "3fef5d3e-27b6-44e8-9769-1d7262bd9430",
+                    "status": "OPERATION_COMPLETE",
+                    "stack_id": "ea6a4f0e-ee8a-494e-b12a-8be4a1e65af2",
+                    "stack_name": "my_hello_world_stack",
+                    "stack_domain_id": "6cbcca2a2f114a63841bdbc7a19b7b09",
+                    "region": "cn-north-7",
+                    "create_time": "2023-05-17T15:39:25.210Z",
+                    "update_time": "2023-05-18T16:39:25.210Z"
+                  },
+                  {
+                    "stack_set_id": "f689e9fd-97e7-4185-bd8a-7d5f708d45d7",
+                    "stack_set_name": "my_hello_world_stack_set",
+                    "latest_stack_set_operation_id": "fb5e781e-a27d-46e2-9954-242753857a9f",
+                    "status": "OPERATION_FAILED",
+                    "status_message": "Deploy stack failed",
+                    "stack_id": "4abf1770-2760-4339-9c18-427fa115db6a",
+                    "stack_name": "my_hello_world_stack",
+                    "stack_domain_id": "6cbcca2a2f114a63841bdbc7a19b7b12",
+                    "region": "cn-north-7",
+                    "create_time": "2023-05-15T15:39:25.210Z",
+                    "update_time": "2023-05-16T16:39:25.210Z"
+                  }
+                ],
+                "page_info": {
+                  "current_count": 2,
+                  "previous_marker": "zxc1oHc08HcCmypYGTsOoRcvoHUvHRUAW5NOSnc1oHc08HcCPZrwP5NOeTlRiukJgtGxeujJeuGwGIihaIUCmypYGTsOtqvKPr2xmH8fPqpGWyQ0axGwGZp9aqvx8pQ7m5FvGTsJiKk7gtNFiuaxetdRCks="
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListStackInstancesResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源栈集不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "Y",
+        "x-rfs-external": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/stack-sets/my_hello_world_stack_set/stack-instances?filter=stack_domain_id==stackDomainIdA|stack_domain_id==stackDomainIdB",
+        "x-request-examples-description-1": "通过filter获取指定资源栈集在成员账号domainA和domainB下的资源栈实例",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/stack-sets/my_hello_world_stack_set/stack-instances?sort_key=create_time&sort_dir=asc",
+        "x-request-examples-description-2": "通过sort_key和sort_dir指定返回的资源栈实例列表,以创建时间升序返回"
+      }
+    }
+  },
+  "definitions": {
+    "StackSetIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_set_id": {
+          "type": "string",
+          "description": "资源栈集(stack_set)的唯一ID。\n\n此ID由资源编排服务在生成资源栈集的时候生成,为UUID。\n\n由于资源栈集名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈集,删除,再重新创建一个同名资源栈集。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈集就是我以为的那个,而不是被其他队友删除后创建的同名资源栈集。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈集所对应的ID都不相同,更新不会影响ID。如果给予的stack_set_id和当前资源栈集的ID不一致,则返回400",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "stack_set_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "PageInfo": {
+      "type": "object",
+      "properties": {
+        "next_marker": {
+          "type": "string",
+          "description": "向后分页标识符。如果存在,则表示实际总输出比当前响应中包含的输出多。在对请求的后续调用中,在请求参数中使用此值,以获取输出的下一部分。您应该重复此操作,直到next_marker响应元素返回为null。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "向前分页标识符。",
+          "x-omitempty": false,
+          "x-isnullable": true
+        },
+        "current_count": {
+          "type": "integer",
+          "description": "本页显示的条目数量。",
+          "x-omitempty": false
+        }
+      },
+      "description": "分页信息",
+      "x-isnullable": false
+    },
+    "StackInstanceStatusMessagePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "status_message": {
+          "type": "string",
+          "description": "在资源栈实例状态为`INOPERABLE`或`OPERATION_FAILED`时,会显示简要的错误信息总结以供debug"
+        }
+      }
+    },
+    "StackIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_id": {
+          "type": "string",
+          "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400"
+        }
+      },
+      "example": {
+        "stack_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "StackSetStackNamePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "stack_name": {
+          "type": "string",
+          "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+        }
+      },
+      "example": {
+        "stack_name": "MyHelloWorldStackName"
+      }
+    },
+    "StackInstanceStatusPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "资源栈实例的状态\n\n* `WAIT_IN_PROGRESS` - 资源栈实例等待操作中\n* `CANCEL_COMPLETE` - 资源栈实例操作取消完成\n* `OPERATION_IN_PROGRESS` - 资源栈实例操作中\n* `OPERATION_FAILED` - 资源栈实例操作失败\n* `INOPERABLE` - 资源栈实例不可操作\n* `OPERATION_COMPLETE` - 资源栈实例操作完成",
+          "enum": [
+            "WAIT_IN_PROGRESS",
+            "CANCEL_COMPLETE",
+            "OPERATION_IN_PROGRESS",
+            "OPERATION_FAILED",
+            "INOPERABLE",
+            "OPERATION_COMPLETE"
+          ]
+        }
+      },
+      "example": {
+        "status": "WAIT_IN_PROGRESS"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "StackInstance": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StackSetIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackSetNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackInstanceStatusPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackInstanceStatusMessagePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/StackSetStackNamePrimitiveTypeHolder"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "stack_domain_id": {
+              "type": "string",
+              "description": "资源栈实例所关联的资源栈所在的租户ID"
+            },
+            "latest_stack_set_operation_id": {
+              "type": "string",
+              "description": "最新一次部署该资源栈实例的资源栈集操作ID。\n\n此ID由资源编排服务在生成资源栈集操作的时候生成,为UUID。"
+            },
+            "region": {
+              "type": "string",
+              "description": "资源栈实例所关联的资源栈所在的区域"
+            },
+            "create_time": {
+              "type": "string",
+              "description": "资源栈实例的创建时间,格式为YYYY-MM-DDTHH:mm:ss.SSSZ,精确到毫秒,UTC时区,即,如1970-01-01T00:00:00.000Z。"
+            },
+            "update_time": {
+              "type": "string",
+              "description": "资源栈实例的更新时间,格式为YYYY-MM-DDTHH:mm:ss.SSSZ,精确到毫秒,UTC时区,即,如1970-01-01T00:00:00.000Z。"
+            }
+          }
+        }
+      ]
+    },
+    "StackSetNamePrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "stack_set_name"
+      ],
+      "properties": {
+        "stack_set_name": {
+          "type": "string",
+          "description": "资源栈集(stack_set)的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+        }
+      },
+      "example": {
+        "stack_set_name": "MyHelloWorldStackSetName"
+      }
+    },
+    "ListStackInstancesResponseBody": {
+      "type": "object",
+      "properties": {
+        "stack_instances": {
+          "type": "array",
+          "description": "资源栈实例列表",
+          "items": {
+            "$ref": "#/definitions/StackInstance"
+          }
+        },
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageInfo"
+        }
+      },
+      "description": "ListStackInstances API的响应Body体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,236 @@
+{
+  "name": "AddDepartment",
+  "summary": "添加部门",
+  "tags": "企业部门管理",
+  "productshort": "Meeting",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/usg/dcs/corp/dept": {
+      "post": {
+        "tags": [
+          "企业部门管理"
+        ],
+        "summary": "添加部门",
+        "description": "企业管理员通过该接口添加部门,最多支持10级部门,每级子部门最多支持100个,默认企业最大部门数量为10000个。",
+        "operationId": "AddDepartment",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 1,
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Access-Token"
+          },
+          {
+            "$ref": "#/parameters/X-Request-ID"
+          },
+          {
+            "$ref": "#/parameters/Accept-Language"
+          },
+          {
+            "name": "deptDTO",
+            "in": "body",
+            "required": true,
+            "description": "部门信息。",
+            "schema": {
+              "$ref": "#/definitions/DeptDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "examples": {
+              "application/json": {
+                "value": "deptcode123456"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/StringDTO"
+            }
+          },
+          "403": {
+            "description": "权限受限。",
+            "examples": {
+              "application/json": {
+                "request_id": "208b6e4c92074487bc43292f8554561e",
+                "error_code": "USG.000000004",
+                "error_msg": "Illegal request"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "examples": {
+              "application/json": {
+                "request_id": "208b6e4c92074487bc43292f8554561e",
+                "error_code": "USG.201030000",
+                "error_msg": "部门不存在"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/usg/dcs/corp/dept",
+        "x-request-examples-1": {
+          "deptCode": "deptcode123456",
+          "deptName": "综合管理部",
+          "parentDeptCode": "1",
+          "note": "负责公司XX, XX等业务",
+          "inPermission": "UNLIMITED",
+          "outPermission": "DESIGNATED_DEPARTMENT",
+          "sortLevel": 10000,
+          "designatedOutDeptCodes": [
+            "i6A",
+            "KR7"
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StringDTO": {
+      "x-subPackage": "common",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "返回结果。"
+        }
+      }
+    },
+    "DeptDTO": {
+      "required": [
+        "deptName"
+      ],
+      "properties": {
+        "deptCode": {
+          "type": "string",
+          "description": "部门编码,企业内唯一,若携带则以携带为准,不支持修改。",
+          "maxLength": 32,
+          "example": "deptcode123456"
+        },
+        "deptName": {
+          "type": "string",
+          "description": "部门名称。",
+          "maxLength": 128,
+          "minLength": 1,
+          "example": "综合管理部"
+        },
+        "parentDeptCode": {
+          "type": "string",
+          "description": "父部门编码,默认为根部门。\n默认值:1。",
+          "maxLength": 32,
+          "example": "1"
+        },
+        "note": {
+          "type": "string",
+          "description": "备注。",
+          "maxLength": 96,
+          "minLength": 0,
+          "example": "负责公司XX, XX等业务"
+        },
+        "inPermission": {
+          "type": "string",
+          "description": "其他用户对该部门下用户的访问权限。\n* UNLIMITED:默认,不做限制\n* OPEN:公开,其他部门都可访问(无论对方权限如何配置)",
+          "enum": [
+            "UNLIMITED",
+            "OPEN",
+            "CLOSE",
+            "DESIGNATED_DEPARTMENT"
+          ],
+          "example": "UNLIMITED"
+        },
+        "outPermission": {
+          "type": "string",
+          "description": "该部门下用户访问权限控制。\n- UNLIMITED:不限制\n- ONLY_SELF:仅能查询自己\n- SELF_AND_CHILD_DEPARTMENT:该部门下用户能查询本部门及子部门通讯\n- DESIGNATED_DEPARTMENT:该部门下用户能查询指定部门通讯录",
+          "enum": [
+            "UNLIMITED",
+            "ONLY_SELF",
+            "SELF_AND_CHILD_DEPARTMENT",
+            "DESIGNATED_DEPARTMENT"
+          ],
+          "example": "UNLIMITED"
+        },
+        "designatedOutDeptCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "允许访问的部门列表,仅outPermission为DESIGNATED_DEPARTMENT时有效,最多支持配置150个部门。",
+          "example": "[\"i6A\",\"KR7\"]"
+        },
+        "sortLevel": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 10000,
+          "minimum": 1,
+          "description": "部门排序号,序号越小,部门排序越靠前。",
+          "example": 10000
+        }
+      }
+    },
+    "AbnormalResultDTO": {
+      "x-subPackage": "discard",
+      "x-ref-external": "com.huawei.usg.datacenter.model.discard.*",
+      "description": "异常返回结果。",
+      "required": [
+        "error_code",
+        "error_msg",
+        "request_id"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求唯一标识。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Request-ID": {
+      "name": "X-Request-Id",
+      "in": "header",
+      "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+      "required": false,
+      "type": "string",
+      "x-example": "208b6e4c92074487bc43292f8554561e"
+    },
+    "Accept-Language": {
+      "name": "Accept-Language",
+      "in": "header",
+      "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+      "required": false,
+      "type": "string",
+      "x-example": "zh-CN"
+    },
+    "X-Access-Token": {
+      "name": "X-Access-Token",
+      "in": "header",
+      "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+      "required": true,
+      "format": "password",
+      "type": "string",
+      "x-example": "stb42Kw30IPpsIRm3DhsE0ym7B2tdAHcwfyY"
+    }
+  },
+  "host": "api.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,250 @@
+{
+  "name": "BatchUpdateTasks",
+  "summary": "批量更新任务",
+  "tags": "迁移任务管理",
+  "productshort": "OMS",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v2/{project_id}/tasks/batch-update": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "tags": [
+          "迁移任务管理"
+        ],
+        "summary": "批量更新任务",
+        "description": "批量更新迁移任务,可指定单个迁移任务组下所有的迁移任务或通过迁移任务ID来执行。",
+        "operationId": "BatchUpdateTasks",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1,
+            "x-example": "f4e146cac1de45669c3fed73dc9b9c6f",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "IAM Token认证,需要确认Token中包含的Project ID与请求URI中修改资源的Project ID匹配。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-order": 2,
+            "x-annotations": "",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+          },
+          {
+            "in": "body",
+            "name": "BatchUpdateTasksRequestBody",
+            "description": "This is a auto create Body Object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchUpdateTasksReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK 批量更新任务操作成功"
+          },
+          "400": {
+            "description": "Bad Request 请求参数错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "批量更新任务",
+        "x-constraint": "",
+        "x-version": "v2",
+        "x-scope": "Commercial",
+        "x-iftype": "InnerAPI",
+        "x-order": 7,
+        "x-request-examples-description-1": "将group_id为xxxxxxxx的任务的限速时段设置为00:01-23:59,限速值设置为50000000Byte/s",
+        "x-request-examples-url-1": "/v2/{project_id}/tasks/batch-update",
+        "x-request-examples-1": {
+          "group_id": "xxxxxxxx",
+          "bandwidth_policy": [
+            {
+              "start": "00:01",
+              "end": "23:59",
+              "max_bandwidth": 50000000
+            }
+          ]
+        },
+        "x-request-examples-text-1": {
+          "group_id": "xxxxxxxx",
+          "bandwidth_policy": [
+            {
+              "start": "00:01",
+              "end": "23:59",
+              "max_bandwidth": 50000000
+            }
+          ]
+        },
+        "x-request-examples-description-2": "将id为111,222的任务的限速时段设置为00:01-23:59,限速值设置为50000000Byte/s",
+        "x-request-examples-url-2": "/v2/{project_id}/tasks/batch-update",
+        "x-request-examples-2": {
+          "ids": [
+            111,
+            222
+          ],
+          "bandwidth_policy": [
+            {
+              "start": "00:01",
+              "end": "23:59",
+              "max_bandwidth": 50000000
+            }
+          ]
+        },
+        "x-request-examples-text-2": {
+          "ids": [
+            111,
+            222
+          ],
+          "bandwidth_policy": [
+            {
+              "start": "00:01",
+              "end": "23:59",
+              "max_bandwidth": 50000000
+            }
+          ]
+        },
+        "x-is-registered": "Y",
+        "x-request": "None",
+        "x-response": "None",
+        "x-iam-auth-meta-anno": {
+          "abacAction": "oms:task:update",
+          "authLevel": "INSTANCE_LIST",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": true,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": true,
+          "needCbcCheck": true,
+          "opType": "guessByHttpMethod",
+          "model": "v5",
+          "authContextInitializerName": "taskAuthContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "example": "Error message.",
+          "description": "错误信息。",
+          "pattern": "^[^<>&\\\"'\\\\\\\\]*$",
+          "x-annotations": ""
+        },
+        "error_code": {
+          "type": "string",
+          "example": "OMS.0001",
+          "description": "错误码。",
+          "pattern": "^[^<>&\\\"'\\\\\\\\]*$",
+          "x-annotations": ""
+        }
+      },
+      "description": "标准错误响应体。",
+      "x-annotations": "@com.fasterxml.jackson.annotation.JsonPropertyOrder({\"error_code\", \"error_msg\"})"
+    },
+    "BandwidthPolicyDto": {
+      "required": [
+        "end",
+        "max_bandwidth",
+        "start"
+      ],
+      "properties": {
+        "end": {
+          "type": "string",
+          "example": "23:59",
+          "description": "流量控制结束时间,格式为“hh:mm”。例如“12:03”表示12时03分。",
+          "pattern": "^(20|21|22|23|[0-1]\\d):[0-5]\\d"
+        },
+        "max_bandwidth": {
+          "type": "integer",
+          "format": "int64",
+          "example": 5242880,
+          "description": "时段内允许的最大流量带宽,单位Byte/s,取值范围为>= 1048576Byte/s(相当于1MB/s)且<=209715200Byte/s(相当于200MB/s)。",
+          "minimum": 1048576,
+          "maximum": 209715200,
+          "x-annotations": ""
+        },
+        "start": {
+          "type": "string",
+          "example": "00:00",
+          "description": "流量控制开始时间,格式为“hh:mm”。例如“12:03”表示12时03分。",
+          "pattern": "^(20|21|22|23|[0-1]\\d):[0-5]\\d"
+        }
+      },
+      "description": "带宽限速策略。",
+      "type": "object"
+    },
+    "BatchUpdateTasksReq": {
+      "required": [
+        "bandwidth_policy"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string",
+          "example": "bb8bccfd-9e50-4b94-8e83-c717b697128e",
+          "description": "迁移任务组ID,表示批量更新该任务组下所有任务。\ngroup_id和ids为二选一参数,不可同时存在或同时缺失。",
+          "minLength": 1,
+          "maxLength": 36,
+          "x-annotations": ""
+        },
+        "ids": {
+          "type": "array",
+          "description": "迁移任务id数组,包含所有需要批量更新操作的任务id。\ngroup_id和ids为二选一参数,不可同时存在或同时缺失。",
+          "items": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9223372036854775807
+          },
+          "minItems": 0,
+          "maxItems": 20,
+          "x-annotations": "@Size(max = 20) @NumberListValidation(min = 0)"
+        },
+        "bandwidth_policy": {
+          "type": "array",
+          "description": "配置流量控制策略。数组中一个元素对应一个时段的最大带宽,最多允许5个时段,且时段不能重叠。",
+          "items": {
+            "$ref": "#/definitions/BandwidthPolicyDto"
+          },
+          "minItems": 0,
+          "maxItems": 5,
+          "x-annotations": "@Size(max = 5)"
+        },
+        "task_priority": {
+          "type": "string",
+          "description": "任务优先级配置,存在高中低三个优先级档次,限制仅在等待中、已暂停、已失败的任务进行修改\nHIGH:高优先级\nMEDIUM:中优先级\nLOW:低优先级",
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ]
+        }
+      },
+      "description": "This is a auto create Body Object",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "oms.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

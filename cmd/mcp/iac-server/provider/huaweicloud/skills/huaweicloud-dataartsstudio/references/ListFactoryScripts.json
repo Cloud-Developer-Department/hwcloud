@@ -1,0 +1,275 @@
+{
+  "name": "ListFactoryScripts",
+  "summary": "查询脚本列表",
+  "tags": "脚本开发接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/factory/scripts": {
+      "get": {
+        "x-request-examples-url-1": "GET /v2/b384b9e9ab9b4ee8994c8633aabc9505/factory/scripts",
+        "x-request-examples-description-1": "查询脚本列表。",
+        "tags": [
+          "脚本开发接口"
+        ],
+        "operationId": "ListFactoryScripts",
+        "summary": "查询脚本列表",
+        "description": "此接口用来查询脚本列表。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页返回结果,指定每页最大记录数,范围[1,100]。\n默认值:10。",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "分页的起始页,默认值为0。取值范围大于等于0。",
+            "required": false,
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "script_name",
+            "in": "query",
+            "description": "脚本名称",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功,返回脚本列表信息。",
+            "schema": {
+              "$ref": "#/definitions/ScriptInfoListResp"
+            },
+            "examples": {
+              "application/json": {
+                "total": 2,
+                "scripts": [
+                  {
+                    "connection_name": "hive_test",
+                    "id": "ff8080819627db89019627ee57cb0007;",
+                    "create_user": "test_user",
+                    "database": "default",
+                    "description": "",
+                    "directory": "/",
+                    "name": "hive_test_sql",
+                    "type": "HiveSQL",
+                    "owner": "ei_dlf_l00341563",
+                    "modify_time": 1762156402586,
+                    "version": 4
+                  },
+                  {
+                    "connection_name": "hots_test_xie",
+                    "id": "ff8080819627db89019647ee57cb0007;",
+                    "create_user": "test_user",
+                    "description": "",
+                    "directory": "/",
+                    "name": "test_shell",
+                    "type": "Shell",
+                    "owner": "ei_dlf_l00341563",
+                    "modify_time": 1762853642305,
+                    "version": 7
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "查询失败,返回错误信息。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DLF.3051",
+                "error_msg": "The request parameter is invalid."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ScriptInfo": {
+      "type": "object",
+      "description": "脚本信息",
+      "properties": {
+        "name": {
+          "description": "脚本名称,只能包含五种字符:英文字母、数字、中文、中划线和点号,且长度小于等于128个字符。脚本名称不能重复。",
+          "type": "string"
+        },
+        "type": {
+          "description": "脚本类型\n- FlinkSQL: Flink SQL\n- DLISQL:DLI SQL\n- SparkSQL: MRS Spark SQL\n- HiveSQL: MRS Hive SQL\n- DWSSQL: DWS SQL\n- RDSSQL: RDS SQL\n- Shell: Shell 脚本\n- PYTHON:Python 脚本\n- PRESTO: MRS Presto SQL\n- ClickHouseSQL: MRS ClickHouse SQL\n- HetuEngineSQL: MRS HetuEngine SQL\n- ImpalaSQL: MRS Impala SQL\n- SparkPython: MRS Spark Python脚本",
+          "type": "string",
+          "enum": [
+            "FlinkSQL",
+            "DLISQL",
+            "SparkSQL",
+            "HiveSQL",
+            "DWSSQL",
+            "RDSSQL",
+            "Shell",
+            "PYTHON",
+            "PRESTO",
+            "ClickHouseSQL",
+            "HetuEngineSQL",
+            "ImpalaSQL",
+            "SparkPython"
+          ]
+        },
+        "directory": {
+          "type": "string",
+          "description": "脚本所在目录路径\n通过DataArts Studio管理控制台 > 数据开发,左侧列表选择“数据开发 > 脚本开发”。在脚本的目录树上,可以查看到当前已经创建的目录,默认在根目录/。"
+        },
+        "id": {
+          "type": "string",
+          "description": "脚本id。"
+        },
+        "create_user": {
+          "type": "string",
+          "description": "脚本创建人"
+        },
+        "connection_name": {
+          "type": "string",
+          "description": "脚本关联的连接名称。当type参数值为DLISQL、SparkSQL、HiveSQL、DWSSQL、Shell、PRESTO、ClickHouseSQL、ImpalaSQL、HetuEngineSQL、RDSSQL其中之一时,这个参数是必选的。用户可以通过查询连接列表(待下线)接口获取当前系统中已经存在的连接。默认值为空。"
+        },
+        "database": {
+          "type": "string",
+          "description": "执行SQL语句所关联的数据库,当type参数值为DLISQL、SparkSQL、HiveSQL、DWSSQL、PRESTO、ClickHouseSQL、ImpalaSQL、HetuEngineSQL、RDSSQL其中之一时,才支持此参数。\n- type为DLISQL时,可以通过查看所有数据库接口获取数据库信息。\n- type为其他类型的时候,需要通过JDBC方式连上集群,查询数据库信息。默认值为空。"
+        },
+        "queue_name": {
+          "type": "string",
+          "description": "DLI资源队列名称,当type参数值为DLISQL时,才支持此参数。可以通过查询队列列表接口获取队列信息。默认值为空。"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "用户定义适用于此作业的配置参数,当type参数值为DLISQL时存在。当前支持的配置项列表请参考DLI的conf参数说明。默认值为空。"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述,长度不能超过255个字符。",
+          "maxLength": 255
+        },
+        "owner": {
+          "type": "string",
+          "description": "责任人名称。"
+        },
+        "modify_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "脚本最后修改时间。"
+        },
+        "version": {
+          "type": "integer",
+          "description": "脚本最新提交版本。"
+        }
+      }
+    },
+    "ScriptInfoListResp": {
+      "type": "object",
+      "description": "脚本列表响应体",
+      "properties": {
+        "total": {
+          "description": "总的脚本个数",
+          "type": "integer"
+        },
+        "scripts": {
+          "type": "array",
+          "description": "脚本列表",
+          "items": {
+            "$ref": "#/definitions/ScriptInfo"
+          },
+          "maxItems": 1000
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

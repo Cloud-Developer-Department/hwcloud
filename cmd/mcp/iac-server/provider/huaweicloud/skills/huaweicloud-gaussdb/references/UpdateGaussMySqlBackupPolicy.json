@@ -1,0 +1,185 @@
+{
+  "name": "UpdateGaussMySqlBackupPolicy",
+  "summary": "设置备份策略",
+  "tags": "备份管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/backups/policy/update": {
+      "put": {
+        "tags": [
+          "备份管理"
+        ],
+        "operationId": "UpdateGaussMySqlBackupPolicy",
+        "summary": "设置备份策略",
+        "description": "设置自动备份策略。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID,严格匹配UUID规则。",
+            "required": true,
+            "type": "string",
+            "x-example": "61a4ea66210545909d74a05c27a7179ein07"
+          },
+          {
+            "name": "MysqlUpdateBackupPolicyRequest",
+            "in": "body",
+            "description": "请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MysqlUpdateBackupPolicyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/MysqlUpdateBackupPolicyResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": "COMPLETED",
+                "instance_id": "ef25188419f941309882d2986b2210b9in07",
+                "instance_name": "gauss-mysql"
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "修改实例的自动备份策略,每周的周一至周五的19:00-20:00进行备份,备份文件保留7天。",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/ba62a0b83a1b42bfab275829d86ac0fdin07/backups/policy/update",
+        "x-request-examples-1": {
+          "backup_policy": {
+            "keep_days": 7,
+            "start_time": "19:00-20:00",
+            "period": "1,2,3,4,5"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MysqlUpdateBackupPolicyRequest": {
+      "description": "设置自动备份策略信息",
+      "required": [
+        "backup_policy"
+      ],
+      "properties": {
+        "backup_policy": {
+          "description": "数据库信息。",
+          "$ref": "#/definitions/MysqlBackupPolicy"
+        }
+      }
+    },
+    "MysqlBackupPolicy": {
+      "required": [
+        "keep_days",
+        "start_time",
+        "period"
+      ],
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "description": "备份时间段。自动备份将在该时间段内触发。\n\n取值范围:非空,格式必须为hh:mm-HH:MM且有效,当前时间指UTC时间。HH取值必须比hh大1。mm和MM取值必须相同,且取值必须为00。\n\n取值示例:21:00-22:00"
+        },
+        "keep_days": {
+          "type": "integer",
+          "format": "int32",
+          "description": "备份文件的保留天数。"
+        },
+        "period": {
+          "type": "string",
+          "description": "备份周期配置。自动备份将在每星期指定的天进行。\n\n取值范围:格式为逗号隔开的数字,数字代表星期。\n\n取值示例:1,2,3,4则表示备份周期配置为星期一、星期二、星期三和星期四。"
+        },
+        "retention_num_backup_level1": {
+          "type": "integer",
+          "format": "int32",
+          "description": "一级备份保留数量,默认值为0。当一级备份开关开启时,该参数值有效。取值:0或1"
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    },
+    "MysqlUpdateBackupPolicyResponse": {
+      "required": [
+        "status",
+        "instance_id",
+        "instance_name"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "状态信息"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID。"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "实例名称"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "put",
+  "uri": null
+}

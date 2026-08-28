@@ -1,0 +1,225 @@
+{
+  "name": "ShowListHistory",
+  "summary": "查看构建任务的构建历史列表",
+  "tags": "编译构建(旧)",
+  "productshort": "CodeArtsBuild",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v3/jobs/{job_id}/history": {
+      "get": {
+        "tags": [
+          "CodeArtsBuild"
+        ],
+        "summary": "查看构建任务的构建历史列表",
+        "description": "查看构建任务的构建历史列表",
+        "operationId": "ShowListHistory",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Job_Id"
+          },
+          {
+            "$ref": "#/parameters/Offset"
+          },
+          {
+            "$ref": "#/parameters/Limit"
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "description": "距今天的时间区间(单位:天),interval小于等于30",
+            "required": true,
+            "type": "integer",
+            "default": 7,
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 30
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/HistoryRecords"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "history_records": [
+                  {
+                    "record_id": "20201230.1",
+                    "job_id": "f9d6c8466d614a9788e9a0acf6c15f46",
+                    "build_number": 55,
+                    "start_time": "2020-12-30T17:33:11+08:00",
+                    "end_time": "2020-12-30T17:33:27+08:00",
+                    "result": "FAILURE"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/jobs/{job_id}/history?interval=7&offset=0&limit=10",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-internel": "false",
+        "x-apigateway-ratelimit": "cloudbuild_ext",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "HistoryRecord": {
+      "title": "HistoryRecord",
+      "type": "object",
+      "properties": {
+        "record_id": {
+          "type": "string",
+          "description": "构建记录id--唯一key"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务id"
+        },
+        "build_number": {
+          "type": "integer",
+          "description": "构建编号",
+          "format": "int32"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "构建开始时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "构建结束时间"
+        },
+        "result": {
+          "type": "string",
+          "description": "构建结果"
+        }
+      }
+    },
+    "HistoryRecords": {
+      "title": "HistoryRecords",
+      "type": "object",
+      "properties": {
+        "history_records": {
+          "type": "array",
+          "description": "构建历史列表",
+          "items": {
+            "$ref": "#/definitions/HistoryRecord"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "description": "记录总数"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "CB.00060200"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "Invalid param"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n通过调用IAM服务接口获取\n(响应消息头中X-Subject-Token的值)。\n不支持租户全局token,请使用scope为project的region级token。",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100000,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+    },
+    "Limit": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页显示的条目数量,limit小于等于100",
+      "required": true,
+      "type": "integer",
+      "default": 10,
+      "format": "int32",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "Offset": {
+      "name": "offset",
+      "in": "query",
+      "description": "分页页码, 表示从此页开始查询, offset大于等于0",
+      "required": true,
+      "type": "integer",
+      "default": 0,
+      "format": "int32",
+      "minimum": 0
+    },
+    "Job_Id": {
+      "name": "job_id",
+      "in": "path",
+      "description": "构建的任务ID;\n编辑构建任务时,浏览器URL末尾的32位数字、字母组合的字符串。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[0-9a-z]{32}$",
+      "x-example": "901878212b1a49be9c1a1054c272762a"
+    }
+  },
+  "host": "cloudbuild-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

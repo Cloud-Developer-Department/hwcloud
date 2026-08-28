@@ -1,0 +1,487 @@
+{
+  "name": "UpdateSchedule",
+  "summary": "更新调度计划,机机接口,全量更新字段",
+  "tags": "调度计划管理",
+  "productshort": "IoTEdge",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/{project_id}/edge-nodes/{edge_node_id}/schedules/{schedule_id}": {
+      "put": {
+        "tags": [
+          "EdgeScheduleManagement"
+        ],
+        "x-developing-api": true,
+        "summary": "更新调度计划,机机接口,全量更新字段",
+        "x-imports": "org.springframework.http.ResponseEntity",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "description": "用户通过北向接口修改边缘节点上调度计划",
+        "x-iftype": "OpenAPI_new",
+        "operationId": "UpdateSchedule",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/edge_node_id"
+          },
+          {
+            "$ref": "#/parameters/schedule_id"
+          },
+          {
+            "name": "UpdateScheduleReqDTO",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateScheduleReqDTO"
+            },
+            "description": "更新调度计划请求结构体"
+          }
+        ],
+        "x-returnType": "ResponseEntity<ScheduleDetailRspDTO>",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "x-SuccessCode": true,
+            "schema": {
+              "$ref": "#/definitions/ScheduleDetailRspDTO"
+            },
+            "examples": {
+              "application/json": {
+                "schedule_id": "1A",
+                "node_id": "node1",
+                "name": "H1照明控制",
+                "cycle_type": "daily",
+                "enabled": true,
+                "start_time": 1691572410000,
+                "end_time": 1691572410000,
+                "priority": 9,
+                "daily": {
+                  "exceptional_dates": {
+                    "valid_dates": [
+                      "2023-01-01"
+                    ],
+                    "invalid_dates": [
+                      "2023-01-02"
+                    ]
+                  },
+                  "time_spans": [
+                    {
+                      "start": "11:40:00",
+                      "end": "11:49:00"
+                    }
+                  ],
+                  "weekdays": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                "tasks": [
+                  {
+                    "device_ids": [
+                      "device1"
+                    ],
+                    "action": "SetProperties",
+                    "paras": [
+                      {
+                        "service_id": "dataService",
+                        "properties": {
+                          "Switch": 1
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "x-request-examples-url-1": "PUT https://{endpoint}/v2/{project_id}/edge-nodes/{edge_node_id}/schedules/{schedule_id}",
+        "x-request-examples-1": {
+          "name": "H1照明控制",
+          "enabled": true,
+          "start_time": 1691572410000,
+          "end_time": 1691572410000,
+          "priority": 9,
+          "daily": {
+            "exceptional_dates": {
+              "valid_dates": [
+                "2023-01-01"
+              ],
+              "invalid_dates": [
+                "2023-01-02"
+              ]
+            },
+            "time_spans": [
+              {
+                "start": "11:40:00",
+                "end": "11:49:00"
+              }
+            ],
+            "weekdays": [
+              1,
+              2,
+              3
+            ]
+          },
+          "tasks": [
+            {
+              "device_ids": [
+                "device1"
+              ],
+              "action": "SetProperties",
+              "paras": [
+                {
+                  "service_id": "dataService",
+                  "properties": {
+                    "Switch": 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TimeSpans": {
+      "type": "object",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "pattern": "^(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d$",
+          "description": "开始时间;不包含日期,为本地时刻,根据网关侧的本地时间进行调度",
+          "minLength": 1,
+          "maxLength": 10,
+          "example": "11:40:00"
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d$",
+          "description": "结束时间,不包含日期,为本地时刻,根据网关侧的本地时间进行调度",
+          "minLength": 1,
+          "maxLength": 10,
+          "example": "11:49:00"
+        }
+      }
+    },
+    "ScheduleTask": {
+      "type": "object",
+      "description": "调度计划结构体",
+      "required": [
+        "device_ids",
+        "action",
+        "paras"
+      ],
+      "properties": {
+        "device_ids": {
+          "type": "array",
+          "description": "设备id数组",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "action": {
+          "type": "string",
+          "description": "任务执行的动作,当前支持SetProperties",
+          "pattern": "(SetProperties)",
+          "example": "SetProperties"
+        },
+        "paras": {
+          "type": "object",
+          "description": "对应action的参数",
+          "example": [
+            {
+              "service_id": "dataService",
+              "properties": {
+                "Switch": 1
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ExceptionalDates": {
+      "type": "object",
+      "description": "例外的日期,valid_dates表示需要执行的日期,invalid_dates表示不执行的日期。其优先级最高,优先级:ExceptionalDates > weekdays > start_time-endtime",
+      "properties": {
+        "valid_dates": {
+          "description": "例外日期",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-([0-2]\\d|3[01])$",
+            "example": "2023-01-01"
+          }
+        },
+        "invalid_dates": {
+          "description": "无效日期",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-([0-2]\\d|3[01])$",
+            "example": "2023-01-01"
+          }
+        }
+      }
+    },
+    "ScheduleDetailRspDTO": {
+      "title": "调度计划详情结构体",
+      "description": "调度计划详情结构体",
+      "x-imports": "java.util.Map;",
+      "type": "object",
+      "properties": {
+        "schedule_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9-_]*$",
+          "description": "调度计划id,租户下唯一",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "1A"
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "节点id",
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "x-example": "446007715895193600"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-\\一-\\龥]*$",
+          "description": "调度计划名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "H1照明控制"
+        },
+        "cycle_type": {
+          "type": "string",
+          "pattern": "(once|daily)",
+          "description": "调度计划的循环类型",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "daily"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "调度计划是否生效",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": true
+        },
+        "start_time": {
+          "description": "调度计划起始时间,毫秒级别的时间戳",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 4828176000000,
+          "example": 1691572410000
+        },
+        "end_time": {
+          "description": "调度计划结束时间,毫秒级别的时间戳",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 4828176000000,
+          "example": 1691572410000
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 16,
+          "description": "调度计划优先级, 1-16",
+          "example": 8
+        },
+        "daily": {
+          "$ref": "#/definitions/DailyDto"
+        },
+        "tasks": {
+          "type": "array",
+          "description": "调度任务信息",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/ScheduleTask"
+          }
+        }
+      }
+    },
+    "DailyDto": {
+      "title": "每天的时间描述结构体",
+      "description": "每天的时间描述结构体",
+      "x-imports": "java.util.Map;",
+      "type": "object",
+      "required": [
+        "time_spans"
+      ],
+      "properties": {
+        "exceptional_dates": {
+          "$ref": "#/definitions/ExceptionalDates"
+        },
+        "time_spans": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "description": "时间段描述",
+          "items": {
+            "$ref": "#/definitions/TimeSpans"
+          }
+        },
+        "weekdays": {
+          "type": "object",
+          "x-type": "List<@Min(0) @Max(7) Integer>",
+          "description": "描述此任务有效的星期几,为数组。如果为null,则表示start_time-endtime之间,每天都执行;如果为空数组,则表示start_time-endtime之间,每天都不执行;如果为[1, 2],则表示每周一、二执行。"
+        }
+      }
+    },
+    "UpdateScheduleReqDTO": {
+      "title": "更新调度计划请求结构体",
+      "description": "更新调度计划请求结构体",
+      "x-imports": "java.util.Map;",
+      "type": "object",
+      "required": [
+        "name",
+        "enabled",
+        "end_time",
+        "priority",
+        "tasks"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-\\一-\\龥]*$",
+          "description": "调度计划名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "H1照明控制"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "调度计划是否生效",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": true
+        },
+        "start_time": {
+          "description": "调度计划起始时间,毫秒级别的时间戳",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 4828176000000,
+          "example": 1691572410000
+        },
+        "end_time": {
+          "description": "调度计划结束时间,毫秒级别的时间戳",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 4828176000000,
+          "example": 1691572410000
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 16,
+          "description": "调度计划优先级。",
+          "example": 8
+        },
+        "daily": {
+          "$ref": "#/definitions/DailyDto"
+        },
+        "tasks": {
+          "type": "array",
+          "description": "调度任务信息",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/ScheduleTask"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "schedule_id": {
+      "name": "schedule_id",
+      "in": "path",
+      "required": true,
+      "description": "调度计划id",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-_]*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "1A"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。获取方法请参见 [获取项目ID](x-wc://file=zh-cn_topic_0225049489.xml)。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{1,32}$",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "minLength": 0,
+      "maxLength": 20000
+    },
+    "edge_node_id": {
+      "name": "edge_node_id",
+      "in": "path",
+      "description": "边缘节点ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-zA-Z0-9_-]*$",
+      "x-example": "446007715895193600"
+    }
+  },
+  "host": "iotedge-api.cn-north-4.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

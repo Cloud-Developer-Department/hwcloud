@@ -1,0 +1,484 @@
+{
+  "name": "CreateInstance",
+  "summary": "创建边缘实例",
+  "tags": "边缘实例",
+  "productshort": "IEC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/cloudservers": {
+      "post": {
+        "tags": [
+          "边缘实例"
+        ],
+        "summary": "创建边缘实例",
+        "description": "创建边缘实例。单租户默认可创建50个边缘实例。",
+        "operationId": "CreateInstance",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "in": "body",
+            "name": "CreateInstanceRequestBody",
+            "description": "边缘实例详细配置。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateInstanceRequestBody"
+            },
+            "x-order": 2
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "examples": {
+              "application/json": {
+                "job_id": "ff808082720e919801738f0e5eb1727f",
+                "server_ids": [
+                  "fbe3076f-6d30-4ae2-9acf-a6d946ef2702"
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateInstanceResponseBody"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "创建边缘实例",
+        "x-constraint": "",
+        "x-version": "v1",
+        "x-scope": "Commercial",
+        "x-order": 10,
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/cloudservers",
+        "x-publishpath": "",
+        "x-hybridcloud": "",
+        "x-source": "",
+        "x-first-open-time": "",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc",
+        "x-apiexplorer-hide": "",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "DataVolume": {
+      "required": [
+        "size",
+        "volume_type"
+      ],
+      "properties": {
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "example": 100,
+          "description": "数据盘大小,容量单位为GB,输入大小范围为[1,500]。",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "volume_type": {
+          "type": "string",
+          "example": "SATA",
+          "description": "边缘实例数据盘对应的磁盘类型,需要与站点所提供的磁盘类型相匹配。"
+        }
+      },
+      "description": "数据盘参数"
+    },
+    "DemandInstance": {
+      "properties": {
+        "pool_id": {
+          "type": "string",
+          "description": "弹性公网IP池。\n多线路场景下,将在该弹性公网IP池下创建弹性公网IP。\n> 覆盖规则为省级/大区时不支持指定线路ID创建边缘业务。"
+        },
+        "pool_ids": {
+          "type": "array",
+          "description": "线路ID集合。多线路场景下,将在各线路下创建弹性公网IP。",
+          "example": [
+            "5_bgp-site5-5",
+            "5_bgp-site5-6"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "租户需求"
+    },
+    "AllowedAddressPair": {
+      "required": [
+        "ip_address"
+      ],
+      "properties": {
+        "ip_address": {
+          "type": "string",
+          "description": "- 功能说明:IP地址\n- 约束:\n    IP地址不支持“0.0.0.0/0”\n    如果allowed_address_pairs配置地址池较大的CIDR(掩码小于24位),建议为该port配置一个单独的安全组。\n    如果allowed_address_pairs的IP地址为“1.1.1.1/0”,表示关闭源目地址检查开关。"
+        },
+        "mac_address": {
+          "type": "string",
+          "description": "MAC地址"
+        }
+      },
+      "description": "IP/Mac对象"
+    },
+    "RootVolume": {
+      "required": [
+        "size",
+        "volume_type"
+      ],
+      "properties": {
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "example": 40,
+          "description": "系统盘大小,容量单位为GB,输入大小范围为[40,100]。",
+          "minimum": 40,
+          "maximum": 100
+        },
+        "volume_type": {
+          "type": "string",
+          "example": "SAS",
+          "description": "边缘实例系统盘对应的磁盘类型,需要与站点所提供的磁盘类型相匹配。"
+        }
+      },
+      "description": "系统盘参数"
+    },
+    "CoverageInstance": {
+      "required": [
+        "coverage_level",
+        "coverage_policy",
+        "coverage_sites"
+      ],
+      "properties": {
+        "coverage_policy": {
+          "type": "string",
+          "example": "centralize",
+          "description": "区域调度策略,只支持centralize。\n\n- centralize:代表城市集中策略,指定该策略,边缘业务创建时会保证将所有实例都发放在同一个站点。"
+        },
+        "coverage_level": {
+          "type": "string",
+          "example": "site",
+          "description": "区域分布层级,只支持site。\n- site:站点级别。\n\n约束:\ncoverage_sites中'site'字段仅支持使用ID(站点ID,通过“查询边缘站点列表”获取),不支持name。"
+        },
+        "coverage_sites": {
+          "type": "array",
+          "description": "区域及购买数量列表。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/CoverageSiteInstance",
+            "maxItems": 1,
+            "minItems": 1
+          }
+        }
+      },
+      "description": "覆盖策略对象"
+    },
+    "CoverageSiteInstance": {
+      "required": [
+        "demands",
+        "site"
+      ],
+      "properties": {
+        "site": {
+          "type": "string",
+          "pattern": "^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}$",
+          "description": "站点ID。\n具体信息可通过调用“查询边缘站点列表”来查询。"
+        },
+        "demands": {
+          "type": "array",
+          "description": "租户需求数量列表。表示租户发放资源站点的运营商和发放的资源组的数量。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/DemandInstance"
+          },
+          "minItems": 1,
+          "maxItems": 1
+        }
+      },
+      "description": "站点覆盖策略"
+    },
+    "OsProfile": {
+      "required": [
+        "iam_agency_name"
+      ],
+      "properties": {},
+      "description": "边缘实例Os配置"
+    },
+    "CreateInstanceRequestBody": {
+      "required": [
+        "server"
+      ],
+      "properties": {
+        "server": {
+          "description": "待创建的边缘实例。",
+          "$ref": "#/definitions/CreateInstanceOption"
+        }
+      },
+      "description": "创建边缘实例请求对象"
+    },
+    "CreateInstanceOption": {
+      "required": [
+        "count",
+        "coverage",
+        "flavor_ref",
+        "image_ref",
+        "name",
+        "net_config",
+        "root_volume"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "ecs01",
+          "description": "边缘资源名称,与边缘实例一一对应。\n取值范围:只能由中文字符、大小写英文字母、数字及中划线、下划线组成,且长度为[1-48]个字符。"
+        },
+        "with_prefix": {
+          "type": "boolean",
+          "description": "是否自动添加前缀。\n- with_prefix为false时不拼接IEC前缀\n- with_prefix不传或者传true时拼自动IEC前缀\n\n以name为iec为例:\n不添加前缀时实例名称为:iec\n自动添加前缀实例名称为:IEC-ZS01-iec",
+          "default": true,
+          "x-admin": "False",
+          "x-internal": "False"
+        },
+        "image_ref": {
+          "type": "string",
+          "example": "d0272146-f6d8-4e3c-a1dc-196ec4a2f848",
+          "description": "边缘实例的系统镜像,需要指定已创建镜像的ID,ID格式为通用唯一识别码(Universally Unique Identifier,简称UUID)。\n镜像的ID可以从控制台或者参考本文档的“查询边镜像列表”的章节获取。"
+        },
+        "flavor_ref": {
+          "type": "string",
+          "description": "边缘实例的系统规格的ID。\n已上线的规格请使用接口 “查询边缘实例规格列表“ 进行查询。"
+        },
+        "admin_pass": {
+          "type": "string",
+          "description": "如果需要使用密码方式登录边缘实例,可使用adminPass字段指定边缘实例管理员帐户初始登录密码。其中,Linux管理员帐户为root,Windows管理员帐户为Administrator。\n密码复杂度要求:\n1. 长度为8-26位。\n2. 密码至少必须包含大写字母、小写字母、数字和特殊字符(!@$%^-_=+[{}]:,./?)中的三种。\n3. 密码不能包含用户名或用户名的逆序。\n4. Windows系统密码不能包含用户名或用户名的逆序,不能包含用户名中超过两个连续字符的部分。\n说明\n目前边缘实例不支持创建后设置密码,不设置此参数会导致实例创建后无法登录。"
+        },
+        "key_name": {
+          "type": "string",
+          "example": "test-pk1",
+          "description": "密钥对名称。"
+        },
+        "net_config": {
+          "description": "实例的边缘网络配置。包含了边缘网络的网段信息和子网数目信息。",
+          "$ref": "#/definitions/NetConfigInstance"
+        },
+        "bandwidth": {
+          "description": "实例的带宽参数。IEC服务现在提供共享带宽服务,暂不不支持其他类型带宽。",
+          "$ref": "#/definitions/BandwidthConfigInstance"
+        },
+        "root_volume": {
+          "description": "边缘实例对应系统盘相关配置。",
+          "$ref": "#/definitions/RootVolume"
+        },
+        "data_volumes": {
+          "type": "array",
+          "description": "边缘实例对应数据盘相关配置。每一个数据结构代表一块待创建的数据盘。\n约束:目前边缘实例最多可挂载2块数据盘",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/DataVolume"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "边缘实例数量。",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "security_groups": {
+          "type": "array",
+          "description": "边缘业务对应安全组信息。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/SecurityGroupOption"
+          }
+        },
+        "coverage": {
+          "description": "边缘业务覆盖策略。",
+          "$ref": "#/definitions/CoverageInstance"
+        },
+        "user_data": {
+          "type": "string",
+          "example": "IyEvYmluL2Jhc2gKZWNobyAnc...",
+          "description": "创建边缘实例过程中注入用户数据。支持注入文本、文本文件或gzip文件。\n更多关于待注入用户数据的信息,请参见《弹性云服务器用户指南 》的“[用户数据注入](https://support.huaweicloud.com/usermanual-ecs/zh-cn_topic_0032380449.html)”章节。"
+        }
+      },
+      "description": "创建边缘实例请求参数"
+    },
+    "InstanceJob": {
+      "properties": {
+        "job_id": {
+          "type": "string"
+        },
+        "server_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "NetConfigInstance": {
+      "required": [
+        "subnets",
+        "vpc_id"
+      ],
+      "properties": {
+        "vpc_id": {
+          "type": "string",
+          "example": "d0272146-f6d8-4e3c-a1dc-196ec4a2f848",
+          "description": "边缘网络ID。"
+        },
+        "subnets": {
+          "type": "array",
+          "description": "待创建边缘实例子网信息。\n\n需要指定vpcid对应VPC下已创建的子网(subnet)的网络ID,UUID格式。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/SubnetConfig"
+          }
+        }
+      },
+      "description": "创建边缘实例网络信息。"
+    },
+    "Ipv6Bandwidth": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "IPv6带宽的ID。"
+        },
+        "bandwidth_type": {
+          "type": "string",
+          "description": "带宽类型。 \n指定带宽ID,则该参数不生效。\n不指定带宽的情况下,如果当前带宽类型下没有带宽,自动在该带宽类型下创建带宽,有则使用最近创建的带宽。\n约束:指定的bandwidth_type必须在对应弹性公网IP类型的allow_share_bandwidth_types中才能使用",
+          "example": "CT_cn_north_shijiazhuang"
+        }
+      }
+    },
+    "BandwidthConfigInstance": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BandwidthConfig"
+        },
+        {
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}$",
+                "description": "指定带宽创建虚拟机,\n指定此参数时,demand中的pool_id和pool_ids不生效。\n约束: ids必须小于等于网卡数量"
+              }
+            },
+            "bandwidth_types": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "带宽类型。\n指定带宽ID,则该参数不生效。\n不指定带宽的情况下,如果当前带宽类型下没有带宽,自动在该带宽类型下创建带宽,有则使用最近创建的带宽。",
+                "example": "CT_cn_north_shijiazhuang"
+              }
+            }
+          }
+        }
+      ],
+      "description": "带宽配置"
+    },
+    "CreateInstanceResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/InstanceJob"
+        },
+        {
+          "properties": {
+            "server_ids": {
+              "type": "array",
+              "description": "创建中实例的ID。",
+              "items": {
+                "type": "string",
+                "description": ""
+              }
+            }
+          }
+        }
+      ],
+      "description": "创建边缘实例返回结果"
+    },
+    "BandwidthConfig": {
+      "required": [
+        "sharetype"
+      ],
+      "properties": {
+        "sharetype": {
+          "type": "string",
+          "example": "WHOLE",
+          "description": "带宽类型,现支持WHOLE类型,即共享带宽,其他类型不支持。",
+          "enum": [
+            "WHOLE"
+          ]
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "带宽(Mbit/s)。"
+        }
+      },
+      "description": "带宽配置"
+    },
+    "SubnetConfig": {
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "d0272146-f6d8-4e3c-a1dc-196ec4a2f848",
+          "description": "边缘子网ID。"
+        },
+        "ipv6_enable": {
+          "type": "boolean",
+          "description": "创建实例是否开启IPv6能力。",
+          "default": false
+        },
+        "ipv6_bandwidth_enable": {
+          "type": "boolean",
+          "description": "是否使用IPv6带宽。\n\n约束:\n- ipv6_enable=true时,有效;\n- 使用IPv6带宽后,优先根据ipv6_bandwidth中配置的带宽,如果ipv6_bandwidth未设置,则使用使用IPv6子网所在Ipv6池的带宽,如果当前IPv6所在池子下面没有带宽,则自动创建带宽"
+        },
+        "ipv6_bandwidth": {
+          "description": "绑定的共享带宽信息",
+          "$ref": "#/definitions/Ipv6Bandwidth"
+        },
+        "allowed_address_pairs": {
+          "type": "array",
+          "description": "- 功能说明:IP/Mac对列表\n- 约束:\n    IP地址不允许为 “0.0.0.0/0”\n    如果allowed_address_pairs配置地址池较大的CIDR(掩码小于24位),建议为该port配置一个单独的安全组。\n    如果allowed_address_pairs为“1.1.1.1/0”,表示关闭源目地址检查开关",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/AllowedAddressPair"
+          }
+        }
+      },
+      "description": "子网配置"
+    },
+    "SecurityGroupOption": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "d0272146-f6d8-4e3c-a1dc-196ec4a2f848",
+          "description": "边缘实例的安全组,会对边缘实例中配置的网卡生效。需要指定已有安全组的ID。不填写时选择默认安全组"
+        }
+      },
+      "description": ""
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iecs.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

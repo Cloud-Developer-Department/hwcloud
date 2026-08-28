@@ -1,0 +1,498 @@
+{
+  "name": "ShowCapacityResourcePoolInfo",
+  "summary": "查询资源池当前容量",
+  "tags": "容量管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rest/capacity/v1/capbase/resource-pools/{resourcePoolId}/resource-types/{resourceType}/current-capacities": {
+      "get": {
+        "summary": "查询资源池当前容量",
+        "description": "获取指定的资源池的指定资源类型的当前容量信。查询范围:仅支持查询本级ManageOne容量数据。\n\n  |SLA项|定义|\n  |-----|-----|\n  |请求成功率| ≥99.9%|\n  |可用性|Tier 1|\n  |数据一致性|最终一致,不一致时长<1min|\n  |吞吐量| 1200 次/分钟|\n  |TP50请求时延| 500 ms|\n  |TP99.9请求时延| 2000 ms|",
+        "x-precautions": "调用该接口需要“资源池监控数据查询”权限,归属权限组:运维中心>资源池容量。\n错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 容量管理”章节。\n",
+        "tags": [
+          "容量管理"
+        ],
+        "operationId": "ShowCapacityResourcePoolInfo",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "x-filter": "openapi",
+        "x-plane": "OM",
+        "x-opseverity": "Minor",
+        "parameters": [
+          {
+            "name": "resourcePoolId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "资源池的ID,获取参考“资源管理”章节中“查询指定资源类型的所有实例”接口,接口url为“rest/cmdb/v1/instances/SYS_ResourcePool”,具体值为响应示例中“objList” 中“resId”。范围是0 - FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,16进制32位数。"
+          },
+          {
+            "name": "resourceType",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^(cpu|memory|storage-pool|bms|eip|obs|npu|gpu)(,(cpu|memory|storage-pool|bms|eip|obs|npu|gpu)){0,9}$",
+            "description": "资源类型,支持同时传入多个资源类型同时查询多种资源类型的容量信息,传入多个资源类型时使用逗号分隔,可取值为:\n* cpu\n* memory\n* storage-pool\n* bms\n* eip\n* obs\n* npu\n* gpu"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回指定资源池位置下各个资源类型的容量信息,含实际容量和超分后的容量信息。实际容量不支持cpu实际使用量和实际剩余量核数统计,cpu实际使用量和实际剩余量核数默认返回为0。如果超分后容量信息中oversubscriptionRatio的值为null或0时,表示不支持超分,请使用实际容量信息。",
+            "schema": {
+              "$ref": "#/definitions/ResCapacity"
+            },
+            "examples": {
+              "application/json": {
+                "cpu": {
+                  "oversubscriptionCapacity": {
+                    "oversubscriptionRatio": 3,
+                    "totalCapacity": {
+                      "unit": "cores",
+                      "capacityValue": "63990",
+                      "displayCapacity": "63990 cores"
+                    },
+                    "allocatedCapacity": {
+                      "unit": "cores",
+                      "capacityValue": "43952",
+                      "displayCapacity": "43952 cores",
+                      "ratio": 68.69
+                    },
+                    "freeCapacity": {
+                      "unit": "cores",
+                      "capacityValue": "20038",
+                      "displayCapacity": "20038 cores",
+                      "ratio": 31.31
+                    }
+                  },
+                  "actualCapacity": {
+                    "totalCapacity": {
+                      "unit": "cores",
+                      "capacityValue": "21330",
+                      "displayCapacity": "21330 cores"
+                    },
+                    "usedCapacity": {
+                      "ratio": 0,
+                      "unit": "cores",
+                      "capacityValue": "0",
+                      "displayCapacity": "0 cores"
+                    },
+                    "freeCapacity": {
+                      "ratio": 100,
+                      "unit": "cores",
+                      "capacityValue": "0",
+                      "displayCapacity": "0 cores"
+                    }
+                  },
+                  "collectTime": "2016-07-28 16:18:40 GMT+08:00"
+                },
+                "memory": null,
+                "storagePool": null,
+                "eip": null
+              }
+            }
+          },
+          "400": {
+            "description": "参数校验失败。"
+          },
+          "404": {
+            "description": "请求失败,rest接口未找到。"
+          },
+          "500": {
+            "description": "系统内部异常。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "GET https://{endpoint}/rest/capacity/v1/capbase/resource-pools/1/resource-types/cpu/current-capacities",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": ""
+      }
+    }
+  },
+  "definitions": {
+    "OBSCapacity": {
+      "description": "OBS容量信息",
+      "properties": {
+        "physicalCluster": {
+          "description": "OBS物理集群容量。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PhysicalClusterList"
+          }
+        },
+        "tenant": {
+          "description": "OBS租户桶容量。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TenantCapList"
+          }
+        },
+        "collectTime": {
+          "description": "采集时间周期,标识获取的容量是什么时间采集的。",
+          "type": "string"
+        },
+        "updateTime": {
+          "description": "更新时间周期,标识获取的容量是什么时间更新的。",
+          "type": "integer",
+          "format": "int64",
+          "default": -1
+        }
+      }
+    },
+    "PhysicalClusterList": {
+      "description": "物理集群容量",
+      "properties": {
+        "regionName": {
+          "description": "region名称。",
+          "type": "string"
+        },
+        "regionId": {
+          "description": "regionId。",
+          "type": "string"
+        },
+        "clusterName": {
+          "description": "集群名称。",
+          "type": "string"
+        },
+        "type": {
+          "description": "集群类型。",
+          "type": "string"
+        },
+        "physicalTotal": {
+          "description": "集群物理总量。",
+          "type": "string"
+        },
+        "physicalUsed": {
+          "description": "集群物理使用量。",
+          "type": "string"
+        },
+        "physicalLeft": {
+          "description": "集群物理剩余量。",
+          "type": "string"
+        },
+        "physicalRatio": {
+          "description": "集群物理使用率。",
+          "type": "string"
+        },
+        "businessTotal": {
+          "description": "集群逻辑总量。",
+          "type": "string"
+        },
+        "businessUsed": {
+          "description": "集群逻辑使用量。",
+          "type": "string"
+        },
+        "businessLeft": {
+          "description": "集群逻辑剩余量。",
+          "type": "string"
+        },
+        "businessRatio": {
+          "description": "集群逻辑使用率。",
+          "type": "string"
+        }
+      }
+    },
+    "TenantCapList": {
+      "description": "租户桶容量",
+      "properties": {
+        "tenantName": {
+          "description": "租户名称",
+          "type": "string"
+        },
+        "tenantId": {
+          "description": "租户ID",
+          "type": "string"
+        },
+        "regionName": {
+          "description": "region名称",
+          "type": "string"
+        },
+        "regionId": {
+          "description": "regionId",
+          "type": "string"
+        },
+        "bucketName": {
+          "description": "桶名称。",
+          "type": "string"
+        },
+        "bucketUsed": {
+          "description": "桶使用量",
+          "type": "string"
+        },
+        "bucketQuota": {
+          "description": "桶配额",
+          "type": "string"
+        },
+        "bucketUsage": {
+          "description": "桶使用率",
+          "type": "string"
+        }
+      }
+    },
+    "BmsCapacity": {
+      "description": "bms容量信息",
+      "properties": {
+        "cpu": {
+          "description": "BMS CPU信息。",
+          "$ref": "#/definitions/WholeActualCapacity"
+        },
+        "memory": {
+          "description": "BMS 内存信息。",
+          "$ref": "#/definitions/WholeActualCapacity"
+        },
+        "disk": {
+          "description": "BMS 磁盘信息。",
+          "$ref": "#/definitions/WholeActualCapacity"
+        }
+      }
+    },
+    "WholeRatioCapacity": {
+      "description": "wholeRatio容量信息",
+      "properties": {
+        "isDataEmpty": {
+          "description": "标记容量信息是否为空,true代表数据为空,false代表数据不为空。",
+          "type": "string"
+        },
+        "oversubscriptionCapacity": {
+          "description": "超分后的容量信息。",
+          "$ref": "#/definitions/OverSubCapacity"
+        },
+        "actualCapacity": {
+          "description": "超分前的实际容量信息。",
+          "$ref": "#/definitions/ActualRatio"
+        },
+        "collectTime": {
+          "description": "采集时间周期,标识获取的容量是什么时间采集的。",
+          "type": "string"
+        },
+        "updateTime": {
+          "description": "更新时间周期,标识获取的容量是什么时间更新的。",
+          "type": "integer",
+          "format": "int64",
+          "default": -1
+        }
+      }
+    },
+    "OverSubCapacity": {
+      "description": "超分比容量信息",
+      "properties": {
+        "oversubscriptionRatio": {
+          "description": "超分比。值为null或为0时表示不支持超分。",
+          "type": "number",
+          "format": "float"
+        },
+        "totalCapacity": {
+          "description": "超分后总虚拟容量。",
+          "$ref": "#/definitions/TotalCapacity"
+        },
+        "allocatedCapacity": {
+          "description": "超分后已分配的虚拟容量。",
+          "$ref": "#/definitions/AtomicCapacity"
+        },
+        "freeCapacity": {
+          "description": "超分后剩余的虚拟容量。",
+          "$ref": "#/definitions/AtomicCapacity"
+        }
+      }
+    },
+    "WholeCapacity": {
+      "description": "whole容量信息",
+      "properties": {
+        "isDataEmpty": {
+          "description": "标记容量信息是否为空,true代表数据为空,false代表数据不为空。",
+          "type": "string"
+        },
+        "oversubscriptionCapacity": {
+          "description": "超分容量。",
+          "$ref": "#/definitions/OverSubCapacity"
+        },
+        "actualCapacity": {
+          "description": "实际容量。",
+          "$ref": "#/definitions/ActualCapacity"
+        },
+        "collectTime": {
+          "description": "采集时间周期,标识获取的容量是什么时间采集的。",
+          "type": "string"
+        },
+        "updateTime": {
+          "description": "更新时间周期,标识获取的容量是什么时间更新的。",
+          "type": "integer",
+          "format": "int64",
+          "default": -1
+        }
+      }
+    },
+    "WholeActualCapacity": {
+      "description": "实际容量信息",
+      "properties": {
+        "isDataEmpty": {
+          "description": "标记容量信息是否为空,true代表数据为空,false代表数据不为空。",
+          "type": "string"
+        },
+        "actualCapacity": {
+          "description": "实际容量。",
+          "$ref": "#/definitions/ActualCapacity"
+        },
+        "collectTime": {
+          "description": "采集时间周期,标识获取的容量是什么时间采集的。",
+          "type": "string"
+        },
+        "updateTime": {
+          "description": "更新时间周期,标识获取的容量是什么时间更新的。",
+          "type": "integer",
+          "format": "int64",
+          "default": -1
+        }
+      }
+    },
+    "RatioCapacity": {
+      "description": "ratio信息",
+      "properties": {
+        "ratio": {
+          "type": "number",
+          "format": "float",
+          "description": "容量占总容量的比例,精确到小数点后两位。"
+        },
+        "unit": {
+          "description": "容量的统一单位。",
+          "type": "string"
+        },
+        "capacityValue": {
+          "description": "容量按照统一单位计量时的容量数值。",
+          "type": "string"
+        },
+        "displayCapacity": {
+          "description": "容量按照容量值大小自适应取对应容量单位时的含单位容量内容,例如,如果统一单位为MB,总容量为2560 MB时,此字段的值为2.50 GB。",
+          "type": "string"
+        }
+      }
+    },
+    "AtomicCapacity": {
+      "description": "atomic信息",
+      "properties": {
+        "unit": {
+          "type": "string",
+          "description": "容量的统一单位。"
+        },
+        "capacityValue": {
+          "type": "string",
+          "description": "容量按统一单位计量时的值。"
+        },
+        "displayCapacity": {
+          "type": "string",
+          "description": "容量按照容量值大小自适应取对应容量单位时的含单位容量内容,例如,如果统一单位为MB,总容量为2560 MB时,此字段的值为2.50 GB。"
+        },
+        "ratio": {
+          "type": "number",
+          "format": "float",
+          "description": "容量占总容量的比例,精确到小数点后两位。"
+        }
+      }
+    },
+    "ActualRatio": {
+      "description": "actulRation容量信息",
+      "properties": {
+        "totalCapacity": {
+          "description": "总容量。",
+          "$ref": "#/definitions/TotalCapacity"
+        },
+        "usedCapacity": {
+          "description": "已使用容量。",
+          "$ref": "#/definitions/RatioCapacity"
+        },
+        "freeCapacity": {
+          "description": "剩余容量。",
+          "$ref": "#/definitions/RatioCapacity"
+        }
+      }
+    },
+    "ActualCapacity": {
+      "description": "actual容量信息",
+      "properties": {
+        "totalCapacity": {
+          "description": "总容量。",
+          "$ref": "#/definitions/TotalCapacity"
+        },
+        "usedCapacity": {
+          "description": "已使用容量。",
+          "$ref": "#/definitions/AtomicCapacity"
+        },
+        "freeCapacity": {
+          "description": "剩余容量。",
+          "$ref": "#/definitions/AtomicCapacity"
+        }
+      }
+    },
+    "ResCapacity": {
+      "description": "res容量信息",
+      "properties": {
+        "cpu": {
+          "description": "CPU容量信息。",
+          "$ref": "#/definitions/WholeRatioCapacity"
+        },
+        "memory": {
+          "description": "内存容量信息。",
+          "$ref": "#/definitions/WholeRatioCapacity"
+        },
+        "storagePool": {
+          "description": "存储池容量信息。",
+          "$ref": "#/definitions/WholeCapacity"
+        },
+        "eip": {
+          "description": "公网IP容量信息。",
+          "$ref": "#/definitions/WholeActualCapacity"
+        },
+        "bms": {
+          "description": "裸金属服务器容量信息。",
+          "$ref": "#/definitions/BmsCapacity"
+        },
+        "gpu": {
+          "description": "GPU容量信息。",
+          "$ref": "#/definitions/WholeActualCapacity"
+        },
+        "npu": {
+          "description": "NPU容量信息。",
+          "$ref": "#/definitions/WholeRatioCapacity"
+        },
+        "obs": {
+          "description": "OBS容量信息。",
+          "$ref": "#/definitions/OBSCapacity"
+        }
+      }
+    },
+    "TotalCapacity": {
+      "description": "总容量信息",
+      "properties": {
+        "unit": {
+          "description": "容量的统一单位。",
+          "type": "string"
+        },
+        "capacityValue": {
+          "description": "容量按照统一单位计量时的容量数值。",
+          "type": "string"
+        },
+        "displayCapacity": {
+          "description": "容量按照容量值大小自适应取对应容量单位时的含单位容量内容,例如,如果统一单位为MB,总容量为2560 MB时,此字段的值为2.50 GB。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,215 @@
+{
+  "name": "CreateDrugModel",
+  "summary": "创建模型",
+  "tags": "药物模型管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/drug-models": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-partial": true,
+        "x-interface-name": "IDrugModelController",
+        "tags": [
+          "药物模型管理"
+        ],
+        "summary": "创建模型",
+        "description": "创建模型",
+        "operationId": "CreateDrugModel",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreateDrugModelRequestBody",
+            "description": "CreateModelRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateModelReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "schema": {
+              "$ref": "#/definitions/DrugModelIdRsp"
+            },
+            "x-response-examples-1": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1"
+              }
+            },
+            "x-response-examples-description-1": "成功创建模型",
+            "x-response-examples-2": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                "limit_concurrency": 50
+              }
+            },
+            "x-response-examples-description-2": "成功创建模型,当前运行数已达配额"
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/drug-models",
+        "x-request-examples-description-1": "创建模型,模型名称为model_name,类型为二分型,上传项目桶中file/test.csv的模型数据,打开共享开关",
+        "x-request-examples-1": {
+          "name": "model_name",
+          "type": "binary",
+          "description": "simple model",
+          "file": {
+            "url": "project:/file/test.csv",
+            "source": "private"
+          },
+          "shareable": true
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ModelFileSource": {
+      "description": "模型数据文件来源",
+      "type": "string",
+      "enum": [
+        "public",
+        "private"
+      ]
+    },
+    "ModelFile": {
+      "description": "模型数据文件",
+      "type": "object",
+      "required": [
+        "source",
+        "url"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/ModelFileSource"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "project:/test/url.csv",
+          "pattern": ".*\\.(csv)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "eihealth_project_id": {
+          "description": "模型文件所在项目id,仅文件为数据中心时填写",
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]*$"
+        }
+      }
+    },
+    "CreateModelReq": {
+      "type": "object",
+      "required": [
+        "name",
+        "type",
+        "file"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "模型名称,取值范围:[5,32],允许大小写字母、数字、下划线(_)、中划线(-)和空格,只能以字母开头",
+          "minLength": 5,
+          "maxLength": 32,
+          "example": "model_name",
+          "pattern": "^[a-zA-Z]+[a-z0-9A-Z-_\\s]+$",
+          "x-pattern-message": "The name format does not match, the length of name is between 5 and 32, uppercase and lowercase letters, numbers, underscores (_), hyphens (-), and spaces are allowed, and can only start with a letter."
+        },
+        "description": {
+          "type": "string",
+          "description": "模型描述信息",
+          "minLength": 0,
+          "maxLength": 1024,
+          "example": "description"
+        },
+        "type": {
+          "$ref": "#/definitions/ModelType"
+        },
+        "file": {
+          "$ref": "#/definitions/ModelFile",
+          "description": "模型数据来源"
+        },
+        "shareable": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否打开组织共享"
+        },
+        "base_model_id": {
+          "description": "基模型id",
+          "type": "string",
+          "example": "pangu-drug-model",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "default": "pangu-drug-model",
+          "x-ut-exclude-equivalence": [
+            "UPPER_BOUND",
+            "LOWER_BOUND"
+          ]
+        }
+      }
+    },
+    "ModelType": {
+      "type": "string",
+      "description": "模型类型",
+      "enum": [
+        "binary",
+        "numerical"
+      ]
+    },
+    "DrugModelIdRsp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "模型id"
+        },
+        "limit_concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "example": 50,
+          "description": "限制的并发量"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

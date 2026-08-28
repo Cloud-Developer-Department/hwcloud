@@ -1,0 +1,308 @@
+{
+  "name": "CreateUser",
+  "summary": "创建用户",
+  "tags": "VDC",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/vdc/v3.0/users": {
+      "post": {
+        "summary": "创建用户",
+        "x-resource": "用户管理",
+        "description": "创建用户,可以创建运营管理员,代维管理员(创建VDC下用户使用POST /rest/vdc/v3.2/vdcs/{vdc_id}/users)。\n\ncurl命令调用示例:\n```\ncurl -v -H \"Content-Type:application/json\" -H \"x-auth-token: ******\" -X POST -d \"{json}\" \"https://{endpoint}/rest/vdc/v3.0/users\"\n```\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| >=99.9%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量|60次/分钟|\n|吞吐量|10次/秒|\n|TP50请求时延|6000ms|\n|TP99.9请求时延|8000ms|",
+        "x-precautions": "创建租户侧三方用户时,不指定ldap_id,身份供应商与租户绑定的身份供应商一致;创建运营管理员,代维管理员的三方用户时,user_type和ldap_id为必填项。错误码: 当请求不成功时,响应体内返回的错误码信息请参考《ManageOne运营面错误码参考》。错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > VDC特性”章节。",
+        "tags": [
+          "VDC"
+        ],
+        "operationId": "CreateUser",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "接口支持的用户token。运营管理员,机机账号权限,VDC管理员权限,代维管理员权限用户的token。"
+          },
+          {
+            "name": "createUserRequest",
+            "in": "body",
+            "description": "创建用户请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建用户成功。",
+            "schema": {
+              "$ref": "#/definitions/CreateUserResponse"
+            },
+            "examples": {
+              "application/json": {
+                "user": {
+                  "id": "11449da66aeb467b988c610667858f68"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "接口认证失败。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST: https://{endpoint}",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "tenant_id": "05046abb-66dc-47ca-a403-0110ab6d605b",
+          "user": {
+            "enabled": "true",
+            "name": "vdcuser776",
+            "password": "xxxxx",
+            "roles": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "projects": [
+              "jf9834jgoj34g843j9g8j3489gj"
+            ]
+          },
+          "limit_access": "false",
+          "tags": [
+            {
+              "key": "key001",
+              "value": "value001"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateUserRequest": {
+      "required": [
+        "user"
+      ],
+      "properties": {
+        "tenant_id": {
+          "type": "string",
+          "description": "用户归属的租户id,创建VDC下用户为VDC ID,创建运营管理员为运营管理员的domain_id,创建代维管理员忽略此字段。长度:1到36个字符。"
+        },
+        "user": {
+          "$ref": "#/definitions/CreateUserBean",
+          "description": "用户信息。"
+        },
+        "limit_access": {
+          "type": "string",
+          "description": "是否限制访问时间。该参数已废弃。设置用户访问策略具体操作请参见产品文档中的“操作维护 > 用户指南 > 运营管理 > 安全策略 > 管理访问策略”章节。",
+          "default": false
+        },
+        "lock_period": {
+          "type": "string",
+          "description": "未登录禁用周期。该参数已废弃。设置用户登录验证策略具体操作请参见产品文档中的“操作维护 > 用户指南 > 运营管理 > 安全策略 > 设置登录验证策略”章节。"
+        },
+        "login_config": {
+          "$ref": "#/definitions/LoginConfig",
+          "description": "登录配置。该参数已废弃。设置用户访问策略具体操作请参见产品文档中的“操作维护 > 用户指南 > 运营管理 > 安全策略 > 管理访问策略”章节。"
+        },
+        "acls": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "string"
+          },
+          "description": "登录IP地址控制策略ID。该参数已废弃。设置用户访问策略具体操作请参见产品文档中的“操作维护 > 用户指南 > 运营管理 > 安全策略 > 管理访问策略”章节。"
+        },
+        "tags": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/TagModal"
+          },
+          "description": "绑定的标签信息"
+        }
+      }
+    },
+    "CreateUserBean": {
+      "required": [
+        "name",
+        "roles"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "用户名,只能由英文字母(不区分大小写)、数字和特殊字符@._-\\组成,不能以op_svc、paas_op或\\开头,且不能以\\结尾,且不能命名为admin,、power_user、或guest。长度范围是4到32位。"
+        },
+        "roles": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "string"
+          },
+          "description": "用户角色列表。"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "用户别名,由除\">\"和\"<\"之外的字符组成,0-128个字符。"
+        },
+        "password": {
+          "type": "string",
+          "format": "password",
+          "description": "密码,包含以下四种字符的三种: 大写字母、小写字母、数字、特殊字符(除<和>字符),且必须包含特殊字符,不能包含名字正序或逆序。长度:8到32个字符 。"
+        },
+        "enabled": {
+          "type": "string",
+          "description": "用户状态,枚举值:true和false,默认为true。为false时,表示用户处于停用状态。",
+          "default": "true"
+        },
+        "random_pwd_flag": {
+          "type": "string",
+          "description": "随机密码,枚举值:true和false,默认为false。为true时,表示使用随机密码。",
+          "default": "false"
+        },
+        "description": {
+          "type": "string",
+          "description": "说明,不能包含<或者>字符。长度:0到255个字符。"
+        },
+        "email": {
+          "type": "string",
+          "description": "邮箱,符合邮箱格式,长度:0到64个字符。"
+        },
+        "areacode": {
+          "type": "string",
+          "description": "国际区号,只能为数字,长度:0到10个字符。"
+        },
+        "phone": {
+          "type": "string",
+          "description": "手机号,只能为数字,长度:0到32个字符。中国手机号长度为11个字符。"
+        },
+        "projects": {
+          "type": "array",
+          "maxItems": 1000,
+          "description": "用户资源空间列表。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trust_all_domain_id": {
+          "type": "boolean",
+          "description": "为所有1级VDC做委托,默认为false。本属性仅用于代维管理员。",
+          "default": false
+        },
+        "trust_domain_id_list": {
+          "type": "array",
+          "maxItems": 150,
+          "description": "委托的租户ID列表,单次最多支持150个。本属性仅用于代维管理员。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "user_type": {
+          "type": "string",
+          "description": "用户类型。枚举值:'0','1','2','4','5','6',默认值为'0'。为'0'表示本地认证,为'1'表示SAML认证,为'2'表示LDAP认证,为'4'表示机机用户,为'5'表示CAS认证,为'6'表示OAuth认证。",
+          "default": "0"
+        },
+        "group_id": {
+          "type": "string",
+          "description": "用户组ID。"
+        },
+        "ldap_id": {
+          "type": "string",
+          "description": "ldap ID。"
+        },
+        "vrm_user_id": {
+          "type": "string",
+          "description": "vrm 用户Id。"
+        },
+        "source": {
+          "type": "string",
+          "description": "区分用户的来源,枚举值:AUTH、IAM或SC,默认是SC。",
+          "default": "SC"
+        },
+        "preseted": {
+          "type": "boolean",
+          "description": "是否是预置用户,枚举:true或false,默认是false,为true表示预置用户。",
+          "default": false
+        },
+        "is_encrypt": {
+          "type": "boolean",
+          "description": "是否加密密码,枚举:true或false,默认是false,为true表示加密密码。",
+          "default": false
+        }
+      }
+    },
+    "CreateUser": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "用户id。"
+        }
+      }
+    },
+    "CreateUserResponse": {
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/CreateUser",
+          "description": "用户信息。"
+        }
+      }
+    },
+    "LoginConfig": {
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "description": "loginConfig被选中时,此项必填,开始日期, YYYY-MM-DD 例如2017-11-07。"
+        },
+        "end_date": {
+          "type": "string",
+          "description": "loginConfig被选中时,此项必填,结束日期, YYYY-MM-DD 例如2017-11-07。"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "loginConfig被选中时,此项必填,开始时间, UTC时间, HH:MM:SS 。范围:00:00:00-23:59:59,例如12:05:00"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "loginConfig被选中时,此项必填,结束时间, UTC时间, HH:MM:SS 。范围:00:00:00-23:59:59,例如12:05:00"
+        }
+      }
+    },
+    "TagModal": {
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "标签key。"
+        },
+        "value": {
+          "type": "string",
+          "description": "标签value。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

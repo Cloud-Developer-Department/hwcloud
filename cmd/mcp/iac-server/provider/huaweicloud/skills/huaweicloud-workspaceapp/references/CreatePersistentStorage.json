@@ -1,0 +1,405 @@
+{
+  "name": "CreatePersistentStorage",
+  "summary": "创建WKS存储",
+  "tags": "存储管理",
+  "productshort": "WorkspaceApp",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/persistent-storages": {
+      "post": {
+        "tags": [
+          "Persistent"
+        ],
+        "summary": "创建WKS存储",
+        "description": "创建WKS存储,目前仅支持创建 SFS3.0 容量型文件系统。",
+        "operationId": "CreatePersistentStorage",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 102400,
+            "minLength": 1,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "CreatePersistentStorageRequestBody",
+            "description": "WKS存储。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePersistentStorageReq"
+            }
+          }
+        ],
+        "security": [
+          {
+            "apig-auth-iam-used-authn5": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应。",
+            "examples": {
+              "application/json": {
+                "id": 560329060530520064,
+                "name": "user-file-persistent",
+                "storage_metadata": {
+                  "storage_handle": "sfs-tmp",
+                  "storage_class": "sfs",
+                  "name": "sfs-tmp",
+                  "region": "cn-north-5",
+                  "export_location": "https://sfs3.cn*****.huaweicloud.com:443"
+                },
+                "create_time": "2023-06-08T06:50:39.704Z",
+                "user_claim_count": 0,
+                "share_claim_count": 0
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/PersistentStorage"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BadRequestErrorResp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedErrorResp"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/ForbiddenErrorResp"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/NotFoundErrorResp"
+            }
+          },
+          "405": {
+            "description": "请求中指定的方法不被允许。",
+            "schema": {
+              "$ref": "#/definitions/MethodNotAllowedErrorResp"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerErrorResp"
+            }
+          },
+          "503": {
+            "description": "服务不可用。",
+            "schema": {
+              "$ref": "#/definitions/ServiceUnavailableErrorResp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST /v1/a4da8115c9d8464ead3a38309130523f/persistent-storages",
+        "x-request-examples-1": {
+          "name": "sfs-tmp",
+          "storage_metadata": {
+            "storage_handle": "sfs-tmp",
+            "storage_class": "sfs"
+          }
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-ratelimit": "workspace_default_operate",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "internal_token,public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-order": 1,
+        "x-apigateway-backend": {
+          "type": "HTTP-VPC",
+          "httpVpcEndpoints": {
+            "name": "wks-appcenter-lb",
+            "description": "",
+            "method": "POST",
+            "path": "/v1/{project_id}/persistent-storages",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "header",
+              "name": "X-Auth-Token",
+              "origin": "request",
+              "value": "X-Auth-Token"
+            },
+            {
+              "description": "",
+              "in": "path",
+              "name": "project_id",
+              "origin": "request",
+              "value": "project_id"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreatePersistentStorageReq": {
+      "required": [
+        "name",
+        "storage_metadata"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "sfs-tmp",
+          "description": "WKS存储名称,名称需满足如下规则:\n1. 名称允许可见字符或空格,不可为全空格。\n2. 长度1~128个字符。",
+          "pattern": "^(?! +$)[\\S ]{1,128}$"
+        },
+        "storage_metadata": {
+          "$ref": "#/definitions/Storage"
+        }
+      },
+      "description": "创建WKS存储。"
+    },
+    "InternalServerErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211401",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The requested operation failed. Please try again later.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ServiceUnavailableErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00050902",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The service is now unavailable to process the request.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "ForbiddenErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00081102",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "User does not have permission to access this resource.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "PersistentStorage": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "xxx-xxx-x-x-x-xx",
+          "description": "WKS存储ID。",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "example": "user-file-persistent",
+          "description": "名称。",
+          "readOnly": true
+        },
+        "storage_metadata": {
+          "$ref": "#/definitions/StorageMetadata"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间。",
+          "readOnly": true
+        },
+        "user_claim_count": {
+          "type": "integer",
+          "description": "个人目录声明数量。",
+          "readOnly": true
+        },
+        "share_claim_count": {
+          "type": "integer",
+          "description": "共享目录声明数量。",
+          "readOnly": true
+        }
+      },
+      "description": "WKS存储。"
+    },
+    "UnauthorizedErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211302",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "User authorization error.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "NotFoundErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211902",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The application does not exist",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "MethodNotAllowedErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00000405",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The method specified in the request is not allowed for this resource.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "BadRequestErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "WKS.00211102",
+          "description": "错误码,失败时返回。",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The parameter is invalid.",
+          "description": "错误描述。",
+          "readOnly": true
+        }
+      },
+      "description": "API错误响应。"
+    },
+    "Storage": {
+      "required": [
+        "storage_class",
+        "storage_handle"
+      ],
+      "properties": {
+        "storage_handle": {
+          "type": "string",
+          "example": "sfs-tmp",
+          "description": "SFS文件系统名称。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "storage_class": {
+          "type": "string",
+          "example": "sfs",
+          "description": "存储类型:\n* `sfs` - sfs3.0存储。",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "description": "存储定义元数据。"
+    },
+    "StorageMetadata": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Storage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "example": "sfs-tmp",
+              "description": "名称。",
+              "readOnly": true
+            },
+            "region": {
+              "type": "string",
+              "example": "cn-north-5",
+              "description": "所在区域。",
+              "readOnly": true
+            },
+            "export_location": {
+              "type": "string",
+              "example": "https://sfs3.xxxx.myhuaweicloud.com:443",
+              "description": "访问地址:protocol://[bucket-name].sfs3.[region-name].myhuaweicloud.com:port。",
+              "readOnly": true
+            }
+          }
+        }
+      ],
+      "description": "存储定义。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

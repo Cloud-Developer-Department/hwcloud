@@ -1,0 +1,207 @@
+{
+  "name": "CreateParametersForImport",
+  "summary": "获取密钥导入参数",
+  "tags": "导入密钥管理",
+  "productshort": "KMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/kms/get-parameters-for-import": {
+      "post": {
+        "tags": [
+          "导入密钥管理"
+        ],
+        "summary": "获取密钥导入参数",
+        "description": "- 功能介绍:获取导入密钥的必要参数,包括密钥导入令牌和密钥加密公钥。\n- 说明:返回的公钥类型默认为RSA_2048。",
+        "operationId": "CreateParametersForImport",
+        "produces": [
+          "application/json"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "CreateParametersForImportRequestBody",
+            "in": "body",
+            "description": "get_parameters_for_import",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GetParametersForImportRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/GetParametersForImportResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "key_id": "bb6a3d22-dc93-47ac-b5bd-88df7ad35f1e",
+                "import_token": "AACIBjY2ZTQxYjBmLTY3ZWItNDU4Ny04OTIxLWVhZXXX...",
+                "expiration_time": 1501578672,
+                "public_key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCXXX..."
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "认证失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "资源不存在,资源未找到",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "请求未完成。服务器从上游服务器收到一个无效的响应",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "网关超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f",
+          "wrapping_algorithm": "RSAES_OAEP_SHA_256"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "properties": {
+        "error": {
+          "description": "错误信息返回体。",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          }
+        }
+      }
+    },
+    "GetParametersForImportRequestBody": {
+      "required": [
+        "key_id",
+        "wrapping_algorithm"
+      ],
+      "properties": {
+        "key_id": {
+          "minLength": 36,
+          "maxLength": 36,
+          "type": "string",
+          "description": "密钥ID,36字节,满足正则匹配“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”。\n例如:0d0466b0-e727-4d9c-b35d-f84bb474a37f。"
+        },
+        "wrapping_algorithm": {
+          "type": "string",
+          "enum": [
+            "RSAES_OAEP_SHA_256",
+            "SM2_ENCRYPT"
+          ],
+          "description": "密钥材料加密算法,枚举如下:\n - RSAES_OAEP_SHA_256\n - SM2_ENCRYPT,部分局点不支持该导入类型"
+        },
+        "sequence": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "请求消息序列号,36字节序列号。\n例如:919c82d4-8046-4722-9094-35c3c6524cff"
+        }
+      }
+    },
+    "GetParametersForImportResponseBody": {
+      "properties": {
+        "key_id": {
+          "minLength": 36,
+          "maxLength": 36,
+          "type": "string",
+          "description": "密钥ID。"
+        },
+        "import_token": {
+          "type": "string",
+          "pattern": "^[0-9a-zA-Z+/=]{200,6144}$",
+          "description": "密钥导入令牌。"
+        },
+        "expiration_time": {
+          "format": "int64",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000000000,
+          "description": "导入参数到期时间,时间戳,即从1970年1月1日至该时间的总秒数。"
+        },
+        "public_key": {
+          "type": "string",
+          "pattern": "^[0-9a-zA-Z+/=]{200,6144}$",
+          "description": "加密密钥材料的公钥,base64格式。"
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

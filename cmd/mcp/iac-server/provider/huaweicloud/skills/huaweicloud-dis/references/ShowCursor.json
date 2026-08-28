@@ -1,0 +1,143 @@
+{
+  "name": "ShowCursor",
+  "summary": "获取数据游标",
+  "tags": "数据管理",
+  "productshort": "DIS",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v2/{project_id}/cursors": {
+      "get": {
+        "x-publishpath": "dis_02_0020",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "获取数据游标",
+        "x-request-examples-url-1": "GET https://{Endpoint}/v2/{project_id}/cursors",
+        "x-request-examples-1": "",
+        "x-source": "SelfDeveloped",
+        "x-timeout": "60s",
+        "x-support-sdk": "Y",
+        "tags": [
+          "数据管理"
+        ],
+        "summary": "获取数据游标",
+        "description": "本接口用于获取数据游标。",
+        "operationId": "ShowCursor",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "in": "query",
+            "name": "stream-name",
+            "x-example": "new-stream",
+            "description": "已创建的通道名称。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "partition-id",
+            "description": "通道的分区标识符。\n\n可定义为如下两种样式:\n\n- shardId-0000000000\n- 0\n\n比如一个通道有三个分区,那么分区标识符分别为0, 1, 2,或者shardId-0000000000, shardId-0000000001, shardId-0000000002",
+            "required": true,
+            "type": "string",
+            "x-example": "shardId-0000000000"
+          },
+          {
+            "in": "query",
+            "name": "cursor-type",
+            "x-example": "AT_SEQUENCE_NUMBER",
+            "description": "游标类型。\n\n- AT_SEQUENCE_NUMBER:从特定序列号(即starting-sequence-number定义的序列号)所在的记录开始读取数据。此类型为默认游标类型。\n\n- AFTER_SEQUENCE_NUMBER:从特定序列号(即starting-sequence-number定义的序列号)后的记录开始读取数据。\n\n- TRIM_HORIZON:从最早被存储至分区的有效记录开始读取。例如,某租户使用DIS的通道,分别上传了三条数据A1,A2,A3。N天后(设定A1已过期,A2和A3仍在有效期范围内),该租户需要下载此三条数据,并选择了TRIM_HORIZON这种下载方式。那么用户可下载的数据将从A2开始读取。\n\n- LATEST:从分区中的最新记录开始读取,此设置可以保证你总是读到分区中最新记录。\n\n- AT_TIMESTAMP:从特定时间戳(即timestamp定义的时间戳)开始读取。",
+            "type": "string",
+            "enum": [
+              "AT_SEQUENCE_NUMBER",
+              "AFTER_SEQUENCE_NUMBER",
+              "TRIM_HORIZON",
+              "LATEST",
+              "AT_TIMESTAMP"
+            ],
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "starting-sequence-number",
+            "x-example": "0",
+            "description": "序列号。序列号是每个记录的唯一标识符。序列号由DIS在数据生产者调用PutRecords操作以添加数据到DIS数据通道时DIS服务自动分配的。同一分区键的序列号通常会随时间变化增加。PutRecords请求之间的时间段越长,序列号越大。\n\n序列号与游标类型AT_SEQUENCE_NUMBER和AFTER_SEQUENCE_NUMBER强相关,二者共同确定读取数据的位置。\n\n取值范围:0~9223372036854775807。",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "timestamp",
+            "in": "query",
+            "description": "开始读取数据记录的时间戳,与游标类型AT_TIMESTAMP强相关,二者共同确定读取数据的位置。\n\n说明:\n\n此时间戳精确到毫秒。",
+            "type": "integer",
+            "format": "int64",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回",
+            "examples": {
+              "application/json": {
+                "partition_cursor": "eyJnZXRJdGVyYXRvclBhcmFtIjp7InN0cmVhbS1uYW1lIjoianpjIiwicGFydGl0aW9uLWlkIjoiMCIsImN1cnNvci10eXBlIjoiQVRfU0VRVUVOQ0VfTlVNQkVSIiwic3RhcnRpbmctc2VxdWVuY2UtbnVtYmVyIjoiMTAifSwiZ2VuZXJhdGVUaW1lc3RhbXAiOjE1MDYxNTk1NjM0MDV9"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/GetPartitionCursorResult"
+            }
+          }
+        },
+        "security": [
+          {
+            "aksk": []
+          }
+        ],
+        "x-version": "v2"
+      }
+    }
+  },
+  "definitions": {
+    "GetPartitionCursorResult": {
+      "type": "object",
+      "properties": {
+        "partition_cursor": {
+          "type": "string",
+          "description": "数据游标。\n\n取值范围:1~512个字符。\n\n说明:\n\n数据游标有效期为5分钟。",
+          "maxLength": 512,
+          "minLength": 1,
+          "format": "int32"
+        }
+      },
+      "xml": {
+        "name": "GetPartitionCursorResult"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dis.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

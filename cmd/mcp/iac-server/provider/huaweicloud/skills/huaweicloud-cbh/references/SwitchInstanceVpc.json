@@ -1,0 +1,341 @@
+{
+  "name": "SwitchInstanceVpc",
+  "summary": "切换堡垒机虚拟私有云",
+  "tags": "网络管理",
+  "productshort": "CBH",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/cbs/instance/vpc": {
+      "put": {
+        "x-open-region-cloud": "hws,hws_hk,ctc,cmcc",
+        "tags": [
+          "网络管理"
+        ],
+        "summary": "切换堡垒机虚拟私有云",
+        "description": "切换堡垒机虚拟私有云",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "SwitchInstanceVpc",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "SwitchInstanceVpcRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "切换vpc的body",
+            "schema": {
+              "$ref": "#/definitions/SwitchVirtualPrivateCloudRequestBody"
+            }
+          }
+        ],
+        "x-apigateway-ratelimit": "CBH_Server",
+        "responses": {
+          "200": {
+            "description": "Switch Cbh Instance Vpc Success"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp401"
+            }
+          },
+          "403": {
+            "description": "访问拒绝",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp403"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "NetworkInfoCreate": {
+      "description": "切换云堡垒机实例vpc所需网络信息。",
+      "required": [
+        "vpc_id",
+        "subnet_id",
+        "public_ip",
+        "security_groups"
+      ],
+      "properties": {
+        "vpc_id": {
+          "description": "待创建云服务器所属虚拟私有云(简称VPC),需要指定已创建VPC的ID,UUID格式。\n\nVPC的ID可以从控制台或者参考《虚拟私有云接口参考》的“查询VPC”章节获取。\n\n例如:03211ecf-xxxx-4306-xxxx-6e939bfxxxxx",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "subnet_id": {
+          "description": "子网ID,字母数字下划线连接符组成。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "public_ip": {
+          "$ref": "#/definitions/PublicIp"
+        },
+        "security_groups": {
+          "description": "安全组信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SecurityGroup"
+          },
+          "minItems": 0,
+          "maxItems": 512,
+          "uniqueItems": true
+        },
+        "private_ip": {
+          "$ref": "#/definitions/PrivateIp"
+        }
+      },
+      "example": {
+        "vpcId": "760071b3-34a3-4359-bf18-3af24e77c1cf",
+        "subnetId": "90b6be71-e72a-4d5a-8838-5924bce3c583",
+        "privateIp": {
+          "ip": "192.168.0.3"
+        }
+      }
+    },
+    "PrivateIp": {
+      "description": "云堡垒机实例指定公网IP信息。",
+      "required": [
+        "ip"
+      ],
+      "properties": {
+        "ip": {
+          "description": "私网IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "slave_ip": {
+          "description": "备机私网IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "floating_ip": {
+          "description": "浮动IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      }
+    },
+    "SwitchVirtualPrivateCloudRequestBody": {
+      "type": "object",
+      "required": [
+        "server_id",
+        "network"
+      ],
+      "properties": {
+        "server_id": {
+          "type": "string",
+          "description": "需要切换vpc的实例id",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "network": {
+          "$ref": "#/definitions/NetworkInfoCreate"
+        }
+      },
+      "example": {
+        "server_id": "0f2c69d1-e420-4ae1-9b43-ab8699883678",
+        "network": {
+          "vpc_id": "760071b3-34a3-4359-bf18-3af24e77c1cf",
+          "subnet_id": "90b6be71-e72a-4d5a-8838-5924bce3c583",
+          "private_ip": {
+            "ip": "192.168.0.3",
+            "slave_ip": null,
+            "floating_ip": null
+          },
+          "public_ip": null,
+          "security_groups": [
+            {
+              "id": "21321412321321321"
+            }
+          ]
+        }
+      }
+    },
+    "ErrorRsp400": {
+      "description": "请求参数错误。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "请求参数错误。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 400,
+        "description": "请求参数错误。"
+      }
+    },
+    "ErrorRsp401": {
+      "description": "校验TOKEN失败。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "校验TOKEN失败。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 401,
+        "description": "校验TOKEN失败"
+      }
+    },
+    "PublicIp": {
+      "description": "云堡垒机实例弹性公网IP信息。可填写null值",
+      "properties": {
+        "id": {
+          "description": "弹性IP和EIP只能有一个,弹性IP或EIP的ID。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "public_eip": {
+          "description": "弹性IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      }
+    },
+    "ErrorRsp404": {
+      "description": "没有找到CBH资源。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "没有找到CBH资源。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 404,
+        "description": "没有找到CBH资源"
+      }
+    },
+    "SecurityGroup": {
+      "description": "安全组信息。",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "云堡垒机实例安全组ID,字母数字下划线连接符组成。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        }
+      }
+    },
+    "ErrorRsp403": {
+      "description": "租户无权限操作。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "租户无权限操作。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 403,
+        "description": "租户无权限操作"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。\n\n获取方法详见API参考,附录\"获取项目ID\"",
+      "required": true,
+      "type": "string",
+      "x-example": "80baxxxxxxxxf9ad43xxxxxxxxx",
+      "minLength": 0,
+      "maxLength": 64
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n\n可参考\"IAM获取IAM用户Token\"获取",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIE5gYJKoZIhvcNAQcCoIIE1zCCXXXXXX...",
+      "minLength": 0,
+      "maxLength": 28000
+    }
+  },
+  "host": "cbh.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

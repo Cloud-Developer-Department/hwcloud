@@ -1,0 +1,457 @@
+{
+  "name": "CreateEngine",
+  "summary": "创建微服务引擎",
+  "tags": "引擎管理",
+  "productshort": "CSE",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v2/{project_id}/enginemgr/engines": {
+      "post": {
+        "tags": [
+          "引擎管理"
+        ],
+        "summary": "创建微服务引擎",
+        "description": "创建微服务引擎,支持创建ServiceComb引擎专享版、注册配置中心、应用网关(公测)。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "CreateEngine",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Enterprise-Project-ID",
+            "description": "如果不带则默认企业项目为\"default\",ID为\"0\"",
+            "default": "0",
+            "type": "string",
+            "in": "header",
+            "required": false
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户子项目的唯一标识。字符长度为1~64。",
+            "required": true,
+            "type": "string",
+            "x-example": "79c4086f5f3a4e34a92601dfc64b1e8c"
+          },
+          {
+            "name": "CreateEngineRequestBody",
+            "in": "body",
+            "description": "创建微服务请求结构体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EngineCreateReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建微服务引擎响应结构体。",
+            "schema": {
+              "$ref": "#/definitions/EngineCommonResp"
+            },
+            "examples": {
+              "application/json": {
+                "id": "891bf21a-4024-4f47-b38c-bd259ca8f10a",
+                "name": "test",
+                "jobId": 17655
+              }
+            }
+          },
+          "400": {
+            "description": "错误的请求。",
+            "schema": {
+              "$ref": "#/definitions/BadRequest"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EngineCreateReq": {
+      "type": "object",
+      "description": "创建微服务引擎请求结构体",
+      "required": [
+        "name",
+        "payment",
+        "flavor",
+        "authType",
+        "vpc",
+        "networkId",
+        "subnetCidr",
+        "specType"
+      ],
+      "properties": {
+        "name": {
+          "description": "微服务引擎的名称,名称为字母开头,字母、数字、-组成,且不能以-结尾,3-24个字符。",
+          "pattern": "[a-zA-Z]{1}[a-z0-9A-Z-]{3,24}[a-z0-9A-Z]$",
+          "type": "string"
+        },
+        "description": {
+          "description": "微服务引擎描述,长度0~255。",
+          "maxLength": 255,
+          "type": "string"
+        },
+        "payment": {
+          "description": "微服务引擎计费方式,1表示按需",
+          "maxLength": 24,
+          "type": "string",
+          "enum": [
+            1
+          ]
+        },
+        "flavor": {
+          "type": "string",
+          "enum": [
+            "cse.s1.small2",
+            "cse.s1.medium2",
+            "cse.s1.large2",
+            "cse.s1.xlarge2",
+            "cse.nacos2.c1.large.10",
+            "cse.nacos2.c1.xlarge.20",
+            "cse.nacos2.c1.xlarge.50",
+            "cse.nacos2.c1.xlarge.60",
+            "cse.nacos2.c1.2xlarge.100",
+            "cse.microgateway.pro.small.1",
+            "cse.microgateway.pro.medium.1",
+            "cse.microgateway.pro.large.1"
+          ],
+          "description": "微服务引擎的规格"
+        },
+        "azList": {
+          "minItems": 1,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "当前局点可用区列表,创建ServiceComb引擎专享版需要填写。"
+        },
+        "authType": {
+          "type": "string",
+          "enum": [
+            "RBAC",
+            "NONE"
+          ],
+          "description": "ServiceComb引擎专享版与注册配置中心认证方式,RBAC为安全认证,NONE为无认证。"
+        },
+        "vpc": {
+          "maxLength": 64,
+          "type": "string",
+          "description": "vpc名称"
+        },
+        "vpcId": {
+          "maxLength": 64,
+          "type": "string",
+          "description": "vpc标识"
+        },
+        "networkId": {
+          "maxLength": 64,
+          "type": "string",
+          "description": "微服务引擎子网ID"
+        },
+        "subnetCidr": {
+          "maxLength": 24,
+          "type": "string",
+          "description": "微服务引擎子网划分"
+        },
+        "publicIpId": {
+          "maxLength": 64,
+          "type": "string",
+          "description": "ServiceComb引擎专享版公网地址ID,当前为null"
+        },
+        "auth_cred": {
+          "$ref": "#/definitions/EngineRbacPwd",
+          "description": "ServiceComb引擎专享版选择RBAC认证时必传,包含引擎的认证信息。"
+        },
+        "specType": {
+          "default": "CSE",
+          "type": "string",
+          "enum": [
+            "CSE2",
+            "Nacos2",
+            "MicroGateway"
+          ],
+          "description": "微服务引擎部署类型"
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "引擎附加参数"
+        },
+        "enginestateInfo": {
+          "description": "引擎状态信息",
+          "properties": {
+            "cluster": {
+              "type": "boolean",
+              "description": "集群"
+            },
+            "twinClusters": {
+              "type": "boolean",
+              "description": "双子集群"
+            },
+            "singleEngine": {
+              "type": "boolean",
+              "description": "单引擎"
+            }
+          }
+        },
+        "periodType": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建阶段类型"
+        },
+        "flavorType": {
+          "description": "网关规格类型",
+          "properties": {
+            "nodeFlavor": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "网关节点规格"
+            },
+            "flavor": {
+              "type": "string",
+              "description": "网关规格"
+            },
+            "availablePrefix": {
+              "type": "string",
+              "description": "可用区前缀"
+            },
+            "availableCpuMemory": {
+              "type": "string",
+              "description": "可用区CPU内存"
+            },
+            "specType": {
+              "type": "string",
+              "description": "引擎类型"
+            },
+            "linear": {
+              "type": "boolean",
+              "description": "是否为线性"
+            },
+            "licenseAmount": {
+              "type": "integer",
+              "format": "int32",
+              "description": "网关证书规模"
+            },
+            "nodeLimit": {
+              "type": "string",
+              "description": "网关节点数限制"
+            },
+            "id": {
+              "type": "string",
+              "description": "网关规格id"
+            },
+            "microGatewayFlavor": {
+              "type": "string",
+              "description": "网关规格"
+            },
+            "disable": {
+              "type": "boolean",
+              "description": "网关是否禁用"
+            },
+            "spec": {
+              "type": "string",
+              "description": "网关节点类型"
+            },
+            "cloudServiceType": {
+              "type": "string",
+              "description": "云服务类型"
+            },
+            "currentflavor": {
+              "type": "string",
+              "description": "当前规格"
+            }
+          }
+        },
+        "enterpriseProject": {
+          "description": "企业项目信息",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "企业项目id"
+            },
+            "name": {
+              "type": "string",
+              "description": "企业项目名称"
+            },
+            "description": {
+              "type": "string",
+              "description": "企业项目描述"
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "企业项目状态"
+            },
+            "created_at": {
+              "type": "string",
+              "description": "企业项目创建时间"
+            },
+            "updated_at": {
+              "type": "string",
+              "description": "企业项目升级时间"
+            },
+            "label": {
+              "type": "string",
+              "description": "企业项目标签"
+            }
+          }
+        },
+        "vpcCidr": {
+          "type": "string",
+          "description": "网关vpc划分"
+        },
+        "resourceParams": {
+          "description": "微服务引擎资源参数",
+          "properties": {
+            "isAutoRenew": {
+              "type": "integer",
+              "format": "int32",
+              "description": "是否自动刷新"
+            }
+          }
+        },
+        "productId": {
+          "type": "string",
+          "description": "产品ID"
+        },
+        "capacityProductId": {
+          "type": "string",
+          "description": "容量产品ID"
+        },
+        "isFree": {
+          "type": "boolean",
+          "description": "微服务引擎是否免费"
+        },
+        "subnetName": {
+          "type": "string",
+          "description": "微服务引擎使用的子网名称"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "标签"
+        },
+        "maintenanceConfig": {
+          "description": "微服务引擎的维护时间窗",
+          "properties": {
+            "time": {
+              "type": "string",
+              "description": "维护时间"
+            },
+            "zone": {
+              "type": "string",
+              "description": "维护时间的时区"
+            }
+          }
+        },
+        "elbid": {
+          "type": "string",
+          "description": "微服务引擎使用的elb的id"
+        }
+      },
+      "example": {
+        "name": "test",
+        "description": "test",
+        "payment": "1",
+        "flavor": "cse.s1.medium2",
+        "azList": [
+          "test"
+        ],
+        "authType": "RBAC",
+        "vpc": "vpc-demotest",
+        "vpcId": "09902850-9454-4715-9764-018f0c37022",
+        "networkId": "88550801-e892-4f8e-b21b-f7147f6229",
+        "subnetCidr": "192.168.0.5/26",
+        "specType": "CSE2",
+        "inputs": {
+          "nodeFlavor": "s6.large.2"
+        },
+        "auth_cred": {
+          "pwd": "test"
+        }
+      }
+    },
+    "EngineRbacPwd": {
+      "type": "object",
+      "description": "操作ServiceComb引擎专享版安全认证信息",
+      "properties": {
+        "pwd": {
+          "type": "string",
+          "description": "开启安全认证的ServiceComb引擎专享版默认root帐号的密码"
+        }
+      }
+    },
+    "EngineCommonResp": {
+      "type": "object",
+      "description": "操作微服务引擎响应结构体",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "创建的微服务引擎ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "创建的微服务引擎名称"
+        },
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "微服务引擎执行的任务ID"
+        }
+      }
+    },
+    "BadRequest": {
+      "description": "错误的请求。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    },
+    "InternalServerError": {
+      "description": "服务内部错误",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cse.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

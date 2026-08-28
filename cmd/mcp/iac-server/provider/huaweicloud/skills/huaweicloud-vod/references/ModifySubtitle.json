@@ -1,0 +1,292 @@
+{
+  "name": "ModifySubtitle",
+  "summary": "多字幕封装",
+  "tags": "字幕管理",
+  "productshort": "VOD",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v1/{project_id}/asset/subtitles": {
+      "put": {
+        "x-request-examples-1": {
+          "asset_id": "f488337c31c8e4622f1590735b134c65",
+          "default_language": "cn",
+          "type": "custom_template_group",
+          "is_default": true,
+          "add_subtitles": [
+            {
+              "obs_info": {
+                "bucket": "test",
+                "object": "subtitle_test/happyNewYearCn.vtt"
+              },
+              "type": "VTT",
+              "language": "cn"
+            }
+          ],
+          "delete_subtitles": [
+            {
+              "type": "VTT",
+              "language": "cn"
+            }
+          ]
+        },
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/{project_id}/asset/subtitles",
+        "x-request-examples-text-1": {
+          "asset_id": "f488337c31c8e4622f1590735b134c65",
+          "default_language": "cn",
+          "type": "custom_template_group",
+          "is_default": true,
+          "add_subtitles": [
+            {
+              "obs_info": {
+                "bucket": "test",
+                "object": "subtitle_test/happyNewYearCn.vtt"
+              },
+              "type": "VTT",
+              "language": "cn"
+            }
+          ],
+          "delete_subtitles": [
+            {
+              "type": "VTT",
+              "language": "cn"
+            }
+          ]
+        },
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "字幕管理"
+        ],
+        "summary": "多字幕封装",
+        "description": "多字幕封装,仅支持 HLS VTT格式和HLS SRT格式",
+        "operationId": "ModifySubtitle",
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SubtitleModifyReq",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SubtitleModifyReq"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/AssetProcessRsp"
+            }
+          },
+          "400": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10053",
+                "error_msg": "The request parameter is illegal, illegal field: {xx}."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SubtitleModifyReq": {
+      "type": "object",
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "description": "媒资ID"
+        },
+        "default_language": {
+          "type": "string",
+          "description": "字幕默认语言(字幕必须存在)",
+          "maxLength": 32
+        },
+        "repackage_mode": {
+          "type": "string",
+          "default": "0",
+          "enum": [
+            "0",
+            "1"
+          ],
+          "description": "外挂模式,不传默认取值为0\n\n取值如下:\n-0:表示添加的字幕会外挂上历史产物\n-1:表示添加的字幕不会外挂上历史产物"
+        },
+        "delete_mode": {
+          "type": "string",
+          "default": "0",
+          "enum": [
+            "0",
+            "1"
+          ],
+          "description": "删除模式,不传默认取值为0\n\n取值如下:\n-0:表示删除字幕会清除历史产物携带的字幕信息\n-1:表示删除字幕不清除历史产物携带的字幕信息"
+        },
+        "add_subtitles": {
+          "description": "需新增或修改的字幕",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/definitions/AddSubtitle"
+          },
+          "type": "array"
+        },
+        "delete_subtitles": {
+          "description": "需删除的字幕,language不能与add_subtitles重复",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/definitions/DeleteSubtitle"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "asset_id"
+      ]
+    },
+    "DeleteSubtitle": {
+      "type": "object",
+      "required": [
+        "type",
+        "language"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "字幕类型,字幕封装当前仅支持VTT和SRT",
+          "enum": [
+            "VTT",
+            "SRT"
+          ]
+        },
+        "language": {
+          "type": "string",
+          "description": "字幕语言",
+          "maxLength": 32
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "ObsInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "x-imports": "javax.validation.constraints.NotEmpty",
+      "properties": {
+        "bucket": {
+          "description": "OBS的bucket名称",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 63
+        },
+        "object": {
+          "description": "OBS对象路径",
+          "type": "string",
+          "maxLength": 1023
+        },
+        "region": {
+          "description": "桶所在区域",
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "bucket",
+        "object"
+      ]
+    },
+    "AssetProcessRsp": {
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "description": "媒资ID。"
+        },
+        "thumbnail_task_id": {
+          "type": "string",
+          "description": "截图任务id,仅支持多截图场景会返回。"
+        }
+      }
+    },
+    "AddSubtitle": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "字幕类型,字幕封装当前仅支持VTT和SRT",
+          "enum": [
+            "VTT",
+            "SRT"
+          ]
+        },
+        "language": {
+          "type": "string",
+          "description": "字幕语言",
+          "maxLength": 32
+        },
+        "obs_info": {
+          "description": "字幕OBS桶信息",
+          "$ref": "#/definitions/ObsInfo"
+        }
+      },
+      "required": [
+        "type",
+        "language",
+        "obs_info"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

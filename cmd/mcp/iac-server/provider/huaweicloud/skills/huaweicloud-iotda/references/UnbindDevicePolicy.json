@@ -1,0 +1,229 @@
+{
+  "name": "UnbindDevicePolicy",
+  "summary": "解绑设备策略",
+  "tags": "设备策略管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/device-policies/{policy_id}/unbind": {
+      "post": {
+        "tags": [
+          "PolicyManagement"
+        ],
+        "summary": "解绑设备策略",
+        "description": "应用服务器可调用此接口在物联网平台上解除指定策略下绑定的目标对象。",
+        "operationId": "UnbindDevicePolicy",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0079.html#section1) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "name": "policy_id",
+            "in": "path",
+            "description": "策略ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+          },
+          {
+            "in": "body",
+            "name": "UnBindDevicePolicyRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UnBindDevicePolicy"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "policy_id": "5c90fa7d3c4e4405e8525079",
+                "target_type": "device",
+                "success_targets": [
+                  "64a7ba7ef9cb063d27e16b97_123456",
+                  "64a7ba7ef9cb063d27e16b97_123457"
+                ],
+                "failure_targets": [
+                  {
+                    "target_id": "64a7ba7ef9cb063d27e16b97_123458",
+                    "error_code": "IOTDA.015207",
+                    "error_msg": "Invalid input. The target does not bind the device-policy."
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DevicePolicyBindOrUnbindResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.015200"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IOTDA.015202"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-apig-name": "IoTDA_API",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<DevicePolicyBindOrUnbindResponse>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/device-policies/{policy_id}/unbind",
+        "x-request-examples-description-1": "解绑设备下的策略",
+        "x-request-examples-1": {
+          "target_type": "device",
+          "target_ids": [
+            "64a7ba7ef9cb063d27e16b97_123456"
+          ]
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v5/iot/{project_id}/device-policies/{policy_id}/unbind",
+        "x-request-examples-description-2": "解绑产品下的策略",
+        "x-request-examples-2": {
+          "target_type": "product",
+          "target_ids": [
+            "64a7ba7ef9cb063d27e16b97"
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UnBindDevicePolicy": {
+      "type": "object",
+      "required": [
+        "target_ids",
+        "target_type"
+      ],
+      "properties": {
+        "target_type": {
+          "type": "string",
+          "example": "device",
+          "description": "**参数说明**:解除策略绑定的目标类型。\n**取值范围**:device|product|app,device表示设备,product表示产品,app表示整个资源空间。",
+          "pattern": "(device|product|app)"
+        },
+        "target_ids": {
+          "type": "array",
+          "example": [
+            "deivceId1",
+            "deivceId2"
+          ],
+          "description": "策略解绑的目标ID列表",
+          "items": {
+            "type": "string"
+          },
+          "x-maxLength": 20,
+          "x-minLength": 1,
+          "x-annotations": [
+            "@PatternInList(regexp = \"^[a-zA-Z0-9_-]{1,128}$\")"
+          ]
+        }
+      },
+      "title": "解绑策略请求体",
+      "description": "解绑策略请求体。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;com.huawei.m2m.validator.PatternInList;"
+    },
+    "DevicePolicyBindOrUnbindResponse": {
+      "type": "object",
+      "properties": {
+        "policy_id": {
+          "type": "string",
+          "example": "5c90fa7d3c4e4405e8525079",
+          "description": "策略ID。"
+        },
+        "target_type": {
+          "type": "string",
+          "example": "device",
+          "description": "**参数说明**:策略的目标类型。\n**取值范围**:device|product|app,device表示设备,product表示产品,app表示整个资源空间。"
+        },
+        "success_targets": {
+          "type": "array",
+          "example": [
+            "deivceId1",
+            "deivceId2"
+          ],
+          "description": "成功的目标id列表。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "failure_targets": {
+          "type": "array",
+          "description": "失败的目标id列表",
+          "items": {
+            "$ref": "#/definitions/DevicePolicyBindOrUnbindFailureDetail"
+          }
+        }
+      },
+      "title": "绑定策略返回体",
+      "description": "绑定策略返回体。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;com.huawei.m2m.validator.PatternInList;"
+    },
+    "DevicePolicyBindOrUnbindFailureDetail": {
+      "type": "object",
+      "properties": {
+        "target_id": {
+          "type": "string",
+          "example": "5c90fa7d3c4e4405e8525079",
+          "description": "失败的目标id。"
+        },
+        "error_code": {
+          "type": "string",
+          "example": "IOTDA.015204",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Operation not allowed. The number of policies bound to the target reaches the upper limit (5).",
+          "description": "错误详情。"
+        }
+      },
+      "description": "策略绑定失败详情结构体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

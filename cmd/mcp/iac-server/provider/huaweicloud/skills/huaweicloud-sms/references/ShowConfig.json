@@ -1,0 +1,230 @@
+{
+  "name": "ShowConfig",
+  "summary": "获取Agent配置信息",
+  "tags": "Agent运行",
+  "productshort": "SMS",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v3/config": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-publishpath": "ShowConfig",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "x-apiexplorer-hide": "false",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/config",
+        "x-request-examples-description-1": "获取endpoint下的配置信息",
+        "tags": [
+          "Agent运行"
+        ],
+        "summary": "获取Agent配置信息",
+        "operationId": "ShowConfig",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-order": 1,
+            "x-annotations": ""
+          }
+        ],
+        "description": "源端Agent启动后,访问此接口获取配置信息。",
+        "responses": {
+          "200": {
+            "description": "获取配置信息成功",
+            "schema": {
+              "$ref": "#/definitions/ConfigInfo"
+            },
+            "examples": {
+              "application/json": {
+                "config": {
+                  "mainRegion": "ap-southeast-1",
+                  "disktype": "SATA"
+                },
+                "regions": [
+                  {
+                    "region_name": "cn-north-1",
+                    "project_name": "cn-north-1"
+                  },
+                  {
+                    "region_name": "cn-north-4",
+                    "project_name": "cn-north-4"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "获取配置信息失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            }
+          },
+          "403": {
+            "description": "鉴权失败",
+            "schema": {
+              "$ref": "#/definitions/Forbiddenstatus"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SMS.9004",
+                "error_msg": "The current account does not have the permission to execute policy. You do not have permission to perform action XXX on resource XXX.",
+                "encoded_authorization_message": "XXXXXX",
+                "error_param": [
+                  "You do not have permission to perform action XXX on resource XXX."
+                ],
+                "details": [
+                  {
+                    "error_code": "SMS.9004",
+                    "error_msg": "You do not have permission to perform action XXX on resource XXX."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Forbiddenstatus": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "SMS.9004",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "错误代码"
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "The current account does not have the permission to execute policy. You do not have permission to perform action XXX on resource XXX.",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "错误信息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "example": "XXXXXX",
+          "minLength": 0,
+          "maxLength": 65535,
+          "description": "加密授权信息"
+        },
+        "error_param": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "example": "XXXXXX",
+            "minLength": 0,
+            "maxLength": 65535
+          },
+          "example": [
+            "You do not have permission to perform action XXX on resource XXX."
+          ],
+          "description": "错误参数"
+        },
+        "details": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "properties": {
+              "error_code": {
+                "type": "string",
+                "example": "SMS.9004",
+                "minLength": 0,
+                "maxLength": 65535,
+                "description": "SMS错误代码"
+              },
+              "error_msg": {
+                "type": "string",
+                "example": "You do not have permission to perform action XXX on resource XXX.",
+                "minLength": 0,
+                "maxLength": 65535,
+                "description": "SMS错误信息"
+              }
+            }
+          },
+          "description": "详细错误信息"
+        }
+      },
+      "description": "接口请求鉴权失败时返回的response body格式"
+    },
+    "ErrorMsg": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "maxLength": 255,
+          "minLength": 0
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "maxLength": 1024,
+          "minLength": 0
+        }
+      },
+      "description": "错误信息"
+    },
+    "RegionInfo": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 128,
+        "minLength": 1
+      },
+      "description": "Agent配置信息,单个region信息。"
+    },
+    "ConfigInfo": {
+      "type": "object",
+      "description": "Agent配置信息",
+      "required": [
+        "config",
+        "regions"
+      ],
+      "properties": {
+        "config": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "description": "mainRegion,obs_domain,disktype,process_and_it及以后增加的信息"
+        },
+        "regions": {
+          "type": "array",
+          "maxItems": 100,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/RegionInfo"
+          },
+          "description": "region数组"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sms.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

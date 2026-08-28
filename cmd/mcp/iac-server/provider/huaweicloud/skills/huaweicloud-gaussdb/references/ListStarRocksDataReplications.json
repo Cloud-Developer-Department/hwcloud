@@ -1,0 +1,253 @@
+{
+  "name": "ListStarRocksDataReplications",
+  "summary": "查询StarRocks数据同步状态信息",
+  "tags": "HTAP-标准版",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/starrocks/databases/replication": {
+      "get": {
+        "x-request-examples-url-1": "GET https://{localhost}/v3/{project_id}/instances/{instance_id}/starrocks/databases/replication?offset=1&limit=10",
+        "x-request-examples-description-1": "查询第一页的前10个同步任务。",
+        "tags": [
+          "HTAP-标准版"
+        ],
+        "operationId": "ListStarRocksDataReplications",
+        "summary": "查询StarRocks数据同步状态信息",
+        "description": "查询StarRocks数据同步状态信息。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-ratelimit": "gaussdbformysql01",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。",
+            "minLength": 2,
+            "maxLength": 1024
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "StarRocks实例ID,严格匹配UUID规则。",
+            "minLength": 2,
+            "maxLength": 1024
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。\n\n通过调用IAM服务[获取用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取。\n\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 1024
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": true,
+            "description": "请求语言类型。默认en-us。\n取值范围:\n- en-us\n- zh-cn",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询记录数。每页查询数据同步任务的数量。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/QueryDataReplicationListResponseV3"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "replications": [
+                  {
+                    "source_database": "source_database",
+                    "target_database": "target_database",
+                    "task_name": "task_name",
+                    "status": "Yes",
+                    "stage": "Incremental",
+                    "percentage": 100,
+                    "catchup_stage": null,
+                    "catchup_percentage": 0
+                  }
+                ],
+                "ext_text": null
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DBS.200022",
+                "error_msg": "实例不存在"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QueryDataReplicationListResponseV3": {
+      "type": "object",
+      "description": "查询数据同步任务响应体。",
+      "properties": {
+        "total_count": {
+          "type": "string",
+          "description": "查询数据同步任务数。",
+          "minLength": 1,
+          "maxLength": 3
+        },
+        "replications": {
+          "type": "array",
+          "description": "数据同步任务信息。",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/StarRocksReplicationInfo"
+          }
+        },
+        "ext_text": {
+          "type": "string",
+          "description": "扩展字段。",
+          "minLength": 0,
+          "maxLength": 10
+        }
+      }
+    },
+    "StarRocksReplicationInfo": {
+      "type": "object",
+      "description": "StarRocks同步任务信息。",
+      "properties": {
+        "source_database": {
+          "type": "string",
+          "description": "TaurusDB数据库。",
+          "minLength": 2,
+          "maxLength": 1024
+        },
+        "target_database": {
+          "type": "string",
+          "description": "目标数据库。",
+          "minLength": 3,
+          "maxLength": 128
+        },
+        "task_name": {
+          "type": "string",
+          "description": "同步任务名。",
+          "minLength": 3,
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "description": "当前状态。Yes:正常;No:异常。",
+          "minLength": 2,
+          "maxLength": 5,
+          "enum": [
+            "Yes",
+            "No"
+          ]
+        },
+        "stage": {
+          "type": "string",
+          "description": "同步阶段。wait:等待同步;incremental:增量同步;full:全量同步;cancelled:删除;paused:暂停同步。",
+          "minLength": 3,
+          "maxLength": 64,
+          "enum": [
+            "wait",
+            "incremental",
+            "full",
+            "cancelled",
+            "paused"
+          ]
+        },
+        "percentage": {
+          "type": "string",
+          "description": "进度百分比。",
+          "minLength": 2,
+          "maxLength": 5
+        },
+        "catchup_stage": {
+          "type": "string",
+          "description": "追赶阶段。wait:等待同步;incremental:增量同步;full:全量同步;cancelled:删除;paused:暂停同步。",
+          "minLength": 3,
+          "maxLength": 64,
+          "enum": [
+            "wait",
+            "incremental",
+            "full",
+            "cancelled",
+            "paused"
+          ]
+        },
+        "catchup_percentage": {
+          "type": "string",
+          "description": "追赶进度百分比。",
+          "minLength": 2,
+          "maxLength": 5
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.280292"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "example": "数据库用户名非法"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

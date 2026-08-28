@@ -1,0 +1,251 @@
+{
+  "name": "DeployCertificate",
+  "summary": "部署证书",
+  "tags": "证书部署管理",
+  "productshort": "SCM",
+  "region_id": "my-kualalumpur-1",
+  "paths": {
+    "/v3/scm/certificates/{certificate_id}/deploy": {
+      "post": {
+        "tags": [
+          "证书部署管理"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "部署证书",
+        "x-constraint": "- 上传证书与3个月有效期测试证书,部署其他云产品中,部署费用30元/域名。",
+        "description": "部署SSL证书到弹性负载均衡(Elastic Load Balance,简称ELB)、Web应用防火墙(Web Application Firewall,WAF)、CDN(Content Delivery Network,内容分发网络)等其它华为云产品中。",
+        "operationId": "DeployCertificate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "certificate_id",
+            "in": "path",
+            "description": "证书id。",
+            "required": true,
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16
+          },
+          {
+            "in": "body",
+            "name": "DeployCertificateRequestBody",
+            "description": "requestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeployCertificateRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回。",
+            "schema": {
+              "$ref": "#/definitions/DeployCertificateResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "failure_list": [
+                  {
+                    "resource": "982b8a6a6ebc43809d82a46ca99aaeb7",
+                    "failure_info": "ELB.8904:certificate 982b8a6a6ebc43809d82a46ca99aaeb7 does not exist"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "403": {
+            "description": "禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "404": {
+            "description": "访问页面未找到。"
+          },
+          "500": {
+            "description": "请求未完成,服务器内部异常。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "service_name": "ELB",
+          "project_name": "cn-north-7",
+          "resources": [
+            {
+              "id": "982b8a6a6ebc43809d82a46ca99aaeb7"
+            }
+          ]
+        },
+        "x-hc": "Y",
+        "x-hk": "Y",
+        "x-open-region-cloud": "hc,hk"
+      }
+    }
+  },
+  "definitions": {
+    "DeployedResource": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "资源Id,部署WAF与ELB时,必传此字段。"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "资源类型,当前仅部署WAF资源时需传入,即独享模式(premium)与云模式(cloud)。"
+        },
+        "domain_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "需部署的域名,当前仅部署CDN时需传入,即需加速的域名,域名与证书必须可匹配。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "需部署的资源所属的企业项目ID,当前仅部署WAF资源时,需传入。"
+        }
+      },
+      "title": "DeployedResource"
+    },
+    "DeployCertificateResponseBody": {
+      "type": "object",
+      "required": [
+        "failure_list"
+      ],
+      "properties": {
+        "failure_list": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "description": "部署失败的资源列表。",
+          "items": {
+            "$ref": "#/definitions/FaiureResource"
+          }
+        }
+      },
+      "title": "DeployCertificateResponseBody"
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息。"
+        }
+      },
+      "title": "Error"
+    },
+    "DeployCertificateRequestBody": {
+      "type": "object",
+      "required": [
+        "service_name",
+        "resources"
+      ],
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "部署的资源所在的项目名称,若在主项目下,则该值为region id。"
+        },
+        "service_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "证书推送的目标服务,当前仅支持:CDN、WAF、ELB。"
+        },
+        "resources": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "description": "所要部署的资源列表。",
+          "items": {
+            "$ref": "#/definitions/DeployedResource"
+          }
+        }
+      },
+      "title": "DeployCertificateRequestBody"
+    },
+    "FaiureResource": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "部署失败的资源信息,部署WAF与ELB时,此字段为资源ID,部署CDN时,本字段为加速域名。"
+        },
+        "failure_info": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "失败原因,一般为目标服务返回的错误码信息。"
+        }
+      },
+      "title": "FaiureResource"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "scm.my-kualalumpur-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

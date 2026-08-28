@@ -1,0 +1,223 @@
+{
+  "name": "ListAlarmHandleHistories",
+  "summary": "查询告警工单历史",
+  "tags": "Alarm",
+  "productshort": "COC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/alarm-mgmt/alarm/{alarm_id}/handle-histories": {
+      "get": {
+        "x-request-examples-text-1": "{}",
+        "x-method-annotations": [
+          "@IamAuthMeta(needApigwJwtAuthCheck = false, authLevel = IamAuthLevel.INSTANCE, abacAction = \"coc:alarm:listHandleHistories\", opType = BssOpType.QUERY, needCbcCheck = false)",
+          "@CtsExtendMeta(resourceId = \"#alarmId\", resourceName = \"alarm\", resourceIdKey = \"alarm_id\")",
+          "@CtsMeta(resourceType = \"alarm\", traceName = \"listAlarmHandleHistories\", operationId = \"ListAlarmHandleHistories\")"
+        ],
+        "x-request-examples-1": "{}",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "tags": [
+          "Alarm"
+        ],
+        "summary": "查询告警工单历史",
+        "description": "查询告警工单历史",
+        "operationId": "ListAlarmHandleHistories",
+        "parameters": [
+          {
+            "name": "alarm_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 26,
+            "description": "告警id"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": true,
+            "description": "偏移量",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "description": "每页限制数量",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "alarmID返回体",
+            "schema": {
+              "$ref": "#/definitions/AlarmHandleHistoriesResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResolvedRecordDTO": {
+      "type": "object",
+      "description": "清除汇聚告警的记录",
+      "properties": {
+        "resolved_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "清除汇聚告警的时间",
+          "readOnly": true
+        },
+        "create_name": {
+          "type": "string",
+          "description": "执行人",
+          "readOnly": true
+        },
+        "remarks": {
+          "type": "string",
+          "description": "清除时填写的备注",
+          "readOnly": true
+        }
+      }
+    },
+    "AlarmHandleHistoriesResp": {
+      "type": "object",
+      "description": "告警工单执行结果列表",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "总数量",
+          "readOnly": true
+        },
+        "alarm_handle_histories": {
+          "readOnly": true,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlarmHandleHistory"
+          },
+          "description": "告警工单执行结果"
+        },
+        "resolved_record": {
+          "readOnly": true,
+          "type": "object",
+          "$ref": "#/definitions/ResolvedRecordDTO"
+        }
+      }
+    },
+    "AlarmHandleHistory": {
+      "type": "object",
+      "description": "告警工单执行结果",
+      "properties": {
+        "work_order_id": {
+          "type": "string",
+          "description": "执行工单id",
+          "readOnly": true
+        },
+        "create_name": {
+          "type": "string",
+          "description": "创建人名",
+          "readOnly": true
+        },
+        "create_alias": {
+          "type": "string",
+          "description": "创建人名",
+          "readOnly": true
+        },
+        "task_type": {
+          "type": "string",
+          "description": "任务类型",
+          "readOnly": true
+        },
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "开始时间",
+          "readOnly": true
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "结束时间",
+          "readOnly": true
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "总耗时",
+          "readOnly": true
+        },
+        "status": {
+          "type": "string",
+          "description": "状态",
+          "readOnly": true
+        },
+        "associated_task_id": {
+          "type": "string",
+          "description": "脚本或作业id",
+          "readOnly": true
+        },
+        "associated_task_name": {
+          "type": "string",
+          "description": "脚本或作业id",
+          "readOnly": true
+        },
+        "sub_task_info": {
+          "type": "object",
+          "description": "额外参数,例如应急预案id、名称的等信息",
+          "readOnly": true,
+          "$ref": "#/definitions/SubTaskInfoDTO"
+        }
+      }
+    },
+    "SubTaskInfoDTO": {
+      "x-imports": [
+        "com.huawei.coc.alarm.mgmt.enums.TaskType",
+        "com.huawei.coc.common.utils.enums.TaskSource"
+      ],
+      "type": "object",
+      "description": "应急预案内部包含的作业、脚本信息",
+      "properties": {
+        "sub_task_type": {
+          "type": "string",
+          "description": "子任务类型",
+          "example": "script",
+          "x-type": "TaskType"
+        },
+        "sub_associated_task_id": {
+          "type": "string",
+          "description": "作业、脚本的id",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "sub_associated_task_name": {
+          "type": "string",
+          "description": "作业、脚本的名称",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "sub_associated_task_type": {
+          "type": "string",
+          "description": "作业、脚本的分类:自定义、公共",
+          "example": "CUSTOMIZATION",
+          "x-type": "TaskSource"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc-intl.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

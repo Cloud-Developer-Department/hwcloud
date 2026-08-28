@@ -1,0 +1,233 @@
+{
+  "name": "CreateVisionActiveCode",
+  "summary": "企业管理员生成激活码",
+  "tags": "激活码管理",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/usg/dcs/corp/vision/activecode": {
+      "post": {
+        "summary": "企业管理员生成激活码",
+        "description": "企业管理员生成智慧屏、电子白板(SmartRooms)、Ideahub的激活码。",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 1,
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Access-Token"
+          },
+          {
+            "$ref": "#/parameters/X-Request-ID"
+          },
+          {
+            "$ref": "#/parameters/Accept-Language"
+          },
+          {
+            "name": "visionActivecodeDTO",
+            "in": "body",
+            "required": true,
+            "description": "生成激活码请求。",
+            "schema": {
+              "$ref": "#/definitions/VisionActiveCodeDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "schema": {
+              "$ref": "#/definitions/VisionActiveCodeResponseBody"
+            }
+          },
+          "401": {
+            "description": "未鉴权或鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          },
+          "403": {
+            "description": "权限受限。",
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "schema": {
+              "$ref": "#/definitions/AbnormalResultDTO"
+            }
+          }
+        },
+        "tags": [
+          "激活码管理"
+        ],
+        "operationId": "CreateVisionActiveCode",
+        "x-classAnnotation": "@HttpStatusController",
+        "x-imports": "com.huawei.springframework.response.dto.ResultDTO;com.huawei.usg.datacenter.model.user.QueryUserResultDTO;com.huawei.springframework.security.auth.annotation.TokenAuthorization;com.huawei.springframework.security.auth.constants.*;com.huawei.springframework.business.advice.HttpStatusController;com.huawei.usg.oms.model.kafka.annotation.*",
+        "x-methodAnnotations": [
+          "@TokenAuthorization(userType=UserTypeEnum.CORP_MEMBER)",
+          "@OpLogFunction(opObjectStr = \"I18n.OpLog.ActiveCodeMGT\", opTypeStr = \"I18n.OpLog.Add\")"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/usg/dcs/corp/vision/activecode",
+        "x-request-examples-1": {
+          "country": "chinaPR",
+          "deptCode": "1",
+          "description": "测试终端",
+          "devName": "test_device",
+          "devType": "idea-hub",
+          "emailAddr": "email@huawei.com",
+          "smsNumber": "+86173****9092"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "VisionActiveCodeResponseBody": {
+      "x-subPackage": "visionactivecode",
+      "properties": {
+        "activeCode": {
+          "type": "string",
+          "description": "激活码。"
+        }
+      }
+    },
+    "AbnormalResultDTO": {
+      "x-subPackage": "discard",
+      "x-ref-external": "com.huawei.usg.datacenter.model.discard.*",
+      "description": "异常返回结果。",
+      "required": [
+        "error_code",
+        "error_msg",
+        "request_id"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求唯一标识。"
+        }
+      }
+    },
+    "VisionActiveCodeDTO": {
+      "x-subPackage": "visionactivecode",
+      "x-imports": "com.huawei.springframework.utils.ValidateConstants;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.ops.model.kafka.annotation.*;com.huawei.usg.oms.model.kafka.constants.oplog.*;",
+      "required": [
+        "devName",
+        "devType"
+      ],
+      "properties": {
+        "devType": {
+          "type": "string",
+          "description": "终端类型。\n- idea-hub:智能协作大屏\n- huawei-vision:智慧屏TV\n- welink-desktop(iwb):SmartRooms会议版\n- smart-rooms:SmartRooms完整版",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.DevType\")"
+          ],
+          "x-example": "idea-hub"
+        },
+        "deptCode": {
+          "type": "string",
+          "description": "部门编码,若不携带则默认根部门。",
+          "maxLength": 32,
+          "minLength": 0,
+          "default": "1",
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Dept.Code\")"
+          ],
+          "x-example": "1"
+        },
+        "devName": {
+          "type": "string",
+          "description": "终端的名称。",
+          "maxLength": 64,
+          "minLength": 1,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.DevName\")"
+          ],
+          "x-example": "test_device"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述信息。",
+          "maxLength": 255,
+          "minLength": 0,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Description\")"
+          ],
+          "x-example": "测试终端"
+        },
+        "smsNumber": {
+          "type": "string",
+          "description": "号码信息,如果为手机号,必须加上国家码。\n例如中国大陆手机+86xxxxxxx,当填写手机号时 “country”参数必填,手机格式必须满足(^$|^[+]?[0-9]+$)",
+          "maxLength": 32,
+          "minLength": 0,
+          "x-annotations": [
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Device.Phone\", maskType = MaskerTypeEnum.PHONE_NUMBER)",
+            "@Pattern(regexp = ValidateConstants.PHONE_PATTERN)"
+          ],
+          "x-example": "+86173****9092"
+        },
+        "country": {
+          "type": "string",
+          "description": "[手机号所属的国家](https://support.huaweicloud.com/api-meeting/meeting_21_0109.html#ZH-CN_TOPIC_0212714591__table19371178135314) 。",
+          "maxLength": 255,
+          "minLength": 0,
+          "default": "chinaPR",
+          "x-example": "chinaPR"
+        },
+        "emailAddr": {
+          "type": "string",
+          "description": "邮箱地址。\n> 如无中国大陆手机号,则邮箱必填。",
+          "maxLength": 255,
+          "minLength": 0,
+          "x-annotations": [
+            "@Pattern(regexp = ValidateConstants.EMAIL_PATTERN)",
+            "@OpLogProperty(value = \"I18n.OpLog.Dcs.Device.Email\",maskType = MaskerTypeEnum.EMAIL)"
+          ],
+          "x-example": "email@huawei.com"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Request-ID": {
+      "name": "X-Request-Id",
+      "in": "header",
+      "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+      "required": false,
+      "type": "string",
+      "x-example": "208b6e4c92074487bc43292f8554561e"
+    },
+    "Accept-Language": {
+      "name": "Accept-Language",
+      "in": "header",
+      "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+      "required": false,
+      "type": "string",
+      "x-example": "zh-CN"
+    },
+    "X-Access-Token": {
+      "name": "X-Access-Token",
+      "in": "header",
+      "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+      "required": true,
+      "format": "password",
+      "type": "string",
+      "x-example": "stb42Kw30IPpsIRm3DhsE0ym7B2tdAHcwfyY"
+    }
+  },
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

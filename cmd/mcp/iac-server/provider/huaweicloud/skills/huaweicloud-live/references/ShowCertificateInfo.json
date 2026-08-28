@@ -1,0 +1,279 @@
+{
+  "name": "ShowCertificateInfo",
+  "summary": "查询HTTPS证书信息",
+  "tags": "HTTPS证书管理",
+  "productshort": "Live",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v2/{project_id}/certificates": {
+      "get": {
+        "tags": [
+          "HTTPS证书管理"
+        ],
+        "summary": "查询HTTPS证书信息",
+        "description": "根据项目ID、域名等信息查询HTTPS证书信息",
+        "operationId": "ShowCertificateInfo",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。使用Token鉴权方式时必选。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "play_domain",
+            "in": "query",
+            "description": "播放域名",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "x-example": "hwcloud.test.com"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,表示从此偏移量开始查询",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "maximum": 2147483647,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的条目数量,取值范围[1,100]",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询HTTPS证书信息成功",
+            "schema": {
+              "$ref": "#/definitions/FullCertInfoResp"
+            },
+            "examples": {
+              "application/json": {
+                "total": 2,
+                "certificates_info": [
+                  {
+                    "play_domain": "play.example.huawei.com",
+                    "project_id": "70b76xxxxxx34253880af501cdxxxxxx",
+                    "tenant_name": "huaweiTest",
+                    "start_time": "2021-03-03T01:34:01Z",
+                    "expire_time": "2022-04-04T01:34:01Z"
+                  },
+                  {
+                    "play_domain": "play.example.hwcloud.com",
+                    "project_id": "70b76xxxxxx34253880af505cdxxxxxx",
+                    "tenant_name": "huaweiTest001",
+                    "start_time": "2021-02-03T01:34:01Z",
+                    "expire_time": "2022-05-04T01:34:01Z"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal",
+                "request_id": "xxxx-xxxx-xxxx-xxxx"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/70b76xxxxxx34253880af501cdxxxxxx/certificates?play_domian=play.example.huawei.com",
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "FullCertInfoResp": {
+      "type": "object",
+      "required": [
+        "total",
+        "certificates_info"
+      ],
+      "properties": {
+        "total": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 128,
+          "description": "查询结果的总数量"
+        },
+        "certificates_info": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 128,
+          "description": "证书信息列表",
+          "items": {
+            "$ref": "#/definitions/CertInfoResp"
+          }
+        }
+      }
+    },
+    "CertInfoResp": {
+      "type": "object",
+      "required": [
+        "play_domain",
+        "project_id",
+        "tenant_name",
+        "start_time",
+        "expire_time"
+      ],
+      "properties": {
+        "play_domain": {
+          "description": "播放域名",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "project_id": {
+          "description": "租户ID",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "tenant_name": {
+          "description": "租户名",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "start_time": {
+          "description": "证书开始时间,格式:YYYY-MM-DDTHH:mm:ssZ,UTC时间",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "expire_time": {
+          "description": "证书过期时间,格式:YYYY-MM-DDTHH:mm:ssZ,UTC时间",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "cert_type": {
+          "description": "证书类型, 1:国密证书, 0:默认,标准国际证书",
+          "type": "integer"
+        },
+        "gm_cert_type": {
+          "description": "国密证书类型, 1:签名证书, 2:加密证书",
+          "type": "integer"
+        },
+        "source": {
+          "description": "证书来源。\n- scm:云证书与管理服务CCM。\n- user:自有证书。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "cert_name": {
+          "description": "scm来源的证书名, 自有证书为空",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "cert_id": {
+          "description": "scm来源的证书ID, 自有证书为空",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。",
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

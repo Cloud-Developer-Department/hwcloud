@@ -1,0 +1,240 @@
+{
+  "name": "DeleteAsset",
+  "summary": "批量删除资产",
+  "tags": "ASSET_MANAGEMENT",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/assets/delete": {
+      "post": {
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "tags": [
+          "ASSET_MANAGEMENT"
+        ],
+        "operationId": "DeleteAsset",
+        "summary": "批量删除资产",
+        "description": "批量删除资产\n- 创建批量删除指定条件的资产的作业任务\n- 最大支持100个应用和任务\n- 一个用户同一时刻只能创建一个资产删除作业任务,没有Running状态的作业任务存在",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 100000
+          },
+          {
+            "type": "string",
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "实例ID"
+          },
+          {
+            "type": "string",
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "项目ID"
+          },
+          {
+            "name": "DeleteAssetRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "指定删除应用和任务",
+            "schema": {
+              "$ref": "#/definitions/AssetOperateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AssetOperateResp"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "ff8080814dbd65d7014dbe0d84db0013"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "ROMA.00000101",
+                "error_msg": "error summary",
+                "error_details": "some error details here",
+                "request_id": "13760c1fe8655e61209b75665e9bef43"
+              }
+            }
+          }
+        },
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#roma-address#",
+            "description": "",
+            "method": "POST",
+            "path": "/v2/{project_id}/instances/{instance_id}/assets/delete",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "instance_id",
+              "origin": "REQUEST",
+              "value": "instance_id"
+            },
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "project_id",
+              "origin": "REQUEST",
+              "value": "project_id"
+            }
+          ],
+          "type": "HTTP"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-apigateway-ratelimit": "roma_asset_ratelimit",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "AssetOperateResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "ff8080814dbd65d7014dbe0d84db0013",
+          "description": "资产导出或删除作业的ID,可用于查询作业进。"
+        }
+      }
+    },
+    "ErrorResp": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误消息"
+        },
+        "error_details": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "具体错误消息"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "请求处理ID"
+        }
+      },
+      "example": {
+        "error_code": "ROMA.00000101",
+        "error_msg": "error summary",
+        "error_details": "some error details here",
+        "request_id": "13760c1fe8655e61209b75665e9bef43"
+      }
+    },
+    "AssetOperateRequest": {
+      "type": "object",
+      "required": [
+        "apps",
+        "tasks"
+      ],
+      "properties": {
+        "apps": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "应用列表",
+          "items": {
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/AppId"
+              }
+            }
+          },
+          "example": {
+            "apps": [
+              "ff8080814dbd65d7014dbe0d84db0013",
+              "ff8080814dbd65d7014dbe0d84db99332",
+              "ff8080814dbd65d7014dbe0d84db4763"
+            ]
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "任务列表",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/AssetExportTask"
+              }
+            }
+          },
+          "example": {
+            "tasks": [
+              "kkds80814dbd65d7014dbe0d84db0013",
+              "iudi80814dbd65d7014dbe0d84db0013",
+              "yuds80814dbd65d7014dbe0d84db0013"
+            ]
+          }
+        }
+      }
+    },
+    "AssetExportTask": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "description": "任务ID"
+    },
+    "AppId": {
+      "type": "string",
+      "description": "应用ID",
+      "example": "b2e6b145-4f3f-4a80-aa45-f4b8029f95a3"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

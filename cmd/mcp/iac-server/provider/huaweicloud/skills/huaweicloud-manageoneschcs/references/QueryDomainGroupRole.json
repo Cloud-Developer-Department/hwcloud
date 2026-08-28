@@ -1,0 +1,301 @@
+{
+  "name": "QueryDomainGroupRole",
+  "summary": "查询租户中用户组是否包含权限",
+  "tags": "IAM1.0",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v3/domains/{domain_id}/groups/{group_id}/roles": {
+      "get": {
+        "summary": "查询租户中用户组是否包含权限",
+        "description": "该接口提供查询租户下用户组的权限的功能。",
+        "tags": [
+          "IAM1.0"
+        ],
+        "operationId": "QueryDomainGroupRole",
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "description": "用户组所属租户的ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "用户组的ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "该字段内容填为“application/json;charset=utf8”",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "有效的token(具有op_auth权限或当前租户下具有secu_admin权限的用户token)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "schema": {
+              "$ref": "#/definitions/ListRoleLimitRes"
+            },
+            "examples": {
+              "application/json": {
+                "links": {
+                  "self": "xxx/v3/domains/d54061ebcb5145dd814f8eb3fe9b7ac0/groups/47d79cabc2cf4c35b13493d919a5bb3d/roles",
+                  "previous": null,
+                  "next": null
+                },
+                "roles": [
+                  {
+                    "display_name": "Security Administrator",
+                    "description": "Security Administrator",
+                    "links": {
+                      "self": "xxx/v3/roles/005cf92cfd364105afaa5df2eec25012"
+                    },
+                    "domain_id": null,
+                    "name": "secu_admin",
+                    "type": "AX",
+                    "catalog": "BASE",
+                    "policy": {
+                      "Version": "1.0",
+                      "Statement": [
+                        {
+                          "Action": [
+                            "identity:*"
+                          ],
+                          "Effect": "Allow"
+                        }
+                      ]
+                    },
+                    "id": "005cf92cfd364105afaa5df2eec25012"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "token is not found or expired.",
+                  "code": 401,
+                  "title": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "You are not authorized to perform the requested action: identity:xxxx",
+                  "code": 403,
+                  "title": "Forbidden"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "资源不存在。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "Could not find group: 2809756f748a46e2b92d58d309f67291",
+                  "code": 404,
+                  "title": "Not Found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "Internal Exception",
+                  "code": 500,
+                  "title": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/domains/d54061ebcb5145dd814f8eb3fe9b7ac0/groups/47d79cabc2cf4c35b13493d919a5bb3d/roles",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": ""
+      }
+    }
+  },
+  "definitions": {
+    "ErrorCode": {
+      "type": "object",
+      "description": "错误码",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/Error"
+        }
+      }
+    },
+    "RolePolicy": {
+      "type": "object",
+      "description": "角色中策信息",
+      "properties": {
+        "Version": {
+          "type": "string",
+          "description": "角色版本"
+        },
+        "Statement": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RoleStatement"
+          }
+        }
+      }
+    },
+    "LinkInfo": {
+      "type": "object",
+      "description": "链接信息",
+      "properties": {
+        "href": {
+          "type": "string",
+          "description": "链接地址"
+        },
+        "rel": {
+          "type": "string",
+          "description": "链接关系"
+        }
+      }
+    },
+    "ListRoleLimitRes": {
+      "type": "object",
+      "description": "角色列表的响应",
+      "properties": {
+        "links": {
+          "$ref": "#/definitions/LinkInfo"
+        },
+        "roles": {
+          "type": "array",
+          "description": "角色列表",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
+        }
+      }
+    },
+    "Error": {
+      "description": "错误信息。",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "错误信息。"
+        },
+        "code": {
+          "type": "integer",
+          "description": "错误码。"
+        },
+        "title": {
+          "type": "string",
+          "description": "错误标题。"
+        }
+      }
+    },
+    "LinkPath": {
+      "type": "object",
+      "description": "链接地址信息",
+      "properties": {
+        "self": {
+          "type": "string",
+          "description": "链接地址信息"
+        }
+      }
+    },
+    "RoleStatement": {
+      "properties": {
+        "effect": {
+          "type": "string",
+          "description": "Allow或Deny。"
+        },
+        "action": {
+          "description": "权限相关操作。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Role": {
+      "type": "object",
+      "description": "角色详情",
+      "properties": {
+        "domain_id": {
+          "type": "string",
+          "description": "角色所属的租户ID"
+        },
+        "id": {
+          "type": "string",
+          "description": "角色ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "角色名"
+        },
+        "type": {
+          "type": "string",
+          "description": "角色的显示模式 AX: 表示在租户层显示 XA: 表示在项目层显示 AA: 表示在租户和项目层均显示 XX: 表示在租户和项目层均不显示"
+        },
+        "links": {
+          "$ref": "#/definitions/LinkPath"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "角色所展示的名称"
+        },
+        "catalog": {
+          "type": "string",
+          "description": "角色所在的目录"
+        },
+        "policy": {
+          "$ref": "#/definitions/RolePolicy"
+        },
+        "description": {
+          "type": "string",
+          "description": "角色的描述"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

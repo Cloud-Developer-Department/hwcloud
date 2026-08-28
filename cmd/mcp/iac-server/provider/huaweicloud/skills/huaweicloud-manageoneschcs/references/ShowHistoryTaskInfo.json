@@ -1,0 +1,319 @@
+{
+  "name": "ShowHistoryTaskInfo",
+  "summary": "查询申请实例任务实施进度",
+  "tags": "服务构建器",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/vapp/v3.0/history-tasks/{history_task_id}": {
+      "get": {
+        "summary": "查询申请实例任务实施进度",
+        "description": "查询申请实例任务实施进度。",
+        "deprecated": false,
+        "x-opseverity": "Minor",
+        "tags": [
+          "服务构建器"
+        ],
+        "x-resource": "任务",
+        "x-precautions": "header中需要携带操作用户的可用token,key值为X-Auth-Token。",
+        "operationId": "ShowHistoryTaskInfo",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "拥有查看实例action的用户token。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "history_task_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 1,
+            "description": "任务ID。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询申请实例任务实施进度成功。",
+            "schema": {
+              "$ref": "#/definitions/HistoryTaskInfo"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": "8e543144-5545-4582-903f-197614278209",
+                "task_type": "CREATE_STACK",
+                "status": "failed",
+                "error_code": "XXXX",
+                "fail_reason": {
+                  "zh-cn": "错误原因的中文描述",
+                  "en-us": "错误原因的英文描述"
+                },
+                "entity_detail": {
+                  "id": "实例Id",
+                  "name": "实例名称",
+                  "resources": [
+                    {
+                      "id": "UUID-001",
+                      "name": "ECS-001",
+                      "type": "ECS",
+                      "regionId": "cn-01"
+                    },
+                    {
+                      "id": "UUID-001",
+                      "name": "vapp-001",
+                      "type": "dedicated_service //如果上报stack,则有该数据",
+                      "regionId": "cn-01"
+                    }
+                  ],
+                  "outputs 模板的输出信息": {
+                    "output1": "XXX",
+                    "output2": "XXX"
+                  }
+                },
+                "sub_tasks": [
+                  {
+                    "task_id": "uuid",
+                    "task_type": "CREATE_STACK",
+                    "begin_time": "2020-12-19T09:38:28.492Z",
+                    "end_time": "2020-12-19T09:38:50.042Z",
+                    "status": "SUCCESS|FAILED|partialSuccessed",
+                    "error_code": null,
+                    "fail_reason 如果失败,则返回失败原因": {
+                      "zh-cn": "错误原因的中文描述",
+                      "en-us": "错误原因的英文描述"
+                    },
+                    "entity_detail": {
+                      "id": "实例Id",
+                      "name": "实例名称",
+                      "resources": [
+                        {
+                          "id": "UUID-001",
+                          "name": "ECS-001",
+                          "type": "ECS",
+                          "regionId": "cn-01"
+                        }
+                      ],
+                      "outputs 模板的输出信息": {
+                        "output1": "XXX",
+                        "output2": "XXX"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "429": {
+            "description": "流控限流。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "GET https://{endpoint}/rest/vapp/v3.0/history-tasks/8e543144-5545-4582-903f-197614278209",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": ""
+      }
+    }
+  },
+  "definitions": {
+    "HistoryTaskInfo": {
+      "description": "历史任务信息。",
+      "properties": {
+        "id": {
+          "description": "主键ID。",
+          "type": "string"
+        },
+        "task_id": {
+          "description": "任务ID。",
+          "type": "string"
+        },
+        "task_type": {
+          "description": "任务类型。",
+          "type": "string"
+        },
+        "status": {
+          "description": "任务的执行状态,初始化完成:ready | 运行中:processing | 成功:successed | 失败:failed | 部分成功:partialSuccessed。",
+          "type": "string"
+        },
+        "error_code": {
+          "description": "任务执行错误的错误码。",
+          "type": "string"
+        },
+        "fail_reason": {
+          "description": "任务执行错误的错误原因。",
+          "type": "string"
+        },
+        "entity_detail": {
+          "description": "实体详细信息。",
+          "type": "object",
+          "$ref": "#/definitions/EntityDetail"
+        },
+        "sub_tasks": {
+          "description": "子任务。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HistoryTaskInfo"
+          }
+        }
+      }
+    },
+    "EntityDetail": {
+      "description": "历史任务信息。",
+      "properties": {
+        "id": {
+          "description": "实例ID。",
+          "type": "string"
+        },
+        "name": {
+          "description": "实例名称。",
+          "type": "string"
+        },
+        "outputs": {
+          "description": "实例输出列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OutputItem"
+          }
+        },
+        "resources": {
+          "description": "实例资源信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceInfo"
+          }
+        }
+      }
+    },
+    "OutputItem": {
+      "description": "资源列表项。",
+      "properties": {
+        "name": {
+          "description": "参数名。",
+          "type": "string"
+        },
+        "label": {
+          "description": "显示名称。",
+          "type": "string"
+        },
+        "value": {
+          "description": "参数值。",
+          "type": "string"
+        },
+        "description": {
+          "description": "描述。",
+          "type": "string"
+        },
+        "is_keypair": {
+          "description": "是不是keypair资源。",
+          "type": "boolean",
+          "default": false
+        },
+        "down_num": {
+          "description": "下载次数。",
+          "type": "integer",
+          "format": "int32",
+          "default": 0
+        },
+        "support_download": {
+          "description": "是否允许下载。",
+          "type": "boolean",
+          "default": false
+        },
+        "hidden": {
+          "description": "是否隐藏。",
+          "type": "boolean",
+          "default": false
+        },
+        "sensitive": {
+          "description": "是否敏感。",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "ResourceInfo": {
+      "description": "资源项。",
+      "properties": {
+        "instance_id": {
+          "description": "实例ID。",
+          "type": "string"
+        },
+        "instance_name": {
+          "description": "实例名称。",
+          "type": "string"
+        },
+        "instance_type": {
+          "description": "实例类型。",
+          "type": "string"
+        },
+        "region_id": {
+          "description": "区域ID。",
+          "type": "string"
+        },
+        "az_id": {
+          "description": "是不是keypair资源。",
+          "type": "string"
+        },
+        "project_id": {
+          "description": "下载次数。",
+          "type": "string"
+        },
+        "result": {
+          "description": "是否允许下载。",
+          "type": "string"
+        },
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "zh_message": {
+          "description": "中文信息。",
+          "type": "string"
+        },
+        "en_message": {
+          "description": "英文信息。",
+          "type": "string"
+        },
+        "extend_params": {
+          "description": "扩展参数。",
+          "type": "string"
+        },
+        "expired_time": {
+          "description": "过期时间。",
+          "type": "string"
+        },
+        "product_id": {
+          "description": "产品ID。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

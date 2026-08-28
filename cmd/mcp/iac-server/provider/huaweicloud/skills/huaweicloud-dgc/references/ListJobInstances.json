@@ -1,0 +1,301 @@
+{
+  "name": "ListJobInstances",
+  "summary": "查询作业实例列表",
+  "tags": "作业相关的API",
+  "productshort": "DGC",
+  "region_id": "me-east-1",
+  "paths": {
+    "/v1/{project_id}/jobs/instances/detail": {
+      "get": {
+        "summary": "查询作业实例列表",
+        "x-support-sdk": "Y",
+        "tags": [
+          "作业相关的API"
+        ],
+        "operationId": "ListJobInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "workspace",
+            "in": "header",
+            "description": "工作空间id",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页参数:每页限定数量",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "分页参数:页数",
+            "required": false,
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "minPlanTime",
+            "in": "query",
+            "description": "返回作业实例开始运行时间大于minPlanTime的作业实例,单位为毫秒ms,默认设置为查询当天0点。",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "maxPlanTime",
+            "in": "query",
+            "description": "返回作业实例开始运行时间小于maxPlanTime的作业实例,单位为毫秒ms,默认设置为此时的时间点,且开始时间和结束时间的查询范围不超过7天。",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "实例运行状态:\n- waiting:等待运行\n- running:运行中\n- success:运行成功\n- forceSuccess:强制成功\n- ignoreSuccess:忽略失败\n- freeze:冻结\n- skip-by-depend:跳过\n- waiting-confirm:待确认执行\n- fail: 运行失败\n- running-exception:运行异常\n- pause: 暂停\n- manual-stop:取消",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "waiting",
+              "running",
+              "success",
+              "forceSuccess",
+              "ignoreSuccess",
+              "freeze",
+              "skip-by-depend",
+              "waiting-confirm",
+              "fail",
+              "running-exception",
+              "pause",
+              "manual-stop"
+            ]
+          },
+          {
+            "name": "preciseQuery",
+            "description": "支持通过作业名进行精确查询。",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "jobName",
+            "in": "query",
+            "description": "作业名称。如果要查询指定批处理作业的实例列表,jobName就是批处理作业名称;如果要查询实时作业下某个节点关联的子作业,jobName格式为[实时作业名称]_[节点名称]。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "instanceType",
+            "in": "query",
+            "description": "作业调度方式:\n- 0:正常调度\n- 2:手工调度\n- 5:补数据\n- 6:子作业调度\n- 7:单次调度",
+            "enum": [
+              0,
+              2,
+              5,
+              6,
+              7
+            ],
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/QueryJobInstanceListResp"
+            },
+            "examples": {
+              "application/json": {
+                "total": 2,
+                "instances": [
+                  {
+                    "endTime": 1551671598000,
+                    "executeTime": 20,
+                    "instanceId": 34765689,
+                    "instanceType": 0,
+                    "jobName": "job_batch",
+                    "jobInstanceName": "job_batch",
+                    "planTime": 1551671580000,
+                    "startTime": 1551671580000,
+                    "status": "success",
+                    "submitTime": 1550910278706,
+                    "forceSuccess": false,
+                    "ignoreSuccess": false,
+                    "jobId": "868641,",
+                    "version": 2
+                  },
+                  {
+                    "endTime": 1551671538000,
+                    "executeTime": 30,
+                    "instanceId": 347642345,
+                    "instanceType": 0,
+                    "jobName": "job_batch",
+                    "jobId": "868641,",
+                    "jobInstanceName": "job_batch",
+                    "planTime": 1551671520000,
+                    "startTime": 1551671521000,
+                    "status": "success",
+                    "submitTime": 1550910278706,
+                    "forceSuccess": false,
+                    "ignoreSuccess": false,
+                    "version": 2
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DLF.0100",
+                "error_msg": "The job does not exists."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "description": "错误响应",
+      "properties": {
+        "errorCode": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "errorMsg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "JobInstance": {
+      "properties": {
+        "jobName": {
+          "type": "string",
+          "description": "作业名称。如果要查询指定批处理作业的实例列表,jobName就是批处理作业名。如果要查询实时作业下某个节点关联的子作业,jobName格式为[实时作业名称]_[节点名称]。"
+        },
+        "status": {
+          "type": "string",
+          "description": "实例运行状态:\n- waiting:等待运行\n- running:运行中\n- success:运行成功\n- forceSuccess:强制成功\n- ignoreSuccess:忽略失败\n- freeze:冻结\n- skip-by-depend:跳过\n- waiting-confirm:待确认执行\n- fail: 运行失败\n- running-exception:运行异常\n- pause: 暂停\n- manual-stop:取消",
+          "enum": [
+            "waiting",
+            "running",
+            "success",
+            "forceSuccess",
+            "ignoreSuccess",
+            "freeze",
+            "skip-by-depend",
+            "waiting-confirm",
+            "fail",
+            "running-exception",
+            "pause",
+            "manual-stop"
+          ]
+        },
+        "planTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例计划执行时间"
+        },
+        "startTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例实际执行开始时间"
+        },
+        "endTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例实际执行结束时间"
+        },
+        "executeTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "执行耗时,单位:毫秒"
+        },
+        "submitTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业提交运行时间"
+        },
+        "instanceId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业实例ID"
+        },
+        "jobId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "作业ID"
+        },
+        "jobInstanceName": {
+          "type": "string",
+          "description": "作业实例运行时日志记录的实例名称, 非作业定义的名称"
+        },
+        "instanceType": {
+          "type": "integer",
+          "description": "作业实例类型"
+        },
+        "version": {
+          "type": "integer",
+          "description": "作业版本号"
+        },
+        "ignoreSuccess": {
+          "type": "boolean",
+          "description": "作业成功状态,是否忽略成功"
+        },
+        "forceSuccess": {
+          "type": "boolean",
+          "description": "作业成功状态,是否强制成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "作业实例失败的错误信息。"
+        }
+      }
+    },
+    "QueryJobInstanceListResp": {
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobInstance"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu-dlf.me-east-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

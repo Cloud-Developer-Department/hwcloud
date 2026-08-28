@@ -1,0 +1,425 @@
+{
+  "name": "ListTableMeta",
+  "summary": "分页获取表的描述信息",
+  "tags": "数据表管理",
+  "productshort": "LakeFormation",
+  "region_id": "ap-southeast-4",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/catalogs/{catalog_name}/databases/tables": {
+      "get": {
+        "tags": [
+          "Table"
+        ],
+        "summary": "分页获取表的描述信息",
+        "description": "通过数据库通配符和表通配符,找到符合条件的表并返回表的描述信息。",
+        "operationId": "ListTableMeta",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+$"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例Id",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{36}$"
+          },
+          {
+            "name": "catalog_name",
+            "in": "path",
+            "description": "catalog名字",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "[a-zA-Z0-9_]+"
+          },
+          {
+            "name": "database_name_pattern",
+            "in": "query",
+            "description": "数据库通配符",
+            "required": false,
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9\\一-\\龥_|*.]*$"
+          },
+          {
+            "name": "table_name_pattern",
+            "in": "query",
+            "description": "表名通配符",
+            "required": false,
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^[a-zA-Z0-9\\一-\\龥_|*.]*$"
+          },
+          {
+            "name": "table_types",
+            "in": "query",
+            "description": "查询的表类型",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MANAGED_TABLE",
+                "EXTERNAL_TABLE",
+                "VIRTUAL_VIEW",
+                "MATERIALIZED_VIEW"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "返回的条目数量",
+            "required": false,
+            "type": "integer",
+            "default": 1000,
+            "maximum": 2000,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "查询的起始记录ID",
+            "required": false,
+            "type": "string",
+            "maxLength": 256
+          },
+          {
+            "name": "reverse_page",
+            "in": "query",
+            "description": "是否查询上一页",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "x-annotations": [
+              "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+            ],
+            "x-imports": [
+              "com.huawei.us.validator.annotation.UsNoConstraint;"
+            ]
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "table_metas": [
+                  {
+                    "catalog_name": "hive",
+                    "database_name": "default",
+                    "table_name": "tbla",
+                    "table_type": "MANAGED_TABLE",
+                    "comments": ""
+                  },
+                  {
+                    "catalog_name": "hive",
+                    "database_name": "default",
+                    "table_name": "tblb",
+                    "table_type": "MANAGED_TABLE",
+                    "comments": ""
+                  }
+                ],
+                "page_info": {
+                  "current_count": 2
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/PagedListTableMeta"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-request-examples-url-1": "/v1/{project_id}/instances/{instance_id}/catalogs/{catalog_name}/databases/tables",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "PagedListTableMeta": {
+      "type": "object",
+      "properties": {
+        "table_metas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TableMeta"
+          }
+        },
+        "page_info": {
+          "$ref": "#/definitions/PagedInfo"
+        }
+      },
+      "title": "PagedListTableBrief",
+      "description": "列举表元数据"
+    },
+    "PagedInfo": {
+      "type": "object",
+      "required": [
+        "current_count",
+        "next_marker",
+        "previous_marker"
+      ],
+      "properties": {
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本次返回的对象个数",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "next_marker": {
+          "type": "string",
+          "example": "006f492b-xxxx",
+          "description": "下一页查询地址",
+          "maxLength": 32
+        },
+        "previous_marker": {
+          "type": "string",
+          "example": "003e6eba-xxxx",
+          "description": "上一页查询地址",
+          "maxLength": 32
+        }
+      },
+      "description": "分页返回信息"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "TableMeta": {
+      "type": "object",
+      "required": [
+        "catalog_name",
+        "comments",
+        "database_name",
+        "table_name",
+        "table_type"
+      ],
+      "properties": {
+        "catalog_name": {
+          "type": "string",
+          "description": "表名",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "[a-zA-Z0-9_]+"
+        },
+        "database_name": {
+          "type": "string",
+          "description": "数据库名字",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$"
+        },
+        "table_name": {
+          "type": "string",
+          "description": "表名字",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[a-zA-Z0-9\\一-\\龥_]*$"
+        },
+        "table_type": {
+          "type": "string",
+          "description": "表类型",
+          "enum": [
+            "MANAGED_TABLE",
+            "EXTERNAL_TABLE",
+            "VIRTUAL_VIEW",
+            "MATERIALIZED_VIEW"
+          ]
+        },
+        "comments": {
+          "type": "string",
+          "description": "表描述信息",
+          "maxLength": 2048,
+          "pattern": ".*"
+        },
+        "columns": {
+          "type": "array",
+          "description": "分区列以外的所有字段。",
+          "minItems": 0,
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/definitions/Column"
+          }
+        },
+        "partition_keys": {
+          "type": "array",
+          "description": "分区列的信息。",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/Column"
+          }
+        }
+      },
+      "title": "TableBrief",
+      "description": "表描述信息"
+    },
+    "Column": {
+      "type": "object",
+      "required": [
+        "column_name",
+        "column_type"
+      ],
+      "properties": {
+        "column_type": {
+          "type": "string",
+          "description": "列类型,包括array bigint binary boolean char date decimal double float int interval map set smallint string struct timestamp tinyint union varchar",
+          "minLength": 1,
+          "maxLength": 65535
+        },
+        "column_name": {
+          "type": "string",
+          "example": "c1",
+          "description": "列名",
+          "minLength": 1,
+          "maxLength": 767,
+          "pattern": "^[a-zA-Z0-9_\\-\\+*\\\\(), \\一-\\龥]+$"
+        },
+        "comment": {
+          "type": "string",
+          "description": "列描述信息",
+          "maxLength": 4000,
+          "pattern": ".*"
+        }
+      },
+      "description": "列信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.ap-southeast-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

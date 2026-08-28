@@ -1,0 +1,210 @@
+{
+  "name": "ListTasks",
+  "summary": "查询任务列表和详情",
+  "tags": "任务管理",
+  "productshort": "DDS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3.1/{project_id}/jobs": {
+      "get": {
+        "x-constraint": [
+          "目前只支持查询DDS社区版任务中心一个月内的异步任务。"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-open-region-cloud": "hc,hk",
+        "tags": [
+          "任务管理"
+        ],
+        "summary": "查询任务列表和详情",
+        "description": "根据指定条件查询任务中心中的任务列表和详情。",
+        "operationId": "ListTasks",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一region下的project ID。"
+          },
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。请参考“认证鉴权”。",
+            "type": "string"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "description": "查询开始时间,格式为“yyyy-mm-ddThh:mm:ssZ”。\n其中,T指某个时间的开始,Z指时区偏移量",
+            "type": "string"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "description": "查询结束时间,格式为“yyyy-mm-ddThh:mm:ssZ”,且大于查询开始时间,时间跨度不超过30天。\n其中,T指某个时间的开始,Z指时区偏移量。",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "任务状态: 取值为“Running”为执行中; 取值为“Completed”为完成; 取值为“Failed” 为失败。",
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "description": "任务ID。",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "任务名称。对应取值如下:\n- \"CreateMongoDB\":创建集群实例\n- \"CreateMongoDBReplica\":创建副本集实例\n- \"CreateMongoDBReplicaSingle\":创建单节点实例\n- \"EnlargeMongoDBVolume\":磁盘扩容\n- \"ResizeMongoDBInstance\":社区版实例规格变更\n- \"ResizeDfvMongoDBInstance\":社区增强版实例规格变更\n- \"EnlargeMongoDBGroup\":添加节点\n- \"ReplicaSetEnlargeNode\":副本集添加备节点\n- \"AddReadonlyNode\":添加只读节点\n- \"RestartInstance\":重启集群实例\n- \"RestartGroup\":重启集群节点组\n- \"RestartNode\":重启集群节点\n- \"RestartReplicaSetInstance\":重启副本集实例\n- \"RestartReplicaSingleInstance\":重启单节点实例\n- \"SwitchPrimary\":主备切换\n- \"ModifyIp\":修改内网地址\n- \"ModifySecurityGroup\":修改安全组\n- \"ModifyPort\":修改数据库端口\n- \"BindPublicIP\":绑定弹性IP\n- \"UnbindPublicIP\":解绑弹性IP\n- \"SwitchInstanceSSL\":切换SSL\n- \"AzMigrate\":迁移可用区\n- \"CreateIp\":显示shard/config IP\n- \"ModifyOpLogSize\":修改oplog大小\n- \"RestoreMongoDB\":集群恢复到新实例\n- \"RestoreMongoDB_Replica\":副本集恢复到新实例\n- \"RestoreMongoDB_Replica_Single\":单节点恢复到新实例\n- \"RestoreMongoDB_Replica_PITR\":副本集恢复到指定时间点\n- \"MongodbSnapshotBackup\":创建物理备份\n- \"MongodbSnapshotEBackup\":创建快照备份\n- \"MongodbRestoreData2CurrentInstance\":备份恢复到当前实例\n- \"MongodbRestoreData2NewInstance\":备份恢复到新实例\n- \"MongodbPitr2CurrentInstance\":备份恢复到当前实例指定时间点\n- \"MongodbPitr2NewInstance\":备份恢复到新实例指定时间点\n- \"MongodbRecycleBackup\":备份回收\n- \"MongodbRestoreTable\":库表级时间点恢复\n- \"UpgradeDatabaseVersion\":升级数据库补丁"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询记录数。默认为100,不能为负数,最小值为1,最大值为100。",
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobListResponse"
+            },
+            "examples": {
+              "application/json": "{\n“total_count”:1,\n  \"jobs\": [\n    {\n      \"id\": \"2f406db7-bdc4-402f-9dc4-2c1b094a5f93\",\n      \"name\": \"RestartReplicaSetInstance\",\n      \"status\": \"Completed\",\n      \"created_at\": \"2022-09-05T06:24:14+0000\",\n      \"ended_at\": \"2022-09-05T06:25:43+0000\",\n      \"progress\": \"\",\n      \"instance_id\": \"1f311e6a299345d7bbc878874844e233in02\",\n      \"instance_name\": \"dds-6be2-fwyrestore\",\n      \"fail_reason\": \"\"\n    }\n  ]\n}"
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://dds.ap-southeast-1.myhuaweicloud.com/v3.1/0549b4a43100d4f32f51c01c2fe4acdb/jobs?start_time=2022-08-06T14:13:12+0000&end_time=2022-09-05T14:13:12+0000&name=RestartReplicaSetInstance"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "JobListResponse": {
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobInfo"
+          },
+          "description": "任务列表。"
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "任务列表总数。"
+        }
+      },
+      "required": [
+        "jobs",
+        "total_count"
+      ],
+      "type": "object"
+    },
+    "JobInfo": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "任务名称。"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "实例ID。"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "实例名称。"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态。取值为“Running”为执行中; 取值为“Completed”为完成; 取值为“Failed” 为失败。"
+        },
+        "progress": {
+          "type": "string",
+          "description": "任务执行进度。\n说明\n执行中状态才返回执行进度,例如“60%”,表示任务执行进度为60%,否则返回“”。 任务执行进度。"
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "任务执行失败时的错误信息。"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "创建时间,格式为\"yyyy-MM-ddTHH:mm:ssZ\"。其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。"
+        },
+        "ended_at": {
+          "type": "string",
+          "description": "结束时间,格式为\"yyyy-MM-ddTHH:mm:ssZ\"。其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "instance_id",
+        "instance_name",
+        "status",
+        "progress",
+        "fail_reason",
+        "created_at",
+        "ended_at"
+      ],
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dds.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,230 @@
+{
+  "name": "ValidateRomaApp",
+  "summary": "校验应用是否存在",
+  "tags": "APPLICATION_MANAGEMENT",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/validate-apps": {
+      "get": {
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "tags": [
+          "APPLICATION_MANAGEMENT"
+        ],
+        "operationId": "ValidateRomaApp",
+        "summary": "校验应用是否存在",
+        "description": "校验指定条件的应用是否存在",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 100000
+          },
+          {
+            "type": "string",
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "description": "实例ID",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "type": "string",
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "description": "项目ID",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "type": "string",
+            "name": "name",
+            "in": "query",
+            "description": "应用名称,不支持模糊匹配",
+            "minLength": 0,
+            "maxLength": 256
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query",
+            "description": "应用ID",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "type": "string",
+            "name": "key",
+            "in": "query",
+            "description": "应用key",
+            "minLength": 0,
+            "maxLength": 64
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ValidateAppInfo"
+            },
+            "examples": {
+              "application/json": {
+                "name": "MyApp",
+                "id": "b2e6b145-4f3f-4a80-aa45-f4b8029f95a3",
+                "remark": ""
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "ROMA.00000101",
+                "error_msg": "error summary",
+                "error_details": "some error details here",
+                "request_id": "13760c1fe8655e61209b75665e9bef43"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "ROMA.00000101",
+                "error_msg": "error summary",
+                "error_details": "some error details here",
+                "request_id": "13760c1fe8655e61209b75665e9bef43"
+              }
+            }
+          }
+        },
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#roma-address#",
+            "description": "",
+            "method": "GET",
+            "path": "/v2/{project_id}/instances/{instance_id}/validate-apps",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "instance_id",
+              "origin": "REQUEST",
+              "value": "instance_id"
+            },
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "project_id",
+              "origin": "REQUEST",
+              "value": "project_id"
+            }
+          ],
+          "type": "HTTP"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "AppRemark": {
+      "type": "string",
+      "description": "应用描述",
+      "minLength": 0,
+      "maxLength": 255,
+      "example": "应用示例描述备注"
+    },
+    "ErrorResp": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误消息"
+        },
+        "error_details": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "具体错误消息"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "请求处理ID"
+        }
+      },
+      "example": {
+        "error_code": "ROMA.00000101",
+        "error_msg": "error summary",
+        "error_details": "some error details here",
+        "request_id": "13760c1fe8655e61209b75665e9bef43"
+      }
+    },
+    "ValidateAppInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/AppId"
+        },
+        "name": {
+          "$ref": "#/definitions/AppName"
+        },
+        "remark": {
+          "$ref": "#/definitions/AppRemark"
+        }
+      }
+    },
+    "AppName": {
+      "type": "string",
+      "description": "应用名称\n- 字符集:支持中文、英文字母、数字、中划线、下划线、点、空格和中英文圆括号\n- 约束:实例下唯一",
+      "minLength": 1,
+      "maxLength": 256,
+      "example": "AppName"
+    },
+    "AppId": {
+      "type": "string",
+      "description": "应用ID",
+      "example": "b2e6b145-4f3f-4a80-aa45-f4b8029f95a3"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

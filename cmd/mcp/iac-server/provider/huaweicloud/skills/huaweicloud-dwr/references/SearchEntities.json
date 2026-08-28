@@ -1,0 +1,264 @@
+{
+  "name": "SearchEntities",
+  "summary": "向量查询",
+  "tags": "向量entity接口",
+  "productshort": "DWR",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/entities/search": {
+      "post": {
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "/v1/entities/search",
+        "x-request-examples-text-1": {
+          "store_name": "test-storename",
+          "collection_name": "test-collection",
+          "output_fields": [
+            "vector",
+            "scalar"
+          ],
+          "filter": "pk > 0",
+          "vector": [
+            0.3123,
+            0.43,
+            0.213
+          ],
+          "vector_field": "vector",
+          "top_k": 2,
+          "offset": 0,
+          "params": {
+            "search_list": 200
+          }
+        },
+        "x-request-examples-1": {
+          "store_name": "test-storename",
+          "collection_name": "test-collection",
+          "output_fields": [
+            "vector",
+            "scalar"
+          ],
+          "filter": "pk > 0",
+          "vector": [
+            0.3123,
+            0.43,
+            0.213
+          ],
+          "vector_field": "vector",
+          "top_k": 2,
+          "offset": 0,
+          "params": {
+            "search_list": 200
+          }
+        },
+        "tags": [
+          "向量entity接口"
+        ],
+        "summary": "向量查询",
+        "description": "基于相似度匹配的查询方式,用于查找与给定查询向量相似的向量。返回指定的 Top K 个最相似的 Entity。",
+        "operationId": "SearchEntities",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "search_entites_body",
+            "in": "body",
+            "required": true,
+            "description": "数据查询信息",
+            "schema": {
+              "$ref": "#/definitions/search_entities_body"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "schema": {
+              "$ref": "#/definitions/search_entities_respose"
+            },
+            "examples": {
+              "application/json": {
+                "code": "LMS.00000000",
+                "data": {
+                  "entities": [
+                    {
+                      "distance": 0.049599655,
+                      "id": 1,
+                      "scalar": "文档1",
+                      "vector": [
+                        0.324,
+                        0.21,
+                        0.2456
+                      ]
+                    },
+                    {
+                      "distance": 0.049599655,
+                      "id": 3,
+                      "scalar": "文档3",
+                      "vector": [
+                        0.324,
+                        0.21,
+                        0.2456
+                      ]
+                    }
+                  ]
+                },
+                "message": "search entities success"
+              }
+            }
+          },
+          "400": {
+            "description": "搜索失败",
+            "schema": {
+              "$ref": "#/definitions/error_rsp"
+            },
+            "examples": {
+              "application/json": {
+                "code": "LMS.00001001",
+                "message": "ErrInvalidParameter : the input parameter is incorrect."
+              }
+            }
+          }
+        },
+        "x-order": 3
+      }
+    }
+  },
+  "definitions": {
+    "search_entities_body": {
+      "type": "object",
+      "required": [
+        "store_name",
+        "collection_name",
+        "vector",
+        "vector_field"
+      ],
+      "properties": {
+        "store_name": {
+          "type": "string",
+          "description": "**参数解释:**\n知识仓实例名称,region内唯一。\n**约束限制:**\n长度范围为3到63个字符,支持小写字母、数字、中划线(-),第一个字符只能够是小写字母,中划线(-)不得出现在字符串末尾。\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及"
+        },
+        "collection_name": {
+          "type": "string",
+          "description": "**参数解释:**\ncollection名称,知识仓内唯一。\n**约束限制:**\n长度范围为1到255个字符,支持字母、数字、中划线(-)和下划线( _ ),大小写敏感。第一个字符只能够是下划线( _ )和字母,中划线(-)不得出现在字符串末尾。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "output_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释:**\nfield名称列表,配置需与搜索结果一起返回的字段。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n[ ],不返回任何额外的字段数据。"
+        },
+        "top_k": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释:**\n返回的entity个数限制。可以将此参数与offset结合使用以启用分页。\n**约束限制:**\n与offset取值的总和应小于16384。\n**取值范围:**\n`[1, 16384]`\n**默认取值:**\n10"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释:**\n在搜索结果中跳过的记录数。可以将此参数与 top_k 参数结合使用以启用分页。\n**约束限制:**\n与top_k取值的总和应小于16384。\n**取值范围:**\n大于等于0\n**默认取值:**\n0"
+        },
+        "filter": {
+          "type": "string",
+          "description": "**参数解释:**\n用于过滤匹配entity的标量过滤条件。可以将此设置为空字符串以跳过标量过滤。\n**约束限制:**\n要构建标量过滤条件,请参阅filter表达式规则。\n**取值范围:**\n不涉及。\n**默认取值:**\n空字符串,不进行标量过滤。"
+        },
+        "vector": {
+          "type": "array",
+          "description": "**参数解释:**\n要搜索的向量字段数据。\n**约束限制:**\n与collection field schema中定义的对应向量字段的类型和维度一致。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+          "items": {
+            "type": "number",
+            "format": "float",
+            "description": "整数类型"
+          }
+        },
+        "vector_field": {
+          "type": "string",
+          "description": "**参数解释:**\n要搜索的向量字段名称。\n**约束限制:**\n必须是collection field schema中存在的向量字段名称。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          },
+          "description": "**参数解释:**\n额外的搜索参数配置。\n可以配置的参数:\n- ef: 每个查询的邻居候选集大小。候选集越大,搜索的精度越高,但是搜索时间也会随之增加。(仅对HNSW索引类型生效)\n- search_list: 候选列表的大小,越大召回率越高,但性能会下降。(仅对HANNS索引类型生效)\n- radius:向量相似度范围查询的外圈半径,若指定则进行相似度范围查询。\n- range_filter: 向量相似度范围查询的内圈半径,向量相似度查询将过滤与查询相似度或距离在radius和range_filter参数范围内的所有向量。仅当指定radius时,该参数才生效,进行相似度范围查询时,建议根据metric_type指定该参数。\n对于距离metric,如L2,范围搜索将搜索距离在[range_filter, radius)范围内的向量,如果range_filter未指定则搜索距离在[0, radius)范围内的向量。\n对于相似度metric,如IP和COSINE,范围搜索将搜索相似度在(radius, range_filter]范围内的向量,如果range_filter未指定则分别搜索相似度在(radius, +∞]和(radius, 1.0]范围内的向量。\n**约束限制:**\n不涉及。\n**取值范围:**\n  ef: [top_k + offset, int32_max]\n  search_list: [top_k + offset, int32_max]\n**默认取值:**\n ef: top_k + offset\n search_list: topk_k + offset"
+        }
+      }
+    },
+    "search_entities_respose": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "**参数解释:**\n返回码。参见错误码章节。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "message": {
+          "type": "string",
+          "description": "**参数解释:**\n描述信息\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+        },
+        "data": {
+          "description": "**参数解释:** \n响应数据。\n**约束限制:** \n不涉及。",
+          "$ref": "#/definitions/entities_data"
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      },
+      "description": "**参数解释:**\ncollection中的一个基本结构化数据实体,包含向量和标量等字段数据。\n**约束限制:**\n必须满足目标collection field schema。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。"
+    },
+    "entities_data": {
+      "type": "object",
+      "description": "**参数解释:**\n查询返回的entity列表,其中包括相似度得分distance。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+      "required": [
+        "entities"
+      ],
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entity"
+          },
+          "description": "**参数解释:**\n查询到的信息。\n**约束限制:**\n不涉及。"
+        }
+      }
+    },
+    "error_rsp": {
+      "description": "失败时返回错误码",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "description": "**参数解释:**\n返回码。参见错误码章节。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "message": {
+          "description": "**参数解释:**\n描述信息。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dwr-lms.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

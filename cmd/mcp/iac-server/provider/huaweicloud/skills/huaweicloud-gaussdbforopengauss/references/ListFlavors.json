@@ -1,0 +1,234 @@
+{
+  "name": "ListFlavors",
+  "summary": "查询数据库规格",
+  "tags": "引擎版本和规格",
+  "productshort": "GaussDBforopenGauss",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/flavors": {
+      "get": {
+        "tags": [
+          "引擎版本和规格"
+        ],
+        "operationId": "ListFlavors",
+        "summary": "查询数据库规格",
+        "description": "查询数据库的规格信息。",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数解释**:\n用户Token。\n通过调用IAM服务[获取用户token](https://support.huaweicloud.com/intl/zh-cn/api-iam/iam_30_0001.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "description": "数据库版本号。",
+            "required": false,
+            "type": "string",
+            "x-example": "1.4"
+          },
+          {
+            "name": "spec_code",
+            "in": "query",
+            "description": "规格编码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ha_mode",
+            "in": "query",
+            "required": false,
+            "description": "实例类型\n\n集中式centralization_standard\n\n分布式enterprise",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "description": "查询记录数。默认为100,不能为负数,最小值为1,最大值为100。",
+            "x-example": 10,
+            "required": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。",
+            "x-example": 0,
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "schema": {
+              "$ref": "#/definitions/FlavorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "total": 10,
+                "flavors": [
+                  {
+                    "vcpus": "1",
+                    "ram": 2,
+                    "spec_code": "gaussdb.opengauss.ee.dn.m6.4xlarge.8.in",
+                    "name": "GaussDB(for openGauss)",
+                    "version": "1.0",
+                    "availability_zone": [
+                      "az1",
+                      "az2"
+                    ],
+                    "az_status": {
+                      "az1": "normal",
+                      "az2": "normal"
+                    },
+                    "group_type": "normal"
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "系统内部错误。",
+            "schema": {
+              "$ref": "#/definitions/FlavorErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/flavors"
+      }
+    }
+  },
+  "definitions": {
+    "Flavor": {
+      "description": "规格信息。",
+      "required": [
+        "vcpus",
+        "ram",
+        "spec_code",
+        "version",
+        "name",
+        "availability_zone",
+        "az_status",
+        "group_type"
+      ],
+      "properties": {
+        "vcpus": {
+          "type": "string",
+          "description": "CPU个数。",
+          "example": "2"
+        },
+        "ram": {
+          "type": "string",
+          "description": "内存大小,单位为GB。",
+          "example": "4"
+        },
+        "spec_code": {
+          "type": "string",
+          "description": "资源规格编码。例如:gaussdb.opengauss.ee.dn.m6.4xlarge.8.in。",
+          "example": "gaussdb.opengauss.ee.dn.m6.4xlarge.8.in"
+        },
+        "availability_zone": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "可用az"
+        },
+        "az_status": {
+          "$ref": "#/definitions/AzStatus"
+        },
+        "version": {
+          "type": "string",
+          "description": "该规格支持的数据库版本号",
+          "example": "1.0"
+        },
+        "name": {
+          "type": "string",
+          "description": "数组库引擎名称",
+          "example": "GaussDB(for openGauss)"
+        },
+        "group_type": {
+          "type": "string",
+          "description": "性能规格,包含以下状态:\n- normal:通用增强型。\n- normal2:通用增强II型。\n- armFlavors:鲲鹏通用增强型。\n- dedicicatenormal :x86独享型。\n- armlocalssd:鲲鹏通用型。\n- normallocalssd:x86通用型。\n- general:通用型。\n- dedicated:独享型,仅云盘SSD支持。\n- rapid:独享型,仅极速型SSD支持。"
+        }
+      }
+    },
+    "AzStatus": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "其中key是可用区编号,value是规格所在az的状态,包含以下状态:\n- normal,在售。\n- unsupported,暂不支持该规格。\n- sellout,售罄。",
+      "example": {
+        "az1": "normal"
+      }
+    },
+    "FlavorErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.280236"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "非法的数据库版本。"
+        }
+      }
+    },
+    "FlavorResponse": {
+      "required": [
+        "flavors",
+        "total"
+      ],
+      "properties": {
+        "flavors": {
+          "description": "实例规格信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Flavor"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "查询的记录总数"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

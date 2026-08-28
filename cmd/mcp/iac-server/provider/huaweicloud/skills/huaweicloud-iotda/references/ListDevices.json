@@ -1,0 +1,391 @@
+{
+  "name": "ListDevices",
+  "summary": "查询设备列表",
+  "tags": "设备管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/devices": {
+      "get": {
+        "tags": [
+          "DeviceManagement"
+        ],
+        "summary": "查询设备列表",
+        "description": "应用服务器可调用此接口查询物联网平台中的设备信息列表。",
+        "operationId": "ListDevices",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,一般华为云租户无需携带该参数,仅在物理多租场景下从管理面访问API时需要携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "description": "**参数说明**:设备关联的产品ID,用于唯一标识一个产品模型,创建产品后获得。方法请参见 [创建产品](https://support.huaweicloud.com/api-iothub/iot_06_v5_0050.html)。\n**取值范围**:长度不超过36,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+            "required": false,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+          },
+          {
+            "name": "gateway_id",
+            "in": "query",
+            "description": "**参数说明**:网关ID,用于标识设备所属的父设备,即父设备的设备ID。携带该参数时,表示查询该设备下的子设备,默认查询下一级子设备,如果需要查询该设备下所有各级子设备,请同时携带is_cascade_query参数为true;不携带该参数时,表示查询用户下所有设备。\n**取值范围**:长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+            "required": false,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          },
+          {
+            "name": "is_cascade_query",
+            "in": "query",
+            "description": "**参数说明**:是否级联查询,该参数仅在同时携带gateway_id时生效。默认值为false。\n**取值范围**:\n- true:表示查询设备ID等于gateway_id参数的设备下的所有各级子设备。\n- false:表示查询设备ID等于gateway_id参数的设备下的一级子设备。",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "description": "**参数说明**:设备标识码,通常使用IMEI、MAC地址或Serial No作为node_id。\n**取值范围**:长度不超过64,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+            "required": false,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9:_-]{1,64}$"
+          },
+          {
+            "name": "device_name",
+            "in": "query",
+            "description": "**参数说明**:设备名称。\n**取值范围**:长度不超过256,只允许中文、字母、数字、以及_?'#().,&%@!-等字符的组合。",
+            "required": false,
+            "type": "string",
+            "x-annotations": [
+              "@Pattern(regexp = \"^[\\\\一-\\\\龥a-zA-Z0-9_?'#().,&%@!-]{1,256}$\")"
+            ]
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "**参数说明**:分页查询时每页显示的记录数。\n**取值范围**:1-50的整数,默认值为10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 50,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "**参数说明**:上一次分页查询结果中最后一条记录的ID,在上一次分页查询时由物联网平台返回获得。分页查询时物联网平台是按marker也就是记录ID降序查询的,越新的数据记录ID也会越大。若填写marker,则本次只查询记录ID小于marker的数据记录。若不填写,则从记录ID最大也就是最新的一条数据开始查询。如果需要依次查询所有数据,则每次查询时必须填写上一次查询响应中的marker值。\n**取值范围**:长度为24的十六进制字符串,默认值为ffffffffffffffffffffffff。",
+            "required": false,
+            "type": "string",
+            "default": "ffffffffffffffffffffffff",
+            "pattern": "^[a-fA-F0-9]{24}$"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "**参数说明**:表示从marker后偏移offset条记录开始查询。默认为0,取值范围为0-500的整数。当offset为0时,表示从marker后第一条记录开始输出。限制offset最大值是出于API性能考虑,您可以搭配marker使用该参数实现翻页,例如每页50条记录,1-11页内都可以直接使用offset跳转到指定页,但到11页后,由于offset限制为500,您需要使用第11页返回的marker作为下次查询的marker,以实现翻页到12-22页。\n**取值范围**:0-500的整数,默认为0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 500,
+            "minimum": 0,
+            "format": "int32"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "**参数说明**:查询设备注册时间在startTime之后的记录,格式:yyyyMMdd'T'HHmmss'Z',如20151212T121212Z。",
+            "required": false,
+            "type": "string",
+            "pattern": "^[0-9]{8}[T]{1}[0-9]{6}[Z]{1}$"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "**参数说明**:查询设备注册时间在endTime之前的记录,格式:yyyyMMdd'T'HHmmss'Z',如20151212T121212Z。",
+            "required": false,
+            "type": "string",
+            "pattern": "^[0-9]{8}[T]{1}[0-9]{6}[Z]{1}$"
+          },
+          {
+            "name": "app_id",
+            "in": "query",
+            "description": "**参数说明**:资源空间ID。此参数为非必选参数,存在多资源空间的用户需要使用该接口时,可以携带该参数查询指定资源空间下的设备列表,不携带该参数则会查询该用户下所有设备列表。\n**取值范围**:长度不超过36,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+            "required": false,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "devices": [
+                  {
+                    "app_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+                    "app_name": "testAPP01",
+                    "device_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+                    "node_id": "ABC123456789",
+                    "gateway_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+                    "device_name": "dianadevice",
+                    "node_type": "ENDPOINT",
+                    "description": "watermeter device",
+                    "fw_version": "1.1.0",
+                    "sw_version": "1.1.0",
+                    "product_id": "b640f4c203b7910fc3cbd446ed437cbd",
+                    "product_name": "Thermometer",
+                    "status": "INACTIVE",
+                    "tags": [
+                      {
+                        "tag_key": "testTagName",
+                        "tag_value": "testTagValue"
+                      }
+                    ]
+                  }
+                ],
+                "page": {
+                  "count": 100,
+                  "marker": "5c8f3d2d3df1f10d803adbda"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/QueryDevices"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.000009",
+              "IOTDA.000010",
+              "IOTDA.000011",
+              "IOTDA.000012",
+              "IOTDA.000013",
+              "IOTDA.000014"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.001000",
+              "IOTDA.001002",
+              "IOTDA.000022"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "iot_06_v5_0048",
+        "x-apig-name": "IoTDA_API",
+        "x-externalAPI": true,
+        "x-interfaceFrequency": "HIGH",
+        "x-iftype": "OpenAPI_new",
+        "x-returnType": "ResponseEntity<QueryDevices>",
+        "x-request-examples-url-1": "GET https://{endpoint}/v5/iot/{project_id}/devices"
+      }
+    }
+  },
+  "definitions": {
+    "QueryDeviceSimplify": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "description": "资源空间ID。",
+          "maxLength": 36,
+          "x-isSensitive": true
+        },
+        "app_name": {
+          "type": "string",
+          "example": "testAPP01",
+          "description": "资源空间名称。",
+          "x-isSensitive": true
+        },
+        "device_id": {
+          "type": "string",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "description": "设备ID,用于唯一标识一个设备。在注册设备时直接指定,或者由物联网平台分配获得。由物联网平台分配时,生成规则为\"product_id\" + \"_\" + \"node_id\"拼接而成。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "node_id": {
+          "type": "string",
+          "example": "ABC123456789",
+          "description": "设备标识码,通常使用IMEI、MAC地址或Serial No作为node_id。",
+          "maxLength": 64,
+          "x-isSensitive": true
+        },
+        "gateway_id": {
+          "type": "string",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "description": "网关ID,用于标识设备所属的父设备,即父设备的设备ID。当设备是直连设备时,gateway_id与设备的device_id一致。当设备是非直连设备时,gateway_id为设备所关联的父设备的device_id。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "device_name": {
+          "type": "string",
+          "example": "dianadevice",
+          "description": "设备名称。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "node_type": {
+          "type": "string",
+          "example": "ENDPOINT",
+          "description": "设备节点类型。\n- ENDPOINT:非直连设备。\n- GATEWAY:直连设备或网关。\n- UNKNOWN:未知。",
+          "pattern": "(ENDPOINT|GATEWAY|UNKNOWN)",
+          "x-isSensitive": true
+        },
+        "description": {
+          "type": "string",
+          "example": "watermeter device",
+          "description": "设备的描述信息。",
+          "maxLength": 2048,
+          "x-isSensitive": true
+        },
+        "fw_version": {
+          "type": "string",
+          "example": "1.1.0",
+          "description": "设备的固件版本。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "sw_version": {
+          "type": "string",
+          "example": "1.1.0",
+          "description": "设备的软件版本。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "device_sdk_version": {
+          "type": "string",
+          "example": "Tiny SDK_1.0.0",
+          "description": "设备的sdk信息。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "product_id": {
+          "type": "string",
+          "example": "b640f4c203b7910fc3cbd446ed437cbd",
+          "description": "设备关联的产品ID,用于唯一标识一个产品模型。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$",
+          "x-isSensitive": true
+        },
+        "product_name": {
+          "type": "string",
+          "example": "Thermometer",
+          "description": "设备关联的产品名称。",
+          "pattern": "^[一-龥a-zA-Z0-9_?'#().,&%@!-]{1,64}$",
+          "x-isSensitive": true
+        },
+        "status": {
+          "type": "string",
+          "example": "INACTIVE",
+          "description": "设备的状态。\n- ONLINE:设备在线。\n- OFFLINE:设备离线。\n- ABNORMAL:设备异常。\n- INACTIVE:设备未激活。\n- FROZEN:设备冻结。",
+          "pattern": "(ONLINE|OFFLINE|ABNORMAL|INACTIVE|FROZEN)",
+          "x-isSensitive": true
+        },
+        "tags": {
+          "type": "array",
+          "description": "设备的标签列表。",
+          "items": {
+            "$ref": "#/definitions/TagV5DTO"
+          },
+          "x-isSensitive": true
+        }
+      },
+      "title": "设备信息结构体",
+      "description": "设备信息结构体,批量查询返回。"
+    },
+    "TagV5DTO": {
+      "type": "object",
+      "required": [
+        "tag_key"
+      ],
+      "properties": {
+        "tag_key": {
+          "type": "string",
+          "example": "testTagName",
+          "description": "**参数说明**:标签键,在同一资源下标签键唯一。绑定资源时,如果设置的键已存在,则将覆盖之前的标签值。如果设置的键值不存在,则新增标签。\n**取值范围**:长度不超过64,只允许中文、字母、数字、以及_.-等字符的组合。",
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_.-]{1,64}$"
+        },
+        "tag_value": {
+          "type": "string",
+          "example": "testTagValue",
+          "description": "**参数说明**:标签值。\n**取值范围**:长度不超过128,只允许中文、字母、数字、以及_.-等字符的组合。",
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_.-]{1,128}$"
+        }
+      },
+      "title": "标签结构体",
+      "description": "标签结构体。"
+    },
+    "Page": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "example": 100,
+          "description": "满足查询条件的记录总数。"
+        },
+        "marker": {
+          "type": "string",
+          "example": "5c8f3d2d3df1f10d803adbda",
+          "description": "本次分页查询结果中最后一条记录的ID,可在下一次分页查询时使用。"
+        }
+      },
+      "title": "查询批量响应的分页结构体",
+      "description": "查询批量分页结构体,定义了分页页码、每页记录数、记录总数、该页记录的最大Id。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern"
+    },
+    "QueryDevices": {
+      "type": "object",
+      "properties": {
+        "devices": {
+          "type": "array",
+          "description": "设备信息列表。",
+          "items": {
+            "$ref": "#/definitions/QueryDeviceSimplify"
+          },
+          "x-isSensitive": true
+        },
+        "page": {
+          "description": "查询结果的分页信息。",
+          "$ref": "#/definitions/Page"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

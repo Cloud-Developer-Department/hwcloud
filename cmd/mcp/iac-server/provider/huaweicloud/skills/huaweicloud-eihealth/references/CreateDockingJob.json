@@ -1,0 +1,488 @@
+{
+  "name": "CreateDockingJob",
+  "summary": "创建分子对接作业",
+  "tags": "分子对接作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/docking": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-exclude": true,
+        "x-interface-name": "IDockingJobController",
+        "tags": [
+          "分子对接作业管理"
+        ],
+        "summary": "创建分子对接作业",
+        "description": "创建分子对接作业",
+        "operationId": "CreateDockingJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreateDockingJobRequestBody",
+            "description": "CreateDockingJobRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateDockJobReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "schema": {
+              "$ref": "#/definitions/DrugJobIdRsp"
+            },
+            "x-response-examples-1": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1"
+              }
+            },
+            "x-response-examples-description-1": "创建分子对接作业成功",
+            "x-response-examples-2": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                "limit_concurrency": 50
+              }
+            },
+            "x-response-examples-description-2": "创建分子对接作业成功,当前运行作业数已达配额限制,此作业会等待"
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/docking",
+        "x-request-examples-description-1": "创建分子对接作业,作业名称为demo-job, 受体文件为project:/dir/file,口袋中心位置的值为[0,0,0],口袋尺寸大小为[10,10,10],去除受体的水分子",
+        "x-request-examples-1": {
+          "basic_info": {
+            "name": "demo-job",
+            "labels": [
+              "labelA"
+            ]
+          },
+          "receptors": [
+            {
+              "receptor": {
+                "source": "PRIVATE",
+                "url": "project:/dir/file"
+              },
+              "bounding_box": {
+                "center": [
+                  0,
+                  0,
+                  0
+                ],
+                "size": [
+                  10,
+                  10,
+                  10
+                ]
+              },
+              "remove_water": true,
+              "remove_ion": false,
+              "remove_ligand": false
+            }
+          ],
+          "ligands": [
+            {
+              "ligand": {
+                "source": "PRIVATE",
+                "url": "project:/dir/file"
+              },
+              "count": 100
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BoundingBoxDto": {
+      "required": [
+        "center",
+        "size"
+      ],
+      "type": "object",
+      "description": "结合口袋,包含口袋中心位置和尺寸大小",
+      "properties": {
+        "center": {
+          "type": "array",
+          "description": "口袋中心坐标; x, y, z轴的坐标",
+          "minItems": 3,
+          "maxItems": 3,
+          "example": [
+            1.3,
+            23.4,
+            -14.5
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": -9999999,
+            "maximum": 99999999
+          }
+        },
+        "size": {
+          "type": "array",
+          "description": "口袋尺寸大小;  x, y, z轴的大小",
+          "minItems": 3,
+          "maxItems": 3,
+          "example": [
+            10.0,
+            10.0,
+            10.0
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": 2,
+            "maximum": 500
+          }
+        },
+        "padding": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "maximum": 20,
+          "description": "填充"
+        }
+      }
+    },
+    "DockingReceptorDto": {
+      "required": [
+        "receptor",
+        "bounding_box"
+      ],
+      "type": "object",
+      "description": "结合位点",
+      "properties": {
+        "receptor": {
+          "$ref": "#/definitions/ReceptorDrugFile",
+          "description": "受体文件"
+        },
+        "bounding_box": {
+          "$ref": "#/definitions/BoundingBoxDto"
+        },
+        "remove_ion": {
+          "type": "boolean",
+          "description": "去除受体中的离子",
+          "default": true
+        },
+        "remove_water": {
+          "type": "boolean",
+          "description": "去除受体中的水分子",
+          "default": true
+        },
+        "remove_ligand": {
+          "type": "boolean",
+          "description": "去除受体中的配体分子",
+          "default": true
+        },
+        "add_hydrogen": {
+          "type": "boolean",
+          "default": false,
+          "description": "增加氢原子"
+        },
+        "docking_type": {
+          "type": "string",
+          "description": "**参数解释**:\n对接类型。\n**约束限制**:\n不支持\n**取值范围**:\n- BLIND_DOCKING:全局对接\n- POCKET_DOCKING:口袋对接\n**默认取值**:\nPOCKET_DOCKING",
+          "minLength": 0,
+          "maxLength": 15,
+          "pattern": "^(BLIND_DOCKING|POCKET_DOCKING)$",
+          "x-pattern-message": "Docking_type only supports BLIND_DOCKING and POCKET_DOCKING.",
+          "default": "POCKET_DOCKING",
+          "example": "POCKET_DOCKING"
+        },
+        "reference_file": {
+          "$ref": "#/definitions/ReferenceLigandFile",
+          "description": "**参数解释**:\n模板配体文件,仅引擎为SIMILAR_DOCKING时提供。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        }
+      }
+    },
+    "DrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ],
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "CreateDrugJobBasicInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "description": "创建药物作业基本信息",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "minLength": 5,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9A-Z]+[a-z0-9A-Z-_\\s]+$",
+          "x-pattern-message": "The name format does not match.",
+          "description": "作业的名称,取值范围:[5,64],允许大小写字母、数字、空格、下划线(_)和中划线(-),只能以数字或字母开头"
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "标签,取值范围[0,5],单个标签最大长度32字符,支持中文、字母、数字、空格、下划线和中划线,且不能以空格开头或者结尾。",
+          "items": {
+            "type": "string",
+            "pattern": "^[\\一-\\龥A-Za-z0-9-_]+(\\s+[\\一-\\龥A-z0-9-_]+)*$",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-pattern-message": "The label name format does not match"
+          },
+          "minItems": 0,
+          "maxItems": 5
+        },
+        "upstream_job_info": {
+          "type": "string",
+          "maxLength": 10240,
+          "minLength": 1,
+          "example": "{\"job_id\":\"demo-job-id\",\"job_name\":\"demo-job-name\"}",
+          "description": "**参数解释**:\n上游作业信息。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1-10240]个字符。\n**默认取值**:\n不涉及"
+        }
+      }
+    },
+    "ReceptorDrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ]
+        }
+      }
+    },
+    "DrugJobIdRsp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "limit_concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "example": 50,
+          "description": "限制的并发量"
+        }
+      }
+    },
+    "CreateDockJobReq": {
+      "type": "object",
+      "required": [
+        "basic_info",
+        "receptors",
+        "ligands"
+      ],
+      "properties": {
+        "basic_info": {
+          "$ref": "#/definitions/CreateDrugJobBasicInfo"
+        },
+        "receptors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DockingReceptorDto"
+          },
+          "minItems": 1,
+          "maxItems": 20,
+          "description": "受体文件列表"
+        },
+        "ligands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LigandDto"
+          },
+          "minItems": 1,
+          "maxItems": 1,
+          "description": "配体文件列表,当前仅支持1个"
+        },
+        "engine": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 15,
+          "pattern": "^(DSDP|AUTODOCK_VINA)$",
+          "default": "AUTODOCK_VINA",
+          "description": "引擎,默认为AUTODOCK_VINA",
+          "example": "AUTODOCK_VINA"
+        }
+      },
+      "description": "创建分子对接作业请求体"
+    },
+    "ReferenceLigandFile": {
+      "description": "模板配体文件,仅引擎为SIMILAR_DOCKING时提供。",
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "DrugFileSource.RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "**参数解释**:\n文件URL。\n**约束限制**:\n当数据源source为外部网络数据时为https地址,为用户私有数据中心时为空间路径,为公共数据场景时为obs地址。\n**取值范围**:\n文件URL仅支持以.pdb、.sdf、.mol2、.smi、.csv结尾,长度为[1-2000]个字符。\n**默认取值**:\n不涉及",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb|sdf|mol2|smi|csv)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI|CSV)$",
+          "description": "**参数解释**:\n文件格式。\n**约束限制**:\n仅数据源source为RAW时提供。\n**取值范围**:\n- PDB\n- SDF\n- MOL2\n- SMI\n- CSV\n**默认取值**:\n不涉及"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "**参数解释**:\n文件原始数据。\n**约束限制**:\n仅数据源source为RAW时提供。\n**取值范围**:\n长度为[0-10000000]个字符。\n**默认取值**:\n不涉及"
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    },
+    "LigandDto": {
+      "type": "object",
+      "required": [
+        "ligand",
+        "count"
+      ],
+      "description": "配体配置",
+      "properties": {
+        "ligand": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "配体文件"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "计算个数",
+          "minimum": 1,
+          "maximum": 1000000
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

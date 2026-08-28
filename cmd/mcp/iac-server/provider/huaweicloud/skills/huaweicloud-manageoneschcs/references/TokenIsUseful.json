@@ -1,0 +1,276 @@
+{
+  "name": "TokenIsUseful",
+  "summary": "校验指定Token有效性",
+  "tags": "IAM1.0",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v3/auth/tokens": {
+      "get": {
+        "summary": "校验指定Token有效性",
+        "description": "该接口用于校验指定Token的有效性,如果有效则返回Token的详细信息。",
+        "tags": [
+          "IAM1.0"
+        ],
+        "operationId": "TokenIsUseful",
+        "parameters": [
+          {
+            "name": "X-Subject-Token",
+            "in": "header",
+            "description": "待校验的token。该token和X-Auth-Token属于同一租户。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "nocatalog",
+            "in": "query",
+            "description": "token中不显示catalog信息。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "已认证的拥有secu_admin权限的token。",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/TokenResponse"
+            },
+            "description": "请求成功。",
+            "examples": {
+              "application/json": {
+                "token": {
+                  "methods": [
+                    "password"
+                  ],
+                  "expires_at": "2015-11-09T01:42:57.527363Z",
+                  "issued_at": "2015-11-09T00:42:57.527404Z",
+                  "user": {
+                    "domain": {
+                      "id": "default",
+                      "name": "Default"
+                    },
+                    "id": "ee4dfb6e5540447cb3741905149d9b6e",
+                    "name": "admin"
+                  },
+                  "domain": {
+                    "name": "Default",
+                    "id": "default"
+                  },
+                  "roles": [
+                    {
+                      "name": "role1",
+                      "id": "roleid1"
+                    },
+                    {
+                      "name": "role2",
+                      "id": "roleid2"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "token is not found or expired.",
+                  "code": 401,
+                  "title": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "鉴权失败。"
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/RouteNotFoundError"
+            },
+            "examples": {
+              "application/json": {
+                "error_msg": "404 Route Not Found"
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "Internal Exception",
+                  "code": 500,
+                  "title": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/auth/tokens",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": ""
+      }
+    }
+  },
+  "definitions": {
+    "RoleInfo": {
+      "type": "object",
+      "required": [
+        "name",
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "角色ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "角色名"
+        }
+      }
+    },
+    "ErrorCode": {
+      "type": "object",
+      "description": "错误码",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/Error"
+        }
+      }
+    },
+    "Error": {
+      "description": "错误信息。",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "错误信息。"
+        },
+        "code": {
+          "type": "integer",
+          "description": "错误码。"
+        },
+        "title": {
+          "type": "string",
+          "description": "错误标题。"
+        }
+      }
+    },
+    "TokenInfo": {
+      "type": "object",
+      "description": "Token信息",
+      "required": [
+        "methods",
+        "issued_at",
+        "expires_at",
+        "user",
+        "roles"
+      ],
+      "properties": {
+        "methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "issued_at": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/ResponseUserDomainObject"
+        },
+        "domian": {
+          "$ref": "#/definitions/ResponseDomainObject"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RoleInfo"
+          }
+        }
+      }
+    },
+    "RouteNotFoundError": {
+      "description": "错误信息。",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息。"
+        }
+      }
+    },
+    "TokenResponse": {
+      "properties": {
+        "token": {
+          "$ref": "#/definitions/TokenInfo"
+        }
+      }
+    },
+    "ResponseDomainObject": {
+      "type": "object",
+      "description": "租户信息",
+      "required": [
+        "name",
+        "id"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "租户名"
+        },
+        "id": {
+          "type": "string",
+          "description": "租户ID"
+        }
+      }
+    },
+    "ResponseUserDomainObject": {
+      "type": "object",
+      "description": "用户和租户信息",
+      "required": [
+        "name",
+        "id",
+        "domain"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "用户名"
+        },
+        "id": {
+          "type": "string",
+          "description": "用户ID"
+        },
+        "domain": {
+          "$ref": "#/definitions/ResponseDomainObject"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

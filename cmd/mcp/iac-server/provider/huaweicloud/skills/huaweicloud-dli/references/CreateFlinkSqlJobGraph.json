@@ -1,0 +1,207 @@
+{
+  "name": "CreateFlinkSqlJobGraph",
+  "summary": "生成flink SQL作业的静态流图",
+  "tags": "Flink作业-作业相关API",
+  "productshort": "DLI",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/streaming/jobs/{job_id}/gen-graph": {
+      "post": {
+        "tags": [
+          "Flink作业-作业相关API"
+        ],
+        "summary": "生成flink SQL作业的静态流图",
+        "description": "生成flink SQL作业的静态流图",
+        "operationId": "CreateFlinkSqlJobGraph",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "in": "body",
+            "name": "CreateFlinkSqlJobGraphRequestBody",
+            "description": "生成Flink SQL作业静态流图请求参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateFlinkSqlJobGraphRequestBody"
+            },
+            "x-order": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "is_success": true,
+                "message": "",
+                "error_code": "",
+                "stream_graph": "{\n  \"nodes\" : [ {\n    \"id\" : 1,\n    \"operator_id\" : \"bc764cd8ddf7a0cff126f51c16239658\",\n    \"type\" : \"Source\",\n    \"contents\" : \"kafkaSource\",\n    \"parallelism\" : 1\n  }, {\n    \"id\" : 2,\n    \"operator_id\" : \"0a448493b4782967b150582570326227\",\n    \"type\" : \"select\",\n    \"contents\" : \"car_id, car_owner, car_brand, car_speed\",\n    \"parallelism\" : 1,\n    \"predecessors\" : [ {\n      \"id\" : 1\n    } ]\n  }, {\n    \"id\" : 4,\n    \"operator_id\" : \"6d2677a0ecc3fd8df0b72ec675edf8f4\",\n    \"type\" : \"Sink\",\n    \"contents\" : \"kafkaSink\",\n    \"parallelism\" : 1,\n    \"predecessors\" : [ {\n      \"id\" : 2\n    } ]\n  } ]\n}"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateFlinkSqlJobGraphResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "JK.1001",
+                "error_msg": "Failed to get stream graph:Sql validate error."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hws_hk",
+        "x-apiErrorCodes": "[]",
+        "x-order": 10
+      }
+    }
+  },
+  "definitions": {
+    "CreateFlinkSqlJobGraphRequestBody": {
+      "required": [
+        "sql_body"
+      ],
+      "properties": {
+        "sql_body": {
+          "type": "string",
+          "description": "SQL"
+        },
+        "flink_version": {
+          "type": "string",
+          "enum": [
+            1.1,
+            1.12
+          ],
+          "description": "Flink版本。当前只支持1.10和1.12。"
+        },
+        "cu_number": {
+          "type": "integer",
+          "format": "int32",
+          "description": "CU总数",
+          "minimum": 2
+        },
+        "manager_cu_number": {
+          "type": "integer",
+          "format": "int32",
+          "description": "管理单元CU数量",
+          "minimum": 1
+        },
+        "parallel_number": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最大并行度",
+          "minimum": 1
+        },
+        "tm_cus": {
+          "type": "integer",
+          "format": "int32",
+          "description": "单个taskManagerCU数量",
+          "minimum": 1
+        },
+        "tm_slot_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "单个taskManager Slot数量",
+          "minimum": 1
+        },
+        "operator_config": {
+          "type": "string",
+          "description": "算子的配置"
+        },
+        "static_estimator": {
+          "type": "boolean",
+          "description": "是否静态资源预估",
+          "default": false
+        },
+        "job_type": {
+          "type": "string",
+          "description": "作业类型"
+        },
+        "graph_type": {
+          "type": "string",
+          "description": "流图类型。当前支持以下两种流图类型。 简化流图:simple_graph 静态流图:job_graph。",
+          "default": "simple_graph",
+          "enum": [
+            "simple_graph",
+            "job_graph"
+          ]
+        },
+        "static_estimator_config": {
+          "type": "string",
+          "description": "每个算子的流量/命中率配置,json格式的字符串。"
+        }
+      },
+      "description": "生成SQL静态流图请求参数",
+      "type": "object"
+    },
+    "FailResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息。"
+        }
+      },
+      "type": "object"
+    },
+    "CreateFlinkSqlJobGraphResponseBody": {
+      "required": [
+        "is_success",
+        "message",
+        "error_code",
+        "stream_graph"
+      ],
+      "properties": {
+        "is_success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "stream_graph": {
+          "type": "string",
+          "description": "静态流图的描述信息"
+        }
+      },
+      "description": "生成SQL静态流图的返回体",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dli.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

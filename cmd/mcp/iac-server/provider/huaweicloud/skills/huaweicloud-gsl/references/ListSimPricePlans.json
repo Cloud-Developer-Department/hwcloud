@@ -1,0 +1,341 @@
+{
+  "name": "ListSimPricePlans",
+  "summary": "sim卡套餐列表查询",
+  "tags": "SIM卡套餐实例管理",
+  "productshort": "GSL",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/sim-price-plans": {
+      "get": {
+        "tags": [
+          "SimPricePlans"
+        ],
+        "summary": "sim卡套餐列表查询",
+        "description": "SIM卡套餐列表查询,实体卡只会有一个套餐,eSIM/vSIM可能会有多个套餐",
+        "operationId": "ListSimPricePlans",
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "sim_card_id",
+            "in": "query",
+            "description": "SIM卡标识,可通过[查询SIM卡列表接口](https://support.huaweicloud.com/api-ocgsl/gsl_07_0008.html)获取",
+            "required": true,
+            "type": "integer",
+            "minimum": 0,
+            "format": "int64",
+            "x-example": "3857786611811123"
+          },
+          {
+            "name": "iccid",
+            "in": "query",
+            "description": "iccid,传入的SIM卡标识(sim_card_id)为0,则根据iccid进行处理",
+            "required": false,
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 19,
+            "x-example": "A857786611811123C12"
+          },
+          {
+            "name": "real_time",
+            "in": "query",
+            "description": "是否查实时流量",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json-1": [
+                {
+                  "id": 100000000000,
+                  "account_id": "04eexxxxxxxxxxxx",
+                  "sim_card_id": 100000000000,
+                  "status": 2,
+                  "price_plan_id": "100001",
+                  "partner": 1,
+                  "cid": "8986xxxxxxxxxx",
+                  "partner_pid": "10001",
+                  "create_time": "2022-09-16T03:21:22.000+00:00",
+                  "active_time": "2022-09-16T01:14:58.000+00:00",
+                  "flow_total": 30,
+                  "flow_used": 0,
+                  "flow_left": 30,
+                  "using": "0",
+                  "price_plan_name": "中国联通消费级每月30M联接服务(1年)",
+                  "package_type": 1,
+                  "effect_type": 1,
+                  "silent_period_day": 6,
+                  "silent_period_unit": 2,
+                  "auto_renew": 0,
+                  "location_desc": "中国"
+                }
+              ]
+            },
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SimPricePlanVO"
+              }
+            }
+          },
+          "400": {
+            "description": "Parameter Invalid",
+            "examples": {
+              "application/json-1": {
+                "error_code": "GSL.00010004",
+                "error_msg": "参数异常"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "GSL.00010004"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json-1": {
+                "error_code": "GSL.00010003",
+                "error_msg": "系统繁忙,请稍后重试。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "GSL.00010003"
+            ]
+          }
+        },
+        "x-iftype": "OpenAPI_new",
+        "x-imports": [
+          "org.springframework.http.ResponseEntity",
+          "org.springframework.web.bind.annotation.RestController"
+        ],
+        "x-returnType": "ResponseEntity<List<SimPricePlanVO>>",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "x-serialVersionUID": "4654150370649286615",
+      "x-ref-external": "com.huawei.m2m.cmp.base.api.ApiResponse"
+    },
+    "SimPricePlanVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "example": 3860805203123456,
+          "description": "套餐实例id",
+          "minimum": 0
+        },
+        "account_id": {
+          "type": "string",
+          "example": "04eef8424xxxxx",
+          "description": "账户id",
+          "maxLength": 128
+        },
+        "sim_card_id": {
+          "type": "integer",
+          "format": "int64",
+          "example": 3860805201234,
+          "description": "sim卡id",
+          "minimum": 0
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "套餐状态:0 已删除 1 可激活 2 在用 3. 使用完 4. 可激活 5 已停用 6. 启用失败",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "price_plan_id": {
+          "type": "string",
+          "example": "100054",
+          "description": "套餐id",
+          "maxLength": 128
+        },
+        "cid": {
+          "type": "string",
+          "example": "89860469101980624111",
+          "description": "容器ID:不同类型卡含义如下 iccid(实体卡),eid(eSIM)cid(vSIM)",
+          "maxLength": 128
+        },
+        "order_id": {
+          "type": "string",
+          "example": "20200824075755181148",
+          "description": "订单id",
+          "maxLength": 128
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2020-08-24T07:57:56.000Z",
+          "description": "创建时间 例如2020-08-24T07:57:56.000Z"
+        },
+        "active_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2020-10-31T16:00:00.000Z",
+          "description": "激活时间 例如2020-10-31T16:00:00.000Z"
+        },
+        "stop_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2021-10-31T16:00:00.000",
+          "description": "停用时间 2021-10-31T16:00:00.000Z"
+        },
+        "flow_total": {
+          "type": "number",
+          "format": "double",
+          "example": 1024.0,
+          "description": "总流量(MB)",
+          "minimum": 0
+        },
+        "flow_used": {
+          "type": "number",
+          "format": "double",
+          "example": 0.0,
+          "description": "已使用流量(MB)",
+          "minimum": 0
+        },
+        "flow_left": {
+          "type": "number",
+          "format": "double",
+          "example": 1024.0,
+          "description": "剩余流量(MB)"
+        },
+        "using": {
+          "type": "string",
+          "example": "0",
+          "description": "是否使用中(0:否 1:是)",
+          "maxLength": 128
+        },
+        "price_plan_name": {
+          "type": "string",
+          "example": "中国电信每月1G联接服务",
+          "description": "套餐名",
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "描述",
+          "maxLength": 128
+        },
+        "package_type": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "套餐类型: 0.非自动续费 1.自动续费",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "effect_type": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "生效类型: 1.订购后激活使用时生效 2.订购即时生效 3.订购下个月开始生效 ",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "silent_period_day": {
+          "type": "integer",
+          "format": "int32",
+          "example": 60,
+          "description": "沉默期",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "silent_period_unit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "沉默期单位: 1.年 2.月 3.日 ",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "auto_renew": {
+          "type": "integer",
+          "format": "int32",
+          "description": "自动续订: 0.不自动续订 1.继续续订",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "location_desc": {
+          "type": "string",
+          "example": "1",
+          "description": "位置信息:1.  中国 2.  欧洲 3.  大洋洲 4.  非洲5.  亚太",
+          "maxLength": 128
+        }
+      },
+      "x-java-class": "com.huawei.m2m.cmp.global.simcard.rest.api.model.SimPricePlanVO"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-ocgsl/gsl_07_0004.html)。",
+      "required": true,
+      "type": "string",
+      "x-nGenerated": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+    },
+    "offset": {
+      "name": "offset",
+      "in": "query",
+      "description": "分页查询时的页码数,默认值为1,取值范围为1-1000000的整数",
+      "required": false,
+      "type": "integer",
+      "default": 1,
+      "maximum": 1000000,
+      "minimum": 1,
+      "format": "int64"
+    },
+    "limit": {
+      "name": "limit",
+      "in": "query",
+      "description": "分页查询时每页显示的记录数,默认值为10,取值范围为10-500的整数",
+      "required": false,
+      "type": "integer",
+      "default": 10,
+      "maximum": 500,
+      "minimum": 10,
+      "format": "int64"
+    }
+  },
+  "host": "gsl.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

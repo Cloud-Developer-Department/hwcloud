@@ -1,0 +1,404 @@
+{
+  "name": "GetSecurityToken",
+  "summary": "获取临时AK/SK和securitytoken",
+  "tags": "IAM1.0",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v3.0/OS-CREDENTIAL/securitytokens": {
+      "post": {
+        "summary": "获取临时AK/SK和securitytoken",
+        "description": "该接口通过用户或者委托token来获取临时AK/SK和securitytoken,临时AK/SK和 securitytoken是系统颁发给用户的临时访问令牌,有效期为15分钟至24小时,过期后需要重新获取。临时AK/SK和securitytoken遵循权限最小化原则,可应用于临时访问OBS 等。使用临时AK/SK鉴权时,临时AK/SK和securitytoken必须同时使用,请求头中需要添加“x-security-token”字段。",
+        "tags": [
+          "IAM1.0"
+        ],
+        "operationId": "GetSecurityToken",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "该字段内容填为“application/json;charset=utf8”。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "具有Agent Operator权限的token。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "auth",
+            "in": "body",
+            "description": "请求信息",
+            "schema": {
+              "$ref": "#/definitions/SecurityTokenRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "请求成功。",
+            "schema": {
+              "$ref": "#/definitions/SecurityTokenResponse"
+            },
+            "examples": {
+              "application/json": {
+                "credential": {
+                  "access": "xxx",
+                  "expires_at": "2025-06-11T09:37:00.445000Z",
+                  "securitytoken": "xxxxxxxxx",
+                  "secret": "xxxxxx"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "Json data invalid or input parameter invalid",
+                  "code": 400,
+                  "title": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "token is not found or expired.",
+                  "code": 401,
+                  "title": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "X-Auth-Token is invalid",
+                  "code": 403,
+                  "title": "Forbidden"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/RouteNotFoundError"
+            },
+            "examples": {
+              "application/json": {
+                "error_msg": "404 Route Not Found"
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "Internal Exception",
+                  "code": 500,
+                  "title": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3.0/OS-CREDENTIAL/securitytokens",
+        "x-request-examples-description-1": "通过用户token进行请求",
+        "x-request-examples-1": {
+          "auth": {
+            "identity": {
+              "methods": [
+                "token"
+              ],
+              "token": {
+                "id": "xxx",
+                "duration-seconds": "86400"
+              },
+              "scope": {
+                "domain": {
+                  "name": "test"
+                }
+              }
+            }
+          }
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v3.0/OS-CREDENTIAL/securitytokens",
+        "x-request-examples-description-2": "通过委托token进行请求",
+        "x-request-examples-2": {
+          "auth": {
+            "identity": {
+              "methods": [
+                "assume_role"
+              ],
+              "assume_role": {
+                "domain_name": "test_domain",
+                "agency_name": "agency name",
+                "duration-seconds": "86400",
+                "session_user": {
+                  "name": "xxx"
+                }
+              }
+            },
+            "scope": {
+              "domain": {
+                "name": "xxx"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SecurityTokenAuth": {
+      "type": "object",
+      "description": "安全Token认证信息请求认证信息",
+      "properties": {
+        "identity": {
+          "$ref": "#/definitions/SecurityTokenIdentity"
+        },
+        "scope": {
+          "$ref": "#/definitions/Scopes"
+        }
+      }
+    },
+    "RequestDomain": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "指定租户名"
+        },
+        "id": {
+          "type": "string",
+          "description": "指定租户ID"
+        }
+      }
+    },
+    "SecurityTokenAssumeRole": {
+      "type": "object",
+      "description": "安全Token置换角色信息",
+      "required": [
+        "agency_name"
+      ],
+      "properties": {
+        "domain_name": {
+          "type": "string",
+          "description": "租户名"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "租户ID"
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "委托名"
+        },
+        "duration-seconds": {
+          "type": "string",
+          "description": "AK/SK和securitytoken的有效期,时间单位为秒。取值范围:15min~24h,默认为15min"
+        },
+        "session_user": {
+          "$ref": "#/definitions/SessionUserRequest"
+        },
+        "policy": {
+          "$ref": "#/definitions/PolicyRequest"
+        }
+      }
+    },
+    "Scopes": {
+      "type": "object",
+      "description": "Token的作用范围。支持domain、project,但两者不能设置在同一层级上。",
+      "properties": {
+        "domain": {
+          "$ref": "#/definitions/RequestDomain"
+        },
+        "project": {
+          "$ref": "#/definitions/RequestProject"
+        }
+      }
+    },
+    "SessionUserRequest": {
+      "type": "object",
+      "description": "使用自定义代理方式获取时需要session_user,即企业用户名信息。用户名需满足如下规则:长度5~32,只能包含大写字母、小写字母、数字(0-9)、特殊字符(-_)且只能以字母开头。",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "用户名"
+        }
+      }
+    },
+    "RequestProject": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "指定项目名"
+        },
+        "id": {
+          "type": "string",
+          "description": "指定项目ID"
+        }
+      }
+    },
+    "SecurityTokenIdentity": {
+      "type": "object",
+      "description": "安全Token认证信息",
+      "required": [
+        "methods"
+      ],
+      "properties": {
+        "methods": {
+          "type": "array",
+          "description": "安全Token请求方法",
+          "items": {
+            "type": "string"
+          }
+        },
+        "token": {
+          "$ref": "#/definitions/SecurityTokenToken"
+        },
+        "assume_role": {
+          "$ref": "#/definitions/SecurityTokenAssumeRole"
+        }
+      }
+    },
+    "SecurityTokenRequest": {
+      "type": "object",
+      "description": "安全Token认证信息请求",
+      "properties": {
+        "auth": {
+          "$ref": "#/definitions/SecurityTokenAuth"
+        }
+      }
+    },
+    "ErrorCode": {
+      "type": "object",
+      "description": "错误码",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/Error"
+        }
+      }
+    },
+    "Error": {
+      "description": "错误信息。",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "错误信息。"
+        },
+        "code": {
+          "type": "integer",
+          "description": "错误码。"
+        },
+        "title": {
+          "type": "string",
+          "description": "错误标题。"
+        }
+      }
+    },
+    "PolicyRequest": {
+      "type": "object",
+      "description": "用户自定义策略的信息,用于限制获取到的临时访问密钥和securitytoken的权限(当前仅OBS服务支持该限制)。如果填写此参数,则临时访问密钥和securitytoken的权限为:委托具有的权限和policy参数限制的权限交集。policy参数的字符个数不大于2048。"
+    },
+    "RouteNotFoundError": {
+      "description": "错误信息。",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息。"
+        }
+      }
+    },
+    "SecurityTokenToken": {
+      "type": "object",
+      "description": "使用普通token换取安全Token",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "普通token"
+        },
+        "duration-seconds": {
+          "type": "string",
+          "description": "AK/SK和securitytoken的有效期,时间单位为秒。取值范围:15min~24h,默认为15min"
+        }
+      }
+    },
+    "Credential": {
+      "type": "object",
+      "description": "安全Token和临时凭据",
+      "required": [
+        "access",
+        "secret",
+        "expires_at",
+        "securitytoken"
+      ],
+      "properties": {
+        "access": {
+          "type": "string",
+          "description": "访问密钥"
+        },
+        "secret": {
+          "type": "string",
+          "description": "密钥"
+        },
+        "expires_at": {
+          "type": "string",
+          "description": "过期时间"
+        },
+        "securitytoken": {
+          "type": "string",
+          "description": "用于后续换SK、 Token或loginToken使用"
+        }
+      }
+    },
+    "SecurityTokenResponse": {
+      "type": "object",
+      "description": "安全Token响应",
+      "required": [
+        "credential"
+      ],
+      "properties": {
+        "credential": {
+          "$ref": "#/definitions/Credential"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

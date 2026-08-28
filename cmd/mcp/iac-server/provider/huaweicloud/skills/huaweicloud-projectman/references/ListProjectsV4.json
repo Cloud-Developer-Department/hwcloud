@@ -1,0 +1,285 @@
+{
+  "name": "ListProjectsV4",
+  "summary": "查询项目列表",
+  "tags": "项目信息",
+  "productshort": "ProjectMan",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v4/projects": {
+      "get": {
+        "tags": [
+          "项目信息"
+        ],
+        "summary": "查询项目列表",
+        "operationId": "ListProjectsV4",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 32768,
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "description": "偏移量 从0开始",
+            "minimum": 0,
+            "maximum": 10000,
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "description": "条数 最小1条,最大1000",
+            "maximum": 1000,
+            "minimum": 1,
+            "default": 10
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "模糊查询项目名称或描述,不支持通配符等高级查询"
+          },
+          {
+            "name": "project_type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "项目类型 scrum|xboard",
+            "x-example": "scrum"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "排序条件 默认创建时间降序(name|created_on)(asc|desc)",
+            "x-example": "created_on:desc"
+          },
+          {
+            "name": "archive",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "是否归档 true已归档|false未归档",
+            "x-example": true,
+            "pattern": "false|true"
+          },
+          {
+            "name": "query_type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "默认返回当前用户参与的项目列表,domain_projects租户下的所有项目列表,absent返回当前用户未参与的租户项目列表",
+            "x-example": "domain_projects"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListProjectsV4ResponseBody"
+            },
+            "examples": {
+              "application/json": "{\n  \"projects\": [\n    {\n      \"project_num_id\": 3183801,\n      \"project_id\": \"41bd3eab86544863b8fc92ffcd35e3c8\",\n      \"project_name\": \"aaa\",\n      \"description\": \"demo\",\n      \"created_time\": 1576114296000,\n      \"updated_time\": 1576114296000,\n      \"project_type\": \"xboard\",\n      \"creator\": {\n        \"user_num_id\": 4097,\n        \"user_id\": \"c4bd39f0573a436589714bedbcca8536\",\n        \"user_name\": \"mobile_user\",\n        \"domain_id\": \"2489d8cbba804db8bcd35384685ff3ac\",\n        \"domain_name\": \"mobile_user\",\n        \"nick_name\": \"Tom.M.Riddle\"\n      }\n    }\n  ],\n  \"total\": 10\n}"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/BadRequestError"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedRequestError"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/BadRequestError"
+            }
+          }
+        },
+        "deprecated": false,
+        "description": "查询项目列表",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://{endpoint}/v4/projects?limit=10&offset=0&project_type=scrum&sort=&search=aa&archive=true&query_type=domain_projects",
+        "x-request-examples-1": "Get https://{endpoint}/v4/projects?limit=10&offset=0&project_type=scrum&sort=&search=aa&archive=true&query_type=domain_projects"
+      }
+    }
+  },
+  "definitions": {
+    "ListProjectsV4ResponseBody": {
+      "type": "object",
+      "properties": {
+        "projects": {
+          "minItems": 0,
+          "maxItems": 100,
+          "type": "array",
+          "description": "项目信息列表",
+          "items": {
+            "type": "object",
+            "properties": {
+              "project_num_id": {
+                "type": "integer",
+                "format": "int32",
+                "description": "项目numId",
+                "example": 3183801
+              },
+              "project_id": {
+                "type": "string",
+                "description": "项目uuid",
+                "example": "41bd3eab86544863b8fc92ffcd35e3c8"
+              },
+              "project_name": {
+                "type": "string",
+                "description": "项目名称",
+                "example": "aaa"
+              },
+              "description": {
+                "type": "string",
+                "description": "项目描述",
+                "example": "这是一个demo"
+              },
+              "created_time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "项目创建时间",
+                "example": 1576114296000
+              },
+              "updated_time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "项目更新时间",
+                "example": 1576114296000
+              },
+              "project_type": {
+                "type": "string",
+                "description": "项目类型",
+                "example": "xboard"
+              },
+              "creator": {
+                "type": "object",
+                "description": "创建者信息",
+                "properties": {
+                  "user_num_id": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "创建人numId",
+                    "example": 4097
+                  },
+                  "user_id": {
+                    "type": "string",
+                    "description": "创建人id",
+                    "example": "c4bd39f0573a436589714bedbcca8536"
+                  },
+                  "user_name": {
+                    "type": "string",
+                    "description": "创建人姓名",
+                    "example": "mobile_user"
+                  },
+                  "domain_id": {
+                    "type": "string",
+                    "description": "创建人租户id",
+                    "example": "2489d8cbba804db8bcd35384685ff3ac"
+                  },
+                  "domain_name": {
+                    "type": "string",
+                    "description": "创建人租户名称",
+                    "example": "mobile_user"
+                  },
+                  "nick_name": {
+                    "type": "string",
+                    "description": "创建人租户昵称",
+                    "example": "Tom.M.Riddle"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "项目总数",
+          "minimum": 0,
+          "maximum": 10000,
+          "example": 10
+        }
+      }
+    },
+    "UnauthorizedRequestError": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "认证信息过期"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DEV.00000003"
+        }
+      }
+    },
+    "BadRequestError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "参数错误"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "PM.00000001"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "projectman-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v4",
+  "method": "get",
+  "uri": null
+}

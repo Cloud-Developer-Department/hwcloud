@@ -1,0 +1,270 @@
+{
+  "name": "DetectStandardByNameAndId",
+  "summary": "人证核身标准版(三要素)",
+  "tags": "人证核身标准版(三要素)",
+  "productshort": "IVS",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v2.0/ivs-standard": {
+      "post": {
+        "summary": "人证核身标准版(三要素)",
+        "x-name": "人证核身标准版(三要素)",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "description": "使用姓名、身份证号文本和人脸图片进行三要素身份审核。",
+        "operationId": "DetectStandardByNameAndId",
+        "x-support-sdk": "Y",
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/IvsStandardByNameAndIdResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "meta": {
+                  "uuid": "user_defined"
+                },
+                "result": {
+                  "service_name": "ivs-standard",
+                  "count": 1,
+                  "resp_data": [
+                    {
+                      "verification_result": "valid",
+                      "verification_message": "Successful certification",
+                      "verification_code": 1000,
+                      "similarity": "65"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "失败响应样例",
+            "examples": {
+              "application/json": {
+                "error_code": "IVS.0003",
+                "error_msg": "Some necessary request parameters in req_data is null."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/IvsErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v2.0/ivs-standard",
+        "x-request-examples-1": {
+          "meta": {
+            "uuid": "user_defined"
+          },
+          "data": {
+            "req_data": [
+              {
+                "verification_name": "张三",
+                "verification_id": "44***********07",
+                "face_image": "/9j/4BBQSkZJRgABAgEASB..."
+              }
+            ]
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "description": "X-Auth-Token值获取方法请参见[认证鉴权](https://support.huaweicloud.com/api-ivs/ivs_02_0011.html)。",
+            "type": "string",
+            "required": true,
+            "x-order": 1
+          },
+          {
+            "name": "Enterprise-Project-Id",
+            "in": "header",
+            "description": "企业项目ID。IVS支持通过企业项目管理(EPS)对不同用户组和用户的资源使用,进行分账。\n\n获取方法:进入“[企业项目管理](https://console.huaweicloud.com/eps/?region=cn-north-4#/projects/list)”页面,单击企业项目名称,在企业项目详情页获取Enterprise-Project-Id(企业项目ID)。\n\n企业项目创建步骤请参见用户指南。\n> 说明:\n创建企业项目后,在传参时,有以下三类场景。\n- 携带正确的ID,正常使用IVS服务,账单的企业项目会被分类到企业ID对应的企业项目中。\n- 携带格式正确但不存在的ID,正常使用IVS服务,账单的企业项目会显示对应不存在的企业项目ID。\n- 不携带ID或格式错误ID(包含特殊字符等),正常使用IVS服务,账单的企业项目会被分类到\"default\"中。",
+            "required": false,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/IvsStandardByNameAndIdRequestBody"
+            },
+            "in": "body",
+            "name": "IvsStandardByNameAndIdRequestBody",
+            "description": "This is a auto create Body Object",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "人证核身标准版(三要素)"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "StandardReqDataByNameAndId": {
+      "properties": {
+        "verification_name": {
+          "description": "被验证人的姓名。",
+          "type": "string"
+        },
+        "verification_id": {
+          "description": "被验证人的身份证号码。",
+          "type": "string"
+        },
+        "face_image": {
+          "description": "现场人像图像数据,使用base64编码,要求base64编码后大小不超过4M。图像各边的像素大小在300到4000之间,支持JPG格式。",
+          "type": "string"
+        },
+        "detail": {
+          "description": "响应参数similarity是否详细显示,默认为false。\n- true表示响应中的similarity为0~1000的小数。\n- false表示响应中的similarity为0~100的整数。",
+          "type": "boolean"
+        },
+        "crop": {
+          "description": "是否允许对入参face_image进行人脸检测及图片裁剪,默认为true,表示允许。",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "verification_name",
+        "verification_id",
+        "face_image"
+      ]
+    },
+    "IvsStandardByNameAndIdResponseBody": {
+      "properties": {
+        "meta": {
+          "description": "请求元数据,例如表征本次请求的唯一标注uuid。",
+          "$ref": "#/definitions/Meta"
+        },
+        "result": {
+          "description": "调用返回结果。",
+          "properties": {
+            "service_name": {
+              "description": "子服务名称。",
+              "type": "string"
+            },
+            "count": {
+              "description": "成功的结果数量,与resp_data字段对应。",
+              "type": "integer",
+              "format": "int32"
+            },
+            "resp_data": {
+              "description": "请求列表,用于支持批量调用。目前暂时只支持单个数据查询。",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StandardRespDataByNameAndId",
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "service_name",
+            "count",
+            "resp_data"
+          ]
+        }
+      },
+      "required": [
+        "meta",
+        "result"
+      ]
+    },
+    "Meta": {
+      "properties": {
+        "uuid": {
+          "required": true,
+          "description": "唯一标识此次请求的ID,用户自定义,不超过64位。",
+          "type": "string"
+        }
+      }
+    },
+    "IvsStandardByNameAndIdRequestBody": {
+      "properties": {
+        "meta": {
+          "description": "请求元数据,例如表征本次请求的唯一标注uuid。",
+          "$ref": "#/definitions/Meta"
+        },
+        "data": {
+          "description": "请求消息的数据部分。",
+          "properties": {
+            "req_data": {
+              "description": "请求列表,用于支持批量调用。目前暂时只支持单个数据查询。",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StandardReqDataByNameAndId",
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "meta",
+        "data"
+      ]
+    },
+    "IvsErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "调用失败时的错误码,具体请参考[错误码](https://support.huaweicloud.com/api-ivs/ivs_02_0021.html)。\n调用成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败时的错误信息。\n调用成功时无此字段。\n"
+        }
+      }
+    },
+    "StandardRespDataByNameAndId": {
+      "properties": {
+        "verification_result": {
+          "type": "string",
+          "description": "审核校验结果:\n\"valid\"表示身份审核通过;\n\"invalid\"表示身份审核不通过;\n\"nonexistent\"表示数据源没有该身份证号码,这种情况一般是被验证人正在办理户籍迁移,或者被验证人是军人或政要。"
+        },
+        "verification_message": {
+          "type": "string",
+          "description": "审核校验信息,具体参考[校验信息说明](https://support.huaweicloud.com/api-ivs/ivs_02_0017.html)"
+        },
+        "verification_code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "审核校验代码,具体参考[校验信息说明](https://support.huaweicloud.com/api-ivs/ivs_02_0017.html)"
+        },
+        "similarity": {
+          "type": "string",
+          "description": "人像相识度,取值默认范围为[0,100],当入参detail为true时,取值范围为[0,1000]。"
+        }
+      },
+      "required": [
+        "verification_result",
+        "verification_message",
+        "verification_code",
+        "similarity"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ivs.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

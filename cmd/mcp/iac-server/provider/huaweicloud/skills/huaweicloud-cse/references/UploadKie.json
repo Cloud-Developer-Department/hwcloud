@@ -1,0 +1,241 @@
+{
+  "name": "UploadKie",
+  "summary": "导入kie配置",
+  "tags": "配置管理",
+  "productshort": "CSE",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v1/{project_id}/kie/file": {
+      "post": {
+        "description": "导入kie配置",
+        "summary": "导入kie配置",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-support-nodejs-sdk": "N",
+        "tags": [
+          "配置管理"
+        ],
+        "operationId": "UploadKie",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Enterprise-Project-ID",
+            "description": "如果不带则默认企业项目为\"default\",ID为\"0\"",
+            "default": "0",
+            "type": "string",
+            "in": "header",
+            "required": false
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户子项目的唯一标识。字符长度为1~64。",
+            "required": true,
+            "type": "string",
+            "x-example": "79c4086f5f3a4e34a92601dfc64b1e8c"
+          },
+          {
+            "name": "x-engine-id",
+            "in": "header",
+            "description": "微服务引擎ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "bad98901-5c4b-44de-b266-bae3e2093058"
+          },
+          {
+            "name": "override",
+            "in": "query",
+            "description": "覆盖策略,force 强制覆盖、abort 遇到第一个重复时终止导入后续的kv、skip 跳过重复的key",
+            "type": "string",
+            "required": true,
+            "default": "force",
+            "enum": [
+              "force",
+              "abort",
+              "skip"
+            ]
+          },
+          {
+            "name": "label",
+            "in": "query",
+            "description": "指定label导入,格式为:{标签key}:{标签value},如果不填则按body的label导入",
+            "type": "string",
+            "x-example": "key:value"
+          },
+          {
+            "name": "upload_file",
+            "in": "formData",
+            "required": true,
+            "description": "导入文件内容的格式必须为键值对映射,例如:{\"data\":[{\"key1\":\"value1\",\"key2\":\"value2\"}]}}",
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UploadKieResp"
+            }
+          },
+          "400": {
+            "description": "错误的请求。",
+            "schema": {
+              "$ref": "#/definitions/BadRequest"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UploadKieResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "description": "导入成功的配置项列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetKieConfigs"
+          }
+        },
+        "failure": {
+          "description": "导入失败的配置项及其错误列表。",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/DocFailedOfUpload"
+          }
+        }
+      }
+    },
+    "BadRequest": {
+      "description": "错误的请求。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    },
+    "GetKieConfigs": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "配置项的id。",
+          "type": "string",
+          "example": "8a9e6a5d-8d65-48fb-a40c-5150c8479da8"
+        },
+        "key": {
+          "description": "配置项的key。",
+          "type": "string"
+        },
+        "labels": {
+          "description": "配置项的标签。",
+          "type": "object",
+          "example": {
+            "key": "value"
+          }
+        },
+        "value": {
+          "description": "配置项的值。",
+          "type": "string"
+        },
+        "value_type": {
+          "description": "配置项value的类型。",
+          "type": "string",
+          "example": "text"
+        },
+        "status": {
+          "description": "配置项的状态。",
+          "type": "string",
+          "example": "enabled"
+        },
+        "create_time": {
+          "description": "创建时间。",
+          "type": "integer",
+          "example": 1623139038
+        },
+        "update_time": {
+          "description": "更新时间。",
+          "type": "integer",
+          "example": 1623139038
+        },
+        "create_revision": {
+          "description": "创建配置的版本号",
+          "type": "integer",
+          "format": "int64",
+          "example": 13
+        },
+        "update_revision": {
+          "description": "修改配置的版本号",
+          "type": "integer",
+          "example": 13,
+          "format": "int64"
+        }
+      }
+    },
+    "InternalServerError": {
+      "description": "服务内部错误",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    },
+    "DocFailedOfUpload": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "配置项的key值",
+          "example": "string"
+        },
+        "labels": {
+          "type": "object",
+          "description": "配置项的labels值",
+          "example": {
+            "key": "value"
+          }
+        },
+        "error_code": {
+          "type": "string",
+          "description": "导入失败的错误码",
+          "example": "4xxxxx"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "导入失败的原因",
+          "example": "Invalid parameters"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cse.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

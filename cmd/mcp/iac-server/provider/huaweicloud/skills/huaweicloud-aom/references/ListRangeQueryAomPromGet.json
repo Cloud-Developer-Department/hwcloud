@@ -1,0 +1,220 @@
+{
+  "name": "ListRangeQueryAomPromGet",
+  "summary": "GET方法查询区间数据",
+  "tags": "prometheus监控",
+  "productshort": "AOM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/aom/api/v1/query_range": {
+      "get": {
+        "x-open-region-cloud": "hws,hws_hk,ctc,hws_eu",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "https://{EndPoint}/v1/{project_id}/aom/api/v1/query_range?query=up&start=1630124012&end=1630127612&step=15s",
+        "x-request-examples-description-1": "查询表达式up在start到end秒范围内以15秒为间隔计算PromQL表达式的结果。",
+        "operationId": "ListRangeQueryAomPromGet",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "type": "string",
+            "description": "从IAM服务获取的用户Token。",
+            "required": true
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "PromQL表达式(参考https://prometheus.io/docs/prometheus/latest/querying/basics/)。"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "type": "string",
+            "description": "起始时间戳(Unix时间戳格式,单位:秒)。",
+            "required": true
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "type": "string",
+            "description": "结束时间戳(Unix时间戳格式,单位:秒)。",
+            "required": true
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户从IAM申请到的projectid,一般为32位字符串。"
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "type": "string",
+            "description": "查询时间步长,时间区内每step秒执行一次。",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK 请求响应成功。",
+            "examples": {
+              "application/json": {
+                "status": "success",
+                "data": {
+                  "resultType": "matrix",
+                  "result": [
+                    {
+                      "metric": {
+                        "__name__": "up",
+                        "job": "prometheus",
+                        "instance": "localhost:9090"
+                      },
+                      "values": [
+                        [
+                          1435781430.781,
+                          "1"
+                        ],
+                        [
+                          1435781445.781,
+                          "1"
+                        ],
+                        [
+                          1435781460.781,
+                          "1"
+                        ]
+                      ]
+                    },
+                    {
+                      "metric": {
+                        "__name__": "up",
+                        "job": "node",
+                        "instance": "localhost:9091"
+                      },
+                      "values": [
+                        [
+                          1435781430.781,
+                          "0"
+                        ],
+                        [
+                          1435781445.781,
+                          "0"
+                        ],
+                        [
+                          1435781460.781,
+                          "1"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultDetail"
+            }
+          },
+          "400": {
+            "description": "BadRequest 非法请求。建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "status": "error",
+                "errorType": "bad_param",
+                "error": "param is invalid."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorDetail"
+            }
+          },
+          "403": {
+            "description": "Forbidden 请求被拒绝访问。返回该状态码,表明请求能够到达服务端,且服务端能够理解用户请求,但是拒绝做更多的事情,因为该请求被设置为拒绝访问,建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "status": "error",
+                "errorType": "auth",
+                "error": "auth project_id not pass."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorDetail"
+            }
+          },
+          "422": {
+            "description": "Unprocessable 表达式无法执行。",
+            "examples": {
+              "application/json": {
+                "status": "error",
+                "errorType": "excution",
+                "error": "expression can't be executed."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorDetail"
+            }
+          },
+          "503": {
+            "description": "ServiceUnavailable 被请求的服务无效。建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "status": "error",
+                "errorType": "timeout",
+                "error": "query timed out in query execution."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorDetail"
+            }
+          }
+        },
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "prometheus监控"
+        ],
+        "summary": "GET方法查询区间数据",
+        "description": "该接口使用GET方法查询PromQL(Prometheus Query Language)在一段时间返回内的计算结果。"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorDetail": {
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "响应状态。"
+        },
+        "errorType": {
+          "type": "string",
+          "description": "错误类型。"
+        },
+        "error": {
+          "type": "string",
+          "description": "错误信息。"
+        }
+      }
+    },
+    "ResultDetail": {
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "响应状态。"
+        },
+        "data": {
+          "type": "object",
+          "description": "响应数据。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "aom.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

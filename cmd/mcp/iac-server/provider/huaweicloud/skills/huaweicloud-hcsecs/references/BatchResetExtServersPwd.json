@@ -1,0 +1,181 @@
+{
+  "name": "BatchResetExtServersPwd",
+  "summary": "批量重置弹性云服务器密码",
+  "tags": "密码",
+  "productshort": "HCSECS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{tenant_id}/cloudservers/os-reset-passwords": {
+      "put": {
+        "tags": [
+          "密码"
+        ],
+        "summary": "批量重置弹性云服务器密码",
+        "description": "批量重置弹性云服务器管理账号(root用户或Administrator用户)或指定用户的密码。",
+        "operationId": "BatchResetExtServersPwd",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "发送的实体的MIME类型,媒体类型可按照流类型的不同进行确定。",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "enum": [
+              "application/json"
+            ]
+          },
+          {
+            "name": "Content-Length",
+            "in": "header",
+            "description": "请求body长度,单位为Byte。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "project id,项目编号。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,请参考《华为云Stack 8.6.1 API参考》的“ManageOne 8.6.1 API参考 >  ManageOne xxx OTenantSecurity服务API参考 > API参考 > Token > 获取用户Token”章节。",
+            "required": true,
+            "type": "string",
+            "pattern": "[\\\\w\\\\-\\\\+=]*"
+          },
+          {
+            "in": "body",
+            "name": "ApicomBatchResetServerPwdReq",
+            "description": "This is a auto create Body Object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApicomBatchResetServerPwdReq"
+            }
+          },
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "pattern": "[0-9a-f]{32}",
+            "x-order": 1
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "任务提交成功。",
+            "examples": {
+              "application/json": {
+                "response": [
+                  {
+                    "id": "616fb98f-46ca-475e-917e-2563e5a8cd19"
+                  },
+                  {
+                    "id": "516fb98f-46ca-475e-917e-2563e5a8cd12"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "服务器未能处理请求。"
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码。"
+          },
+          "403": {
+            "description": "对被请求页面的访问被禁止。"
+          },
+          "404": {
+            "description": "服务器无法找到被请求的页面。"
+          },
+          "500": {
+            "description": "请求未完成。服务异常。"
+          },
+          "503": {
+            "description": "请求未完成。系统暂时异常。"
+          }
+        },
+        "x-order": 1,
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/{tenant_id}/cloudservers/os-reset-passwords",
+        "x-request-examples-1": {
+          "new_password": "Test@123",
+          "dry_run": true,
+          "servers": [
+            {
+              "id": "1bd0eb17-4466-4c15-a9ce-87727ad311b5"
+            },
+            {
+              "id": "fd6b6e9d-64a1-40fa-b7dc-f491be42fdd2"
+            }
+          ]
+        },
+        "x-request-examples-text-1": "{\n    \"new_password\": \"password\",\n    \"dry_run\": true,\n    \"servers\": [\n                {\n                  \"id\":\"1bd0eb17-4466-4c15-a9ce-87727ad311b5\"  \n                },\n                {\n                  \"id\":\"fd6b6e9d-64a1-40fa-b7dc-f491be42fdd2\" \n                }\n               ]\n}"
+      }
+    }
+  },
+  "definitions": {
+    "ApicomBatchResetServerPwdReq": {
+      "required": [
+        "new_password",
+        "servers"
+      ],
+      "properties": {
+        "new_password": {
+          "type": "string",
+          "description": "新密码。\n当dry_run字段为true时,该字段为非必填字段,否则为必填字段。\n新密码的校验规则:\n1. 密码长度范围为8到26位。\n2. 允许输入的字符包括:!@%-_=+[]:./?\n3. 禁止输入的字符包括:汉字及【】:;“”‘’、,。《》?¥...()—— ·!~`#&^,{}*();\"'<>|\\ $\n4. 复杂度上必须包含大写字母(A-Z)、小写字母(a-z)、数字(0-9)、以及允许的特殊字符中的3种以上搭配。\n5. 不能包含用户名 \"Administrator\" 和“root”及逆序字符。\n6. 不能包含用户名 \"Administrator\" 中连续3个字符。",
+          "minLength": 8,
+          "maxLength": 26
+        },
+        "guest_username": {
+          "type": "string",
+          "description": "指定用户名,该参数为非必传参数,创建的弹性云服务器安装了重置密码插件后,传入该参数的情况下,支持重置传入用户名的密码,不传参,默认修改管理员账户的密码,非windows操作系统为root用户,windows操作系统为Administrator用户。该参数会进行校验,windows操作系统用户名不支持\\/\"[]:|<>+=;,?*。@特殊字符,不能包含空格,长度范围为1到20。linux及其他操作系统用户名不支持!# %^&( ){} \\/\"[]:|<>+=;,?*@ `特殊字符,不能包含空格,长度范围为1到32。"
+        },
+        "dry_run": {
+          "type": "boolean",
+          "description": "是否只预检此次请求。\n1. true:发送检查请求,不会重置密码。检查项包括是否填写了必需参数、请求格式、业务限制。如果检查不通过,则返回对应错误。如果检查通过,则返回响应结果。\n2. false:发送正常请求,通过检查后并且进行重置密码请求。\n3. 默认值:false。"
+        },
+        "servers": {
+          "type": "array",
+          "description": "待批量重置密码的弹性云服务器ID信息。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/serverid_list"
+          }
+        }
+      },
+      "description": "This is a auto create Body Object"
+    },
+    "serverid_list": {
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "弹性云服务器ID。"
+        }
+      },
+      "description": "弹性云服务器ID。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

@@ -1,0 +1,263 @@
+{
+  "name": "CreateRemuxTask",
+  "summary": "新建转封装任务",
+  "tags": "转封装接口",
+  "productshort": "MPC",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/remux": {
+      "post": {
+        "x-navigation-title": "转封装接口",
+        "description": "创建转封装任务,转换音视频文件的格式,但不改变其分辨率和码率。\n待转封装的媒资文件需要存储在与媒体处理服务同区域的OBS桶中,且该OBS桶已授权。",
+        "summary": "新建转封装任务",
+        "x-publishpath": "mpc_04_0053",
+        "operationId": "CreateRemuxTask",
+        "x-open-region-cloud": "hc,hk,g42",
+        "x-external-api": true,
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "RemuxTaskManager"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/authorization"
+          },
+          {
+            "$ref": "#/parameters/xProjectId"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](mpc_04_0064.xml)",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "in": "body",
+            "name": "CreateRemuxTaskRequestBody",
+            "description": "创建转封装请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateRemuxTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "新建转封装任务成功。",
+            "schema": {
+              "$ref": "#/definitions/CommonCreateTaskRsp"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": 100211
+              }
+            }
+          },
+          "400": {
+            "description": "新建转封装任务失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "MPC.10202",
+                "error_msg": "Invalid request parameter."
+              }
+            }
+          }
+        },
+        "x-request-examples-1": "POST https://{endpoint}/v1/{project_id}/remux\n{\n    \"input\": {\n               \"bucket\": \"zitest\",\n               \"location\": \"region1\",\n               \"object\": \"input/flv_1.flv\"\n    },\n    \"output\": {\n               \"bucket\": \"zitest\",\n               \"location\": \"region1\",\n               \"object\": \"output/\",\n               \"file_name\" : \"test.m3u8\"\n    },\n    \"output_param\": {\n        \"format\":\"HLS\",\n        \"segment_duration\": 7\n    }\n}\n",
+        "x-response-example": "{\n  \"task_id\": 100211\n}\n"
+      }
+    }
+  },
+  "definitions": {
+    "CommonCreateTaskRsp": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "任务ID"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "RemuxOutputParam": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "default": "MP4",
+          "description": "输出格式。取值范围:\n- HLS\n- MP4"
+        },
+        "segment_duration": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 20,
+          "default": 5,
+          "description": "分片时长,仅当“format”为“HLS”时有效。\n\n取值范围:[2,10]。\n\n默认值: 5。\n\n单位:秒。"
+        },
+        "remove_meta": {
+          "type": "boolean",
+          "default": false,
+          "description": "输出媒体是否去除片源的中metadata自定义信息。默认值:false"
+        }
+      }
+    },
+    "CreateRemuxTaskReq": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonCreateTaskReq"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "output_param": {
+              "$ref": "#/definitions/RemuxOutputParam",
+              "description": "输出参数。"
+            }
+          }
+        }
+      ]
+    },
+    "ObsObjInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "bucket",
+        "location",
+        "object"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "OBS的bucket名称。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "location": {
+          "description": "OBS桶所在的区域,且必须与使用的MPC区域保持一致。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "object": {
+          "description": "OBS对象路径,遵守OSS Object定义。\n\n- 当用于指示input时,需要指定到具体对象。\n- 当用于指示output时, 只需指定到转码结果期望存放的路径。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647,
+          "description": "文件名,仅用于转封装指定输出名称。\n\n- 当指定了此参数时,输出的对象名为object/file_name 。\n- 当不指定此参数时,输出的对象名为object/xxx,其中xxx由MPC指定。"
+        }
+      }
+    },
+    "CommonCreateTaskReq": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "input": {
+          "$ref": "#/definitions/ObsObjInfo",
+          "description": "源文件信息。"
+        },
+        "output": {
+          "$ref": "#/definitions/ObsObjInfo",
+          "description": "输出文件信息。"
+        },
+        "user_data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65535,
+          "description": "用户自定义数据。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xProjectId": {
+      "name": "X-Project_Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "mpc.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,220 @@
+{
+  "name": "ListDesignDataLayers",
+  "summary": "获取数仓分层信息",
+  "tags": "数仓分层接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/design/data-layers": {
+      "get": {
+        "summary": "获取数仓分层信息",
+        "description": "获取数仓分层信息",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "doc-open",
+        "tags": [
+          "数仓分层接口"
+        ],
+        "operationId": "ListDesignDataLayers",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "$ref": "#/parameters/contextTypeParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
+          },
+          {
+            "$ref": "#/parameters/offsetParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success,返回层级列表,里面的data对象是DataLayerVO数组",
+            "schema": {
+              "$ref": "#/definitions/ListDesignDataLayersResult"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LayerType": {
+      "type": "string",
+      "enum": [
+        "THIRD_NF",
+        "DIMENSION",
+        "DM"
+      ],
+      "description": "数仓分层的类型,可以是关系建模(ER)、维度建模(DIMENSION)和数据集市(DM)"
+    },
+    "ListDesignDataLayersResult": {
+      "type": "object",
+      "description": "Success,数仓分层查询接口。",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "接口返回的数据。",
+          "properties": {
+            "value": {
+              "$ref": "#/definitions/DataLayerResultVOList"
+            }
+          }
+        }
+      }
+    },
+    "DataLayerResultVOList": {
+      "description": "数仓分层数组。",
+      "type": "array",
+      "maxItems": 6,
+      "minItems": 3,
+      "items": {
+        "$ref": "#/definitions/DataLayerVO"
+      }
+    },
+    "DataLayerVO": {
+      "type": "object",
+      "required": [
+        "level",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "数仓分层的ID,ID字符串。"
+        },
+        "level": {
+          "type": "integer",
+          "description": "层级,从1开始。"
+        },
+        "name": {
+          "type": "string",
+          "description": "中文名称。",
+          "minLength": 1,
+          "maxLength": 10,
+          "pattern": "^[a-zA-Z\\一-\\龥][a-zA-Z0-9_\\一-\\龥]*$"
+        },
+        "type": {
+          "$ref": "#/definitions/LayerType"
+        },
+        "description": {
+          "type": "string",
+          "description": "数仓分层描述。",
+          "maxLength": 200
+        },
+        "is_default": {
+          "type": "boolean",
+          "description": "是否是不可删除的默认分层,包含SDI\\DWR\\DM。",
+          "default": false
+        },
+        "disabled_customized_field_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "该分层禁用的自定义项的ID列表,包括表级自定义项和字段级自定义项。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "limitParam": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页查询条数,即查询Y条数据。默认值50,取值范围[1,100]。",
+      "required": false,
+      "type": "integer",
+      "format": "int32",
+      "default": 50,
+      "maximum": 100
+    },
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "offsetParam": {
+      "name": "offset",
+      "in": "query",
+      "description": "查询起始坐标,即跳过X条数据,仅支持0或limit的整数倍,不满足则向下取整,默认值0。",
+      "required": false,
+      "type": "integer",
+      "format": "int32",
+      "default": 0
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "contextTypeParam": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "默认值:application/json;charset=UTF-8\n可选,有Body体的情况下必选,没有Body体则无需填写和校验。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

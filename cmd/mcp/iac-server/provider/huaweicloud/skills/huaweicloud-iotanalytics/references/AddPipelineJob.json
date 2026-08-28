@@ -1,0 +1,306 @@
+{
+  "name": "AddPipelineJob",
+  "summary": "新建管道作业",
+  "tags": "管道作业管理",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/pipelines": {
+      "post": {
+        "tags": [
+          "PipelineManagement"
+        ],
+        "summary": "新建管道作业",
+        "description": "新建管道作业时,需要在URL中指定是更新哪一个作业,将在body中附带完整的作业信息。(作业中各算子的详细配置请参考算子配置章节。) check参数表示是否需要对作业配置进行检查,若为false,则不检查,将作业保存为草稿;若为true,则对作业配置进行检查。当检查不通过时,将作业状态修改为草稿;检查通过时,将作业状态修改为就绪,并返回成功。",
+        "operationId": "AddPipelineJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "minLength": 1,
+            "x-annotations": "@Size(min = 1, max = 65535)"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_]+$",
+            "x-annotations": "@Size(min = 1, max = 100)"
+          },
+          {
+            "name": "check",
+            "in": "query",
+            "description": "是否需要校验配置是否正确",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "in": "body",
+            "name": "AddPipelineJobRequestBody",
+            "description": "管道作业详细配置(管道作业详细配置,每个作业可选择不同的算子进行组合,各算子的使用方法详见:数据管道算子配置指南。)",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PipelineJobConfigDto"
+            },
+            "x-annotations": "@Size(max = 100)"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/PipelineCreateResponseDto"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseDto"
+            },
+            "x-Error": [
+              "IoTA.03011001",
+              "IoTA.03011002",
+              "IoTA.03011003",
+              "IoTA.03011004",
+              "IoTA.03011005",
+              "IoTA.03011008",
+              "IoTA.03011009",
+              "IoTA.03011011",
+              "IoTA.03011018",
+              "IoTA.03011015",
+              "IoTA.99000010"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseDto"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseDto"
+            },
+            "x-Error": [
+              "IoTA.03011007",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IoTA.03011012"
+            ]
+          },
+          "405": {
+            "description": "Method Not Allowed"
+          },
+          "409": {
+            "description": "Conflict",
+            "x-Error": [
+              "IoTA.03011006"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseDto"
+            },
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "deprecated": false,
+        "x-imports": [
+          "org.springframework.http.ResponseEntity"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-for-HCS": "Y",
+        "x-open-for-CLOUD": "Y",
+        "x-externalAPI": true,
+        "x-iftype": "OpenAPI",
+        "x-returnType": "ResponseEntity<PipelineCreateResponseDto>"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponseDto": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "title": "作业监控信息响应",
+      "description": "作业监控信息响应",
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude"
+      ],
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "x-java-class": "com.huawei.iot.iota.rtaj.api.dto.response.ErrorResponseDto"
+    },
+    "PipelineCreateResponseDto": {
+      "type": "object",
+      "properties": {
+        "pipeline_id": {
+          "type": "string",
+          "description": "管道ID",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "check_info": {
+          "type": "object",
+          "example": {
+            "parallelism": "parallelism must be greater than 0",
+            "ak": "ak can not be null."
+          },
+          "description": "管道错误详情",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {}
+          },
+          "x-Type": "Map<String, Object>"
+        }
+      },
+      "title": "创建管道响应信息",
+      "description": "创建管道响应信息",
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude"
+      ],
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "x-java-class": "com.huawei.iot.iota.rtaj.api.dto.response.PipelineCreateResponseDto"
+    },
+    "PipelineJobConfigDto": {
+      "type": "object",
+      "title": "管道配置",
+      "description": "管道作业详细配置,每个作业可选择不同的算子进行组合,各算子的使用方法详见:数据管道算子配置指南。",
+      "example": {
+        "definition": {
+          "pipelineName": "IoTDAPipeline",
+          "pipelineDescription": "IoTDA产品数据接入管道"
+        },
+        "operatorInstances": [
+          {
+            "id": "operator1",
+            "className": "IoTDASource",
+            "configs": {
+              "basicConfigs": {
+                "name": "xxx",
+                "dataSourceId": "xxx",
+                "eventTime": {
+                  "jsonPath": "body.services[0].event_time",
+                  "pattern": "yyyyMMdd’T’HHmmss’Z’"
+                }
+              }
+            }
+          },
+          {
+            "id": "operator2",
+            "className": "ProductFilter",
+            "fromOperators": [
+              {
+                "id": "operator1"
+              }
+            ],
+            "configs": {
+              "basicConfigs": {
+                "name": "xxx产品",
+                "appId": "xxx",
+                "productId": "xxx"
+              }
+            }
+          },
+          {
+            "id": "operator3",
+            "className": "DataStoreSink",
+            "fromOperators": [
+              {
+                "id": "operator2"
+              }
+            ],
+            "configs": {
+              "basicConfigs": {
+                "name": "xx产品的数据输出",
+                "dataStore": {
+                  "dataStoreName": "xxx",
+                  "dataStoreId": "xxx",
+                  "dataStoreGroupId": "xxx",
+                  "dataStoreProperty": {
+                    "deviceId": "header.device_id",
+                    "properties": [
+                      {
+                        "name": "xxx",
+                        "type": "INTEGER",
+                        "existingProperty": "body.services[?(@.service_id=='Battery')].properties.batteryLevel"
+                      },
+                      {
+                        "name": "Battery_batteryThreshold",
+                        "type": "INTEGER",
+                        "existingProperty": "body.services[?(@.service_id=='Battery')].properties.batteryThreshold"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {}
+      },
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude"
+      ],
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)",
+        "@Size(max = 100)"
+      ],
+      "x-java-class": "com.huawei.iot.iota.rtaj.api.dto.PipelineJobConfigDto",
+      "x-Type": "Map<String, Object>"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

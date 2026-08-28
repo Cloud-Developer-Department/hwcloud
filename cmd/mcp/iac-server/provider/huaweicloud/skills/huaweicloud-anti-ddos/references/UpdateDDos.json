@@ -1,0 +1,208 @@
+{
+  "name": "UpdateDDos",
+  "summary": "更新Anti-DDoS服务",
+  "tags": "DDoS防护管理",
+  "productshort": "Anti-DDoS",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/antiddos/{floating_ip_id}": {
+      "put": {
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/{project_id}/antiddos/{floating_ip_id}",
+        "x-request-examples-description-1": "更新指定EIP的Anti-DDoS防护策略,清洗时访问限制分段ID设置为8,流量分段ID设置为1。",
+        "x-request-examples-text-1": {
+          "app_type_id": 0,
+          "cleaning_access_pos_id": 8,
+          "enable_L7": false,
+          "http_request_pos_id": 1,
+          "traffic_pos_id": 1
+        },
+        "x-request-examples-1": {
+          "app_type_id": 0,
+          "cleaning_access_pos_id": 8,
+          "enable_L7": false,
+          "http_request_pos_id": 1,
+          "traffic_pos_id": 1
+        },
+        "tags": [
+          "DDoS防护管理"
+        ],
+        "summary": "更新Anti-DDoS服务",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "description": "更新指定EIP的Anti-DDoS防护策略配置。调用成功,只是说明服务节点收到了关闭更新配置请求,操作是否成功需要通过任务查询接口查询该任务的执行状态,具体请参考查询Anti-DDoS任务。",
+        "operationId": "UpdateDDos",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "application/json;charset=utf8",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Content-Type请求头"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 64,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "floating_ip_id",
+            "in": "path",
+            "description": "用户EIP对应的ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "UpdateDDosRequestBody",
+            "description": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAntiDDosServiceRequestBody"
+            }
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "description": "ip",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "examples": {
+              "application/json": {
+                "error_code": "10000000",
+                "error_msg": "The task has been received and is being handled",
+                "task_id": "59385d2a-6266-4d3a-9122-a228c530f557"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/AsynResponse"
+            }
+          }
+        },
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "AsynResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg",
+        "task_id"
+      ],
+      "description": "异步任务响应体",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "内部错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "内部错误描述"
+        },
+        "task_id": {
+          "type": "string",
+          "description": "任务ID,后续可根据该ID查询本任务状态。\n本字段为后续的任务审计扩展,暂时不需要,先保留。"
+        }
+      },
+      "example": {
+        "error_code": "10000000",
+        "error_msg": "The task has been received and is being handled",
+        "task_id": "59385d2a-6266-4d3a-9122-a228c530f557"
+      }
+    },
+    "UpdateAntiDDosServiceRequestBody": {
+      "type": "object",
+      "required": [
+        "app_type_id",
+        "cleaning_access_pos_id",
+        "enable_L7",
+        "http_request_pos_id",
+        "traffic_pos_id"
+      ],
+      "properties": {
+        "app_type_id": {
+          "type": "integer",
+          "format": "int32",
+          "enum": [
+            0,
+            1
+          ],
+          "description": "应用类型ID,固定值为0"
+        },
+        "cleaning_access_pos_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "清洗时访问限制分段ID,取值范围:1:10M;2:30M;3:50M;4:70M;5:100M;6:150M;7:200M;8:250M;9:300M;10:500M;11:800M;88:1000M;99:默认防护。",
+          "minimum": 1,
+          "maximum": 99
+        },
+        "enable_L7": {
+          "type": "boolean",
+          "description": "是否开启L7层防护,固定值为fasle"
+        },
+        "http_request_pos_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "HTTP请求数分段ID,固定值为1",
+          "minimum": 1,
+          "maximum": 15
+        },
+        "traffic_pos_id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "流量分段ID,取值范围:1:10M;2:30M;3:50M;4:70M;5:100M;6:150M;7:200M;8:250M;9:300M;10:500M;11:800M;88:1000M;99:默认防护。",
+          "minimum": 1,
+          "maximum": 99
+        }
+      },
+      "example": {
+        "app_type_id": 0,
+        "cleaning_access_pos_id": 8,
+        "enable_L7": false,
+        "http_request_pos_id": 1,
+        "traffic_pos_id": 1
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "antiddos.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

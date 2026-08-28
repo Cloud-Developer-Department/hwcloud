@@ -1,0 +1,527 @@
+{
+  "name": "ScaleDownHyperinstance",
+  "summary": "缩容Lite Server超节点",
+  "tags": "Lite Server管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/dev-servers/hyperinstance/{id}/live-scale-down": {
+      "post": {
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/{project_id}/dev-servers/hyperinstance/{id}/live-scale-down",
+        "x-request-examples-text-1": {
+          "flavor": "kat3ne-8.48xlarge.8.800t.matrix-kf",
+          "server_ids": [
+            "9099cc0b-1dcc-46d3-b5b4-8c1c4cf51de8",
+            "7d93ab97-1b52-4b52-8b4d-9d692512ee81",
+            "00e91787-0989-4c99-9321-ea37784ed949"
+          ]
+        },
+        "x-request-examples-1": {
+          "flavor": "kat3ne-8.48xlarge.8.800t.matrix-kf",
+          "server_ids": [
+            "9099cc0b-1dcc-46d3-b5b4-8c1c4cf51de8",
+            "7d93ab97-1b52-4b52-8b4d-9d692512ee81",
+            "00e91787-0989-4c99-9321-ea37784ed949"
+          ]
+        },
+        "x-api-type": "open-api",
+        "x-publish-doc": "Y",
+        "x-open-region-cloud": "hk,hc,hcso",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "tags": [
+          "Lite Server管理"
+        ],
+        "summary": "缩容Lite Server超节点",
+        "description": "缩容Lite Server超节点接口用于减少Lite Server超节点的资源容量。该接口适用于以下场景:当用户需要降低Lite Server超节点的资源使用,以节省成本或优化资源分配时,可以通过此接口进行缩容。使用该接口的前提条件是用户已登录并具有缩容超节点的权限,且指定的超节点已存在且处于运行状态。缩容操作完成后,超节点的资源容量将根据指定的规格进行调整,用户可以立即使用减少后的资源。若用户无权限操作、指定的超节点不存在、超节点已处于最小容量或指定的缩容规格无效,接口将返回相应的错误信息。",
+        "operationId": "ScaleDownHyperinstance",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:Lite Server超节点ID。\n**约束限制**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。\n**取值范围**:不涉及。\n**默认取值**:不涉及。"
+          },
+          {
+            "$ref": "#/parameters/projectId"
+          },
+          {
+            "name": "ScaleDownHyperinstanceRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "**参数解释**:缩容Lite Server超节点请求体。",
+            "schema": {
+              "$ref": "#/definitions/ServerScaleDownRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "缩容订单成功",
+            "schema": {
+              "$ref": "#/definitions/ServerHyperinstanceResponse"
+            },
+            "examples": {
+              "application/json": {
+                "order_id": "CS12345678912345",
+                "servers": []
+              }
+            }
+          }
+        },
+        "x-order": 36
+      }
+    }
+  },
+  "definitions": {
+    "CloudServer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:服务器资源id,或超节点子节点id。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "BMS",
+            "ECS",
+            "HPS"
+          ],
+          "description": "**参数解释**:Lite Server服务器类型。\n**取值范围**:\n- BMS:裸金属服务器\n- ECS:弹性云服务器\n- HPS:超节点服务器"
+        },
+        "hps_id": {
+          "type": "string",
+          "description": "**参数解释**:服务器所属的超节点资源id。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "example": "b1f2c1a0-2841-4cfc-bfba-2176d0cd564b",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "hps_ecs_id": {
+          "type": "string",
+          "description": "**参数解释**:超节点子节点对应服务器资源id。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。"
+        }
+      },
+      "title": "CloudServer"
+    },
+    "ServerResponse": {
+      "type": "object",
+      "properties": {
+        "create_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:创建时间。\n**取值范围**:不涉及。"
+        },
+        "update_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:更新时间。\n**取值范围**:不涉及。"
+        },
+        "charging_mode": {
+          "type": "string",
+          "description": "**参数解释**:计费模式。\n**取值范围**:\n- COMMON:同时支持包周期和按需\n- POST_PAID:按需模式\n- PRE_PAID:包周期",
+          "enum": [
+            "COMMON",
+            "POST_PAID",
+            "PRE_PAID"
+          ]
+        },
+        "cloud_server": {
+          "description": "**参数解释**:云服务信息。",
+          "$ref": "#/definitions/CloudServer"
+        },
+        "endpoints_response": {
+          "type": "array",
+          "description": "**参数解释**:实例私有IP信息。",
+          "minItems": 0,
+          "maxItems": 1024,
+          "items": {
+            "$ref": "#/definitions/Endpoints"
+          }
+        },
+        "flavor": {
+          "type": "string",
+          "example": "s6.medium.2",
+          "description": "**参数解释**:实例规格名称。\n**取值范围**:^.{1,128}$。",
+          "pattern": "^[a-zA-Z0-9.]{1,128}$"
+        },
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:实例ID。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "key_pair_name": {
+          "type": "string",
+          "description": "**参数解释**:密钥对名称。\n**取值范围**:^[-_.a-zA-Z0-9]{1,64}$。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:实例名称。\n**取值范围**:^[-_.a-zA-Z0-9]{1,64}$。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "order_id": {
+          "type": "string",
+          "description": "**参数解释**:订单ID。\n**取值范围**:^[a-zA-Z0-9]{1,64}$。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "CREATE_FAILED",
+            "CREATING",
+            "DELETED",
+            "DELETE_FAILED",
+            "DELETING",
+            "ERROR",
+            "RUNNING",
+            "STARTING",
+            "START_FAILED",
+            "STOPPED",
+            "STOPPING",
+            "STOP_FAILED",
+            "REBOOTING",
+            "REBOOT_FAILED",
+            "CHANGINGOS",
+            "CHANGINGOS_FAILED",
+            "REINSTALLINGOS",
+            "REINSTALLINGOS_FAILED"
+          ],
+          "description": "**参数解释**:实例状态。表示实例的当前运行状态,用于监控实例的生命周期和健康状况。\n**取值范围**:\n- CREATE_FAILED: 创建失败\n- CREATING: 创建中\n- DELETED: 已删除\n- DELETE_FAILED: 删除失败\n- DELETING: 删除中\n- ERROR: 错误\n- RUNNING: 运行中\n- STARTING: 启动中\n- START_FAILED: 启动失败\n- STOPPED: 已停止\n- STOPPING: 停止中\n- STOP_FAILED: 停止失败\n- REBOOTING: 重启中\n- REBOOT_FAILED: 重启失败\n- CHANGINGOS: 切换操作系统中\n- CHANGINGOS_FAILED: 切换操作系统失败\n- REINSTALLINGOS: 重装操作系统中\n- REINSTALLINGOS_FAILED: 重装操作系统失败"
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "**参数解释**:实例所在虚拟私有云ID。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "endpoints": {
+          "items": {
+            "$ref": "#/definitions/EndpointsRes"
+          },
+          "description": "**参数解释**:服务器私有IP信息。",
+          "type": "array"
+        },
+        "volumes": {
+          "type": "array",
+          "description": "**参数解释**:挂载硬盘信息。",
+          "minItems": 0,
+          "maxItems": 9,
+          "items": {
+            "$ref": "#/definitions/ServerVolume"
+          }
+        },
+        "image": {
+          "description": "**参数解释**:服务器镜像信息。",
+          "$ref": "#/definitions/ServerImageResponse"
+        },
+        "category": {
+          "type": "string",
+          "description": "**参数解释**:服务器归属类型。\n**取值范围**:\n- HPS:超节点服务器\n- SPOD:整柜服务器\n- SERVER:单台服务器",
+          "enum": [
+            "SPOD",
+            "SERVER",
+            "HPS"
+          ]
+        },
+        "server_hps": {
+          "description": "**参数解释**:服务器归属超节点信息。",
+          "$ref": "#/definitions/ServerHpsInfo"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "**参数解释**:实例所在子网的ID。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "title": "ServerResponse"
+    },
+    "ServerVolume": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:EVS盘大小。表示分配给系统盘的存储空间大小。\n**约束限制**:不涉及。\n**取值范围**:100 - 1024 GB\n**默认取值**:不涉及。",
+          "minimum": 100,
+          "maximum": 1024
+        },
+        "type": {
+          "type": "string",
+          "description": "**参数解释**:存储类型。表示系统盘或数据盘。\n**约束限制**:不涉及。\n**取值范围**:\n- ROOT:系统盘\n- DATA:数据盘\n\n**默认取值**:不涉及。",
+          "enum": [
+            "ROOT",
+            "DATA"
+          ]
+        },
+        "evs_type": {
+          "type": "string",
+          "description": "**参数解释**:EVS盘类型。表示EVS盘的存储类型。\n**约束限制**:不涉及。\n**取值范围**:\n- ESSD:极速型SSD云硬盘\n- GPSSD:通用型SSD云硬盘\n- SAS:高IO云硬盘\n- SATA:普通IO云硬盘\n- SSD:超高IO云硬盘\n\n**默认取值**:不涉及。",
+          "enum": [
+            "ESSD",
+            "GPSSD",
+            "SAS",
+            "SATA",
+            "SSD"
+          ]
+        },
+        "evs_id": {
+          "type": "string",
+          "description": "**参数解释**:EVS盘的ID。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "title": "ServerVolume"
+    },
+    "ServerHyperinstanceResponse": {
+      "type": "object",
+      "description": "Lite Server超节点实例详情。",
+      "properties": {
+        "create_at": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1732072744137,
+          "description": "**参数解释**:创建时间。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "minimum": 2147483647,
+          "maximum": 4102376399000
+        },
+        "hps_cluster_id": {
+          "type": "string",
+          "example": "94b861b8-f4af-49de-9b29-1240886879e5",
+          "description": "**参数解释**:超节点集群网络ID。\n**约束限制**:不涉及。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。\n**默认取值**:不涉及。"
+        },
+        "hps_id": {
+          "type": "string",
+          "example": "37087850-50c3-4723-abf2-4172416b4677",
+          "description": "**参数解释**:超节点ID。\n**约束限制**:不涉及。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。\n**默认取值**:不涉及。"
+        },
+        "id": {
+          "type": "string",
+          "example": "a969853d-14f1-42ad-92e3-3e6cded4d990",
+          "description": "**参数解释**:Lite Server超节点ID。\n**约束限制**:不涉及。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。\n**默认取值**:不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "example": "devserver-ba0d-zq",
+          "description": "**参数解释**:实例名称。\n**约束限制**:不涉及。\n**取值范围**:^[-_.a-zA-Z0-9]{1,64}$。\n**默认取值**:不涉及。"
+        },
+        "order_id": {
+          "type": "string",
+          "example": "CS24112011186A3T3",
+          "description": "**参数解释**:订单ID。\n**约束限制**:不涉及。\n**取值范围**:^[a-zA-Z0-9]{1,64}$。\n**默认取值**:不涉及。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "example": "ACTIVE",
+          "description": "**参数解释**:超节点实例状态。\n**约束限制**:不涉及。\n**取值范围**:\n- PROVISIONING:超节点的创建请求已被接受,但是仍在创建过程中;\n- ACTIVE:超节点处于活动状态,其资源可被使用;\n- ERROR:超节点创建失败;\n- REIMAGING:超节点切换操作系统中;\n- TERMINATING:资源释放中;\n- TERMINATED:超节点资源已经被释放,其资源不再可用。\n**默认取值**:不涉及。",
+          "enum": [
+            "PROVISIONING",
+            "ACTIVE",
+            "ERROR",
+            "REIMAGING",
+            "TERMINATING",
+            "TERMINATED"
+          ]
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServerResponse"
+          },
+          "description": "**参数解释**:超节点子节点实例列表。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "minItems": 1,
+          "maxItems": 2147483647
+        },
+        "update_at": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1732072873121,
+          "description": "**参数解释**:创建时间。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "maximum": 4102376399000,
+          "minimum": 2147483647
+        }
+      }
+    },
+    "EndpointsRes": {
+      "type": "object",
+      "properties": {
+        "dev_service": {
+          "type": "string",
+          "description": "**参数解释**:访问Notebook的途径。\n**取值范围**:枚举类型,取值如下:\n- NOTEBOOK:可以通过https协议访问Notebook。\n- SSH:可以通过SSH协议远程连接Notebook。"
+        },
+        "service": {
+          "type": "string",
+          "description": "**参数解释**:访问Notebook的途径。\n**取值范围**:枚举类型,取值如下:\n- NOTEBOOK:可以通过https协议访问Notebook。\n- SSH:可以通过SSH协议远程连接Notebook。",
+          "enum": [
+            "NOTEBOOK",
+            "SSH"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "description": "**参数解释**:实例私有IP地址。\n**取值范围**:不涉及。",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "key_pair_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:SSH密钥对名称列表,允许设置多个密钥对实现同时对SSH实例的访问。\n**取值范围**:不涉及。"
+        }
+      },
+      "title": "EndpointsRes",
+      "description": "本地IDE(如PyCharm、VS Code)或SSH客户端,通过SSH远程接入Notebook实例时需要的相关配置。"
+    },
+    "ServerImageResponse": {
+      "type": "object",
+      "properties": {
+        "arch": {
+          "type": "string",
+          "example": "X86",
+          "description": "**参数解释**:服务器镜像架构类型。\n**取值范围**:\n- ARM\n- X86",
+          "enum": [
+            "ARM",
+            "X86"
+          ]
+        },
+        "image_id": {
+          "type": "string",
+          "description": "**参数解释**:服务器镜像ID。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:服务器镜像名称。表示服务器镜像的名称。\n**约束限制**:不涉及。\n**取值范围**:1 - 256字符\n**默认取值**:不涉及。",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "server_type": {
+          "type": "string",
+          "example": "ECS",
+          "description": "**参数解释**:服务器类型。\n**取值范围**:\n- BMS:裸金属服务器\n- ECS:弹性云服务器\n- HPS:超节点服务器",
+          "enum": [
+            "BMS",
+            "ECS",
+            "HPS"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:服务器镜像状态。\n**取值范围**:\n- ACTIVE\n- INACTIVE"
+        }
+      },
+      "title": "ServerImageResponse"
+    },
+    "Endpoints": {
+      "type": "object",
+      "properties": {
+        "dev_service": {
+          "type": "string",
+          "description": "**参数解释**:支持的服务。\n**取值范围**:\n- NOTEBOOK:可以通过https协议访问Notebook\n- SSH:可以通过SSH协议远程连接Notebook",
+          "enum": [
+            "AI_FLOW",
+            "MA_STUDIO",
+            "NOTEBOOK",
+            "SSH",
+            "TENSOR_BOARD",
+            "WEB_IDE"
+          ]
+        },
+        "extensions": {
+          "type": "object",
+          "description": "**参数解释**:通过应用专属URL直接打开应用进入远程开发模式。包含应用的各种扩展配置。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 406900
+          }
+        },
+        "ssh_keys": {
+          "type": "array",
+          "description": "**参数解释**:SSH密钥对名称列表。允许设置多个密钥对实现同时对SSH实例的访问。\n**约束限制**:不涉及。\n**取值范围**:0 - 1024个密钥对\n**默认取值**:不涉及。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 406900
+          },
+          "minItems": 0,
+          "maxItems": 1024
+        }
+      },
+      "title": "Endpoints",
+      "description": "本地IDE(如PyCharm、VSCode)或SSH客户端,通过SSH远程接入Notebook实例时需要的相关配置。"
+    },
+    "ServerHpsInfo": {
+      "type": "object",
+      "description": "服务器归属的超节点信息。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:Lite Server超节点实例id。\n**取值范围**:^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:Lite Server超节点名称。\n**取值范围**:^[-_.a-zA-Z0-9]{1,64}$。",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "ServerScaleDownRequest": {
+      "type": "object",
+      "description": "超节点缩容请求",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "超节点ID"
+        },
+        "flavor": {
+          "type": "string",
+          "description": "规格信息"
+        },
+        "server_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "缩容节点id"
+        },
+        "resource_flavor": {
+          "type": "string",
+          "description": "资源规格信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "projectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "**参数解释**:用户项目ID。获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。\n**约束限制**:1 - 64字符,字母、数字和中划线。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+      "required": true,
+      "type": "string"
+    }
+  },
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

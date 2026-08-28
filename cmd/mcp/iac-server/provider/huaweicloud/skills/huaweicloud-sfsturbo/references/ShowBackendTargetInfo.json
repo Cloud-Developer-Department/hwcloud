@@ -1,0 +1,288 @@
+{
+  "name": "ShowBackendTargetInfo",
+  "summary": "获取后端存储详细信息",
+  "tags": "存储联动管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/targets/{target_id}": {
+      "get": {
+        "tags": [
+          "存储联动管理"
+        ],
+        "operationId": "ShowBackendTargetInfo",
+        "summary": "获取后端存储详细信息",
+        "description": "获取后端存储详细信息",
+        "x-constraint": "- 该接口仅适用于SFS Turbo 20MB/s/TiB、40MB/s/TiB、125MB/s/TiB、250MB/s/TiB、500MB/s/TiB、1000MB/s/TiB文件系统。\n- 该接口仅适用于NFS文件系统共享协议。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "x-open-region-cloud": "hws,hws_hk,dt,sbc,hcs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "description": "账号的token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "description": "MIME类型",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "share_id",
+            "description": "文件系统id",
+            "required": true,
+            "type": "string",
+            "x-example": "b959dfbb-xxxx-XXXX-xxxx-8930ec3a87b7"
+          },
+          {
+            "in": "path",
+            "name": "target_id",
+            "description": "绑定关系id",
+            "required": true,
+            "type": "string",
+            "x-example": "00000334-xxxx-402d-a5d4-bxxxxx87b939"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "任务下发成功",
+            "schema": {
+              "$ref": "#/definitions/ShowBackendTargetInfoResponseBody"
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "target_id": "00000334-xxxx-402d-a5d4-bxxxxx87b939",
+                "creation_time": "2023-10-10T12:02:03",
+                "file_system_path": "sfsturboDirName",
+                "lifecycle": "CREATING",
+                "obs": {
+                  "bucket": "myBucket",
+                  "endpoint": "obs.region.example.com"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0126",
+                "errMsg": "target not found, not bound yet"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "internal server error"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "文件系统ID为\"77ba6f4b-6365-4895-8dda-bc7142af4dde\",后端target_id为\"11abef677ac40f46644d1d5cfc2424a4\",获取后端存储详细信息\n",
+        "x-request-examples-url-1": "GET HTTPS://{endpoint}/v1/{project_id}/sfs-turbo/shares/77ba6f4b-6365-4895-8dda-bc7142af4dde/targets/11abef677ac40f46644d1d5cfc2424a4",
+        "x-order": 2
+      }
+    }
+  },
+  "definitions": {
+    "AutoExportPolicy": {
+      "description": "后端存储自动导出策略,SFS Turbo会以异步方式导出到OBS。",
+      "properties": {
+        "events": {
+          "type": "array",
+          "description": "后端存储自动导出到OBS桶的数据更新类型。\n- NEW:表示新增数据,SFS Turbo联动目录下创建的文件,及之后对这些文件进行的元数据和数据修改,会被自动同步到OBS桶里。\n- CHANGED:表示修改数据,从OBS桶里导入到SFS Turbo联动目录下的文件,在SFS Turbo上对这些文件所进行的数据和元数据的修改,会被自动同步到OBS桶里。\n- DELETED:表示删除数据,在SFS Turbo联动目录下删除文件,OBS桶对应的对象也会被删除,只有被SFS Turbo写入的OBS对象才会被删除。",
+          "items": {
+            "type": "string",
+            "description": "后端存储自动导出到OBS桶的数据更新类型。",
+            "enum": [
+              "NEW",
+              "CHANGED",
+              "DELETED"
+            ]
+          }
+        },
+        "prefix": {
+          "type": "string",
+          "description": "后端存储内对象匹配前缀"
+        },
+        "suffix": {
+          "type": "string",
+          "description": "后端存储内对象匹配后缀"
+        }
+      }
+    },
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "ObsDataRepositoryPolicy": {
+      "description": "后端存储自动同步策略",
+      "properties": {
+        "auto_export_policy": {
+          "type": "object",
+          "description": "后端存储自动导出策略。当文件系统发生数据更新时,将自动导出到OBS桶。",
+          "$ref": "#/definitions/AutoExportPolicy"
+        }
+      }
+    },
+    "ObsDataRepository": {
+      "description": "OBS类型后端存储",
+      "required": [
+        "bucket",
+        "endpoint"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "OBS桶名称"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "OBS桶所在的区域域名"
+        },
+        "policy": {
+          "type": "object",
+          "description": "后端存储自动同步策略",
+          "$ref": "#/definitions/ObsDataRepositoryPolicy"
+        },
+        "attributes": {
+          "type": "object",
+          "description": "后端存储属性。2024年6月30日及之前创建,且未升级的文件系统版本不支持该参数,请提工单处理。",
+          "$ref": "#/definitions/ObsTargetAttributes"
+        }
+      }
+    },
+    "ObsTargetAttributes": {
+      "description": "后端存储属性",
+      "properties": {
+        "file_mode": {
+          "type": "integer",
+          "description": "导入的文件权限。取值范围是0到777。\n\n第一位表示文件所有者的权限,取值范围是0到7;第二位表示文件所属用户组的权限,取值范围是0到7;第三位表示其他用户的权限,取值范围是0到7。文件所有者由uid指定,文件所属用户组由gid指定,不是文件所有者且不在文件所属用户组的用户为其他用户。\n\n数字4、2、1分别表示读、写、执行权限,这些数字相加,即可得到所需的权限组合。例如:750中第一位7代表该文件所有者对该文件具有读、写、执行权限;第二位5代表该文件所属用户组对该文件具有读、执行权限;第三位0代表其他用户对该文件无权限。"
+        },
+        "dir_mode": {
+          "type": "integer",
+          "description": "导入的目录权限。取值范围是0到777。\n\n第一位表示目录所有者的权限,取值范围是0到7;第二位表示目录所属用户组的权限,取值范围是0到7;第三位表示其他用户的权限,取值范围是0到7。目录所有者由uid指定,目录所属用户组由gid指定,不是目录所有者且不在目录所属用户组的用户为其他用户。\n\n数字4、2、1分别表示读、写、执行权限,这些数字相加,即可得到所需的权限组合。例如:750中第一位7代表该目录所有者对该目录具有读、写、执行权限;第二位5代表该目录所属用户组对该目录具有读、执行权限;第三位0代表其他用户对该文件无权限。"
+        },
+        "uid": {
+          "type": "integer",
+          "description": "导入对象所有者的用户id,默认值是0,取值范围是0到4,294,967,294(即2^32-2)。"
+        },
+        "gid": {
+          "type": "integer",
+          "description": "导入对象所属用户组id,默认值是0,取值范围是0到4,294,967,294(即2^32-2)。"
+        }
+      }
+    },
+    "FailureDetailsMessage": {
+      "description": "数据存储库生命周期中出现的错误信息",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    },
+    "ShowBackendTargetInfoResponseBody": {
+      "description": "查询文件系统后端存储详情返回体",
+      "properties": {
+        "target_id": {
+          "type": "string",
+          "description": "绑定关系ID"
+        },
+        "creation_time": {
+          "type": "string",
+          "description": "绑定关系创建时间"
+        },
+        "file_system_path": {
+          "type": "string",
+          "description": "联动目录名称"
+        },
+        "failure_details": {
+          "type": "object",
+          "description": "绑定错误信息",
+          "$ref": "#/definitions/FailureDetailsMessage"
+        },
+        "lifecycle": {
+          "type": "string",
+          "description": "绑定状态",
+          "enum": [
+            "CREATING",
+            "AVAILABLE",
+            "MISCONFIGURED",
+            "DELETING",
+            "FAILED"
+          ]
+        },
+        "obs": {
+          "type": "object",
+          "description": "OBS类型后端存储",
+          "$ref": "#/definitions/ObsDataRepository"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,647 @@
+{
+  "name": "ShowMesh",
+  "summary": "查询网格",
+  "tags": "网格接口",
+  "productshort": "ASM",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/meshes/{mesh_id}": {
+      "get": {
+        "x-is-registered": "Y",
+        "x-mesh-type": "基础版网格",
+        "tags": [
+          "网格接口"
+        ],
+        "operationId": "ShowMesh",
+        "summary": "查询网格",
+        "description": "该API用于获取指定网格的详细信息",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/param_path_projectid"
+          },
+          {
+            "$ref": "#/parameters/param_path_meshid"
+          },
+          {
+            "$ref": "#/parameters/param_header_x_auth_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "表示获取网格成功",
+            "schema": {
+              "$ref": "#/definitions/Mesh"
+            },
+            "examples": {
+              "application/json": {
+                "kind": "Mesh",
+                "apiVersion": "v1",
+                "metadata": {
+                  "name": "mesh-test-api",
+                  "uid": "a1efdc3e-xxxx-xxxx-xxxx-94bef433347e",
+                  "creationTimestamp": "2025-04-10T07:48:37Z"
+                },
+                "spec": {
+                  "type": "InCluster",
+                  "version": "1.18.7-r5",
+                  "config": {
+                    "telemetryConfig": {
+                      "metrics": {
+                        "aom": [
+                          {
+                            "instanceID": "602a5b7e-xxxx-xxxx-xxxx-4268c35b0424"
+                          }
+                        ]
+                      },
+                      "accessLogging": {
+                        "lts": [
+                          {
+                            "logGroupID": "b884eaeb-xxxx-xxxx-xxxx-f442de73c392",
+                            "logStreamID": "362e11e8-xxxx-xxxx-xxxx-0afdc68da7d2"
+                          }
+                        ]
+                      },
+                      "tracing": {
+                        "randomSamplingPercentage": 1,
+                        "defaultProviders": [
+                          "zipkin"
+                        ],
+                        "extensionProviders": [
+                          {
+                            "name": "zipkin",
+                            "zipkin": {
+                              "service": "zipkin.monitoring.svc.cluster.local",
+                              "port": 9411
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "proxyConfig": {
+                      "includeIPRanges": "10.247.0.0/16"
+                    }
+                  },
+                  "extendParams": {
+                    "clusters": [
+                      {
+                        "clusterID": "cb0ef541-xxxx-xxxx-xxxx-0255ac1001b7"
+                      }
+                    ]
+                  }
+                },
+                "status": {
+                  "phase": "Running",
+                  "updateTimestamp": "2025-04-10T07:58:43Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "用户提供的参数有问题,未通过校验",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "404": {
+            "description": "未找到指定的网格",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "查询过程中出现问题",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-order": 2,
+        "x-support-sdk": "Y",
+        "x-asmapi-version": 1.0,
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "ProxyConfig": {
+      "type": "object",
+      "description": "网格数据面代理配置。",
+      "properties": {
+        "includeIPRanges": {
+          "type": "string",
+          "description": "拦截对外访问的地址范围,以半角英文逗号(,)分隔的IP网段"
+        },
+        "excludeIPRanges": {
+          "type": "string",
+          "description": "排除拦截对外访问的地址范围,以半角英文逗号(,)分隔的IP网段"
+        },
+        "excludeOutboundPorts": {
+          "type": "string",
+          "description": "排除拦截对外访问端口,以半角英文逗号(,)分隔的出站端口列表"
+        },
+        "excludeInboundPorts": {
+          "type": "string",
+          "description": "排除拦截访问服务的端口,以半角英文逗号(,)分隔的入站端口列表"
+        },
+        "includeOutboundPorts": {
+          "type": "string",
+          "description": "拦截对外访问端口,以半角英文逗号(,)分隔的出站端口列表"
+        },
+        "includeInboundPorts": {
+          "type": "string",
+          "description": "拦截访问服务的端口,以半角英文逗号(,)分隔的入站端口列表"
+        }
+      }
+    },
+    "Tracing": {
+      "type": "object",
+      "properties": {
+        "randomSamplingPercentage": {
+          "type": "number",
+          "format": "float",
+          "description": "tracing采样率"
+        },
+        "defaultProviders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "tracing默认上报的provider名称,必须与extensionProviders中的name字段匹配,或使用ASM预设的provider \"apm-otel\"。\n如果使用\"apm-otel\",需确认当前region已支持APM2.0且网格版本大于1.18。"
+        },
+        "extensionProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TracingExtensionProvider"
+          },
+          "description": "用户自配置provider,目前支持zipkin协议。\n如果用户配置zipkin协议的provider,请保证网格版本大于等于1.15。"
+        }
+      }
+    },
+    "MeshSpec": {
+      "type": "object",
+      "required": [
+        "type",
+        "version",
+        "extendParams"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "网格类型。\n取值范围:\n- InCluster: 集群内控制平面形态,基础版网格取值为InCluster。目前仅支持该类型。",
+          "enum": [
+            "InCluster"
+          ],
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "version": {
+          "type": "string",
+          "description": "网格版本。",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "extendParams": {
+          "$ref": "#/definitions/MeshExtendParams",
+          "x-mesh-type": "基础版网格",
+          "x-api-type": "open-api",
+          "description": "服务网格扩展信息。"
+        },
+        "ipv6Enable": {
+          "type": "boolean",
+          "description": "网格是否支持IPV6",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MeshTags"
+          },
+          "description": "网格资源标签。如果需要配置资源标签,请确认当前region的TMS服务已上线。",
+          "x-mesh-type": "基础版网格",
+          "x-api-type": "open-api"
+        },
+        "config": {
+          "$ref": "#/definitions/MeshConfig",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格",
+          "description": "网格配置。"
+        }
+      },
+      "description": "网格参数定义"
+    },
+    "FieldSelector": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Key值",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "operator": {
+          "type": "string",
+          "description": "操作符,仅支持取值\"In\"",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Value值",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      },
+      "description": "“字段选择器(Field selectors)”允许你根据一个或多个资源字段的值筛选 Kubernetes 对象",
+      "required": [
+        "key",
+        "operator",
+        "values"
+      ]
+    },
+    "MeshStatus": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "type": "string",
+          "description": "网格状态,取值如下\n- Running:运行中,表示网格处于正常运行状态\n- Creating:创建中,表示网格正处于创建过程中\n- CreateFailed:创建失败\n- Deleting:删除中,表示网格正处于删除过程中\n- DeleteFailed:删除失败\n- Upgrading:升级中,表示网格正处于升级过程中\n- UpgradeFailed:升级失败\n- RollingBack:回滚中,表示网格正处于回滚过程中\n- RollbackFailed:回滚失败"
+        },
+        "updateTimestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "网格更新时间"
+        }
+      }
+    },
+    "TelemetryConfig": {
+      "type": "object",
+      "properties": {
+        "metrics": {
+          "description": "应用指标配置,用于上报ASM网格指标数据。如果要启用该配置,集群需安装云原生监控插件。",
+          "$ref": "#/definitions/Metric",
+          "x-api-type": "open-api",
+          "x-open-region-cloud": "hws,hws_hk"
+        },
+        "accessLogging": {
+          "description": "AccessLog配置,用于上报ASM网格内Istio代理的访问日志。如果要启用该配置,集群需安装云原生日志采集插件。",
+          "$ref": "#/definitions/AccessLogging",
+          "x-api-type": "open-api",
+          "x-open-region-cloud": "hws,hws_hk"
+        },
+        "tracing": {
+          "description": "Tracing配置,用于上报ASM网格内的调用链数据。",
+          "$ref": "#/definitions/Tracing",
+          "x-api-type": "open-api",
+          "x-open-region-cloud": "hws,hws_hk"
+        }
+      }
+    },
+    "LtsConfig": {
+      "type": "object",
+      "properties": {
+        "logGroupID": {
+          "type": "string",
+          "description": "AccessLog日志组ID"
+        },
+        "logStreamID": {
+          "type": "string",
+          "description": "AccessLog输出日志流ID"
+        }
+      }
+    },
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errorCode",
+        "errorMsg"
+      ],
+      "properties": {
+        "errorCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "errorMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      },
+      "type": "object"
+    },
+    "InstallationConfig": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "description": "安装网格组件的节点",
+          "$ref": "#/definitions/Selector",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      },
+      "required": [
+        "nodes"
+      ]
+    },
+    "ZipkinTracingProvider": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "type": "string",
+          "description": "zipkin服务地址"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "zipkin服务端口"
+        }
+      }
+    },
+    "InjectionConfig": {
+      "type": "object",
+      "description": "集群注入信息",
+      "properties": {
+        "namespaces": {
+          "$ref": "#/definitions/Selector",
+          "description": "需要注入的命名空间",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      }
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "aom": {
+          "items": {
+            "$ref": "#/definitions/Aom"
+          },
+          "description": "AOM实例配置。",
+          "type": "array"
+        }
+      }
+    },
+    "Aom": {
+      "type": "object",
+      "properties": {
+        "instanceID": {
+          "type": "string",
+          "description": "AOM实例ID。",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      },
+      "required": [
+        "instanceID"
+      ]
+    },
+    "MeshMetadata": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "网格名称。\n命名规则:以小写字母开头,由小写字母、数字、中划线(-)组成,长度范围4-64位,且不能以中划线(-)结尾",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "uid": {
+          "type": "string",
+          "description": "网格ID,资源唯一标识,创建成功后自动生成,填写无效",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格",
+          "readOnly": true
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "网格注解,由key/value组成:\n```\n\"annotations\": {\n   \"key1\" : \"value1\",\n   \"key2\" : \"value2\"\n}\n```",
+          "x-api-type": "open-api",
+          "x-mesh-type": ""
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "网格标签,由key/value组成:\n\n\n```\n\n\"labels\": {\n   \"key1\" : \"value1\",\n   \"key2\" : \"value2\"\n}\n\n```",
+          "x-api-type": "open-api",
+          "x-mesh-type": ""
+        },
+        "creationTimestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "网格创建时间",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格",
+          "readOnly": true
+        }
+      },
+      "x-api-type": "open-api",
+      "x-mesh-type": "基础版网格"
+    },
+    "Mesh": {
+      "type": "object",
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ],
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "default": "v1",
+          "description": "API版本,固定值“v1”,该值不可修改",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "kind": {
+          "type": "string",
+          "default": "Mesh",
+          "description": "API类型,固定值“Mesh”或“mesh”,该值不可修改",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "metadata": {
+          "$ref": "#/definitions/MeshMetadata",
+          "description": "网格的基本信息,为集合类的元素类型,包含一组由不同名称定义的属性",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "spec": {
+          "$ref": "#/definitions/MeshSpec",
+          "description": "集合类的元素类型,您对需要管理的网格对象进行详细描述的主体部分都在spec中给出。ASM通过spec的描述来创建或更新对象",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "status": {
+          "$ref": "#/definitions/MeshStatus",
+          "description": "集合类的元素类型,用于记录对象在系统中的当前状态信息。\n该对象为系统自动生成,不需要用户填写",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格",
+          "readOnly": true
+        }
+      },
+      "x-api-type": "open-api",
+      "x-mesh-type": "基础版网格"
+    },
+    "MeshExtendParams": {
+      "type": "object",
+      "properties": {
+        "clusters": {
+          "items": {
+            "$ref": "#/definitions/MeshCluster"
+          },
+          "description": "网格内集群信息",
+          "type": "array",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      },
+      "required": [
+        "clusters"
+      ]
+    },
+    "Selector": {
+      "type": "object",
+      "properties": {
+        "fieldSelector": {
+          "$ref": "#/definitions/FieldSelector",
+          "description": "字段选择器",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      },
+      "description": "选择器",
+      "required": [
+        "fieldSelector"
+      ]
+    },
+    "MeshConfig": {
+      "type": "object",
+      "description": "网格配置",
+      "properties": {
+        "proxyConfig": {
+          "description": "网格数据面配置",
+          "$ref": "#/definitions/ProxyConfig"
+        },
+        "telemetryConfig": {
+          "$ref": "#/definitions/TelemetryConfig",
+          "description": "网格的可观测性配置"
+        }
+      }
+    },
+    "MeshTags": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Key值。\n\n不能为空,最多支持128个字符\n\n可用UTF-8格式表示的汉字、字母、数字和空格\n\n支持部分特殊字符:_.:/=+-@\n\n不能以\"_sys_\"开头"
+        },
+        "value": {
+          "type": "string",
+          "description": "Value值。\n\n可以为空但不能缺省,最多支持255个字符\n\n可用UTF-8格式表示的汉字、字母、数字和空格\n\n支持部分特殊字符:_.:/=+-@"
+        }
+      },
+      "description": "网格标签集合"
+    },
+    "MeshCluster": {
+      "type": "object",
+      "required": [
+        "clusterID",
+        "installation"
+      ],
+      "properties": {
+        "clusterID": {
+          "type": "string",
+          "description": "集群ID,资源唯一标识,通过该ID查询需要添加的集群",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "injection": {
+          "description": "sidecar注入配置",
+          "$ref": "#/definitions/InjectionConfig",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        },
+        "installation": {
+          "description": "网格组件安装配置",
+          "$ref": "#/definitions/InstallationConfig",
+          "x-api-type": "open-api",
+          "x-mesh-type": "基础版网格"
+        }
+      }
+    },
+    "TracingExtensionProvider": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "provider实例name"
+        },
+        "zipkin": {
+          "$ref": "#/definitions/ZipkinTracingProvider",
+          "description": "zipkin协议provider自有配置"
+        }
+      }
+    },
+    "AccessLogging": {
+      "type": "object",
+      "properties": {
+        "lts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LtsConfig"
+          },
+          "description": "LTS配置"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "param_header_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "调用接口的认证方式分为Token和AK/SK两种,如果您使用的Token方式,此参数为必填,请填写Token的值。",
+      "type": "string"
+    },
+    "param_path_meshid": {
+      "name": "mesh_id",
+      "in": "path",
+      "required": true,
+      "description": "网格ID。",
+      "type": "string"
+    },
+    "param_path_projectid": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目ID。",
+      "type": "string"
+    }
+  },
+  "host": "asm.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,258 @@
+{
+  "name": "UpdateDatabaseAuthority",
+  "summary": "修改数据库对象权限",
+  "tags": "数据库权限管理",
+  "productshort": "DWS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/clusters/{cluster_id}/db-manager/authority": {
+      "post": {
+        "x-is-registered": "Y",
+        "tags": [
+          "数据库权限管理"
+        ],
+        "summary": "修改数据库对象权限",
+        "description": "修改数据库对象权限。",
+        "operationId": "UpdateDatabaseAuthority",
+        "x-scope": "Commercial",
+        "x-hc": "Y",
+        "x-support-sdk": "Y",
+        "x-ctc": "Y",
+        "x-hk": "Y",
+        "x-tlf": "Y",
+        "x-obc": "Y",
+        "x-name": "修改数据库对象权限",
+        "x-otc": "Y",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:\n项目ID。获取方法请参见[获取项目ID](dws_02_0011.xml)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+          },
+          {
+            "name": "cluster_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:\n集群ID。获取方法请参见[获取集群ID](dws_02_00068.xml)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/DatabasePermissionReq"
+            },
+            "in": "body",
+            "name": "UpdateDatabaseAuthorityRequestBody",
+            "description": "**参数解释**:\n修改数据库对象权限请求。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "修改集群ID为“a89aea88-7ea2-40bd-8ac8-8b93e169e5d6”的数据库对象权限,即对gaussdb数据库下表table1和table2进行“SELECT”授权,授权角色为user1和user2,模式为public。",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v1/0536cdee2200d5912f7cc00b877980f1/clusters/a89aea88-7ea2-40bd-8ac8-8b93e169e5d6/db-manager/authority",
+        "x-request-examples-1": {
+          "type": "table",
+          "is_grant": true,
+          "grant_list": [
+            {
+              "permission": "SELECT",
+              "grant_with": true
+            }
+          ],
+          "role_list": [
+            "user1",
+            "user2"
+          ],
+          "object_list": [
+            "table1",
+            "table2"
+          ],
+          "database": "gaussdb",
+          "schema": "public"
+        },
+        "x-request-examples-text-1": {
+          "type": "table",
+          "is_grant": true,
+          "grant_list": [
+            {
+              "permission": "SELECT",
+              "grant_with": true
+            }
+          ],
+          "role_list": [
+            "user1",
+            "user2"
+          ],
+          "object_list": [
+            "table1",
+            "table2"
+          ],
+          "database": "gaussdb",
+          "schema": "public"
+        },
+        "responses": {
+          "200": {
+            "description": "修改成功。",
+            "schema": {
+              "$ref": "#/definitions/AuthorityManagerResp"
+            },
+            "examples": {
+              "application/json": {
+                "view_sql": [
+                  "GRANT SELECT ON TABLE public.test_t1 TO user1 WITH GRANT OPTION;",
+                  "GRANT UPDATE ON TABLE public.test_t1 TO user1 ;"
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "请求错误。"
+          },
+          "401": {
+            "description": "鉴权失败。"
+          },
+          "403": {
+            "description": "没有操作权限。"
+          },
+          "404": {
+            "description": "找不到资源。"
+          },
+          "500": {
+            "description": "服务内部错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DatabasePermissionReq": {
+      "type": "object",
+      "description": "**参数解释**:\n数据库权限请求。\n**取值范围**:\n不涉及。",
+      "required": [
+        "type",
+        "is_grant",
+        "role_list",
+        "object_list",
+        "database"
+      ],
+      "properties": {
+        "type": {
+          "description": "**参数解释**:\n对象类型。\n**取值范围**:\n- DATABASE:数据库。\n- SCHEMA:模式。\n- TABLE:表。\n- VIEW:视图。\n- COLUMN:列。\n- FUNCTION:函数。\n- SEQUENCE:序列。\n- NODEGROUP:节点组。\n- ROLE:角色。",
+          "type": "string"
+        },
+        "is_grant": {
+          "description": "**参数解释**:\n是否授权操作。\n**取值范围**:\n不涉及。",
+          "type": "boolean"
+        },
+        "grant_list": {
+          "description": "**参数解释**:\n授权列表。is_grant为true时必填。\n**取值范围**:\n列表项最大值为100。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Grant"
+          }
+        },
+        "revoke_list": {
+          "description": "**参数解释**:\n撤销权限列表。is_grant为false时必填。\n**取值范围**:\n列表项最大值为100。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Revoke"
+          }
+        },
+        "role_list": {
+          "description": "**参数解释**:\n被授权角色列表。\n**取值范围**:\n列表项取值[0,100]。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "object_list": {
+          "description": "**参数解释**:\n权限所属对象列表。\n**取值范围**:\n列表项取值[0,2000]。",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "all_object": {
+          "description": "**参数解释**:\nschema下所有数据库对象权限,默认false。\n**取值范围**:\n不涉及。",
+          "type": "boolean"
+        },
+        "cascade": {
+          "description": "**参数解释**:\n撤销权限是否级联撤销,默认true。\n**取值范围**:\n不涉及。",
+          "type": "boolean",
+          "default": true
+        },
+        "database": {
+          "description": "**参数解释**:\n数据库名称。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        },
+        "schema": {
+          "description": "**参数解释**:\n模式名称。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        },
+        "table": {
+          "description": "**参数解释**:\n表名。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        }
+      }
+    },
+    "Grant": {
+      "type": "object",
+      "description": "**参数解释**:\n授权信息。\n**取值范围**:\n不涉及。",
+      "required": [
+        "permission",
+        "grant_with"
+      ],
+      "properties": {
+        "permission": {
+          "description": "**参数解释**:\n权限名称,根据不同数据库对象类型,拥有权限不同。\n**取值范围**:\n- database:CREATE | CONNECT | TEMPORARY | TEMP  ALL  PRIVILEGES\n- schema:CREATE | USAGE | ALTER | DROP  ALL  PRIVILEGES\n- table:SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | ANALYZE | ANALYSE | VACUUM | ALTER | DROP  ALL  PRIVILEGES\n- view:SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | ANALYZE | ANALYSE | VACUUM | ALTER | DROP  ALL  PRIVILEGES\n- column:SELECT | INSERT | UPDATE | REFERENCES  ALL  PRIVILEGES\n- function:EXECUTE  ALL  PRIVILEGES\n- sequence:SELECT | UPDATE | USAGE  ALL  PRIVILEGES\n- nodegroup:CREATE | USAGE | COMPUTE  ALL  PRIVILEGES\n- role:role_name(角色名称)",
+          "type": "string"
+        },
+        "grant_with": {
+          "description": "**参数解释**:\n是否包含授权选项。\n**取值范围**:\n不涉及。",
+          "type": "boolean"
+        }
+      }
+    },
+    "AuthorityManagerResp": {
+      "type": "object",
+      "description": "**参数解释**:\n权限变更sql回显对象。\n**取值范围**:\n不涉及。",
+      "properties": {
+        "view_sql": {
+          "description": "**参数解释**:\nsql列表。\n**取值范围**:\n不涉及。",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Revoke": {
+      "type": "object",
+      "description": "**参数解释**:\n移除权限信息。\n**取值范围**:\n不涉及。",
+      "required": [
+        "permission",
+        "revoke_with"
+      ],
+      "properties": {
+        "permission": {
+          "description": "**参数解释**:\n权限名称,根据不同数据库对象类型,拥有权限不同。\n**取值范围**:\n- database:CREATE | CONNECT | TEMPORARY | TEMP  ALL  PRIVILEGES\n- schema:CREATE | USAGE | ALTER | DROP  ALL  PRIVILEGES\n- table:SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | ANALYZE | ANALYSE | VACUUM | ALTER | DROP  ALL  PRIVILEGES\n- view:SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | ANALYZE | ANALYSE | VACUUM | ALTER | DROP  ALL  PRIVILEGES\n- column:SELECT | INSERT | UPDATE | REFERENCES  ALL  PRIVILEGES\n- function:EXECUTE  ALL  PRIVILEGES\n- sequence:SELECT | UPDATE | USAGE  ALL  PRIVILEGES\n- nodegroup:CREATE | USAGE | COMPUTE  ALL  PRIVILEGES\n- role:role_name(角色名称)",
+          "type": "string"
+        },
+        "revoke_with": {
+          "description": "**参数解释**:\n是否仅移除授权选项。\n**取值范围**:\n不涉及。",
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dws.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

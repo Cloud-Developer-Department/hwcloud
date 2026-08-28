@@ -1,0 +1,162 @@
+{
+  "name": "DeletePrivateHookVersion",
+  "summary": "删除私有hook版本",
+  "tags": "资源编排-Hook",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/private-hooks/{hook_name}/versions/{hook_version}": {
+      "delete": {
+        "tags": [
+          "Hook"
+        ],
+        "summary": "删除私有hook版本",
+        "description": "删除私有hook版本(DeletePrivateHookVersion)\n\n删除某个私有hook版本\n\n  * 默认版本只能调用DeletePrivateHook API删除,除默认版本外的其它版本都可以调用本API删除。\n  * 若hook_name和hook_id同时存在,则资源编排服务会检查是否两个匹配,如果不匹配则会返回400。\n\n**请谨慎操作**",
+        "operationId": "DeletePrivateHookVersion",
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一Id,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "hook_name",
+            "in": "path",
+            "description": "私有hook的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "hook_version",
+            "in": "path",
+            "description": "私有hook的版本号。版本号必须遵循语义化版本号(Semantic Version),为用户自定义。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 5
+          },
+          {
+            "name": "hook_id",
+            "in": "query",
+            "description": "私有hook(private-hook)的唯一Id。\n\n此Id由资源编排服务在生成私有hook的时候生成,为UUID。\n\n由于私有hook名称仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的私有hook,删除,再重新创建一个同名私有hook。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有hook就是我认为的那个,而不是其他队友删除后创建的同名私有hook。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有hook所对应的Id都不相同,更新不会影响Id。如果给予的hook_id和当前hook的Id不一致,则返回400。",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "删除私有hook版本成功,无数据返回"
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1.用户不允许删除默认版本\n2.用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "1.私有hook不存在\n2.私有hook版本不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "Y",
+        "x-rfs-external": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "DELETE https://{endpoint}/v1/private-hooks/my-hello-world-hook-name/versions/0.0.1",
+        "x-request-examples-description-1": "删除私有hook版本",
+        "x-request-examples-url-2": "DELETE https://{endpoint}/v1/private-hooks/my-hello-world-hook-name/versions/0.0.1?hook_id=d3e79f29-1b5c-44b2-8236-d609a59a634e",
+        "x-request-examples-description-2": "删除私有hook版本,并提供hook ID以校验是否与当前私有hook匹配"
+      }
+    }
+  },
+  "definitions": {
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "delete",
+  "uri": null
+}

@@ -1,0 +1,273 @@
+{
+  "name": "CreateAppConfigV2",
+  "summary": "创建应用配置",
+  "tags": "应用配置管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/apps/{app_id}/configs": {
+      "post": {
+        "tags": [
+          "应用配置管理"
+        ],
+        "summary": "创建应用配置",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "x-order": 1,
+        "description": "创建应用配置",
+        "operationId": "CreateAppConfigV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_app_id"
+          },
+          {
+            "name": "CreateAppConfigV2RequestBody",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AppConfigCreateRequestV2"
+            },
+            "description": "创建应用配置请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "创建一个应用配置,配置类型为模板变量",
+        "x-request-examples-1": {
+          "config_name": "app-config-demo",
+          "config_type": "variable"
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/AppConfigInfoV2"
+            },
+            "examples": {
+              "application/json": {
+                "app_id": "98df09fb-d459-4cbf-83a7-2b55ca6f3d5d",
+                "config_name": "app-config-demo",
+                "config_type": "variable",
+                "config_value": "",
+                "description": "",
+                "id": "a8bf4963c54544be81d5af4cc4630bde",
+                "update_time": "2020-09-07T07:05:41.96969041Z"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2011",
+                "error_msg": "Invalid parameter value,parameterName:config_name. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3019",
+                "error_msg": "The app does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AppConfigModifyRequestV2": {
+      "required": [
+        "config_type"
+      ],
+      "properties": {
+        "config_type": {
+          "description": "应用配置类型:\n- variable:模板变量\n- password:密码\n- certificate:证书",
+          "type": "string",
+          "enum": [
+            "variable",
+            "password",
+            "certificate"
+          ]
+        },
+        "config_value": {
+          "description": "应用配置值:\n- config_type = variable:config_value为模板变量的值\n- config_type = password:config_value为密码值\n- config_type = certificate:config_value需要包含证书public_key(必填),私钥private_key(必填)和密码passphrase(非必填),格式如:\"{\\\\\"public_key\\\\\": \\\"\\,\\\\\"private_key\\\\\":\\\\\"\\\\\",\\\\\"passphrase\\\\\":\\\\\"\\\\\"}\"",
+          "type": "string"
+        },
+        "description": {
+          "description": "应用配置描述",
+          "type": "string",
+          "maxLength": 1024
+        }
+      }
+    },
+    "AppConfigCreateRequestV2": {
+      "required": [
+        "config_name"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/AppConfigModifyRequestV2"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "config_name": {
+              "description": "应用配置名称。\n\n支持英文大小写字符、数字、下划线、中划线、点和@,且只能以英文字母开头。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "^[a-zA-Z][a-zA-Z0-9@_.-]*$"
+            }
+          }
+        }
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "AppConfigInfoV2": {
+      "properties": {
+        "id": {
+          "description": "应用配置编号",
+          "type": "string"
+        },
+        "app_id": {
+          "description": "应用编号",
+          "type": "string"
+        },
+        "config_type": {
+          "description": "应用配置类型",
+          "type": "string"
+        },
+        "config_name": {
+          "description": "应用配置名称",
+          "type": "string"
+        },
+        "config_value": {
+          "description": "应用配置值",
+          "type": "string"
+        },
+        "update_time": {
+          "description": "应用配置更新时间",
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "description": "应用配置描述",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_app_id": {
+      "name": "app_id",
+      "in": "path",
+      "type": "string",
+      "description": "应用编号",
+      "required": true,
+      "x-example": "98df09fb-d459-4cbf-83a7-2b55ca6f3d5d",
+      "pattern": "^[a-zA-Z0-9-_]{0,64}$"
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,297 @@
+{
+  "name": "ShowPropertyRawValue",
+  "summary": "获取资产属性历史值",
+  "tags": "资产属性",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/assets/{asset_id}/property-values/query": {
+      "post": {
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-HCS": "Y",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y",
+        "x-imports": [
+          "org.springframework.http.ResponseEntity"
+        ],
+        "operationId": "ShowPropertyRawValue",
+        "tags": [
+          "AssetProperty"
+        ],
+        "summary": "获取资产属性历史值",
+        "description": "获取资产属性历史值",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 128,
+            "description": "项目ID"
+          },
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 256,
+            "description": "资产ID"
+          },
+          {
+            "in": "body",
+            "name": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RawRequest"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户Token",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 65535
+          }
+        ],
+        "x-returnType": "ResponseEntity<RawValuesResponse>",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/RawValuesResponse"
+            },
+            "examples": {
+              "example": {
+                "timestamps": [
+                  "string"
+                ],
+                "properties": [
+                  {
+                    "property_name": "string",
+                    "values": [
+                      {}
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IoTA.99000010",
+              "IoTA.01010308"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009",
+              "IoTA.99000012"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IoTA.01010202",
+              "IoTA.01010309"
+            ]
+          },
+          "409": {
+            "description": "Conflict",
+            "x-Error": [
+              "IoTA.99000011"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TimeSpanDT": {
+      "type": "object",
+      "description": "起止时间",
+      "properties": {
+        "from": {
+          "description": "起始时间, 使用UTC时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',示例:2021-02-01T00:00:00.123Z",
+          "type": "string",
+          "x-maxLength": 64
+        },
+        "to": {
+          "description": "结束时间,使用UTC时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',示例:2021-02-01T00:00:00.123Z",
+          "type": "string",
+          "x-maxLength": 64
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.TimeSpan"
+    },
+    "RawRequest": {
+      "type": "object",
+      "description": "资产属性历史数据查询",
+      "required": [
+        "property_names"
+      ],
+      "properties": {
+        "time_span": {
+          "$ref": "#/definitions/TimeSpanDT"
+        },
+        "tags": {
+          "$ref": "#/definitions/TagFilterDT"
+        },
+        "property_filter": {
+          "type": "array",
+          "description": "属性过滤器,最多5个",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/PropertyFilter"
+          }
+        },
+        "property_names": {
+          "type": "array",
+          "description": "待查询的资产属性列表",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "description": "属性名称"
+          }
+        },
+        "limit": {
+          "description": "返回值个数限制",
+          "type": "integer",
+          "default": 2000,
+          "maximum": 2000
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.RawRequest",
+      "example": {
+        "time_span": {
+          "from": "2021-02-01T00:00:00.123Z",
+          "to": "2021-02-05T20:00:00.100Z"
+        },
+        "tags": {
+          "tagPropertyA": "IA2006300"
+        },
+        "property_filter": [
+          {
+            "property_name": "string",
+            "operator": "=",
+            "value": 1
+          }
+        ],
+        "property_names": [
+          "string"
+        ],
+        "limit": 2000
+      }
+    },
+    "PropertyFilter": {
+      "type": "object",
+      "description": "属性过滤器",
+      "required": [
+        "property_name",
+        "operator",
+        "value"
+      ],
+      "properties": {
+        "property_name": {
+          "description": "过滤属性名称,正则:\"^[a-zA-Z0-9_]{1,64}$\"",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$",
+          "x-maxLength": 64,
+          "x-minLength": 1,
+          "type": "string"
+        },
+        "operator": {
+          "description": "过滤操作方式,当前仅支持“=”",
+          "x-minLength": 1,
+          "x-maxLength": 64,
+          "type": "string",
+          "pattern": "="
+        },
+        "value": {
+          "description": "过滤属性值",
+          "type": "object"
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.PropertyFilter"
+    },
+    "RawValue": {
+      "type": "object",
+      "properties": {
+        "property_name": {
+          "description": "属性名称",
+          "type": "string"
+        },
+        "values": {
+          "description": "资产属性的历史值序列,示例:[1,2]",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 2000,
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.RawValue"
+    },
+    "TagFilterDT": {
+      "type": "object",
+      "description": "对property按指定tags标签进行过滤查询,填入资产标签属性的属性名与属性值,不可为空,例如 {\"tagPropertyA\": \"id0001\"};注意,标签过滤只对打上标签时刻之后的数据生效,打标签之前的数据不能通过标签过滤",
+      "additionalProperties": {
+        "description": "标签过滤",
+        "type": "object"
+      }
+    },
+    "RawValuesResponse": {
+      "description": "资产属性历史数据查询结果",
+      "type": "object",
+      "properties": {
+        "timestamps": {
+          "description": "时间序列,使用UTC时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',示例:2021-02-01T00:00:00.123Z",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 2000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "description": "响应属性列表",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/RawValue"
+          }
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.RawValuesResponse"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

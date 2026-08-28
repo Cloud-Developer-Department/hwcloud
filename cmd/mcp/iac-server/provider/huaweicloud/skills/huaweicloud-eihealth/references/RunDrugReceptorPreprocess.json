@@ -1,0 +1,181 @@
+{
+  "name": "RunDrugReceptorPreprocess",
+  "summary": "受体预处理",
+  "tags": "IDrugCommonController",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/receptor/preprocess": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "RunDrugReceptorPreprocess",
+        "x-ut-exclude": true,
+        "tags": [
+          "IDrugCommonController"
+        ],
+        "summary": "受体预处理",
+        "description": "受体预处理,用于前端显示预处理后的受体",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "RunDrugReceptorPreprocessRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "受体信息解析请求体",
+            "schema": {
+              "$ref": "#/definitions/RunReceptorPreprocessReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "预处理成功响应",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "text/plain; charset=utf-8": "CRYST1   48.140   48.140  135.230  90.00  90.00  90.00 P 43 2 2      1\nATOM      1  N   ALA A   1      35.884  42.999  47.573  1.00 25.71           N\nATOM      2  CA  ALA A   1      36.605  42.605  46.370  1.00 25.42           C\nATOM      3  C   ALA A   1      36.452  41.114  46.099  1.00 28.64           C\nATOM      4  O   ALA A   1      36.341  40.696  44.945  1.00 29.91           O\nATOM      5  CB  ALA A   1      38.067  42.957  46.503  1.00 25.88           C\nATOM      6  N   PHE A   2      36.444  40.321  47.165  1.00 22.84           N\nATOM      7  CA  PHE A   2      36.284  38.877  47.030  1.00 24.16           C\nATOM      8  C   PHE A   2      34.841  38.439  46.851  1.00 31.28           C\nATOM      9  O   PHE A   2      34.564  37.311  46.446  1.00 33.32           O\nATOM     10  CB  PHE A   2      36.891  38.155  48.230  1.00 25.68           C\nATOM     11  CG  PHE A   2      38.356  38.400  48.371  1.00 27.21           C\n...\nATOM    978  CG1 VAL A 125      28.999  36.704  35.986  1.00 42.41           C\nATOM    979  CG2 VAL A 125      28.985  36.848  38.447  1.00 40.25           C\nATOM    980  OXT VAL A 125      30.927  33.454  36.764  1.00 62.81           O1-\nTER"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ReceptorDrugFileReq": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "example": "raw_data"
+        },
+        "add_hydrogen": {
+          "type": "boolean",
+          "default": true,
+          "description": "增加氢原子"
+        }
+      },
+      "description": "受体文件"
+    },
+    "RunReceptorPreprocessReq": {
+      "type": "object",
+      "description": "受体预处理请求体",
+      "required": [
+        "file"
+      ],
+      "properties": {
+        "file": {
+          "$ref": "#/definitions/ReceptorDrugFileReq",
+          "description": "受体文件"
+        },
+        "remove_water": {
+          "type": "boolean",
+          "default": false,
+          "description": "去除水分子"
+        },
+        "remove_ion": {
+          "type": "boolean",
+          "default": false,
+          "description": "去除离子"
+        },
+        "remove_ligand": {
+          "type": "boolean",
+          "default": false,
+          "description": "去除配体分子"
+        },
+        "add_hydrogen": {
+          "type": "boolean",
+          "default": false,
+          "description": "增加氢原子"
+        }
+      },
+      "example": {
+        "file": {
+          "source": "EXTRANET",
+          "url": "https://files.rcsb.org/download/1TQN.pdb"
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

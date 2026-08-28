@@ -1,0 +1,223 @@
+{
+  "name": "PublishHttpDetect",
+  "summary": "发布探测消息",
+  "tags": "发布消息操作",
+  "productshort": "SMN",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/notifications/topics/{topic_urn}/detection": {
+      "post": {
+        "x-request-examples-url-1": "POST https://{SMN_Endpoint}/v2/{project_id}/notifications/topics/urn:smn:regionId:f96188c7ccaf4ffba0c9aa149ab2bd57:test_create_topic_v2/detect",
+        "x-request-examples-description-1": "正确调用接口示例",
+        "x-name": "发送http终端探测消息",
+        "x-open-region-cloud": "hk,hc,hws_eu,g42,hk_g42,tm,hk_tm,sbc,hk_sbc",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-iftype": "externalAPI",
+        "x-request-examples-text-1": {
+          "protocol": "http",
+          "endpoint": "http://172.20.0.51:32000/http_notify",
+          "extension": {
+            "header": {
+              "x-abc": "1213",
+              "x-abc-cba": "test2"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "protocol": "http",
+          "endpoint": "http://172.20.0.51:32000/http_notify",
+          "extension": {
+            "header": {
+              "x-abc": "1213",
+              "x-abc-cba": "test2"
+            }
+          }
+        },
+        "tags": [
+          "发布消息操作"
+        ],
+        "summary": "发布探测消息",
+        "description": "基于主题发送http/https探测消息,探测当前http/https 终端是否可用,SMN出口是否能够正常访问该终端。",
+        "operationId": "PublishHttpDetect",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID。 获取项目ID请参考 [获取项目ID](smn_api_66000.xml)。"
+          },
+          {
+            "name": "topic_urn",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Topic的唯一的资源标识,可通过[查询主题列表](smn_api_51004.xml)获取该标识。"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "HttpDetectRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "Http探测请求参数,不能为空。",
+            "schema": {
+              "$ref": "#/definitions/HttpDetectRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "发送http探测成功",
+            "schema": {
+              "$ref": "#/definitions/PostHTTPDetectResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "request_id": "adc82efa7e0042899722531681b1959a",
+                "task_id": "adc82efa7e0042899722531681b1959a"
+              }
+            }
+          },
+          "400": {
+            "description": "发送http探测失败",
+            "schema": {
+              "$ref": "#/definitions/FailedResp"
+            },
+            "examples": {
+              "application/json": {
+                "request_id": "373cdb9696e44454832ea02e61a2c689",
+                "error_code": "SMN.00011004",
+                "error_msg": "Parameter: Extension is invalid. Http header key is invalid."
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/FailedResp"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/FailedResp"
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "schema": {
+              "$ref": "#/definitions/FailedResp"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/FailedResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "HttpDetectRequestBody": {
+      "type": "object",
+      "description": "Http探测请求参数,包含protocol,endpoint,extension字段,详细限制见参数描述。",
+      "required": [
+        "protocol",
+        "endpoint"
+      ],
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "example": "http",
+          "description": "协议类型,当前仅支持http/https,不可为空",
+          "enum": [
+            "http",
+            "https"
+          ]
+        },
+        "endpoint": {
+          "type": "string",
+          "example": "http://172.20.0.51:32000/http_notify",
+          "description": "待探测的终端地址,当前仅支持以http:// 或https://开头,不可为空",
+          "pattern": "^(http|https)://.*$"
+        },
+        "extension": {
+          "description": "Http/Https协议可以指定多个K/V对,在发送Http/Https协议消息时会携带这些K/V对作为请求header。extension字段允许为空,header字段允许为空。",
+          "properties": {
+            "header": {
+              "description": "header应满足如下要求:\n1. key值限定为:包含英文字母([A-Za-z])、数字([0-9])、中划线(-)hyphens,中划线不得作为结尾,不得连续出现。\n2. K/V不得超过10个\n3. key需要以\"x-\"开头,不能以\"x-smn\"开头,正确示例:x-abc-cba,  x-abc\n4. 所有K/V长度总和不得超过1024个字符\n5. key不区分大小写\n6. key值不可重复\n7. value值限定为ASCII码,不支持中文或其他Unicode,支持空格",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object",
+              "example": "{\"x-abc\": \"1213\", \"x-abc-cba\": \"test2\"}"
+            }
+          },
+          "example": "{\"header\": {\"x-abc\": \"1213\", \t\"x-abc-cba\": \"test2\"} }  "
+        }
+      }
+    },
+    "PostHTTPDetectResponseBody": {
+      "type": "object",
+      "description": "发送Http探测成功返回体",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "example": "adc82efa7e0042899722531681b1959a",
+          "description": "请求ID"
+        },
+        "task_id": {
+          "type": "string",
+          "example": "adc82efa7e0042899722531681b1959a",
+          "description": "探测任务ID"
+        }
+      }
+    },
+    "FailedResp": {
+      "required": [
+        "request_id",
+        "code",
+        "message"
+      ],
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "description": "请求的唯一标识ID。",
+          "example": "6a63a18b8bab40ffb71ebd9cb80d0085"
+        },
+        "code": {
+          "type": "string",
+          "description": "服务异常错误信息编码。",
+          "example": "SMN.0167"
+        },
+        "message": {
+          "type": "string",
+          "description": "服务异常错误信息描述。",
+          "example": "xxxxxxxx"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "smn.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

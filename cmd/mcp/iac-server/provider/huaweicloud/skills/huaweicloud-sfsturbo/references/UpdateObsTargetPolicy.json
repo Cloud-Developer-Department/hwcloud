@@ -1,0 +1,251 @@
+{
+  "name": "UpdateObsTargetPolicy",
+  "summary": "更新后端存储自动同步策略",
+  "tags": "存储联动管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/targets/{target_id}/policy": {
+      "put": {
+        "tags": [
+          "存储联动管理"
+        ],
+        "operationId": "UpdateObsTargetPolicy",
+        "summary": "更新后端存储自动同步策略",
+        "description": "更新后端存储自动同步策略",
+        "x-constraint": "- 该接口仅适用于SFS Turbo 20MB/s/TiB、40MB/s/TiB、125MB/s/TiB、250MB/s/TiB、500MB/s/TiB、1000MB/s/TiB文件系统。\n- 该接口仅适用于NFS文件系统共享协议。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "x-open-region-cloud": "hws,hws_hk,dt,hcs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "description": "账号的token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "description": "MIME类型",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "share_id",
+            "description": "文件系统ID",
+            "required": true,
+            "type": "string",
+            "x-example": "b959dfbb-xxxx-XXXX-xxxx-8930ec3a87b7"
+          },
+          {
+            "in": "path",
+            "name": "target_id",
+            "description": "绑定关系ID",
+            "required": true,
+            "type": "string",
+            "x-example": "00000334-xxxx-402d-a5d4-bxxxxx87b939"
+          },
+          {
+            "in": "body",
+            "name": "UpdateObsTargetPolicyRequestBody",
+            "description": "更新后端存储自动同步策略请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateObsTargetPolicyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/UpdateObsTargetPolicyResponseBody"
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "target_id": "xxxxxx-xxx-xxxx-xxxxxxx",
+                "policy": {
+                  "auto_export_policy": {
+                    "events": [
+                      "NEW",
+                      "CHANGED",
+                      "DELETED"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "错误响应",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0126",
+                "errMsg": "target not found, not bound yet"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "internal server error"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "文件系统ID为\"77ba6f4b-6365-4895-8dda-bc7142af4dde\",后端target_id为\"11abef677ac40f46644d1d5cfc2424a4\",更新后端存储自动同步策略\n",
+        "x-request-examples-url-1": "PUT HTTPS://{endpoint}/v1/{project_id}/sfs-turbo/shares/77ba6f4b-6365-4895-8dda-bc7142af4dde/targets/11abef677ac40f46644d1d5cfc2424a4/policy",
+        "x-request-examples-1": {
+          "policy": {
+            "auto_export_policy": {
+              "events": [
+                "NEW",
+                "CHANGED",
+                "DELETED"
+              ]
+            }
+          }
+        },
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "AutoExportPolicy": {
+      "description": "后端存储自动导出策略,SFS Turbo会以异步方式导出到OBS。",
+      "properties": {
+        "events": {
+          "type": "array",
+          "description": "后端存储自动导出到OBS桶的数据更新类型。\n- NEW:表示新增数据,SFS Turbo联动目录下创建的文件,及之后对这些文件进行的元数据和数据修改,会被自动同步到OBS桶里。\n- CHANGED:表示修改数据,从OBS桶里导入到SFS Turbo联动目录下的文件,在SFS Turbo上对这些文件所进行的数据和元数据的修改,会被自动同步到OBS桶里。\n- DELETED:表示删除数据,在SFS Turbo联动目录下删除文件,OBS桶对应的对象也会被删除,只有被SFS Turbo写入的OBS对象才会被删除。",
+          "items": {
+            "type": "string",
+            "description": "后端存储自动导出到OBS桶的数据更新类型。",
+            "enum": [
+              "NEW",
+              "CHANGED",
+              "DELETED"
+            ]
+          }
+        },
+        "prefix": {
+          "type": "string",
+          "description": "后端存储内对象匹配前缀"
+        },
+        "suffix": {
+          "type": "string",
+          "description": "后端存储内对象匹配后缀"
+        }
+      }
+    },
+    "UpdateObsTargetPolicyResponseBody": {
+      "description": "更新后端存储自动同步策略响应体",
+      "properties": {
+        "target_id": {
+          "type": "string",
+          "description": "绑定关系ID"
+        },
+        "policy": {
+          "type": "object",
+          "description": "后端存储自动同步策略",
+          "$ref": "#/definitions/ObsDataRepositoryPolicy"
+        }
+      }
+    },
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "UpdateObsTargetPolicyRequestBody": {
+      "description": "更新后端存储自动同步策略请求体",
+      "required": [
+        "policy"
+      ],
+      "properties": {
+        "policy": {
+          "type": "object",
+          "description": "后端存储自动同步策略",
+          "$ref": "#/definitions/ObsDataRepositoryPolicy"
+        }
+      }
+    },
+    "ObsDataRepositoryPolicy": {
+      "description": "后端存储自动同步策略",
+      "properties": {
+        "auto_export_policy": {
+          "type": "object",
+          "description": "后端存储自动导出策略。当文件系统发生数据更新时,将自动导出到OBS桶。",
+          "$ref": "#/definitions/AutoExportPolicy"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

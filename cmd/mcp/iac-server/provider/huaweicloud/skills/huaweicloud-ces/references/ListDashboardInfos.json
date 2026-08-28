@@ -1,0 +1,411 @@
+{
+  "name": "ListDashboardInfos",
+  "summary": "查询监控看板列表",
+  "tags": "监控看板",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/dashboards": {
+      "get": {
+        "summary": "查询监控看板列表",
+        "description": "查询监控看板列表",
+        "operationId": "ListDashboardInfos",
+        "x-constraint": "目前华东-青岛、拉美-墨西哥城一、土耳其-伊斯坦布尔、亚太-雅加达、中东-利雅得、亚太-马尼拉6个局点不支持该接口",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-open-region-cloud": "hc,hk,hws,hws_hk,hws_eu,hws_eu_wb,dt,dt_test,sbc,g42",
+        "x-version": "v2",
+        "x-request-examples-description-1": "查询监控看板名称为test1,看板ID为dbtest123,默认企业项目,已收藏,看板类型是监控大盘的看板",
+        "x-request-examples-url-1": "/v2/{project_id}/dashboards?enterprise_id=0&is_favorite=true&dashboard_name=test1&dashboard_id=dbtest123&dashboard_type=monitor_dashboard",
+        "tags": [
+          "监控看板"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "enterprise_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "**参数解释**:\n企业项目ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n只能包含小写字母、数字、“-”、“_”,可以自定义企业项目ID,长度为36个字符。也可以为0(代表默认企业项目ID),all_granted_eps(代表所有企业项目ID)。          \n**默认取值**:\n不涉及。",
+            "pattern": "^((([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12})|0|all_granted_eps)$"
+          },
+          {
+            "name": "is_favorite",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "description": "**参数解释**:\n指定企业项目下监控看板是否收藏。\n**约束限制**:\n填此参数时,enterprise_id必填。\n**取值范围**:\n- true:收藏\n- false:未收藏         \n**默认取值**:\n不涉及。"
+          },
+          {
+            "name": "dashboard_name",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "**参数解释**:\n监控看板名称。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,128]个字符,只允许中文、英文、数字0-9、_和-         \n**默认取值**:\n不涉及。",
+            "pattern": "^([\\一-\\鿿]|[a-z]|[A-Z]|[0-9]|_|-){1,128}$"
+          },
+          {
+            "name": "dashboard_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "**参数解释**:\n监控看板id。\n**约束限制**:\n不涉及。\n**取值范围**:\n以db开头,包含22个字母和数字,长度为24个字符\n**默认取值**:\n不涉及。",
+            "pattern": "^db([a-z]|[A-Z]|[0-9]){22}$"
+          },
+          {
+            "name": "dashboard_type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "**参数解释**:\n监控看板类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n- monitor_dashboard:表示监控大盘\n- other:表示自定义看板\n**默认取值**:\n不涉及。",
+            "enum": [
+              "monitor_dashboard",
+              "other"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ListDashboardResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "dashboards": [
+                  {
+                    "dashboard_id": "dbxxxxxxxxxxxxxxxxxxxxxx",
+                    "dashboard_name": "dashboard_name",
+                    "enterprise_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                    "creator_name": "creator_name",
+                    "create_time": 1111111111111,
+                    "widget_num": 1,
+                    "row_widget_num": 3,
+                    "is_favorite": false
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request, 请求错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "401": {
+            "description": "Unauthorized, 未提供认证信息,或认证信息错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error, 请求未完成, 服务异常",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DashBoardInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/DashBoardIdItemResp"
+        },
+        {
+          "$ref": "#/definitions/DashBoardNameItemResp"
+        },
+        {
+          "$ref": "#/definitions/EnterpriseIdItemResp"
+        },
+        {
+          "properties": {
+            "creator_name": {
+              "type": "string",
+              "description": "**参数解释**\n监控看板的创建用户名\n**取值范围**\n长度为[1,128]个字符,只允许中文、英文、数字0-9、_和-",
+              "pattern": "^([\\一-\\鿿]|[a-z]|[A-Z]|[0-9]|_|-)+$",
+              "minLength": 1,
+              "maxLength": 128,
+              "example": "userxxx"
+            },
+            "create_time": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1111111111111,
+              "maximum": 9999999999999,
+              "description": "**参数解释**\n监控看板创建时间\n**取值范围**\n最小值为1111111111111,最大值为9999999999999",
+              "example": 1668684600000
+            },
+            "widget_num": {
+              "type": "integer",
+              "format": "integer",
+              "minimum": 0,
+              "maximum": 50,
+              "description": "**参数解释**\n看板下的视图总数\n**取值范围**\n最小值为0,最大值为50"
+            },
+            "extend_info": {
+              "$ref": "#/definitions/ExtendInfoResp"
+            },
+            "namespace": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 32,
+              "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*\\.([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*$",
+              "description": "**参数解释**\n查询服务的命名空间,各服务命名空间请参阅[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)\n**取值范围**\n格式为service.item;service和item必须是字符串,必须以字母开头,只能包含0-9/a-z/A-Z/_。字符串的长度必须在 3 到 32个字符之间。",
+              "example": "AGT.ECS"
+            },
+            "sub_product": {
+              "type": "string",
+              "description": "**参数解释**\n子产品标识\n**取值范围**\n长度为[1,128]个字符",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "dashboard_template_id": {
+              "type": "string",
+              "description": "**参数解释**\n监控大盘模板id\n**取值范围**\n以mb开头,包含22个字母和数字,长度为24个字符",
+              "pattern": "^mb([a-z]|[A-Z]|[0-9]){22}",
+              "example": "mb12345678912345678912"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/WidgetDisplayMode"
+        },
+        {
+          "$ref": "#/definitions/IsFavoriteItem"
+        }
+      ]
+    },
+    "ExtendInfoResp": {
+      "type": "object",
+      "description": "**参数解释**\n看板相关拓展信息",
+      "properties": {
+        "filter": {
+          "description": "**参数解释**\n表示指标聚合方式\n**取值范围**\n枚举值:\n- average 平均值\n- min 最小值\n- max 最大值\n- sum 求和值",
+          "type": "string",
+          "enum": [
+            "average",
+            "min",
+            "max",
+            "sum"
+          ]
+        },
+        "period": {
+          "description": "**参数解释**\n表示指标聚合周期\n**取值范围**\n- 1 原始值\n- 60 一分钟\n- 300 5分钟\n- 1200 20分钟\n- 3600 1小时\n- 14400 4小时\n- 86400 1天",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100,
+          "pattern": "^(1|60|300|1200|3600|14400|86400)$",
+          "example": "1"
+        },
+        "display_time": {
+          "description": "**参数解释**\n展示时间\n**取值范围**\n枚举值:\n- 0 自定义时间\n- 5 5分钟\n- 15 15分钟\n- 30 30分钟\n- 60 1小时\n- 120 2小时\n- 180 3小时\n- 720 12小时\n- 1440 24小时\n- 10080 7天\n- 43200 30天",
+          "type": "integer",
+          "format": "int32",
+          "enum": [
+            0,
+            5,
+            15,
+            30,
+            60,
+            120,
+            180,
+            720,
+            1440,
+            10080,
+            43200
+          ]
+        },
+        "refresh_time": {
+          "description": "**参数解释**\n刷新时间\n**取值范围**\n枚举值:\n- 0 不刷新\n- 10 10秒\n- 60 1分钟\n- 300 5分钟\n- 1200 20分钟",
+          "type": "integer",
+          "format": "int32",
+          "enum": [
+            0,
+            10,
+            60,
+            300,
+            1200
+          ]
+        },
+        "from": {
+          "description": "**参数解释**\n开始时间\n**取值范围**\n时间戳取值为[0,9999999999999]",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 9999999999999
+        },
+        "to": {
+          "description": "**参数解释**\n结束时间\n**取值范围**\n时间戳取值为[0,9999999999999]",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 9999999999999
+        },
+        "screen_color": {
+          "description": "**参数解释**\n监控大屏背景颜色\n**取值范围**\n背景颜色长度最长为100个字符",
+          "type": "string",
+          "maxLength": 100
+        },
+        "enable_screen_auto_play": {
+          "description": "**参数解释**\n监控大屏是否自动切换\n**取值范围**\n- true 是\n- false 否",
+          "type": "boolean"
+        },
+        "time_interval": {
+          "description": "**参数解释**\n 监控大屏自动切换时间间隔\n **取值范围**\n 枚举值:\n - 10000 10秒\n - 30000 30秒\n - 60000 1分钟",
+          "type": "integer",
+          "format": "int32",
+          "enum": [
+            10000,
+            30000,
+            60000
+          ]
+        },
+        "enable_legend": {
+          "description": "**参数解释**\n是否开启图例\n**取值范围**\n- true 是\n- false 否",
+          "type": "boolean"
+        },
+        "full_screen_widget_num": {
+          "type": "integer",
+          "description": "**参数解释**\n大屏展示视图数量\n**取值范围**\n视图数量为[0,65535]",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      }
+    },
+    "EnterpriseIdItemResp": {
+      "properties": {
+        "enterprise_id": {
+          "description": "**参数解释**\n企业项目ID\n**取值范围**\n只能包含小写字母、数字、“-”、“_”,可以自定义企业项目ID,长度为36个字符。也可以为0(代表默认企业项目ID)。",
+          "type": "string",
+          "pattern": "^((([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12})|0)$",
+          "example": "xxxxx-aaa"
+        }
+      }
+    },
+    "WidgetDisplayMode": {
+      "properties": {
+        "row_widget_num": {
+          "description": "**参数解释**\n每行展示视图数量\n**取值范围**\n- 0:表示自定义坐标\n- 1:代表每行1个视图\n- 2:代表每行2个视图\n- 3:代表每行3个视图\n- 4:代表每行4个视图",
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "example": 3
+        }
+      }
+    },
+    "DashBoardNameItemResp": {
+      "type": "object",
+      "properties": {
+        "dashboard_name": {
+          "type": "string",
+          "description": "**参数解释**\n自定义监控看板名称\n**取值范围**\n长度为[1,128]个字符,只允许中文、英文、数字0-9、_和-",
+          "pattern": "^([\\一-\\鿿]|[a-z]|[A-Z]|[0-9]|_|-)+$",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "华为云监控大屏"
+        }
+      }
+    },
+    "DashBoardIdItemResp": {
+      "properties": {
+        "dashboard_id": {
+          "description": "**参数解释**:\n监控看板id\n**取值范围**\n以db开头,包含22个字母和数字,长度为24个字符",
+          "type": "string",
+          "pattern": "^db([a-z]|[A-Z]|[0-9]){22}$",
+          "example": "db16564943172807wjOmoLy2"
+        }
+      }
+    },
+    "ListDashboardResponseBody": {
+      "type": "object",
+      "properties": {
+        "dashboards": {
+          "description": "**参数解释**:\n监控看板列表",
+          "minItems": 0,
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DashBoardInfo"
+          }
+        }
+      }
+    },
+    "GoAPIErrorResponseV2": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "ces.0001",
+          "description": "请求异常内部业务状态码",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "the request format is invalid",
+          "description": "请求异常信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "request_id": {
+          "type": "string",
+          "example": "txnEntry-DESKTOP-4LPFH08.txnId-466541d0-f1a6-429b-b747-98d4991671c1.ts-1637909316688.c-95",
+          "description": "请求ID",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "IsFavoriteItem": {
+      "properties": {
+        "is_favorite": {
+          "description": "**参数解释**\n监控看板是否标记收藏\n**取值范围**\n- true: 收藏,\n- false: 未收藏",
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符串的长度必须在 1 到 64个字符之间。\n**默认取值**:\n不涉及。",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户Token。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为16384。\n**默认取值**:\n不涉及。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "x-order": 2
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

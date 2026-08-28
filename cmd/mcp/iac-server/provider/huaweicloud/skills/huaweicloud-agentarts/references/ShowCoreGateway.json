@@ -1,0 +1,407 @@
+{
+  "name": "ShowCoreGateway",
+  "summary": "获取网关详情",
+  "tags": "网关资源管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/core/gateways/{gateway_id}": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Control-plane",
+        "x-sec-data-level": "L3",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "tags": [
+          "网关资源管理"
+        ],
+        "summary": "获取网关详情",
+        "description": "通过 ID 获取指定网关的详细信息。",
+        "operationId": "ShowCoreGateway",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-api": true,
+        "parameters": [
+          {
+            "$ref": "#/parameters/GatewayId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功检索网关详情",
+            "schema": {
+              "$ref": "#/definitions/ShowCoreGatewayResponseBody"
+            }
+          },
+          "404": {
+            "description": "网关未找到",
+            "schema": {
+              "$ref": "#/definitions/CoreGatewayCommonError"
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/CoreGatewayCommonError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateCoreGatewayResponseBody": {
+      "type": "object",
+      "required": [
+        "gateway_id",
+        "name",
+        "status",
+        "protocol_type",
+        "authorizer_type",
+        "agency_name",
+        "created_at"
+      ],
+      "properties": {
+        "gateway_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "网关的唯一标识符。"
+        },
+        "name": {
+          "type": "string",
+          "description": "网关名称。",
+          "pattern": "^[a-z][a-z0-9-]{0,38}[a-z0-9]$",
+          "minLength": 2,
+          "maxLength": 40
+        },
+        "description": {
+          "type": "string",
+          "description": "网关的详细描述。",
+          "maxLength": 1000,
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "description": "网关的当前状态。",
+          "enum": [
+            "active",
+            "inactive",
+            "creating",
+            "deleting",
+            "updating",
+            "failed"
+          ]
+        },
+        "protocol_type": {
+          "type": "string",
+          "description": "网关协议类型。",
+          "enum": [
+            "mcp"
+          ]
+        },
+        "protocol_configuration": {
+          "$ref": "#/definitions/CoreGatewayProtocolConfiguration"
+        },
+        "authorizer_type": {
+          "type": "string",
+          "description": "入站认证类型。",
+          "enum": [
+            "custom_jwt",
+            "iam",
+            "api_key"
+          ]
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "委托名称。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "endpoint_url": {
+          "type": "string",
+          "maxLength": 512,
+          "minLength": 1,
+          "description": "访问网关的 URL 端点。"
+        },
+        "log_delivery_configuration": {
+          "$ref": "#/definitions/CoreGatewayLogDeliveryConfiguration"
+        },
+        "workload_identity": {
+          "$ref": "#/definitions/CoreGatewayWorkloadIdentity"
+        },
+        "agent_gateway_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "AgentGateway ID。"
+        },
+        "outbound_network_configuration": {
+          "$ref": "#/definitions/CoreGatewayOutboundNetworkConfiguration"
+        },
+        "tags": {
+          "type": "array",
+          "description": "资源标签列表。",
+          "items": {
+            "$ref": "#/definitions/CoreGatewayTag"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "网关创建时间戳。"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "网关最后更新时间戳。"
+        }
+      }
+    },
+    "CoreGatewayVpcConfig": {
+      "type": "object",
+      "description": "VPC网络配置。",
+      "required": [
+        "vpc_id",
+        "subnet_id",
+        "security_group_ids"
+      ],
+      "properties": {
+        "vpc_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "VPC ID。"
+        },
+        "subnet_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "子网ID。"
+        },
+        "security_group_ids": {
+          "type": "array",
+          "description": "安全组ID列表。",
+          "items": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    },
+    "CoreGatewayCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码。\n**取值范围:**\n取值为固定18个字符,匹配以 AgentArts. 开头、后接恰好8位数字的字符串,符合正则条件^AgentArts\\.[0-9]{8}$。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18,
+          "example": "AgentArts.02000000"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误消息。\n**取值范围:**\n取值为 1-256 个字符,匹配由字母、数字、空格、中文汉字以及常见中英文标点符号组成的非空字符串,符合正则条件^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()''\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "error_reason": {
+          "type": "string",
+          "description": "**参数解释:**\n错误原因。\n**取值范围:**\n取值为 1-256 个字符,匹配由字母、数字、空格、中文汉字以及常见中英文标点符号组成的非空字符串,符合正则条件^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()''\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "error_suggestion": {
+          "type": "string",
+          "description": "**参数解释:**\n错误处理建议。\n**取值范围:**\n取值为 1-256 个字符,匹配由字母、数字、空格、中文汉字以及常见中英文标点符号组成的非空字符串,符合正则条件^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()''\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "CoreGatewayLogDeliveryConfiguration": {
+      "type": "object",
+      "description": "日志上报配置。",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用日志。"
+        },
+        "log_group_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "LTS日志组ID。"
+        },
+        "log_stream_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "LTS日志流ID。"
+        }
+      }
+    },
+    "CoreGatewayTag": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释:**\n标签键。\n**取值范围:**\n最大长度128个unicode字符,可用 UTF-8 格式表示的字母、数字和空格,以及以下字符:_ . : / = + - @。",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "key1"
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释:**\n标签值。\n**取值范围:**\n最大长度255个unicode字符,可用 UTF-8 格式表示的字母、数字和空格,以及以下字符:_ . : / = + - @。",
+          "example": "value1",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "example": {
+        "key": "Environment",
+        "value": "production"
+      }
+    },
+    "CoreGatewaySearchConfiguration": {
+      "type": "object",
+      "description": "搜索操作配置。",
+      "properties": {
+        "search_type": {
+          "type": "string",
+          "description": "搜索类型。",
+          "enum": [
+            "semantic"
+          ]
+        },
+        "top_n": {
+          "type": "integer",
+          "description": "语义检索返回的工具数量。",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10
+        },
+        "score_threshold": {
+          "type": "string",
+          "pattern": "^(0|1|0\\.[0-9]|1\\.0)$",
+          "description": "语义检索相似得分阈值。"
+        }
+      }
+    },
+    "CoreGatewayWorkloadIdentity": {
+      "type": "object",
+      "description": "工作负载身份标识。",
+      "properties": {
+        "urn": {
+          "type": "string",
+          "description": "工作负载标识的统一资源名称。",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "CoreGatewayMcpProtocolConfiguration": {
+      "type": "object",
+      "description": "MCP网关配置。",
+      "properties": {
+        "search_configuration": {
+          "$ref": "#/definitions/CoreGatewaySearchConfiguration"
+        },
+        "supported_versions": {
+          "type": "array",
+          "description": "MCP网关支持的协议版本列表。",
+          "items": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "enum": [
+              "2025-03-26",
+              "2025-06-18",
+              "2025-11-25"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 3,
+          "default": [
+            "2025-03-26"
+          ]
+        }
+      }
+    },
+    "ShowCoreGatewayResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CreateCoreGatewayResponseBody"
+        }
+      ]
+    },
+    "CoreGatewayProtocolConfiguration": {
+      "type": "object",
+      "description": "网关协议的自定义设置。",
+      "properties": {
+        "mcp": {
+          "$ref": "#/definitions/CoreGatewayMcpProtocolConfiguration"
+        }
+      }
+    },
+    "CoreGatewayOutboundNetworkConfiguration": {
+      "type": "object",
+      "description": "出站网络配置。",
+      "required": [
+        "network_mode"
+      ],
+      "properties": {
+        "network_mode": {
+          "type": "string",
+          "description": "网络模式。",
+          "enum": [
+            "public",
+            "vpc"
+          ]
+        },
+        "vpc_config": {
+          "$ref": "#/definitions/CoreGatewayVpcConfig"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "GatewayId": {
+      "name": "gateway_id",
+      "in": "path",
+      "description": "**参数解释:**\n网关ID,网关的唯一标识符。\n**约束限制:**\n长度固定为36字符,必须为UUID格式。\n**取值范围:**\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值:**\n不涉及。",
+      "required": true,
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    }
+  },
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

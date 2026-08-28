@@ -1,0 +1,274 @@
+{
+  "name": "CreateWorkspace",
+  "summary": "新建模型工作区",
+  "tags": "关系建模接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/design/workspaces": {
+      "post": {
+        "summary": "新建模型工作区",
+        "description": "新建模型工作区。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "doc-open",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/design/workspaces",
+        "x-request-examples-description-1": "新建模型工作区。",
+        "x-request-examples-1": {
+          "name": "test_create_model",
+          "table_model_prefix": "",
+          "description": "this is a demo.",
+          "type": "THIRD_NF",
+          "frequent": false,
+          "is_physical": "true",
+          "dw_type": "DLI"
+        },
+        "tags": [
+          "关系建模接口"
+        ],
+        "operationId": "CreateWorkspace",
+        "consumes": [
+          "application/json;charset=UTF-8"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "$ref": "#/parameters/contextTypeParam"
+          },
+          {
+            "name": "CreateWorkspaceRequestBody",
+            "description": "待创建的模型工作区对象。",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkspaceVO"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success,返回data数据是WorkspaceVO。",
+            "schema": {
+              "$ref": "#/definitions/CreateWorkspaceResult"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "WorkspaceVO": {
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "编号,ID字符串。"
+        },
+        "name": {
+          "type": "string",
+          "description": "工作区名字。",
+          "pattern": "^[\\一-\\龥a-zA-Z\\d_]*$",
+          "maxLength": 250
+        },
+        "description": {
+          "type": "string",
+          "description": "描述。",
+          "maxLength": 600
+        },
+        "is_physical": {
+          "type": "boolean",
+          "description": "是否为物理表。",
+          "default": true
+        },
+        "frequent": {
+          "type": "boolean",
+          "description": "是否为常用。",
+          "default": true
+        },
+        "top": {
+          "type": "boolean",
+          "description": "分层治理。",
+          "default": true
+        },
+        "level": {
+          "$ref": "#/definitions/ModelLevel"
+        },
+        "dw_type": {
+          "$ref": "#/definitions/DwType"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "创建时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "更新时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "create_by": {
+          "type": "string",
+          "description": "创建人。"
+        },
+        "update_by": {
+          "type": "string",
+          "description": "更新人。"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "THIRD_NF",
+            "DIMENSION"
+          ],
+          "description": "工作区类型枚举。\n枚举值:\n  - THIRD_NF: 关系建模\n  - DIMENSION: 维度建模"
+        },
+        "biz_catalog_ids": {
+          "type": "string",
+          "description": "关联的业务分层的ID列表 {\"l1Ids\":[],\"l2Ids\":[],\"l3Ids\":[]}。"
+        },
+        "databases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "数据库名称数组。"
+        },
+        "table_model_prefix": {
+          "type": "string",
+          "description": "模型校验前缀,长度不超过100,数字字母下划线组成,字母开头"
+        }
+      },
+      "example": {
+        "id": "953670725619867648",
+        "name": "test",
+        "description": "this is an example.",
+        "is_physical": false,
+        "frequent": false,
+        "top": true,
+        "level": null,
+        "dw_type": "UNSPECIFIED",
+        "create_time": "2022-03-16T15:06:59.333+08:00",
+        "update_time": "2022-03-16T15:06:59.333+08:00",
+        "create_by": "ei_dgc",
+        "update_by": "ei_dgc",
+        "type": "THIRD_NF",
+        "biz_catalog_ids": null,
+        "databases": null
+      }
+    },
+    "ModelLevel": {
+      "type": "string",
+      "description": "数据治理分层。\n枚举值:\n  - SDI: 贴源数据层\n  - DWI: 数据整合层\n  - DWR: 数据报告层\n  - DM:  数据集市层",
+      "enum": [
+        "SDI",
+        "DWI",
+        "DWR",
+        "DM"
+      ]
+    },
+    "CreateWorkspaceResult": {
+      "type": "object",
+      "description": "新建模型工作区,创建结果。",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "data,统一的返回结果的最外层数据结构。",
+          "properties": {
+            "value": {
+              "type": "object",
+              "description": "value,统一的返回结果的外层数据结构。",
+              "$ref": "#/definitions/WorkspaceVO"
+            }
+          }
+        }
+      }
+    },
+    "DwType": {
+      "type": "string",
+      "description": "数据连接类型,对应表所在的数仓类型,取值可以为DLI、DWS、MRS_HIVE、POSTGRESQL、MRS_SPARK、CLICKHOUSE、MYSQL、ORACLE和DORIS等。",
+      "example": "MRS_HIVE"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "contextTypeParam": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "默认值:application/json;charset=UTF-8\n可选,有Body体的情况下必选,没有Body体则无需填写和校验。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

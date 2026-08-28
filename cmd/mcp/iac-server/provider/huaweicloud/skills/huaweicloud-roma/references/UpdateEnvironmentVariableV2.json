@@ -1,0 +1,258 @@
+{
+  "name": "UpdateEnvironmentVariableV2",
+  "summary": "修改变量",
+  "tags": "环境变量管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/env-variables/{env_variable_id}": {
+      "put": {
+        "summary": "修改变量",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-order": 5,
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "修改环境变量。环境变量引用位置为api的后端服务地址时,修改对应环境变量会将使用该变量的所有api重新发布。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "环境变量管理"
+        ],
+        "operationId": "UpdateEnvironmentVariableV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_env_variable_id"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/EnvVariableBase"
+            },
+            "in": "body",
+            "name": "UpdateEnvironmentVariableV2RequestBody",
+            "description": "修改环境变量的请求体",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "修改指定环境变量的变量值",
+        "x-request-examples-1": {
+          "variable_value": "192.168.1.5"
+        },
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/EnvVariableInfo"
+            },
+            "examples": {
+              "application/json": {
+                "variable_value": "192.168.1.5",
+                "env_id": "7a1ad0c350844ee69479b47df9a881cb",
+                "group_id": "c77f5e81d9cb4424bf704ef2b0ac7600",
+                "id": "25054838a624400bbf2267cf5b3a3f70",
+                "variable_name": "address"
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:variable_name"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3003",
+                "error_msg": "Environment 7a1ad0c350844ee69479b47df9a881cb does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EnvVariableCreate": {
+      "required": [
+        "env_id",
+        "group_id",
+        "variable_name"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/EnvVariableBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "env_id": {
+              "description": "环境编号",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65,
+              "pattern": "^[a-zA-Z0-9-_]{0,64}$",
+              "example": "7a1ad0c350844ee69479b47df9a881cb"
+            },
+            "group_id": {
+              "description": "API分组编号",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65,
+              "pattern": "^[a-zA-Z0-9-_]{0,64}$",
+              "example": "73c58022f20d495aa18885d718647f09"
+            },
+            "variable_name": {
+              "description": "变量名,支持英文字母、数字、英文格式的下划线、中划线,必须以英文字母开头,3~32个字符。在API定义中等于#Name的值#部分(区分大小写),发布到环境里的API被变量值换。\n> 中文字符必须为UTF-8或者unicode编码。",
+              "type": "string",
+              "example": "address"
+            }
+          }
+        }
+      ]
+    },
+    "EnvVariableInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/EnvVariableCreate"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "环境变量编号",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "EnvVariableBase": {
+      "required": [
+        "variable_value"
+      ],
+      "properties": {
+        "variable_value": {
+          "description": "变量值支持英文字母、数字、英文格式的下划线、中划线,斜线(/)、点、冒号,1 ~ 255个字符。",
+          "type": "string",
+          "example": "192.168.1.5"
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_env_variable_id": {
+      "name": "env_variable_id",
+      "in": "path",
+      "type": "string",
+      "description": "环境变量的编号",
+      "required": true,
+      "x-example": "25054838a624400bbf2267cf5b3a3f70"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

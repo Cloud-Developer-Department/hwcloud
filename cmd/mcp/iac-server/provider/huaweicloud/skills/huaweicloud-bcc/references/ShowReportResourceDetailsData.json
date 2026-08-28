@@ -1,0 +1,258 @@
+{
+  "name": "ShowReportResourceDetailsData",
+  "summary": "查询报告详情类数据",
+  "tags": "报告管理",
+  "productshort": "BCC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{domain_id}/reports/{report_id}/resource-details-data": {
+      "get": {
+        "tags": [
+          "报告管理"
+        ],
+        "summary": "查询报告详情类数据",
+        "description": "查询指定租户下的指定报告的详情类数据",
+        "operationId": "ShowReportResourceDetailsData",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户ID",
+            "pattern": "^[a-z0-9]{16,32}$",
+            "minLength": 16,
+            "maxLength": 32
+          },
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "报告ID",
+            "pattern": "^[0-9a-f]{24}$",
+            "minLength": 24,
+            "maxLength": 24
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "单次查询的条数限制,取值范围(0,100],默认值为10,用于限制结果数据条数。",
+            "type": "integer",
+            "format": "int32",
+            "default": "10",
+            "minimum": 1,
+            "maximum": 100
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "required": false,
+            "description": "请求游标",
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 512
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询报告的资源详情列表",
+            "schema": {
+              "$ref": "#/definitions/ListResourcesResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "未提供认证信息或认证信息错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "请求页面被禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "404": {
+            "description": "未找到资源。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "408": {
+            "description": "请求超出了服务器的等待时间。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "429": {
+            "description": "当前请求过多。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "请求未完成,服务异常。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "503": {
+            "description": "服务端错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "bcc::getReportResourceDetails",
+          "authLevel": "NO_INSTANCE",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": false,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": true,
+          "needCbcCheck": false,
+          "model": "v5",
+          "authContextInitializerName": "baseIamAuthContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListResourcesResponseBody": {
+      "type": "object",
+      "description": "列举资源响应体",
+      "required": [
+        "count",
+        "next_marker",
+        "resources"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "本次分页查询响应的数据条数",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "next_marker": {
+          "type": "string",
+          "description": "下一次分页查询的游标"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceEntity"
+          },
+          "description": "资源列表"
+        }
+      }
+    },
+    "ResourceEntity": {
+      "type": "object",
+      "description": "资源实体",
+      "required": [
+        "resource_id",
+        "resource_name",
+        "provider",
+        "config_protection",
+        "region_id",
+        "create_time",
+        "last_inventory_time"
+      ],
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "description": "资源ID"
+        },
+        "resource_name": {
+          "type": "string",
+          "description": "资源名称"
+        },
+        "provider": {
+          "type": "string",
+          "description": "资源类型"
+        },
+        "resource_level_name": {
+          "type": "string",
+          "description": "资源等级名称"
+        },
+        "critical_level": {
+          "type": "string",
+          "description": "重要程度"
+        },
+        "config_protection": {
+          "type": "boolean",
+          "description": "是否配置保护"
+        },
+        "backup_compliance": {
+          "type": "string",
+          "description": "备份合规性"
+        },
+        "local_vault_name": {
+          "type": "string",
+          "description": "本地备份存储库名称"
+        },
+        "remote_vault_name": {
+          "type": "string",
+          "description": "异地备份存储库名称"
+        },
+        "region_id": {
+          "type": "string",
+          "description": "资源归属区域"
+        },
+        "create_time": {
+          "type": "string",
+          "description": "资源创建时间"
+        },
+        "last_inventory_time": {
+          "type": "string",
+          "description": "上次盘点时间"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcc.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

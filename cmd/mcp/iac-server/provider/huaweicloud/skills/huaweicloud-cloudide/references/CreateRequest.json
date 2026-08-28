@@ -1,0 +1,240 @@
+{
+  "name": "CreateRequest",
+  "summary": "Create Request接口",
+  "tags": "codebreeze",
+  "productshort": "CloudIDE",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/aims/codemodelserver/code-generation/request": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "create a code generation request.\n\nif agent receives a code generation request, it will:\n- record the request into mysql,\n- decompose the request into `topn` tasks.\n- send the tasks to kafka.\n\nif agent receives a duplicated code generation request, it will not decompose request and send to kafka.",
+        "operationId": "CreateRequest",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "default": 1,
+            "minimum": 1,
+            "maximum": 30,
+            "description": "the number of samples",
+            "in": "query",
+            "name": "topn",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "default": "web",
+            "description": "the scenario of code content",
+            "in": "query",
+            "name": "scenario",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 50
+          },
+          {
+            "default": false,
+            "description": "if `resubmit` is true, the de-duplication will be ignored",
+            "in": "query",
+            "name": "resubmit",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "default": "300M",
+            "description": "choose the model",
+            "in": "query",
+            "name": "model_id",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 50
+          },
+          {
+            "default": "function",
+            "in": "query",
+            "description": "An enumeration.\n- function\n- rawtext",
+            "enum": [
+              "function",
+              "rawtext"
+            ],
+            "type": "string",
+            "name": "request_type",
+            "required": false
+          },
+          {
+            "description": "iam x-auth-token",
+            "in": "header",
+            "name": "x-auth-token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1,
+            "minLength": 1,
+            "maxLength": 100000
+          },
+          {
+            "in": "body",
+            "description": "CreateRequestRequestBody",
+            "name": "CreateRequestRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PropertiesSchema"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "schema": {
+              "$ref": "#/definitions/PostRequestResponse"
+            },
+            "examples": {
+              "application/json": {
+                "request_id": "d980c2b5242eb97aa07a1f6645a6793a",
+                "status": "created",
+                "dispatched_task_number": 0
+              }
+            }
+          }
+        },
+        "summary": "Create Request接口",
+        "tags": [
+          "codebreeze"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/aims/codemodelserver/code-generation/request",
+        "x-request-examples-description-1": "create a code generation request.",
+        "x-request-examples-1": {
+          "signature": "def add(x, y):",
+          "language": "python",
+          "docstring": "sum two numbers",
+          "context": "    return x + y",
+          "ide_type": "pycharm professional",
+          "ide_version": "2022.1.3",
+          "plugin_version": "v0.1.0"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PropertiesSchema": {
+      "properties": {
+        "context": {
+          "description": "context",
+          "example": "    return x + y",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 5000
+        },
+        "docstring": {
+          "description": "docstring",
+          "example": "sum two numbers",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 5000
+        },
+        "ide_type": {
+          "description": "the type of ide",
+          "example": "pycharm professional",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 50
+        },
+        "ide_version": {
+          "description": "the version of ide",
+          "example": "2022.1.3",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 50
+        },
+        "language": {
+          "description": "code language",
+          "example": "python",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "plugin_version": {
+          "description": "the version of plugin",
+          "example": "v0.1.0",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 50
+        },
+        "signature": {
+          "description": "signature",
+          "example": "def add(x, y):",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        "above_text": {
+          "description": "the text above the cursor",
+          "example": "def add(x, y)",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65535
+        },
+        "following_text": {
+          "description": "the text following the cursor",
+          "example": null,
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65535
+        }
+      },
+      "required": [
+        "language"
+      ],
+      "title": "PropertiesSchema",
+      "type": "object"
+    },
+    "RequestStatus": {
+      "description": "An enumeration.\n- created\n- dispatched\n- completed\n- timeout\n- unknown",
+      "enum": [
+        "created",
+        "dispatched",
+        "completed",
+        "timeout",
+        "unknown"
+      ],
+      "type": "string",
+      "title": "RequestStatus"
+    },
+    "PostRequestResponse": {
+      "properties": {
+        "request_id": {
+          "description": "the unique id of the request",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "status": {
+          "$ref": "#/definitions/RequestStatus",
+          "description": "the status of the request"
+        },
+        "dispatched_task_number": {
+          "description": "the number of tasks dispatched successfully",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "title": "PostRequestResponse",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cloudide.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

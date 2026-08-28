@@ -1,0 +1,355 @@
+{
+  "name": "ExecutePublicScript",
+  "summary": "执行公共脚本",
+  "tags": "ScriptPublicManagement",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/job/public-scripts/{script_uuid}": {
+      "post": {
+        "tags": [
+          "ScriptPublicManagement"
+        ],
+        "summary": "执行公共脚本",
+        "description": "执行公共脚本\n脚本入参、超时时间、执行用户、资源受限\n脚本入参支持20个。\n单次下发的机器支持200个。\n单次批次内机器数量最大10个。\n最大批次数量为20批。",
+        "operationId": "ExecutePublicScript",
+        "parameters": [
+          {
+            "name": "script_uuid",
+            "in": "path",
+            "description": "公共脚本Uuid",
+            "required": true,
+            "type": "string",
+            "maxLength": 25,
+            "minLength": 1
+          },
+          {
+            "in": "body",
+            "name": "ExecuteJobPublicScriptRequestBody",
+            "description": "执行公共脚本请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ScriptExecuteModel"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "国际化标记,zh-cn表示中文,en-us或不传表示英文",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-project-id",
+            "in": "header",
+            "description": "项目ID,一个项目对应一个region",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "x-user-profile",
+            "in": "header",
+            "description": "IAM5.0用户信息",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "工单execute_uuid",
+            "examples": {
+              "application/json": {
+                "data": "SCT2023083109562601af694bf"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ExecutePublicScriptRes"
+            }
+          }
+        },
+        "x-apiexplorer-hide": false,
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ExecutePublicScriptRes": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "string",
+          "example": "SCT2023083109562601af694bf",
+          "description": "执行公共脚本返回体:execute_uuid"
+        }
+      },
+      "description": "执行公共脚本返回体"
+    },
+    "ScriptExecuteModel": {
+      "type": "object",
+      "required": [
+        "execute_batches",
+        "execute_param"
+      ],
+      "properties": {
+        "execute_param": {
+          "description": "脚本执行参数",
+          "$ref": "#/definitions/ScriptExecuteParam"
+        },
+        "execute_batches": {
+          "type": "array",
+          "description": "目标实例分批信息",
+          "items": {
+            "$ref": "#/definitions/ExecuteInstancesBatchInfo"
+          }
+        }
+      }
+    },
+    "ScriptExecuteParam": {
+      "type": "object",
+      "required": [
+        "execute_user",
+        "success_rate",
+        "timeout"
+      ],
+      "properties": {
+        "resourceful": {
+          "type": "boolean",
+          "example": true,
+          "description": "该参数已废弃,传入该参数不会生效。"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 30,
+          "description": "超时时间,单位:秒,取值范围待定,5 < timeout < 1800",
+          "minimum": 5,
+          "maximum": 1800,
+          "exclusiveMinimum": true,
+          "exclusiveMaximum": true
+        },
+        "success_rate": {
+          "type": "number",
+          "format": "double",
+          "example": 100.0,
+          "description": "成功率,支持小数点后一位",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "execute_user": {
+          "type": "string",
+          "example": "root",
+          "description": "脚本执行用户,如:root",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "script_params": {
+          "type": "array",
+          "description": "脚本入参列表",
+          "items": {
+            "$ref": "#/definitions/ScriptExecuteInputParam"
+          }
+        }
+      },
+      "description": "脚本执行相关参数"
+    },
+    "ScriptExecuteInputParam": {
+      "type": "object",
+      "required": [
+        "param_name",
+        "param_value"
+      ],
+      "properties": {
+        "param_name": {
+          "type": "string",
+          "example": "value",
+          "description": "脚本入参的名称,同一个脚本,参数名不能重复",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "[A-Za-z0-9_]+$"
+        },
+        "param_value": {
+          "type": "string",
+          "example": "test",
+          "description": "脚本入参的值,默认必填。有引用参数(param_refer不为空)时,允许为空\n1.参数长度为1-4096位\n2.可以包含大写字母、小写字母、数字及特殊字符(_-/.* ?:\",=+@#\\[{]})\n3.禁止出现连续'.'",
+          "minLength": 0,
+          "maxLength": 4096
+        },
+        "param_order": {
+          "type": "integer",
+          "format": "int32",
+          "description": "该参数已废弃,传入该参数不会生效。"
+        },
+        "param_refer": {
+          "description": "参数引用",
+          "$ref": "#/definitions/ScriptExecuteParamReference"
+        }
+      }
+    },
+    "ScriptExecuteParamReference": {
+      "type": "object",
+      "required": [
+        "param_id",
+        "refer_type"
+      ],
+      "properties": {
+        "refer_type": {
+          "type": "string",
+          "description": "参数引用类型:PARAM_STORE"
+        },
+        "param_id": {
+          "type": "string",
+          "example": "LOW",
+          "description": "引用参数的唯一主键id",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        },
+        "param_version": {
+          "type": "string",
+          "example": "v1.0.0",
+          "description": "引用参数的版本号",
+          "minLength": 1,
+          "maxLength": 10
+        }
+      },
+      "description": "脚本执行入参引用定义"
+    },
+    "ExecuteInstancesBatchInfo": {
+      "type": "object",
+      "required": [
+        "batch_index",
+        "rotation_strategy",
+        "target_instances"
+      ],
+      "properties": {
+        "batch_index": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "批次索引,从1开始,未校验:最大值",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "target_instances": {
+          "type": "array",
+          "description": "目标节点列表",
+          "items": {
+            "$ref": "#/definitions/ExecuteResourceInstance"
+          },
+          "maxItems": 10,
+          "minItems": 1
+        },
+        "rotation_strategy": {
+          "type": "string",
+          "example": "PAUSE",
+          "description": "暂停继续策略",
+          "enum": [
+            "CONTINUE",
+            "PAUSE"
+          ]
+        }
+      }
+    },
+    "ExecuteResourceInstance": {
+      "type": "object",
+      "required": [
+        "region_id",
+        "resource_id"
+      ],
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "example": "66006c8e-dc6b-45bb-a65b-6f8a3700392f",
+          "description": "ecs云服务器ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "region_id": {
+          "type": "string",
+          "example": "cn-north-a",
+          "description": "服务器所属region",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "provider": {
+          "type": "string",
+          "description": "资源提供者:ECS,不传默认为:ECS。请保证一次执行, 每个实例的provider是一致的。后续扩展CCE等"
+        },
+        "type": {
+          "type": "string",
+          "description": "资源提供者下资源类型,不传默认为CLOUDSERVER\nCLOUDSERVER:CLOUDSERVER类型\n约束: \n-不允许跨type支持",
+          "enum": [
+            "CLOUDSERVER"
+          ]
+        },
+        "custom_attributes": {
+          "type": "array",
+          "description": "支持用户自定义5个key_value形式的属性。 \n约束条件:\n- key值长度为10 \n- value长度为20 \n- map长度最大为5\n- 禁止填写敏感数据",
+          "items": {
+            "$ref": "#/definitions/Customttribute"
+          }
+        },
+        "agent_sn": {
+          "type": "string",
+          "example": "7aec98ca0edd45bc8145005c1892cb3a",
+          "description": "该参数已废弃,传入该参数不会生效。",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "project_id": {
+          "type": "string",
+          "example": "1076d5e8a93f4fd383ad8b40498fcf7d",
+          "description": "该参数已废弃,传入该参数不会生效。",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      },
+      "description": "执行脚本时需要传的机器信息"
+    },
+    "Customttribute": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "1kkkkkk",
+          "description": "自定义属性key",
+          "minLength": 0,
+          "maxLength": 10
+        },
+        "value": {
+          "type": "string",
+          "example": "1lhkjh",
+          "description": "自定义属性的value",
+          "minLength": 0,
+          "maxLength": 20
+        }
+      },
+      "description": "当前执行脚本的自定义属性,仅用于表示本次执行的产生工单的信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

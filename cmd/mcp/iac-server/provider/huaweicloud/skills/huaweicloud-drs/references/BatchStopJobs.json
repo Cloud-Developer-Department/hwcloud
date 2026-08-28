@@ -1,0 +1,214 @@
+{
+  "name": "BatchStopJobs",
+  "summary": "批量暂停任务",
+  "tags": "公共接口管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/jobs/batch-pause-task": {
+      "post": {
+        "tags": [
+          "公共接口管理"
+        ],
+        "summary": "批量暂停任务",
+        "description": "批量暂停任务。",
+        "operationId": "BatchStopJobs",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "请求语言类型",
+            "required": false,
+            "type": "string",
+            "default": "en-us",
+            "x-example": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "x-order": 3
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "指定类型为application/json",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "x-example": "application/json",
+            "x-order": 4
+          },
+          {
+            "in": "body",
+            "name": "req",
+            "description": "批量暂停任务请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchPauseJobReq"
+            },
+            "x-order": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "id": "8d0e8e36-a618-490d-8a46-8c61ac9jb502",
+                    "status": "success"
+                  }
+                ],
+                "count": 1
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchPauseJobResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-name": "批量暂停任务",
+        "x-constraint": "- 迁移中、同步中、灾备中的任务可以执行暂停动作。\n- 双主灾备时,父任务不支持调用。",
+        "x-version": "v3",
+        "x-scope": "Commercial",
+        "x-order": 11,
+        "x-request-examples-description-1": "批量暂停任务示例",
+        "x-request-examples-url-1": "/v3/054ba152d480d55b2f5dc0069e7ddef0/jobs/batch-pause-task",
+        "x-request-examples-1": {
+          "jobs": [
+            {
+              "job_id": "8d0e8e36-a618-490d-8a46-8c61ac9jb502",
+              "pause_mode": "target"
+            }
+          ]
+        },
+        "x-request-examples-text-1": {
+          "jobs": [
+            {
+              "job_id": "8d0e8e36-a618-490d-8a46-8c61ac9jb502",
+              "pause_mode": "target"
+            }
+          ]
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "BatchStopJobs"
+      }
+    }
+  },
+  "definitions": {
+    "PauseJobResp": {
+      "required": [
+        "id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务id"
+        },
+        "status": {
+          "type": "string",
+          "description": "暂停结果"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "description": "暂停任务返回体"
+    },
+    "BatchPauseJobResp": {
+      "required": [
+        "count",
+        "results"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "description": "批量暂停返回列表",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/PauseJobResp"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数"
+        }
+      },
+      "description": "批量暂停返回体"
+    },
+    "BatchPauseJobReq": {
+      "required": [
+        "jobs"
+      ],
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "description": "不能包含空对象。\n集合中的job_id取值严格匹配UUID规则。",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/PauseInfo"
+          }
+        }
+      },
+      "description": "批量暂停任务请求体"
+    },
+    "PauseInfo": {
+      "required": [
+        "job_id",
+        "pause_mode"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "example": "8d0e8e36-a618-490d-8a46-8c61ac9jb502",
+          "description": "任务id"
+        },
+        "pause_mode": {
+          "type": "string",
+          "example": "target",
+          "description": "暂停类型,target:停回放,all:停日志抓取和回放",
+          "enum": [
+            "target",
+            "all"
+          ]
+        }
+      },
+      "description": "暂停任务请求参数"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,933 @@
+{
+  "name": "ShowOptmJob",
+  "summary": "查询分子优化作业详情",
+  "tags": "分子优化作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/optimization/{job_id}": {
+      "get": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-partial": true,
+        "x-interface-name": "IOptimizationJobController",
+        "tags": [
+          "分子优化作业管理"
+        ],
+        "summary": "查询分子优化作业详情",
+        "description": "查询分子优化作业详情",
+        "operationId": "ShowOptmJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid",
+            "x-example": "projectId"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "作业id",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "job_id is invalid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/OptmJobDetailRsp"
+            },
+            "examples": {
+              "application/json": {
+                "basic_info": {
+                  "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                  "name": "demo-job",
+                  "labels": [
+                    "labelA",
+                    "labelB"
+                  ],
+                  "status": "FINISHED",
+                  "type": "OPTIMIZATION",
+                  "create_time": "2021-01-30T02:34:36Z",
+                  "start_time": "2021-01-30T02:34:37Z",
+                  "finish_time": "2021-01-30T02:53:26Z",
+                  "failed_message": "null",
+                  "user_name": "demo-user-name",
+                  "output_dir": "job-analysis/job-name",
+                  "expect_charge_num": 1,
+                  "real_charge_num": 1
+                },
+                "smiles": "string",
+                "num_trials": 500,
+                "binding_site": {
+                  "name": "binding_name",
+                  "receptor": {
+                    "source": "PRIVATE",
+                    "url": "project:/test.pdb"
+                  },
+                  "bounding_box": {
+                    "center": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "size": [
+                      500,
+                      500,
+                      500
+                    ]
+                  },
+                  "remove_ion": false,
+                  "remove_water": false,
+                  "remove_ligand": true
+                },
+                "weak_constraints": [
+                  {
+                    "name": "cs1",
+                    "type": "bool",
+                    "bool": true
+                  }
+                ],
+                "strong_constraints": [
+                  {
+                    "name": "cs2",
+                    "type": "range",
+                    "range": [
+                      0,
+                      1
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "Progress": {
+      "properties": {
+        "overall": {
+          "type": "number",
+          "format": "float",
+          "example": 0.21,
+          "description": "整体进度"
+        },
+        "estimated_finish_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1000,
+          "description": "预计结束时间,毫秒"
+        }
+      }
+    },
+    "StructureConstraintParamsDto": {
+      "type": "object",
+      "description": "结构约束参数",
+      "properties": {
+        "structs": {
+          "type": "array",
+          "description": "子结构SMILES",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1
+          }
+        },
+        "exclusive": {
+          "type": "boolean",
+          "description": "是否排除子结构"
+        },
+        "operator": {
+          "type": "string",
+          "description": "多个子结构之间的逻辑关系",
+          "default": "or",
+          "$ref": "#/definitions/OperatorType"
+        }
+      },
+      "required": [
+        "structs",
+        "exclusive"
+      ]
+    },
+    "ReceptorDrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ]
+        }
+      }
+    },
+    "FailedReasonRecord": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "example": "invalid smiles",
+          "description": "失败原因"
+        },
+        "count": {
+          "type": "integer",
+          "example": 20,
+          "description": "失败数量"
+        }
+      }
+    },
+    "StrongConstraintType": {
+      "type": "string",
+      "enum": [
+        "bool",
+        "range",
+        "struct",
+        "interaction"
+      ]
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    },
+    "InteractionConstraintDto": {
+      "type": "object",
+      "description": "相互作用力约束参数",
+      "properties": {
+        "interactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Interaction"
+          },
+          "minItems": 1,
+          "maxItems": 8,
+          "description": "相互作用力列表"
+        },
+        "exclusive": {
+          "type": "boolean",
+          "description": "是否排除指定的约束作用力"
+        },
+        "operator": {
+          "type": "string",
+          "description": "多个作用力之间的逻辑关系",
+          "default": "or",
+          "$ref": "#/definitions/OperatorType"
+        }
+      },
+      "required": [
+        "interactions",
+        "exclusive"
+      ]
+    },
+    "WeakConstraintType": {
+      "type": "string",
+      "enum": [
+        "bool",
+        "range",
+        "struct",
+        "minimize",
+        "maximize",
+        "interaction"
+      ]
+    },
+    "BindSiteDto": {
+      "required": [
+        "receptor"
+      ],
+      "type": "object",
+      "description": "结合位点",
+      "properties": {
+        "name": {
+          "description": "靶点名称,只能设置为target1或者target2。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "x-pattern-message": "bind site name is invalid",
+          "example": "target1",
+          "x-ut-exclude-equivalence": [
+            "LOWER_BOUND",
+            "NULL",
+            "UPPER_BOUND"
+          ]
+        },
+        "receptor": {
+          "$ref": "#/definitions/ReceptorDrugFile",
+          "description": "受体文件"
+        },
+        "engine": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 15,
+          "pattern": "^(DSDP|AUTODOCK_VINA|VINA)$",
+          "description": "**参数解释**:\n引擎,支持DSDP、AUTODOCK_VINA,默认值为AUTODOCK_VINA。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "example": "AUTODOCK_VINA",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ]
+        },
+        "docking_type": {
+          "type": "string",
+          "description": "**参数解释**:\n对接类型,仅支持POCKET_DOCKING。\n**约束限制**:\n不涉及\n**取值范围**:\n* POCKET_DOCKING:口袋对接\n* \n**默认取值**:\nPOCKET_DOCKING",
+          "minLength": 0,
+          "maxLength": 15,
+          "pattern": "^(BLIND_DOCKING|POCKET_DOCKING)$",
+          "x-pattern-message": "Docking_type only supports BLIND_DOCKING and POCKET_DOCKING.",
+          "default": "POCKET_DOCKING",
+          "example": "POCKET_DOCKING"
+        },
+        "bounding_box": {
+          "$ref": "#/definitions/BoundingBoxDto"
+        },
+        "remove_ion": {
+          "type": "boolean",
+          "description": "去除受体中的离子",
+          "default": true
+        },
+        "remove_water": {
+          "type": "boolean",
+          "description": "去除受体中的水分子",
+          "default": true
+        },
+        "remove_ligand": {
+          "type": "boolean",
+          "description": "去除受体中的配体分子",
+          "default": true
+        },
+        "add_hydrogen": {
+          "type": "boolean",
+          "default": false,
+          "description": "增加氢原子"
+        }
+      }
+    },
+    "BoundingBoxDto": {
+      "required": [
+        "center",
+        "size"
+      ],
+      "type": "object",
+      "description": "结合口袋,包含口袋中心位置和尺寸大小",
+      "properties": {
+        "center": {
+          "type": "array",
+          "description": "口袋中心坐标; x, y, z轴的坐标",
+          "minItems": 3,
+          "maxItems": 3,
+          "example": [
+            1.3,
+            23.4,
+            -14.5
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": -9999999,
+            "maximum": 99999999
+          }
+        },
+        "size": {
+          "type": "array",
+          "description": "口袋尺寸大小;  x, y, z轴的大小",
+          "minItems": 3,
+          "maxItems": 3,
+          "example": [
+            10.0,
+            10.0,
+            10.0
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": 2,
+            "maximum": 500
+          }
+        },
+        "padding": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "maximum": 20,
+          "description": "填充"
+        }
+      }
+    },
+    "DrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ],
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "DrugJobDto": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "description": "作业的名称,取值范围:[1,63],允许大小写字母、数字、以及特殊字符中划线(-)"
+        },
+        "eihealth_project_id": {
+          "type": "string",
+          "example": "demo_id",
+          "description": "**参数解释**:\n作业所属空间ID。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1-63]个字符,允许大小写字母、数字、以及特殊字符中划线(-)。\n**默认取值**:\n不涉及"
+        },
+        "eihealth_project_name": {
+          "type": "string",
+          "example": "demo_name",
+          "description": "**参数解释**:\n作业所属空间名称。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        },
+        "upstream_job_info": {
+          "type": "string",
+          "example": "{\"job_id\":\"demo-job-id\",\"job_name\":\"demo-job-name\"}",
+          "description": "**参数解释**:\n上游作业信息。\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及"
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "作业标签",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "example": "FINISHED",
+          "description": "作业状态"
+        },
+        "type": {
+          "type": "string",
+          "example": "OPTIMIZATION",
+          "description": "作业类型"
+        },
+        "create_time": {
+          "type": "string",
+          "example": "2021-01-30T02:34:36Z",
+          "description": "作业创建时间"
+        },
+        "finish_time": {
+          "type": "string",
+          "example": "2021-01-30T02:53:26Z",
+          "description": "作业结束时间"
+        },
+        "start_time": {
+          "type": "string",
+          "example": "2021-01-30T02:50:26Z",
+          "description": "作业开始时间"
+        },
+        "failed_message": {
+          "type": "string",
+          "example": "null",
+          "description": "失败提示,当作业执行失败时会返回"
+        },
+        "user_name": {
+          "type": "string",
+          "example": "demo-user-name",
+          "description": "创建任务的用户名称"
+        },
+        "output_dir": {
+          "type": "string",
+          "example": "projectName:/job-result/dir",
+          "description": "作业结果输出目录"
+        },
+        "expect_charge_num": {
+          "type": "number",
+          "format": "double",
+          "example": 1,
+          "description": "预估功能调用消耗次数"
+        },
+        "real_charge_num": {
+          "type": "number",
+          "format": "double",
+          "example": 1,
+          "description": "实际功能调用消耗次数"
+        },
+        "progress": {
+          "$ref": "#/definitions/Progress",
+          "description": "作业进度信息"
+        }
+      }
+    },
+    "OptmJobDetailRsp": {
+      "properties": {
+        "basic_info": {
+          "$ref": "#/definitions/DrugJobDto",
+          "description": "作业基本信息"
+        },
+        "smiles": {
+          "type": "string",
+          "description": "分子SMILES表达式",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "molecule_file": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "分子文件"
+        },
+        "num_trials": {
+          "type": "integer",
+          "format": "int32",
+          "description": "生成分子数量",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "binding_site": {
+          "$ref": "#/definitions/BindSiteDto",
+          "description": "结合位点"
+        },
+        "binding_sites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BindSiteDto"
+          },
+          "minItems": 0,
+          "maxItems": 2,
+          "description": "受体列表和受体是二选一的关系,受体列表优先级最高"
+        },
+        "weak_constraints": {
+          "description": "弱约束集合",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeakConstraintDto"
+          }
+        },
+        "strong_constraints": {
+          "description": "强约束集合",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StrongConstraintDto"
+          }
+        },
+        "sampler_mixin_weight": {
+          "description": "初始化采样权重",
+          "type": "number",
+          "format": "float",
+          "example": 0.7
+        },
+        "base_model": {
+          "$ref": "#/definitions/BaseModel"
+        },
+        "models": {
+          "description": "模型列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BasicDrugModel"
+          }
+        },
+        "cluster_result": {
+          "$ref": "#/definitions/ClusterJobRsp",
+          "description": "聚类结果信息"
+        }
+      },
+      "description": "获取分子优化作业详情响应体"
+    },
+    "InteractionType": {
+      "type": "string",
+      "description": "相互作用力类型:氢键、疏水作用、盐桥、π-π堆积、π-阳离子",
+      "enum": [
+        "hydrogen_bond",
+        "hydrophobic_action",
+        "salt_bridge",
+        "pi_stacking",
+        "pi_cation"
+      ]
+    },
+    "ClusterJobRsp": {
+      "type": "object",
+      "description": "分子聚类结果",
+      "required": [
+        "method",
+        "output_dir",
+        "status",
+        "failed_reasons"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "description": "分子聚类方法",
+          "example": "hiq_mc"
+        },
+        "output_dir": {
+          "type": "string",
+          "description": "分子聚类输出结果",
+          "example": "project://bucket/path/to/task/dir/"
+        },
+        "status": {
+          "type": "string",
+          "description": "作业结果信息",
+          "example": "finished"
+        },
+        "failed_reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FailedReasonRecord"
+          },
+          "description": "部分失败原因和数量"
+        }
+      }
+    },
+    "StrongConstraintDto": {
+      "type": "object",
+      "description": "分子约束",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "自定义模型id,仅强约束为模型时填写",
+          "example": "800c744f-0705-448e-bb90-d69b9d243152",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "属性名称",
+          "example": "mw",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "type": {
+          "type": "string",
+          "description": "属性约束类型",
+          "$ref": "#/definitions/StrongConstraintType"
+        },
+        "bool": {
+          "type": "boolean",
+          "description": "属性约束类型bool的参数"
+        },
+        "range": {
+          "type": "array",
+          "description": "属性约束类型range的参数",
+          "minItems": 2,
+          "maxItems": 2,
+          "example": [
+            0.1,
+            0.8
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": -9999,
+            "maximum": 9999
+          }
+        },
+        "struct": {
+          "$ref": "#/definitions/StructureConstraintParamsDto"
+        },
+        "interaction": {
+          "$ref": "#/definitions/InteractionConstraintDto"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "OperatorType": {
+      "type": "string",
+      "enum": [
+        "or",
+        "and"
+      ]
+    },
+    "Interaction": {
+      "required": [
+        "binding_site",
+        "type",
+        "amino_acid"
+      ],
+      "type": "object",
+      "description": "分子与蛋白间的相互作用力",
+      "properties": {
+        "binding_site": {
+          "description": "靶点,只支持target1或target2。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "x-pattern-message": "bind site name is invalid",
+          "example": "target1"
+        },
+        "type": {
+          "$ref": "#/definitions/InteractionType"
+        },
+        "amino_acid": {
+          "description": "氨基酸",
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 16,
+          "example": "A:LEU:45"
+        }
+      }
+    },
+    "BaseModel": {
+      "description": "基模型",
+      "required": [
+        "id",
+        "name"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "基模型id",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "default": "pangu-drug-model"
+        },
+        "name": {
+          "description": "基模型名称",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "default": "pangu-drug-model"
+        }
+      }
+    },
+    "BasicDrugModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "模型ID"
+        },
+        "task_id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "任务ID"
+        },
+        "name": {
+          "type": "string",
+          "example": "model_name",
+          "description": "模型名称"
+        },
+        "creator": {
+          "type": "string",
+          "example": "creator",
+          "description": "模型创建者"
+        },
+        "type": {
+          "type": "string",
+          "example": "binary",
+          "description": "模型类型"
+        },
+        "value_range": {
+          "$ref": "#/definitions/ValueRange2"
+        },
+        "description": {
+          "type": "string",
+          "example": "description",
+          "description": "模型描述信息"
+        }
+      }
+    },
+    "ValueRange2": {
+      "properties": {
+        "lower": {
+          "type": "number",
+          "format": "float",
+          "description": "值域下限"
+        },
+        "upper": {
+          "type": "number",
+          "format": "float",
+          "description": "值域上限"
+        }
+      },
+      "description": "数值值域区间定义",
+      "example": {
+        "lower": 0,
+        "upper": 20
+      }
+    },
+    "WeakConstraintDto": {
+      "type": "object",
+      "description": "分子约束",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "自定义模型id,仅弱约束为模型时填写",
+          "example": "800c744f-0705-448e-bb90-d69b9d243152",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "属性名称",
+          "example": "mw",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "type": {
+          "type": "string",
+          "description": "属性约束类型",
+          "example": "range",
+          "$ref": "#/definitions/WeakConstraintType"
+        },
+        "bool": {
+          "type": "boolean",
+          "description": "属性约束类型bool的参数"
+        },
+        "range": {
+          "type": "array",
+          "description": "属性约束类型range的参数",
+          "minItems": 2,
+          "maxItems": 2,
+          "example": [
+            0.1,
+            0.8
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": -9999,
+            "maximum": 9999
+          }
+        },
+        "struct": {
+          "$ref": "#/definitions/StructureConstraintParamsDto"
+        },
+        "quantiles": {
+          "type": "array",
+          "description": "属性约束类型minimize和maximize的参数",
+          "minItems": 2,
+          "maxItems": 2,
+          "example": [
+            0.1,
+            0.8
+          ],
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "interaction": {
+          "$ref": "#/definitions/InteractionConstraintDto"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

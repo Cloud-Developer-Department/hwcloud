@@ -1,0 +1,211 @@
+{
+  "name": "SearchPublishInfo",
+  "summary": "查看API发布信息(专享版)",
+  "tags": "API管理接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/service/apis/{api_id}/publish-info": {
+      "get": {
+        "tags": [
+          "API管理接口"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "dataservice-openapi",
+        "summary": "查看API发布信息(专享版)",
+        "description": "查看API在不同集群上的发布信息。  \nAPI在集群上进行过操作后会存在发布信息,例如调试、注册类发布等。",
+        "operationId": "SearchPublishInfo",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,使用[Token认证](dataartsstudio_02_0010.xml)时必选。通过调用“获取用户Token”接口获取响应消息头中X-Subject-Token的值。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "workspace",
+            "in": "header",
+            "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Dlm-Type",
+            "in": "header",
+            "description": "数据服务的版本类型,指定SHARED共享版或EXCLUSIVE专享版。",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SHARED",
+              "EXCLUSIVE"
+            ]
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "消息体的类型(格式),有Body体的情况下必选,没有Body体无需填写。如果请求消息体中含有中文字符,则需要通过charset=utf8指定中文字符集,例如取值为:application/json;charset=utf8。",
+            "type": "string",
+            "required": true,
+            "default": "application/json"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "api_id",
+            "in": "path",
+            "description": "api编号。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit。",
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset。",
+            "type": "integer",
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success。",
+            "schema": {
+              "$ref": "#/definitions/ApiPublishMessageDTO"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "publish_messages": [
+                  {
+                    "id": "343a6d4c0ad108376ebd060c9c33cc33",
+                    "api_id": "47046fe7830c1be77cb0dc23bd86afa5",
+                    "instance_id": "c2e27497562ed193583378e052248003",
+                    "instance_name": "cluster_test_001",
+                    "api_status": "API_STATUS_CREATED",
+                    "api_debug": "API_DEBUG_WAITING"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiPublishDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "发布编号",
+          "example": "343a6d4c0ad108376ebd060c9c33cc33"
+        },
+        "api_id": {
+          "type": "string",
+          "description": "api编号",
+          "example": "47046fe7830c1be77cb0dc23bd86afa5"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "集群编号",
+          "example": "c2e27497562ed193583378e052248003"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": "集群名称",
+          "example": "cluster_test_001"
+        },
+        "api_status": {
+          "type": "string",
+          "description": "api状态",
+          "enum": [
+            "API_STATUS_CREATED",
+            "API_STATUS_PUBLISH_WAIT_REVIEW",
+            "API_STATUS_PUBLISH_REJECT",
+            "API_STATUS_PUBLISHED",
+            "API_STATUS_WAITING_STOP",
+            "API_STATUS_STOPPED",
+            "API_STATUS_RECOVER_WAIT_REVIEW",
+            "API_STATUS_WAITING_OFFLINE",
+            "API_STATUS_OFFLINE"
+          ]
+        },
+        "api_debug": {
+          "type": "string",
+          "description": "api调试状态",
+          "enum": [
+            "API_DEBUG_WAITING",
+            "API_DEBUG_FAILED",
+            "API_DEBUG_SUCCESS"
+          ]
+        }
+      }
+    },
+    "ApiPublishMessageDTO": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "总数",
+          "example": 1
+        },
+        "publish_messages": {
+          "description": "发布信息列表",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApiPublishDTO"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DLS.1000",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "process failed",
+          "minLength": 1,
+          "maxLength": 10240
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

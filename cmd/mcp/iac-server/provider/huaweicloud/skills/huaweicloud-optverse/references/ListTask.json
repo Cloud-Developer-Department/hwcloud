@@ -1,0 +1,223 @@
+{
+  "name": "ListTask",
+  "summary": "查询任务列表",
+  "tags": "OptVerse Service",
+  "productshort": "OptVerse",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/optverse/{service_type}/tasks": {
+      "get": {
+        "tags": [
+          "OptVerse Service"
+        ],
+        "summary": "查询任务列表",
+        "description": "查询任务列表",
+        "operationId": "ListTask",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_type",
+            "in": "path",
+            "description": "服务类型,针对不同服务,为用户提前填充对应值,用户侧不需单独赋值;二维切割-方形件固定为 regular-plate,二维切割-异形件固定为 irregular-textile, 数学规划求解器固定为 optverse-mpsolver",
+            "minLength": 1,
+            "maxLength": 128,
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "限制量,单次查询总量,必须由数字组成,默认为300,取值范围[1,300]",
+            "required": false,
+            "type": "integer",
+            "default": 300,
+            "maximum": 300,
+            "minimum": 1
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,查询起始偏移,必须由数字组成,默认为0,取值范围[0,100000000]",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 100000000,
+            "minimum": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取任务列表",
+            "schema": {
+              "$ref": "#/definitions/TaskListVo"
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "tasks": [
+                  {
+                    "task_id": "032b3df0-adcd-4a39-a4e6-f0ec9707fcc8",
+                    "status": "Running",
+                    "start_time": "2024-05-16T08:40:00.663Z",
+                    "end_time": null,
+                    "create_time": "2024-05-16T08:40:00.453Z"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "string",
+                "error_msg": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "string",
+                "error_msg": "string"
+              }
+            }
+          }
+        },
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "TaskListVo": {
+      "type": "object",
+      "description": "查询任务成功响应消息",
+      "required": [
+        "count",
+        "tasks"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "任务数量",
+          "minimum": 0
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskListItemVo"
+          },
+          "description": "任务列表项视图"
+        }
+      }
+    },
+    "TaskListItemVo": {
+      "type": "object",
+      "description": "单个任务详情数据",
+      "required": [
+        "task_id",
+        "status",
+        "start_time",
+        "end_time",
+        "create_time"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态",
+          "enum": [
+            "Running",
+            "Pending",
+            "Expired",
+            "Unknown",
+            "Failed",
+            "Succeeded",
+            "Stopped",
+            "Deleted"
+          ]
+        },
+        "start_time": {
+          "type": "string",
+          "description": "开始时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间",
+          "example": "2024-05-16T08:40:00.663Z"
+        },
+        "create_time": {
+          "type": "string",
+          "description": "创建时间",
+          "example": "2024-05-16T08:40:00.453Z"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "type": "object",
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n用于获取操作API的权限。[获取Token接口](https://support.huaweicloud.com/api-ocr/ocr_03_0005.html)响应消息头中X-Subject-Token的值即为Token。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIINRwYJKoZIhvcNAQcCoIINODCCDTQCAQExDTALBglghkgBZQMEAgEwgguVBgkqhkiG..."
+    }
+  },
+  "host": "optverse.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

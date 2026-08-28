@@ -1,0 +1,208 @@
+{
+  "name": "SendVeriCodeForChangePwd",
+  "summary": "发送验证码",
+  "tags": "用户密码管理",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/usg/acs/verifycode/send": {
+      "post": {
+        "tags": [
+          "用户密码管理"
+        ],
+        "operationId": "SendVeriCodeForChangePwd",
+        "summary": "发送验证码",
+        "description": "该接口提供发送验证码,服务器收到请求,发送验证码到邮箱或者短信并返回结果。用户在前台界面通过滑块验证后,再进行发送验证码操作。",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 6,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "Body的媒体格式。\n* 样例:application/json; charset=UTF-8",
+            "required": true,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "application/json; charset=UTF-8"
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "d887e3af87a84275bda637bfa44a2ada"
+          },
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true,
+            "x-example": "en-US"
+          },
+          {
+            "name": "verifyCodeSendDTOV1",
+            "in": "body",
+            "description": "发送验证码请求信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VerifyCodeSendDTOV1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "examples": {
+              "application/json": {
+                "expire": 180,
+                "bindPhone": "+8618157****1327",
+                "bindEmail": null
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/VerifyCodeSendResultDTO"
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "403": {
+            "description": "权限受限。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "423": {
+            "description": "帐号已被锁定。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "schema": {
+              "$ref": "#/definitions/ReturnCodeDTO"
+            }
+          }
+        },
+        "x-imports": "com.huawei.springframework.response.dto.ResultDTO;com.huawei.usg.cloudsso.model.dto.VerifyCodeSendResultDTO;com.huawei.springframework.om.trace.masker.annotation.*;com.huawei.springframework.om.trace.masker.base.*;com.huawei.usg.oms.model.kafka.annotation.*;com.huawei.usg.oms.model.kafka.constants.oplog.*;com.huawei.springframework.business.advice.HttpStatusController;",
+        "x-classAnnotation": "@HttpStatusController",
+        "x-methodAnnotations": [
+          "@RequestMaskRule(type = Type.JSON, rules = {@Rule(path = \"user\", masker = LoginKeyMasker.class), @Rule(path = \"token\", masker = PasswordMasker.class)})",
+          "@OpLogFunction(opObject = OpObjectEnum.PASSWORD_SETTINGS, opType = OpTypeEnum.RETRIEVE_PASSWORD)"
+        ],
+        "x-returnType": "VerifyCodeSendResultDTO",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/usg/acs/verifycode/send",
+        "x-request-examples-1": {
+          "sendMethod": "sms",
+          "user": "6pn5sq2cd02l828pk01wwy1i",
+          "token": "pI9JTTD9pQZrd6WUskqxAjvnS0FWKqAlL"
+        },
+        "x-request-examples-text-1": {
+          "sendMethod": "sms",
+          "user": "6pn5sq2cd02l828pk01wwy1i",
+          "token": "pI9JTTD9pQZrd6WUskqxAjvnS0FWKqAlL"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "VerifyCodeSendDTOV1": {
+      "x-subPackage": "dto",
+      "required": [
+        "user"
+      ],
+      "properties": {
+        "user": {
+          "type": "string",
+          "description": "用户身份信息(手机号码或邮箱帐号或用户真实帐号)。\n> 必须和发送滑块验证码时带的用户身份信息相同。",
+          "maxLength": 255,
+          "minLength": 1,
+          "example": "6pn5sq2cd02l828pk01wwy1i"
+        },
+        "sendMethod": {
+          "type": "string",
+          "description": "验证码发送方式。\nuser类型是用户真实帐号时必选;如果没有选择的话,优先短信方式。\n* sms:短信方式\n* email:邮件方式",
+          "maxLength": 64,
+          "minLength": 0,
+          "example": "sms"
+        },
+        "token": {
+          "type": "string",
+          "description": "访问Token字符串。通过[校验滑块验证码](https://support.huaweicloud.com/api-meeting/meeting_21_0101.html) 接口获取。",
+          "maxLength": 255,
+          "minLength": 0,
+          "example": "pI9JTTD9pQZrd6WUskqxAjvnS0FWKqAlL"
+        }
+      }
+    },
+    "VerifyCodeSendResultDTO": {
+      "x-subPackage": "dto",
+      "properties": {
+        "expire": {
+          "type": "integer",
+          "description": "过期时间,单位:秒。",
+          "example": 180
+        },
+        "bindPhone": {
+          "type": "string",
+          "description": "如果通过手机发送验证码,则该字段携带该用户绑定的手机号(手机号经过处理,屏蔽中间几位,如+8618****12345)。",
+          "example": "+8618****12345"
+        },
+        "bindEmail": {
+          "type": "string",
+          "description": "如果通过邮箱发送验证码,则该字段携带用户绑定的邮箱帐号(邮箱帐号经过处理,屏蔽中间几位,如tes****ount@huawei.com)。",
+          "example": "tes****ount@huawei.com"
+        }
+      }
+    },
+    "ReturnCodeDTO": {
+      "x-subPackage": "discard",
+      "description": "错误码。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "example": "USG.206010000"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "example": "User name or password is incorrect"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "请求唯一标识。",
+          "example": "9655664f10724b398187598a1d5097c3"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

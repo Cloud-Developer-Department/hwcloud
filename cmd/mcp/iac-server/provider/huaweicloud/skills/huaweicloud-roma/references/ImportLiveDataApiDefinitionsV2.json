@@ -1,0 +1,295 @@
+{
+  "name": "ImportLiveDataApiDefinitionsV2",
+  "summary": "导入自定义后端API",
+  "tags": "OpenAPI接口",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/openapi/livedata-apis/import": {
+      "post": {
+        "summary": "导入自定义后端API",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "description": "导入自定义后端API。导入文件内容需要符合swagger标准规范,自定义扩展字段请参考用户指南的“附录:后端API的Swagger扩展定义”章节",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "OpenAPI接口"
+        ],
+        "operationId": "ImportLiveDataApiDefinitionsV2",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "name": "extend_mode",
+            "type": "string",
+            "in": "formData",
+            "required": false,
+            "description": "扩展信息导入模式\n- merge:当扩展信息定义冲突时,merge保留原有扩展信息\n- override:当扩展信息定义冲突时,override会覆盖原有扩展信息",
+            "enum": [
+              "merge",
+              "override"
+            ],
+            "default": "merge"
+          },
+          {
+            "name": "api_mode",
+            "type": "string",
+            "in": "formData",
+            "required": false,
+            "description": "导入模式\n- merge:当API信息定义冲突时,merge保留原有API信息\n- override:当API信息定义冲突时,override会覆盖原有API信息",
+            "enum": [
+              "merge",
+              "override"
+            ],
+            "default": "merge"
+          },
+          {
+            "name": "file_name",
+            "in": "formData",
+            "type": "file",
+            "description": "导入自定义后端API的请求体,json或yaml格式的文件",
+            "required": true
+          }
+        ],
+        "x-request-examples-description-1": "导入自定义后端API。表单字段file_name为文件类型",
+        "x-request-examples-1": {
+          "file_name": "livedataApi.yaml"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ImportBaseResult"
+            },
+            "examples": {
+              "application/json": {
+                "failure": [
+                  {
+                    "path": "/test/demo",
+                    "error_msg": "The backend API already exists",
+                    "method": "GET",
+                    "error_code": "APIG.3314"
+                  }
+                ],
+                "success": [
+                  {
+                    "path": "/test",
+                    "method": "GET",
+                    "action": "create",
+                    "id": "8ae6bcafab6f49d78242bff26ad8a4f0"
+                  }
+                ],
+                "swagger": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3201",
+                "error_msg": "The API group name already exists"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3001",
+                "error_msg": "API group not found"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Failure": {
+      "properties": {
+        "path": {
+          "description": "API请求路径",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "导入失败的错误信息",
+          "type": "string"
+        },
+        "method": {
+          "description": "API请求方法",
+          "type": "string"
+        },
+        "error_code": {
+          "description": "导入失败的错误码",
+          "type": "string"
+        }
+      }
+    },
+    "ImportBaseResult": {
+      "properties": {
+        "success": {
+          "description": "导入成功信息",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Success"
+          }
+        },
+        "failure": {
+          "description": "导入失败信息",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Failure"
+          }
+        },
+        "swagger": {
+          "$ref": "#/definitions/Swagger"
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "Swagger": {
+      "description": "swagger文档导入结果\n\n暂不支持",
+      "properties": {
+        "id": {
+          "description": "swagger文档编号",
+          "type": "string"
+        },
+        "result": {
+          "description": "导入结果说明",
+          "type": "string"
+        }
+      }
+    },
+    "Success": {
+      "properties": {
+        "path": {
+          "description": "API请求路径",
+          "type": "string"
+        },
+        "method": {
+          "description": "API请求方法",
+          "type": "string"
+        },
+        "action": {
+          "description": "导入行为:\n- update:表示更新API\n- create:表示新建API",
+          "enum": [
+            "update",
+            "create"
+          ],
+          "type": "string"
+        },
+        "id": {
+          "description": "导入成功的API编号",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

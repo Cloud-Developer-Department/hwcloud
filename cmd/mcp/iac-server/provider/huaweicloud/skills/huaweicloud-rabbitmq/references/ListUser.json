@@ -1,0 +1,175 @@
+{
+  "name": "ListUser",
+  "summary": "查询用户列表",
+  "tags": "用户管理",
+  "productshort": "RabbitMQ",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/users": {
+      "get": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "查询用户列表",
+        "description": "查询用户列表(仅AMQP版本支持)。",
+        "operationId": "ListUser",
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-produc-type": "rabbitmq",
+        "x-open-region-cloud": "hws,hws_hk,hws_eu",
+        "x-hybridcloud": false,
+        "x-order": 2,
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:\n项目ID,获取方式请参见[获取项目ID](rabbitmq-api-190611012.xml)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+          },
+          {
+            "in": "path",
+            "name": "instance_id",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:\n实例ID。获取方法如下:调用[查询所有实例列表](ListInstancesDetails.xml)接口,从响应体中获取实例ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "type": "string",
+            "description": "**参数解释**:\n分页查询偏移量。\n**约束限制**:\n不涉及。\n**取值范围**:\n大于等于0。\n**默认取值**:\n0。"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "string",
+            "description": "**参数解释**:\n分页查询单页数量。\n**约束限制**:\n不涉及。\n**取值范围**:\n0~50。\n**默认取值**:\n10。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询用户列表成功。",
+            "schema": {
+              "$ref": "#/definitions/ListUserResp"
+            },
+            "examples": {
+              "application/json": {
+                "users": [
+                  {
+                    "access_key": "admin123",
+                    "secret_key": "**************",
+                    "vhosts": [
+                      {
+                        "vhost": "default",
+                        "conf": ".*",
+                        "write": ".*",
+                        "read": ".*"
+                      }
+                    ]
+                  }
+                ],
+                "total": 1
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询用户列表。",
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/instances/{instance_id}/users?offset=0&limit=10"
+      }
+    }
+  },
+  "definitions": {
+    "AMQPUser": {
+      "type": "object",
+      "required": [
+        "access_key",
+        "secret_key",
+        "vhosts"
+      ],
+      "properties": {
+        "access_key": {
+          "description": "**参数解释**:\n用户名。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        },
+        "secret_key": {
+          "description": "**参数解释**:\n密钥。\n**取值范围**:\n- 8-32个字符。\n- 至少包含以下字符中的3种:\n   - 大写字母\n   - 小写字母\n   - 数字\n   - 特殊字符`~!@#$%^&*()-_=+\\\\|[{}];:\\'\\\",<.>/?。\n- 不能与名称或倒序的名称相同。",
+          "type": "string"
+        },
+        "vhosts": {
+          "description": "**参数解释**:\n需要配置权限的Vhost,一个用户可以配置多个Vhost下的资源权限。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AMQPUserPerm"
+          }
+        }
+      },
+      "example": {
+        "access_key": "admin123",
+        "secret_key": "**************",
+        "vhosts": [
+          {
+            "vhost": "default",
+            "conf": ".*",
+            "write": ".*",
+            "read": ".*"
+          }
+        ]
+      }
+    },
+    "ListUserResp": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "description": "**参数解释**:\n用户列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AMQPUser"
+          }
+        },
+        "total": {
+          "description": "**参数解释**:\n总用户个数。\n**取值范围**:\n不涉及。",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "AMQPUserPerm": {
+      "type": "object",
+      "required": [
+        "vhost",
+        "conf",
+        "write",
+        "read"
+      ],
+      "properties": {
+        "vhost": {
+          "description": "**参数解释**:\n需要配置权限的Vhost名称,一个用户可以配置多个Vhost下的资源权限。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        },
+        "conf": {
+          "description": "**参数解释**:\n使用正则表达式匹配资源配置权限。例如,在输入框内输入“^janeway-.*”,则表示授权给该用户当前Vhost下,所有名称以“janeway-”开头的资源的配置权限。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        },
+        "write": {
+          "description": "**参数解释**:\n使用正则表达式匹配资源写权限。例如,在输入框内输入“.*”,则表示授权给该用户当前Vhost下,所有资源的写权限。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        },
+        "read": {
+          "description": "**参数解释**:\n使用正则表达式匹配资源读权限。例如,在输入框内输入“.*”,则表示授权给该用户当前Vhost下,所有资源的读权限。\n**取值范围**:\n不涉及。",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

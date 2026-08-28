@@ -1,0 +1,289 @@
+{
+  "name": "DebugApiV2",
+  "summary": "调试API",
+  "tags": "API管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/apis/debug/{api_id}": {
+      "post": {
+        "summary": "调试API",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-order": 8,
+        "x-apigateway-request-type": "public",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "x-api-version": "v2",
+        "tags": [
+          "API管理"
+        ],
+        "description": "调试一个API在指定运行环境下的定义,接口调用者需要具有操作该API的权限。",
+        "operationId": "DebugApiV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_api_id"
+          },
+          {
+            "in": "body",
+            "name": "DebugApiV2RequestBody",
+            "description": "调试API请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApiDebugInfo"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "调试一个未发布的API",
+        "x-request-examples-1": {
+          "mode": "DEVELOPER",
+          "scheme": "HTTPS",
+          "method": "GET",
+          "path": "/test/mock"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ApiDebugResp"
+            },
+            "examples": {
+              "application/json": {
+                "request": "GET /test/mock HTTP/1.1\r\nHost: c77f5e81d9cb4424bf704ef2b0ac7600.apic.****.com\r\nUser-Agent: APIGatewayDebugClient/1.0\r\nX-Apig-Mode: debug\r\n\r\n",
+                "response": "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: keep-alive\r\nContent-Type: application/json\r\nDate: Mon, 03 Aug 2020 02:51:22 GMT\r\nServer: api-gateway\r\nX-Apig-Latency: 0\r\nX-Apig-Ratelimit-Api: remain:99,limit:100,time:1 minute\r\nX-Apig-Ratelimit-Api-Allenv: remain:14999,limit:15000,time:1 second\r\nX-Request-Id: d4ec6e33148bdeffe8f55b43472d1251\r\n\r\nmock success",
+                "latency": 5,
+                "log": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2011",
+                "error_msg": "Invalid parameter value,parameterName:mode. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3002",
+                "error_msg": "API 3a955b791bd24b1c9cd94c745f8d1aad does not exist"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiDebugInfo": {
+      "required": [
+        "mode",
+        "path",
+        "method",
+        "scheme"
+      ],
+      "properties": {
+        "body": {
+          "description": "请求消息体,最长2097152字节",
+          "type": "string"
+        },
+        "header": {
+          "description": "头域参数,每个参数值为字符串数组,每个参数名称有如下约束:\n- 英文字母、数字、点、中连线组成\n- 必须以英文字母开头,最长32字节\n- 不支持以\"X-Apig-\"或\"X-Sdk-\"开头,不区分大小写\n- 不支持取值为\"X-Stage\",不区分大小写\n- mode为MARKET或CONSUMER时,不支持取值为\"X-Auth-Token\"和\"Authorization\",不区分大小写\n> 头域名称在使用前会被规范化,如:\"x-MY-hEaDer\"会被规范化为\"X-My-Header\"",
+          "type": "object",
+          "additionalProperties": {
+            "description": "附加参数",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "method": {
+          "description": "API的请求方法",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "HEAD",
+            "PATCH",
+            "OPTIONS"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "description": "调试模式\n- DEVELOPER 调试尚未发布的API定义\n- MARKET 调试云市场已购买的API\n- CONSUMER 调试指定运行环境下的API定义\n> DEVELOPER模式,接口调用者必须是API拥有者。\n\n  MARKET模式,接口调用者必须是API购买者或拥有者。\n\n  CONSUMER模式,接口调用者必须有API在指定环境上的授权信息或是API拥有者。",
+          "type": "string"
+        },
+        "path": {
+          "description": "API的请求路径,需以\"/\"开头,最大长度1024\n> 须符合路径规范,百分号编码格式可被正确解码",
+          "type": "string"
+        },
+        "query": {
+          "description": "查询参数,每个参数值为字符串数组,每个参数名称有如下约束:\n- 英文字母、数字、点、下划线、中连线组成\n- 必须以英文字母开头,最长32字节\n- 不支持以\"X-Apig-\"或\"X-Sdk-\"开头,不区分大小写\n- 不支持取值为\"X-Stage\",不区分大小写",
+          "type": "object",
+          "additionalProperties": {
+            "description": "附加参数",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "scheme": {
+          "description": "API的请求协议\n- HTTP\n- HTTPS",
+          "type": "string"
+        },
+        "app_key": {
+          "description": "调试请求使用的APP的key",
+          "type": "string"
+        },
+        "app_secret": {
+          "description": "调试请求使用的APP的密钥",
+          "type": "string"
+        },
+        "domain": {
+          "description": "API的访问域名,未提供时根据mode的取值使用如下默认值:\n- DEVELOPER API分组的子域名\n- MARKET 云市场为API分组分配的域名\n- CONSUMER API分组的子域名",
+          "type": "string"
+        },
+        "stage": {
+          "description": "调试请求指定的运行环境,仅在mode为CONSUMER时有效,未提供时有如下默认值:\n- CONSUMER RELEASE",
+          "type": "string"
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "ApiDebugResp": {
+      "properties": {
+        "request": {
+          "description": "调试请求报文内容",
+          "type": "string"
+        },
+        "response": {
+          "description": "调试响应报文内容,响应消息体最大支持2097152字节,超过部分会被截断\n> 响应消息体超过限制长度时,超过部分会被截断,并追加\"[TRUNCATED]\"信息。",
+          "type": "string"
+        },
+        "latency": {
+          "description": "调试耗时,单位:毫秒",
+          "type": "integer",
+          "format": "int32"
+        },
+        "log": {
+          "description": "调试过程日志",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_api_id": {
+      "name": "api_id",
+      "in": "path",
+      "type": "string",
+      "description": "API的编号",
+      "required": true,
+      "x-example": "5f918d104dc84480a75166ba99efff21"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

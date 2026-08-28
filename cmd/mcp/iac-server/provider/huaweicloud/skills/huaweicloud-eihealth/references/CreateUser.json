@@ -1,0 +1,233 @@
+{
+  "name": "CreateUser",
+  "summary": "创建用户",
+  "tags": "用户管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/users": {
+      "post": {
+        "x-interface-name": "IUserController",
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "创建用户",
+        "description": "创建用户",
+        "operationId": "CreateUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreateUserRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateUserReq"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "examples": {
+              "application/json": {
+                "id": "7116d09f88fa41908676fdd4b039..."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/UserIdRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-description-1": "创建用户,用户名为example_user,密码为example,角色为ADMIN,邮箱为example@huawei.com,电话为12345678910,作业配额为10,作业超时时长为1天,CPU的核数配额为50,内存的配额为128GB,用户可创建的项目数为2",
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/users",
+        "x-request-examples-1": {
+          "name": "example_user",
+          "password": "example",
+          "role": "ADMIN",
+          "email": "example@huawei.com",
+          "phone": "12345678910",
+          "areacode": "0086",
+          "settings": {
+            "job_quota": 10,
+            "cpu_quota": 50,
+            "mem_quota": 128,
+            "job_timeout": 1,
+            "projects_per_user": 2
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UserIdRsp": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "7116d09f88fa41908676fdd4b039...",
+          "description": "用户id"
+        }
+      },
+      "title": "UserResponse",
+      "description": "操作用户返回体"
+    },
+    "CreateUserReq": {
+      "required": [
+        "name",
+        "password",
+        "role"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "example_user_{@UniqueIndex}",
+          "description": "用户名,长度5~31之间,首位不能为数字,特殊字符只能包含下划线“_”、中划线“-”和空格",
+          "minLength": 5,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z_-][ a-zA-Z0-9_-]*$",
+          "x-pattern-message": "name length should between 5-32, cannot start with numbers, support letter,numbers and space,`-`,`_`"
+        },
+        "password": {
+          "type": "string",
+          "example": "Password@123",
+          "description": "用户密码,在8-32位之间支持用户自定义密码长度,至少包含以下四种字符中的两种: 大写字母、小写字母、数字和特殊字符。",
+          "minLength": 8,
+          "maxLength": 32,
+          "pattern": "^(?![a-z]+$)(?![A-Z]+$)(?![0-9]+$)(?![_\\\\`~!@#$%^&*()\\-\\=+|\\[{}\\];:'\",<.>/? ]+$)[a-zA-Z0-9_\\\\`~!@#$%^&*()\\-\\=+|\\[{}\\];:'\",<.>/? ]*$",
+          "x-pattern-message": "The password must contain at least two of the following character types: uppercase letters, lowercase letters, digits, and special characters, and be a length between 8 and 32."
+        },
+        "role": {
+          "type": "string",
+          "example": "ADMIN",
+          "description": "角色类型:管理员(ADMIN)、操作者(OPERATOR)",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^(ADMIN|OPERATOR)$",
+          "x-pattern-message": "role only support ADMIN and OPERATOR"
+        },
+        "email": {
+          "type": "string",
+          "example": "example@huawei.com",
+          "description": "用户邮箱,需符合邮箱格式",
+          "minLength": 0,
+          "maxLength": 128,
+          "pattern": "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$",
+          "x-pattern-message": "email is invalid"
+        },
+        "phone": {
+          "type": "string",
+          "example": "12345678910",
+          "description": "用户手机号,纯数字,长度小于等于32位。必须与国家码同时存在。",
+          "minLength": 5,
+          "maxLength": 32,
+          "pattern": "^[0-9]*$",
+          "x-pattern-message": "phone is invalid, length should between 1-32, can only contain numbers"
+        },
+        "areacode": {
+          "type": "string",
+          "example": "0086",
+          "description": "国家码。中国大陆为“0086”",
+          "minLength": 1,
+          "maxLength": 10,
+          "pattern": "^[0-9]*$",
+          "x-pattern-message": "areacode is invalid"
+        },
+        "settings": {
+          "description": "用户设置",
+          "$ref": "#/definitions/UserSettingDto"
+        }
+      },
+      "title": "CreateUserRequest",
+      "description": "创建用户请求体"
+    },
+    "UserSettingDto": {
+      "required": [
+        "cpu_quota",
+        "job_quota",
+        "job_timeout",
+        "mem_quota"
+      ],
+      "properties": {
+        "job_quota": {
+          "type": "integer",
+          "format": "int32",
+          "example": 10,
+          "description": "允许同时运行的作业数",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "job_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "作业执行超时时长,单位天",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "cpu_quota": {
+          "type": "integer",
+          "format": "int32",
+          "example": 50,
+          "description": "作业的CPU资源配额,单位核",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "mem_quota": {
+          "type": "integer",
+          "format": "int32",
+          "example": 128,
+          "description": "作业的内存资源配额,单位GB",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "projects_per_user": {
+          "type": "integer",
+          "format": "int32",
+          "example": 2,
+          "description": "用户可创建项目数配额",
+          "minimum": 0,
+          "maximum": 20,
+          "default": 2
+        }
+      },
+      "title": "UpdateUserSettingsReq",
+      "description": "更新用户请求体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

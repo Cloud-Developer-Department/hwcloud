@@ -1,0 +1,212 @@
+{
+  "name": "CreateDrugLigandInteraction2dSvg",
+  "summary": "生成相互作用2D图",
+  "tags": "IDrugCommonController",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/ligand/interaction2d": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "CreateDrugLigandInteraction2dSvg",
+        "tags": [
+          "IDrugCommonController"
+        ],
+        "summary": "生成相互作用2D图",
+        "description": "生成相互作用2D图,若不提供配体文件,则受体文件中必须包含配体;若提供配体文件,则受体中的配体(若有)则会被忽略",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "image/svg+xml;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "CreateDrugLigandInteraction2dSvgRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "生成相互作用2D图请求体",
+            "schema": {
+              "$ref": "#/definitions/CreateDrugLigandInteraction2dSvgReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "相互作用2D图生成成功响应",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ReceptorDrugFileReq": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "example": "raw_data"
+        },
+        "add_hydrogen": {
+          "type": "boolean",
+          "default": true,
+          "description": "增加氢原子"
+        }
+      },
+      "description": "受体文件"
+    },
+    "DrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ],
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "CreateDrugLigandInteraction2dSvgReq": {
+      "type": "object",
+      "description": "生成相互作用2D图请求体",
+      "required": [
+        "receptor_file"
+      ],
+      "properties": {
+        "receptor_file": {
+          "$ref": "#/definitions/ReceptorDrugFileReq",
+          "description": "受体文件"
+        },
+        "ligand_file": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "配体文件"
+        },
+        "name": {
+          "type": "string",
+          "description": "小分子名称",
+          "minLength": 0,
+          "maxLength": 128,
+          "example": "mol_6d4b"
+        }
+      },
+      "example": {
+        "receptor_file": {
+          "source": "PRIVATE",
+          "url": "obs://bucket/path/to/file"
+        },
+        "ligand_file": {
+          "source": "RAW",
+          "format": "SDF",
+          "data": "xxxxxxx"
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

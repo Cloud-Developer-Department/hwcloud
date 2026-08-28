@@ -1,0 +1,228 @@
+{
+  "name": "ListChannels",
+  "summary": "查询事件通道列表",
+  "tags": "事件通道管理",
+  "productshort": "EG",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v1/{project_id}/channels": {
+      "get": {
+        "x-api-framework": "RestfulAPI",
+        "x-is-open-doc": "Y",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "事件通道管理"
+        ],
+        "operationId": "ListChannels",
+        "summary": "查询事件通道列表",
+        "description": "查询事件通道列表,包括系统通道和自定义通道。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/IamToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/QueryOffset"
+          },
+          {
+            "$ref": "#/parameters/QueryLimit"
+          },
+          {
+            "$ref": "#/parameters/QuerySort"
+          },
+          {
+            "$ref": "#/parameters/QueryProviderType"
+          },
+          {
+            "$ref": "#/parameters/QueryChannelName"
+          },
+          {
+            "$ref": "#/parameters/QueryChannelNameFuzzy"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "required": false,
+            "description": "指定查询的企业项目id,精确匹配",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列表",
+            "schema": {
+              "$ref": "#/definitions/ChannelList"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ChannelInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "通道ID",
+          "example": "bd14144e-8f3c-43d6-bdfd-bf09b52c2b96"
+        },
+        "name": {
+          "type": "string",
+          "description": "通道名称",
+          "example": "channel"
+        },
+        "description": {
+          "type": "string",
+          "description": "通道描述",
+          "example": "first channel"
+        },
+        "provider_type": {
+          "type": "string",
+          "description": "通道提供方类型,OFFICIAL:官方事件通道;CUSTOM:自定义事件通道;PARTNER:伙伴事件通道",
+          "enum": [
+            "OFFICIAL",
+            "CUSTOM",
+            "PARTNER"
+          ],
+          "example": "CUSTOM"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建UTC时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "更新UTC时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目id"
+        }
+      }
+    },
+    "ChannelList": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "总数",
+          "minimum": 0,
+          "maximum": 100,
+          "example": 1
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "本页数量",
+          "example": 1
+        },
+        "items": {
+          "type": "array",
+          "description": "对象列表",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/ChannelInfo"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "租户资源空间ID",
+      "required": true,
+      "type": "string",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "QueryOffset": {
+      "name": "offset",
+      "in": "query",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量不能小于0",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "x-example": 1
+    },
+    "QuerySort": {
+      "name": "sort",
+      "in": "query",
+      "description": "指定查询排序",
+      "type": "string",
+      "default": "created_time:DESC",
+      "x-example": "created_time:DESC"
+    },
+    "IamToken": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "required": true,
+      "maxLength": 16384,
+      "minLength": 1
+    },
+    "QueryChannelNameFuzzy": {
+      "name": "fuzzy_name",
+      "in": "query",
+      "description": "指定查询的事件通道名称,模糊匹配",
+      "required": false,
+      "type": "string",
+      "x-example": "demo"
+    },
+    "QueryLimit": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页显示的条目数量,不能小于1或大于1000",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000,
+      "default": 15,
+      "x-example": 15
+    },
+    "QueryProviderType": {
+      "name": "provider_type",
+      "in": "query",
+      "description": "指定查询提供方的类型",
+      "required": false,
+      "type": "string",
+      "enum": [
+        "OFFICIAL",
+        "CUSTOM",
+        "PARTNER"
+      ],
+      "x-example": "CUSTOM"
+    },
+    "QueryChannelName": {
+      "name": "name",
+      "in": "query",
+      "description": "指定查询的事件通道名称,精准匹配",
+      "required": false,
+      "type": "string",
+      "x-example": "demo"
+    }
+  },
+  "host": "eg.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

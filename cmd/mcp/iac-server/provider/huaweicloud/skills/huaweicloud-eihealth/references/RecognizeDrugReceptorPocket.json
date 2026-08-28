@@ -1,0 +1,302 @@
+{
+  "name": "RecognizeDrugReceptorPocket",
+  "summary": "受体口袋检测",
+  "tags": "IDrugCommonController",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/receptor/pocket": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "RecognizeDrugReceptorPocket",
+        "tags": [
+          "IDrugCommonController"
+        ],
+        "summary": "受体口袋检测",
+        "description": "检测受体口袋,检测类型基于配体,基于氨基酸残基,自动检测,自定义和全局对接",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "RecognizeDrugReceptorPocketRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "受体口袋检测请求体",
+            "schema": {
+              "$ref": "#/definitions/RecognizeReceptorPocketReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "受体口袋检测成功响应",
+            "schema": {
+              "$ref": "#/definitions/RecognizeReceptorPocketRsp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ReceptorDrugFileReq": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "example": "raw_data"
+        },
+        "add_hydrogen": {
+          "type": "boolean",
+          "default": true,
+          "description": "增加氢原子"
+        }
+      },
+      "description": "受体文件"
+    },
+    "DrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ],
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "DrugBoundingBoxDto": {
+      "type": "object",
+      "description": "结合口袋,包含口袋中心位置和尺寸大小",
+      "required": [
+        "center",
+        "size"
+      ],
+      "properties": {
+        "center": {
+          "type": "array",
+          "description": "口袋中心坐标;x, y, z轴的坐标",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": -9999999,
+            "maximum": 99999999
+          }
+        },
+        "size": {
+          "type": "array",
+          "description": "口袋尺寸大小;x, y, z轴的大小",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "format": "float",
+            "minimum": 2,
+            "maximum": 500
+          }
+        }
+      }
+    },
+    "RecognizeReceptorPocketMode": {
+      "type": "string",
+      "enum": [
+        "AUTO",
+        "GLOBAL",
+        "LIGAND",
+        "RESIDUES"
+      ],
+      "description": "口袋识别的模式:自动、全局、配体、残基"
+    },
+    "RecognizeReceptorPocketRsp": {
+      "type": "object",
+      "description": "受体口袋识别响应体",
+      "required": [
+        "mode",
+        "pockets"
+      ],
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/RecognizeReceptorPocketMode"
+        },
+        "pockets": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "description": "口袋列表",
+          "items": {
+            "$ref": "#/definitions/DrugBoundingBoxDto"
+          }
+        }
+      },
+      "example": {
+        "mode": "AUTO",
+        "pockets": [
+          {
+            "center": [
+              1.3,
+              23.4,
+              -14.5
+            ],
+            "size": [
+              10,
+              10,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    },
+    "RecognizeReceptorPocketReq": {
+      "type": "object",
+      "description": "受体口袋识别请求体",
+      "required": [
+        "mode",
+        "receptor_file"
+      ],
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/RecognizeReceptorPocketMode"
+        },
+        "receptor_file": {
+          "$ref": "#/definitions/ReceptorDrugFileReq",
+          "description": "受体文件"
+        },
+        "ligand_file": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "配体文件"
+        },
+        "residues": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "description": "残基列表,当识别模式为残基时提供",
+          "items": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 16,
+            "description": "残基名称({氨基酸}:{链名}:{氨基酸序号});样例:ALA:A:11"
+          },
+          "example": [
+            "ALA:A:11"
+          ]
+        }
+      },
+      "example": {
+        "mode": "AUTO",
+        "receptor_file": {
+          "source": "EXTRANET",
+          "url": "https://files.rcsb.org/download/1TQN.pdb"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

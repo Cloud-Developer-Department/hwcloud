@@ -1,0 +1,394 @@
+{
+  "name": "ShowEngineJob",
+  "summary": "查询微服务引擎任务详情",
+  "tags": "引擎管理",
+  "productshort": "CSE",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v2/{project_id}/enginemgr/engines/{engine_id}/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "引擎管理"
+        ],
+        "summary": "查询微服务引擎任务详情",
+        "description": "查询微服务引擎任务详情。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "ShowEngineJob",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "description": "用户Token。",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Enterprise-Project-ID",
+            "in": "header",
+            "description": "如果不带则默认企业项目为\"default\",ID为\"0\"。",
+            "required": false,
+            "type": "string",
+            "x-example": "0"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户子项目的唯一标识。字符长度为1~64。",
+            "required": true,
+            "type": "string",
+            "x-example": "79c4086f5f3a4e34a92601dfc64b1e8c"
+          },
+          {
+            "name": "engine_id",
+            "in": "path",
+            "description": "微服务引擎ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "bad98901-5c4b-44de-b266-bae3e2093058"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "任务ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "12115"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询微服务引擎任务详情结构体。",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            },
+            "examples": {
+              "application/json": {
+                "id": 12339,
+                "engineId": "ad76972c-a743-4770-859c-c98a680f4d98",
+                "type": "Create",
+                "description": "",
+                "status": "Finished",
+                "scheduling": 0,
+                "createUser": "test",
+                "startTime": 1636540095901,
+                "endTime": 1636540460230,
+                "context": "string",
+                "tasks": [
+                  {
+                    "taskName": "resourcePrepare",
+                    "taskNames": [
+                      "TenantTaskExecutor"
+                    ],
+                    "status": "Finished",
+                    "startTime": 1636540100216,
+                    "endTime": 1636540110215,
+                    "taskExecutorBrief": {
+                      "duration": 6000,
+                      "description": "资源准备"
+                    },
+                    "tasks": [
+                      {
+                        "jobId": 12339,
+                        "id": 89117,
+                        "type": "Create",
+                        "assigned": "string",
+                        "taskName": "TenantTaskExecutor",
+                        "engineName": "test",
+                        "taskOrder": 0,
+                        "status": "Init",
+                        "startTime": 1636540100216,
+                        "endTime": 1636540110215,
+                        "createTime": 1636540095910,
+                        "updateTime": 1636540110230,
+                        "timeout": -1,
+                        "log": "string",
+                        "output": "{}",
+                        "taskexEcutorBrief": {
+                          "duration": 6000,
+                          "description": "租户处理"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "错误的请求。",
+            "schema": {
+              "$ref": "#/definitions/BadRequest"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误。",
+            "schema": {
+              "$ref": "#/definitions/InternalServerError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BadRequest": {
+      "description": "错误的请求。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    },
+    "Job": {
+      "type": "object",
+      "description": "微服务引擎任务详情列表",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "任务ID"
+        },
+        "engineId": {
+          "type": "string",
+          "description": "任务所属引擎ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Create",
+            "Delete",
+            "Upgrade",
+            "Modify"
+          ],
+          "description": "任务类型"
+        },
+        "description": {
+          "type": "string",
+          "description": "任务描述"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Init",
+            "Executing",
+            "Error",
+            "Timeout",
+            "Finished"
+          ],
+          "description": "任务状态"
+        },
+        "scheduling": {
+          "description": "任务是否正在执行,0表示不在执行,1表示执行中",
+          "type": "integer",
+          "format": "int32"
+        },
+        "createUser": {
+          "type": "string",
+          "description": "任务创建者"
+        },
+        "startTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "任务开始时间"
+        },
+        "endTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "任务结束时间"
+        },
+        "context": {
+          "type": "string",
+          "description": "任务执行上下文"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskSteps"
+          },
+          "description": "任务包含的处理阶段"
+        }
+      }
+    },
+    "TaskSteps": {
+      "type": "object",
+      "description": "处理阶段",
+      "properties": {
+        "taskName": {
+          "type": "string",
+          "description": "处理阶段名称"
+        },
+        "taskNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "当前处理阶段包含的处理步骤名称列表"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Init",
+            "Executing",
+            "Error",
+            "Timeout",
+            "Finished"
+          ],
+          "description": "处理阶段状态"
+        },
+        "startTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "处理阶段开始时间"
+        },
+        "endTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "处理阶段结束时间"
+        },
+        "taskExecutorBrief": {
+          "$ref": "#/definitions/TaskExecutorBrief",
+          "description": "处理阶段元数据"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task"
+          },
+          "description": "处理步骤"
+        }
+      }
+    },
+    "TaskExecutorBrief": {
+      "type": "object",
+      "description": "任务元数据",
+      "properties": {
+        "duration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "子任务持续时长"
+        },
+        "description": {
+          "type": "string",
+          "description": "子任务描述"
+        }
+      }
+    },
+    "InternalServerError": {
+      "description": "服务内部错误",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误信息。",
+          "type": "string"
+        }
+      }
+    },
+    "Task": {
+      "type": "object",
+      "description": "子任务",
+      "properties": {
+        "jobId": {
+          "description": "子任务所属任务ID",
+          "type": "integer",
+          "format": "int32"
+        },
+        "id": {
+          "description": "子任务ID,使用uuid",
+          "type": "integer",
+          "format": "int64"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Create",
+            "Delete",
+            "Upgrade",
+            "Modify"
+          ],
+          "description": "子任务的类型"
+        },
+        "assigned": {
+          "type": "string",
+          "description": "子任务的执行者"
+        },
+        "taskName": {
+          "type": "string",
+          "description": "子任务名称"
+        },
+        "engineName": {
+          "type": "string",
+          "description": "子任务所属引擎名称"
+        },
+        "taskOrder": {
+          "description": "子任务执行的顺序, 从小到大",
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Init",
+            "Executing",
+            "Error",
+            "Timeout",
+            "Finished"
+          ],
+          "description": "子任务状态"
+        },
+        "startTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "子任务开始时间"
+        },
+        "endTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "子任务结束时间"
+        },
+        "createTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "子任务创建时间"
+        },
+        "updateTime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "子任务更新时间"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "子任务是否超时"
+        },
+        "log": {
+          "type": "string",
+          "description": "子任务详细信息,执行过程中产生的辅助信息"
+        },
+        "output": {
+          "default": "{}",
+          "description": "子任务输出信息",
+          "type": "string"
+        },
+        "taskExecutorBrief": {
+          "$ref": "#/definitions/TaskExecutorBrief"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cse.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

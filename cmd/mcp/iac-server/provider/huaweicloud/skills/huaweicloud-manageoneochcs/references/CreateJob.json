@@ -1,0 +1,87 @@
+{
+  "name": "CreateJob",
+  "summary": "提交告警操作任务",
+  "tags": "告警管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/fault/v1/operation-jobs": {
+      "post": {
+        "summary": "提交告警操作任务",
+        "description": "根据调用方发送的数据对指定的告警进行相应的操作。\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| >=99%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量(tiny2)|5tps|\n|吞吐量(small)|5tps|\n|吞吐量(medium)|5tps|\n|吞吐量(large)|5tps|\n|TP50请求时延|300ms|\n|TP99.9请求时延|3000ms|",
+        "x-precautions": "此接口必须在HTTPS通道上访问。",
+        "tags": [
+          "告警管理"
+        ],
+        "operationId": "CreateJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "param",
+            "in": "body",
+            "description": "一组告警操作的集合。\n其中每个告警操作由“操作类型-操作参数”的映射表示。不同操作类型的参数不同。支持的操作类型有(注意:操作对应的参数实际是json对象转换的字符串,比如确认操作: {\"ACK\":\"{\\\"csns\\\":[11111, 22222],\\\"operator\\\":\\\"userId\\\"}\"}):\n* 1、确认\n          [{\n              \"params\":\n              {\n                  \"ACK\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"operator\\\": \\\"userName1\\\", // 操作人\n                      \\\"isLinkedOpt\\\": \\\"true\\\" // 是否联动确认( true 联动确认归并、被汇聚告警;false不做联动;没有该标记,默认不联动)\n                  }\"\n              }\n          }]\n* 2、反确认\n          [{\n              \"params\":\n              {\n                  \"UNACK\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"operator\\\": \\\"userName1\\\", // 操作人\n                      \\\"isLinkedOpt\\\": \\\"true\\\" // 是否联动确认( true 联动反确认归并、被汇聚告警;false不做联动;没有该标记,默认不联动)\n                  }\"\n              }\n          }]\n* 3、清除\n          [{\n              \"params\":\n              {\n                  \"CLEAR\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"operator\\\": \\\"userName1\\\", // 操作人\n                      \\\"lightly\\\": \\\"true\\\", // 是否浅度清除,true/false,默认是false\n                      \\\"clearType\\\": \\\"3\\\", // 默认为3,范围从0~8。0为未清除,1正常清除,2复位清除,3手动清除,4配置清除,5相关性清除,6系统清除,7状态切换清除,8网管同步清除\n                      \\\"isLinkedOpt\\\": \\\"true\\\" // 确认是否联动 true 联动清除归并、被汇聚告警;false不做联动;没有该标记,默认不联动\n                  }\"\n              }\n          }]\n* 4、备注\n          [{\n              \"params\":\n              {\n                  \"COMMENT\": \"{\n                      \\\"dataType\\\" : \\\"1\\\",// 告警类型:1为当前告警,2为历史告警,3为事件,4为屏蔽告警,7为告警日志\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"comment\\\": \\\"commentContent\\\", // 备注内容\n                      \\\"operator\\\": \\\"userName1\\\" // 修改备注操作人\n                  }\"\n              }\n          }]\n* 5、派单\n          [{\n              \"params\":\n              {\n                  \"WO\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号,自动转工单只支持单条\n                      \\\"operator\\\": \\\"userName1\\\", // 操作人/派单人\n                      \\\"ruleName\\\":\\\"规则名称\\\",// 自动转工单必填\n                      \\\"extParams\\\": {  // 工单对接参数,参数依据对接工单系统的不同而不同。此处列出的是BPM对接用到的参数\n                          \\\"businessTypeID\\\": \\\"\\\", // 业务类型\n                          \\\"eventTypeID\\\": \\\"\\\", // 事件类型\n                          \\\"eventLevelID\\\": \\\"\\\", // 事件级别\n                          \\\"workTypeID\\\": \\\"\\\", // 工单类型\n                          \\\"woRemark\\\": \\\"工单备注\\\",// 手动转工单必填\n                      },\n                      \\\"woValue\\\":{\n                          \\\"workorderCreateType\\\": \\\"1\\\",// 1-手动,2-自动\n                          \\\"workorderSystem\\\": \\\"BPM\\\"// 工单类型\n                      }\n                  }\"\n              }\n          }]\n* 6、相关性\n          [{\n              \"params\":\n              {\n                  \"CORR\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"rootCsn\\\": \\\"333\\\", // 根源告警流水号\n                      \\\"identifier\\\": 0, // 根源告警标识,支持多值追加,根源告警(bit0=1),衍生告警(bit1=1)\n                      \\\"corrGroupId\\\": \\\"123456\\\", // 相关性组标识,支持多值追加\n                      \\\"subRootCsn\\\": \\\"123456\\\",// 设备侧根源告警流水号\n                      \\\"action\\\": \\\"RaiseLevel\\\",//不填:不处理,RaiseLevel:提升级别,RedefineLevel:重定义级别,不支持其他\n                      \\\"level\\\": \\\"1\\\", // 只支持级别重定义,紧急:1,重要:2,次要:3,提示:4\n                      \\\"ruleName\\\": \\\"[规则类型]规则名称\\\" // 匹配规则名,支持多值追加\n                  }\"\n              }\n          }]\n* 7、标识为无效告警\n          [{\n              \"params\":\n              {\n                  \"INVALID\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"operator\\\": \\\"admin\\\" // 操作人\n                  }\"\n              }\n          }]\n* 8、标识为有效告警\n          [{\n              \"params\":\n              {\n                  \"VALID\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"operator\\\": \\\"admin\\\" // 操作人\n                  }\"\n              }\n          }]\n* 9、标识为维护态告警\n          [{\n              \"params\":\n              {\n                  \"SPECIAL\": \"{\n                    \\\"csns\\\": [11111, 22222], // 操作的流水号\n                    \\\"operator\\\": \\\"admin\\\" // 操作人\n                  }\"\n              }\n          }]\n* 10、标识为非维护态告警\n          [{\n              \"params\":\n              {\n                  \"NONSPECIFIC\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"operator\\\": \\\"admin\\\" // 操作人\n                  }\"\n              }\n          }]\n* 11、变更影响业务名称\n          [{\n              \"params\":\n              {\n                  \"CHANGEAFFECTEDSERVICE\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"append\\\": \\\"true\\\", // 是否追加更新,true/false,默认是true追加更新,false覆盖更新\n                      \\\"affectedService\\\": \\\"CloudVPN\\\" // 影响业务名称\n                  }\"\n              }\n          }]\n* 12、变更告警级别\n          [{\n              \"params\":\n              {\n                  \"ADJUSTLEVEL\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"severity\\\": 1, // 级别值。1-紧急,2-重要,3-次要,4-提示\n                      \\\"operator\\\": \\\"admin\\\" // 操作人\n                  }\"\n              }\n          }]\n* 13、分配处理人\n          [{\n              \"params\":\n              {\n                  \"ASSIGNHANDLER\": \"{\n                      \\\"csns\\\": [11111, 22222], // 分配的告警流水号\n                      \\\"operator\\\": \\\"admin\\\", // 操作人\n                      \\\"userId\\\": \\\"other\\\" // 分配的处理人ID, 当userId为空时表示取消分配\n                  }\"\n              }\n          }]\n* 14、取消分配处理人\n          [{\n              \"params\":\n              {\n                  \"ASSIGNCANCLE\": \"{\n                      \\\"csns\\\": [11111, 22222], //将要取消分配的告警流水号\n                      \\\"operator\\\": \\\"admin\\\" //操作人\n                  }\"\n              }\n          }]\n* 15、汇聚\n         [{\n              \"params\":\n              {\n                  \"AGGR\": \"{\n                      \\\"csns\\\": [11111, 22222], // 被汇聚流水号\n                      \\\"regionId\\\": \\\"1\\\", // 区域ID\n                      \\\"aggrGroupId\\\": 123456, // 汇聚组ID\n                      \\\"aggrStatus\\\": \\\"2\\\", // 汇聚状态(bit0=1) 被汇聚状态(bit1=1)\n                      \\\"aggrRootCsn\\\": 123456, // 汇聚告警流水号\n                      \\\"ruleName\\\": \\\"[规则类型]规则名称\\\" // 匹配规则名称,支持多值追加\n                  }\"\n              }\n          }]\n* 16、扩展字段\n          [{\n              \"params\":\n              {\n                  \"MODIFYEXTEND\": \"{\n                        \\\"csns\\\": [11111, 22222], // 被修改的流水号\n                        \\\"operator\\\": \\\"admin\\\", // 操作人\n                        \\\"extParam\\\": {\n                            \\\"key\\\" : \\\"value\\\" // 需要修改的字段的key、value;可修改字段包含alarmId,alarmName,address,manufacturer,moi,meName,additionalInformation,affectedService,所有的扩展字段。\n                        }\n                  }\"\n              }\n          }]\n* 17、核对\n          [{\n              \"params\":\n              {\n                  \"CHECK\": \"{\n                      \\\"csns\\\": [11111, 22222], // 操作的流水号\n                      \\\"operator\\\": \\\"userName1\\\" // 操作人\n                  }\"\n              }\n          }]",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AlarmOperation"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "操作提交成功,返回任务ID,用于查询任务进度。",
+            "examples": {
+              "application/json": {
+                "resultCode": "4bd431c6-3bee-403f-9d5b-424fe6895a99"
+              }
+            }
+          },
+          "400": {
+            "description": "参数非法。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/fault/v1/operation-jobs",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": [
+          {
+            "params": {
+              "ADJUSTLEVEL": "{\"csns\":[57538587], \"severity\":4, \"operator\":\"admin\"}"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "AlarmOperation": {
+      "description": "对由流水号标识的一组告警进行的特定操作。",
+      "required": [
+        "params"
+      ],
+      "properties": {
+        "params": {
+          "description": "操作类型和操作参数的映射。",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

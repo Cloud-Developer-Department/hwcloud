@@ -1,0 +1,202 @@
+{
+  "name": "ShowRepositoryByCloudIde",
+  "summary": "使用 CloudIDE 实例打开应用代码",
+  "tags": "应用管理",
+  "productshort": "DevStar",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/repositories/{repository_id}/show/cloudide": {
+      "get": {
+        "tags": [
+          "RepositoryServer"
+        ],
+        "summary": "使用 CloudIDE 实例打开应用代码",
+        "description": "使用 CloudIDE 实例打开应用代码。CloudIDE会保存用户项目数据,相同用户使用同一个CloudIDE,使用要求:\n- 用户需为登录状态。\n- 拥有仓库权限。\n",
+        "operationId": "ShowRepositoryByCloudIde",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0,
+            "x-notgenerate": true,
+            "x-example": "MIIDkgYJKoZIhvIIDgzCCXXXXXX..."
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言类型 中文:zh-cn 英文:en-us",
+            "required": false,
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 5,
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ],
+            "x-example": "zh-cn",
+            "x-notgenerate": true
+          },
+          {
+            "name": "repository_id",
+            "in": "path",
+            "description": "仓库id。",
+            "required": true,
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "x-example": "9f5533ec708d412884652afea13302f2"
+          },
+          {
+            "name": "repository_ssh_url",
+            "in": "query",
+            "description": "仓库下载地址。",
+            "required": true,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "x-example": "git@codehub.XXX.inhuawei.com:ssdsd00001%2Fsadfasdfa.git"
+          },
+          {
+            "name": "region_id",
+            "in": "query",
+            "description": "区域ID,目前仅支持北京四:cn-north-4及北京一:cn-north-1。",
+            "required": false,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "x-example": "cn-north-4"
+          },
+          {
+            "name": "space_prefix",
+            "in": "query",
+            "description": "工作空间名称前缀,仅在is_open_last为false时生效,由用户自定义,支持大小写字母、中文、_、-,长度1-256。",
+            "required": false,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "x-example": "MyApplication-MyRepo"
+          },
+          {
+            "name": "is_open_last",
+            "in": "query",
+            "description": "是否打开上一次的工作空间,true表示打开上一次工作空间,如果没有上一次工作空间会返回空,false代表打开一个全新的工作空间。",
+            "required": false,
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "is_free",
+            "in": "query",
+            "description": "是否创建 CloudIDE 免费实例链接,true表示创建一个 CloudIDE 免费实例链接,false表示创建一个 CloudIDE 收费实例链接。",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "examples": {
+              "application/json": {
+                "url": "https://***/cloudide/loading?instanceId=xxx&scmUrl=xxx"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ConnectionInfo"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "DEVSTAR.1001",
+                "error_msg": "repository_id : 非法参数"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "DEV.00000001",
+                "error_msg": "未识别到用户认证信息"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "DEVSTAR.1034",
+                "error_msg": "无操作权限"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "DEVSTAR.1038",
+                "error_msg": "仓库不存在"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/repositories/9f5533ec708d412884652afea13302f2/show/cloudide?repository_ssh_url=git@codehub.XXX.inhuawei.com:ssdsd00001%2Fsadfasdfa.git&is_open_last=true&space_prefix=MyApplication-MyRepo&is_free=false"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误原因",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "ConnectionInfo": {
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "CloudIde打开链接:https://xxx/cloudide/loading?instanceId=xxx&scmUrl=xxx",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "devstar.cn-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

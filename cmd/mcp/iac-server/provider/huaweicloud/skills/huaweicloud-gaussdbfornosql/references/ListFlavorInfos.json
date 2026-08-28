@@ -1,0 +1,223 @@
+{
+  "name": "ListFlavorInfos",
+  "summary": "查询数据库规格",
+  "tags": "查询所有实例规格信息",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3.1/{project_id}/flavors": {
+      "get": {
+        "tags": [
+          "查询所有实例规格信息"
+        ],
+        "operationId": "ListFlavorInfos",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "summary": "查询数据库规格",
+        "description": "查询指定条件下的实例规格信息。",
+        "x-constraint": "该接口支持如下数据库实例:\n- GeminiDB Cassandra\n- GeminiDB Mongo\n- GeminiDB Influx\n- GeminiDB Redis",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "engine_name",
+            "in": "query",
+            "description": "数据库类型。\n  - 取值为“cassandra”,表示查询GeminiDB Cassandra数据库实例支持的规格。\n  - 取值为“mongodb”,表示查询GeminiDB Mongo数据库实例支持的规格。\n  - 取值为“influxdb”,表示查询GeminiDB Influx数据库实例支持的规格。\n  - 取值为“redis”,表示查询GeminiDB Redis数据库实例支持的规格。\n  - 如果不传该参数,默认为“cassandra”。",
+            "type": "string",
+            "x-example": "cassandra"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "type": "string",
+            "x-example": "Cluster",
+            "description": "- 取值为“CloudNativeCluster”, 表示查询云原生部署模式支持的规格。\n- 不传该参数表示查询数据库类型下的所有经典部署模式支持的规格。"
+          },
+          {
+            "name": "product_type",
+            "in": "query",
+            "type": "string",
+            "description": "产品类型。\n  - Standard 标准型\n  - Capacity 容量型\n当创建GeminiDB Redis云原生部署模式集群类型必传此参数。"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "索引位置,偏移量。\n  - 从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询)。\n  - 取值必须为数字,不能为负数。",
+            "type": "integer",
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询规格信息上限值。\n  - 取值范围: 1~100。\n  - 不传该参数时,默认查询前100条规格信息。",
+            "type": "integer",
+            "x-example": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ListFlavorsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 2,
+                "flavors": [
+                  {
+                    "engine_name": "cassandra",
+                    "engine_version": "3.11",
+                    "vcpus": "4",
+                    "ram": "16",
+                    "spec_code": "geminidb.cassandra.xlarge.4",
+                    "availability_zone": [
+                      "az1",
+                      "az2"
+                    ],
+                    "az_status": {
+                      "az1": "normal",
+                      "az2": "unsupported"
+                    }
+                  },
+                  {
+                    "engine_name": "cassandra",
+                    "engine_version": "3.11",
+                    "vcpus": "8",
+                    "ram": "32",
+                    "spec_code": "geminidb.cassandra.2xlarge.4",
+                    "availability_zone": [
+                      "az1",
+                      "az2"
+                    ],
+                    "az_status": {
+                      "az1": "unsupported",
+                      "az2": "normal"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3.1/054e292c9880d4992f02c0196d3ea468/flavors?engine_name=cassandra&offset=0&limit=10"
+      }
+    }
+  },
+  "definitions": {
+    "ListFlavorsResponseBody": {
+      "required": [
+        "total_count",
+        "flavors"
+      ],
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "description": "总记录数。"
+        },
+        "flavors": {
+          "description": "实例规格信息列表。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListFlavorsResult"
+          }
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "ListFlavorsResult": {
+      "description": "实例规格信息列表。",
+      "required": [
+        "engine_name",
+        "engine_version",
+        "vcpus",
+        "ram",
+        "spec_code",
+        "availability_zone",
+        "az_status"
+      ],
+      "properties": {
+        "engine_name": {
+          "type": "string",
+          "description": "引擎名称。",
+          "example": "cassandra"
+        },
+        "engine_version": {
+          "type": "string",
+          "example": "3.11",
+          "description": "引擎版本。"
+        },
+        "vcpus": {
+          "type": "string",
+          "description": "CPU核数。",
+          "example": "2"
+        },
+        "ram": {
+          "type": "string",
+          "description": "内存大小,单位为兆字节。",
+          "example": 4
+        },
+        "spec_code": {
+          "type": "string",
+          "description": "资源规格编码。例如:geminidb.cassandra.8xlarge.4\n  - “geminidb.cassandra”表示云数据库GeminiDB的Cassandra数据库产品。\n  - “8xlarge.4”表示节点性能规格。",
+          "example": "geminidb.cassandra.8xlarge.4"
+        },
+        "availability_zone": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "支持该规格的可用区ID。\n  - 该字段已废弃,请不要使用。"
+        },
+        "az_status": {
+          "description": "规格在可用区内的状态,包含以下状态:\n  - normal,在售。\n  - unsupported,暂不支持该规格。\n  - sellout,售罄。",
+          "type": "object"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

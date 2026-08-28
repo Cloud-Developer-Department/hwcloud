@@ -1,0 +1,336 @@
+{
+  "name": "AcceptOrRejectEndpointConnections",
+  "summary": "接受或拒绝终端节点连接",
+  "tags": "专享版-实例终端节点管理",
+  "productshort": "APIG",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/{project_id}/apigw/instances/{instance_id}/vpc-endpoint/connections/action": {
+      "post": {
+        "tags": [
+          "专享版-实例终端节点管理"
+        ],
+        "x-api-type": "open-api",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk,cmcc,ctc,dt,g42,hk_g42,hk_sbc,hk_tm,hws_eu,hws_ocb,ocb,sbc,tm,srg,ax",
+        "operationId": "AcceptOrRejectEndpointConnections",
+        "summary": "接受或拒绝终端节点连接",
+        "description": "接受或拒绝实例节点连接。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "x-produc-type": "apig",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "name": "AcceptOrRejectEndpointConnectionsRequestBody",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConnectionActionReq"
+            },
+            "description": "接受或拒绝终端节点连接请求体"
+          }
+        ],
+        "x-request-examples-description-1": "接受终端节点连接",
+        "x-request-examples-1": {
+          "action": "receive",
+          "endpoints": [
+            "9fa04c5e-64ec-4106-a014-2ad71ad9997d"
+          ]
+        },
+        "x-request-examples-description-2": "拒绝终端节点连接",
+        "x-request-examples-2": {
+          "action": "reject",
+          "endpoints": [
+            "9fa04c5e-64ec-4106-a014-2ad71ad9997d"
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EndpointConnectionPage"
+            },
+            "examples": {
+              "application/json": {
+                "connections": [
+                  {
+                    "id": "9cf102d8-aaa0-44cf-8222-fd6f2c073887",
+                    "marker_id": 167792784,
+                    "created_at": "2021-05-07T14:20:14Z",
+                    "updated_at": "2021-05-07T14:30:25Z",
+                    "domain_id": "c90f12a0f1ee43bc90a1f4d17bce35bc",
+                    "status": "accepted"
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "type": "string",
+                "description": "请求编号"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7102",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            },
+            "headers": {
+              "x-request-id": {
+                "type": "string",
+                "description": "请求编号"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7106",
+                "error_msg": "No permissions to request for the method"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "headers": {
+              "x-request-id": {
+                "description": "请求编号",
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Resource Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.7314",
+                "error_msg": "Endpoint service not found"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "headers": {
+              "x-request-id": {
+                "description": "请求编号",
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "APIC.9007",
+                "error_msg": "Failed to execute VCPEP request"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            },
+            "headers": {
+              "x-request-id": {
+                "description": "请求编号",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ConnectionActionReq": {
+      "required": [
+        "action",
+        "endpoints"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "允许或拒绝连接\n- receive 接受\n- reject 拒绝",
+          "example": "receive",
+          "enum": [
+            "receive",
+            "reject"
+          ]
+        },
+        "endpoints": {
+          "type": "array",
+          "description": "终端节点列表",
+          "items": {
+            "pattern": "^[a-f0-9][a-fA-F0-9_-]{34}[a-f0-9]$",
+            "type": "string",
+            "example": "9fa04c5e-64ec-4106-a014-2ad71ad9997d"
+          },
+          "minItems": 1,
+          "maxItems": 50
+        }
+      }
+    },
+    "BasePage": {
+      "properties": {
+        "size": {
+          "description": "本次返回的列表长度",
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "description": "满足条件的记录数",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "分页基本信息",
+      "required": [
+        "size",
+        "total"
+      ]
+    },
+    "EndpointConnectionPage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasePage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "connections": {
+              "type": "array",
+              "description": "连接列表",
+              "items": {
+                "$ref": "#/definitions/EndpointConnection"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ErrorMsg": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "EndpointConnection": {
+      "required": [
+        "id",
+        "marker_id",
+        "created_at",
+        "updated_at",
+        "domain_id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "连接编号",
+          "example": "181ff59f-c72f-4f64-bc60-ce96c76aca7f"
+        },
+        "marker_id": {
+          "type": "integer",
+          "description": "连接报文标识",
+          "format": "int32",
+          "example": 167882700
+        },
+        "created_at": {
+          "type": "string",
+          "description": "连接创建时间。UTC时间,格式:YYYY-MM-DDTHH:MM:SSZ",
+          "format": "date-time",
+          "example": "2022-05-17T17:20:01Z"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "连接更新时间。UTC时间,格式:YYYY-MM-DDTHH:MM:SSZ",
+          "format": "date-time",
+          "example": "2022-05-17T17:20:01Z"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "用户的Domain ID",
+          "example": "b8aca445e0d04d81a34bb59de5280c72"
+        },
+        "status": {
+          "type": "string",
+          "description": "连接状态\n- pendingAcceptance 待接受\n- creating 创建中\n- accepted 已接受\n- rejected 已拒绝\n- failed 失败\n- deleting 删除中",
+          "example": "accepted",
+          "enum": [
+            "pendingAcceptance",
+            "creating",
+            "accepted",
+            "rejected",
+            "failed",
+            "deleting"
+          ]
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID,在API网关控制台的“实例信息”中获取。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见[获取项目ID](apig-api-180713009.xml)。",
+      "required": true,
+      "x-sec-authority-parameter": "Y",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "apig.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

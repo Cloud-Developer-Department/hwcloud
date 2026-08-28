@@ -1,0 +1,310 @@
+{
+  "name": "ShowPrivateProviderVersionMetadata",
+  "summary": "获取私有provider版本元数据",
+  "tags": "资源编排-自定义provider",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/private-providers/{provider_name}/versions/{provider_version}/metadata": {
+      "get": {
+        "tags": [
+          "CustomizedProvider"
+        ],
+        "summary": "获取私有provider版本元数据",
+        "description": "获取私有provider版本元数据(ShowPrivateProviderVersionMetadata)\n\n获取某个私有provider版本的元数据信息\n  \n  * 具体返回信息见ShowPrivateProviderVersionMetadataResponseBody\n  * 如果provider_name和provider_id同时存在,则资源编排服务会检查是否两个匹配,如果不匹配则会返回400。",
+        "operationId": "ShowPrivateProviderVersionMetadata",
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一Id,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "provider_name",
+            "in": "path",
+            "description": "私有provider(private-provider)的名称。此名字在domain_id+region下应唯一,可以使用小写英文、数字、中划线。仅支持以小写英文、数字开头结尾。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[0-9a-z]([0-9a-z-]*[0-9a-z])*$"
+          },
+          {
+            "name": "provider_version",
+            "in": "path",
+            "description": "provider的版本号。版本号遵循语义化版本号(Semantic Version),为用户自定义",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 5
+          },
+          {
+            "name": "provider_id",
+            "in": "query",
+            "description": "私有provider的唯一Id,由资源编排服务随机生成,为UUID。\n\n由于私有provider名称仅仅在同一时间下唯一,即用户允许先生成一个叫helloword的私有provider,删除,再重新创建一个同名私有provider。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有provider就是我以为的那个,而不是由其他队友删除后创建的同名私有provider。\n\n因此,使用ID就可以做到强匹配。资源编排服务保证每次创建私有provider所对应的Id都不相同。\n\n如果给予的provider_id和当前私有provider的Id不一致,则返回400。",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取私有provider版本元数据成功",
+            "examples": {
+              "x-response-examples-1": {
+                "provider_name": "my-hello-world-provider-name",
+                "provider_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+                "provider_version": "3.7.10",
+                "version_description": "my first hello world private provider version",
+                "create_time": "1970-01-01T00:00:00.000Z",
+                "function_graph_urn": "urn:fss:cn-north-7:b61dfe3154de4282787126568d5040f:function:default:myFG:latest",
+                "provider_source": "huawei.com/private-provider/my-hello-world-provider-name"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowPrivateProviderVersionMetadataResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "私有provider或者私有provider版本号不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "N",
+        "x-rfs-external": "N",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/private-providers/my-hello-world-provider-name/versions/1.0.0/metadata",
+        "x-request-examples-description-1": "获取私有provider指定版本的元数据信息",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/private-providers/my-hello-world-provider-name/versions/1.0.0/metadata?provider_id=1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3",
+        "x-request-examples-description-2": "获取私有provider指定版本的元数据信息,并提供provider id以校验是否与当前私有provider匹配"
+      }
+    }
+  },
+  "definitions": {
+    "FunctionGraphUrnPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "function_graph_urn": {
+          "type": "string",
+          "description": "FunctionGraph方法的统一资源标识,用于唯一标识的FunctionGraph方法。当前只支持和RFS同region的function_graph_urn,如果给予了关于其他region的,会报错400。\n\n关于该参数的详细解释,请参考官方文档:https://support.huaweicloud.com/api-functiongraph/functiongraph_06_0102.html",
+          "minLength": 32,
+          "maxLength": 256,
+          "pattern": "^urn:fss:.+:[A-Za-z0-9]{3,64}:function:default:[A-Za-z][A-Za-z0-9_-]{0,58}[A-Za-z0-9]:([A-Za-z0-9][A-Za-z0-9_.-]{0,40}|![A-Za-z][A-Za-z0-9_-]{0,61})[A-Za-z0-9]$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "function_graph_urn": "urn:fss:cn-north-7:b61dfe3154de4282787126568d5040f:function:default:myFG:latest"
+      }
+    },
+    "PrivateProviderVersionSummary": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateProviderIdPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderVersionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderVersionDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/FunctionGraphUrnPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderVersionCreateTimePrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PrivateProviderVersionDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "version_description": {
+          "type": "string",
+          "description": "私有provider版本(provider version)的描述。可用于客户识别并管理私有provider的版本。注意:provider版本为不可更新(immutable),所以该字段不可更新,如果需要更新,请删除后重建",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "version_description": "my first hello world private provider version"
+      }
+    },
+    "PrivateProviderVersionCreateTimePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "description": "私有provider(private-provider)版本的生成时间,格式为YYYY-MM-DDTHH:mm:ss.SSSZ,精确到毫秒,UTC时区,即,如1970-01-01T00:00:00.000Z。"
+        }
+      },
+      "example": {
+        "create_time": "1970-01-01T00:00:00.000Z"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "PrivateProviderNamePrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "provider_name"
+      ],
+      "properties": {
+        "provider_name": {
+          "type": "string",
+          "description": "私有provider(private-provider)的名称。此名字在domain_id+region下应唯一,可以使用小写英文、数字、中划线。仅支持以小写英文、数字开头结尾。\n\n按照HCL最佳实践,该名称推荐为在模板中定义的provider的本地名称(local_name)。\n\n创建私有Provider(CreatePrivateProvider)API 还会以 “huawei.com/private-provider”为固定前缀,并以“huawei.com/private-provider/{provider_name}”的形式返回provider_source字段。关于provider_name和provider_source字段在模板中的使用细节,详见创建私有Provider的API描述。",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-z]([0-9a-z-]*[0-9a-z])*$"
+        }
+      },
+      "example": {
+        "provider_name": "my-hello-world-provider-name"
+      }
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "PrivateProviderSourcePrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "provider_source": {
+          "type": "string",
+          "description": "用户使用私有provider,在Terraform模板中定义required_providers信息时,需要指明的source参数。\n\n该参数按照“huawei.com/private-provider/{provider_name}”的形式拼接。关于provider_name和provider_source字段在模板中的使用细节,详见创建私有Provider的API描述。"
+        }
+      },
+      "example": {
+        "provider_source": "huawei.com/private-provider/my-hello-world-provider-name"
+      }
+    },
+    "PrivateProviderVersionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "provider_version": {
+          "type": "string",
+          "description": "provider的版本号。版本号必须遵循语义化版本号(Semantic Version),为用户自定义",
+          "minLength": 5,
+          "maxLength": 128,
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "provider_version": "3.7.10"
+      }
+    },
+    "ShowPrivateProviderVersionMetadataResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateProviderVersionSummary"
+        },
+        {
+          "$ref": "#/definitions/PrivateProviderSourcePrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PrivateProviderIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "私有provider(private-provider)的唯一Id。\n\n此Id由资源编排服务在生成provider的时候生成,为UUID。\n\n由于私有provider名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的私有provider,删除,再重新创建一个同名私有provider。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有provider就是我以为的那个,而不是其他队友删除后创建的同名私有provider。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有provider所对应的Id都不相同,更新不会影响Id。如果给予的provider_id和当前provider的Id不一致,则返回400",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "provider_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

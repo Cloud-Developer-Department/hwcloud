@@ -1,0 +1,252 @@
+{
+  "name": "ShowLastPropertyValue",
+  "summary": "获取资产属性最新值",
+  "tags": "资产属性",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/assets/{asset_id}/property-values/query-last": {
+      "post": {
+        "x-request-examples-1": {
+          "tags": {
+            "tagPropertyA": "IA2006300"
+          },
+          "property_filter": [
+            {
+              "property_name": "string",
+              "operator": "=",
+              "value": 1
+            }
+          ],
+          "property_names": [
+            "string"
+          ]
+        },
+        "tags": [
+          "AssetProperty"
+        ],
+        "summary": "获取资产属性最新值",
+        "description": "获取资产属性最新值",
+        "operationId": "ShowLastPropertyValue",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 256
+          },
+          {
+            "name": "asset_id",
+            "in": "path",
+            "description": "资产ID",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 256
+          },
+          {
+            "in": "body",
+            "name": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LastAssetPropertyValueRequest"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "x-maxLength": 65535
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/LastAssetPropertyValueResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IoTA.99000010",
+              "IoTA.01010308"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IoTA.01010202",
+              "IoTA.01010309"
+            ]
+          },
+          "409": {
+            "description": "Conflict",
+            "x-Error": [
+              "IoTA.99000011"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-HCS": "Y",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y",
+        "x-imports": [
+          "org.springframework.http.ResponseEntity"
+        ],
+        "x-returnType": "ResponseEntity<LastAssetPropertyValueResponse>"
+      }
+    }
+  },
+  "definitions": {
+    "LastAssetPropertyValueResponse": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "array",
+          "description": "查询到的资产属性列表",
+          "items": {
+            "$ref": "#/definitions/AssetPropertyLastValue"
+          }
+        }
+      },
+      "description": "查询资产属性最新值响应"
+    },
+    "AssetPropertyLastValue": {
+      "type": "object",
+      "properties": {
+        "property_name": {
+          "type": "string",
+          "description": "资产属性名称"
+        },
+        "value": {
+          "type": "object",
+          "example": 1.0,
+          "description": "资产属性值",
+          "properties": {}
+        },
+        "timestamp": {
+          "type": "string",
+          "example": "2021-01-08T02:03:41.907Z",
+          "description": "资产属性值最后更新时间"
+        }
+      },
+      "x-annotations": "@JsonInclude(JsonInclude.Include.NON_NULL)",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude"
+    },
+    "PropertyFilter": {
+      "type": "object",
+      "description": "属性过滤器",
+      "required": [
+        "property_name",
+        "operator",
+        "value"
+      ],
+      "properties": {
+        "property_name": {
+          "description": "过滤属性名称,正则:\"^[a-zA-Z0-9_]{1,64}$\"",
+          "pattern": "^[a-zA-Z0-9_]{1,64}$",
+          "x-maxLength": 64,
+          "x-minLength": 1,
+          "type": "string"
+        },
+        "operator": {
+          "description": "过滤操作方式,当前仅支持“=”",
+          "x-minLength": 1,
+          "x-maxLength": 64,
+          "type": "string",
+          "pattern": "="
+        },
+        "value": {
+          "description": "过滤属性值",
+          "type": "object"
+        }
+      },
+      "x-java-class": "com.huawei.iot.dtvision.api.model.PropertyFilter"
+    },
+    "TagFilterDT": {
+      "type": "object",
+      "description": "对property按指定tags标签进行过滤查询,填入资产标签属性的属性名与属性值,不可为空,例如 {\"tagPropertyA\": \"id0001\"};注意,标签过滤只对打上标签时刻之后的数据生效,打标签之前的数据不能通过标签过滤",
+      "additionalProperties": {
+        "description": "标签过滤",
+        "type": "object"
+      }
+    },
+    "LastAssetPropertyValueRequest": {
+      "type": "object",
+      "description": "查询资产属性最新值请求",
+      "properties": {
+        "tags": {
+          "$ref": "#/definitions/TagFilterDT"
+        },
+        "property_filter": {
+          "type": "array",
+          "description": "属性过滤器,最多5个",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/PropertyFilter"
+          }
+        },
+        "property_names": {
+          "type": "array",
+          "description": "待查询的资产属性名列表,不携带该字段表示查询全部",
+          "minItems": 0,
+          "maxItems": 200,
+          "items": {
+            "type": "string",
+            "description": "属性名称"
+          }
+        }
+      },
+      "example": {
+        "tags": {
+          "tagPropertyA": "IA2006300"
+        },
+        "property_filter": [
+          {
+            "property_name": "string",
+            "operator": "=",
+            "value": 1
+          }
+        ],
+        "property_names": [
+          "string"
+        ]
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

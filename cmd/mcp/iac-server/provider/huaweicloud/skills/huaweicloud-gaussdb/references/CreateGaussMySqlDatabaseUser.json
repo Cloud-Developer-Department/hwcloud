@@ -1,0 +1,214 @@
+{
+  "name": "CreateGaussMySqlDatabaseUser",
+  "summary": "创建数据库用户",
+  "tags": "数据库用户管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/db-users": {
+      "post": {
+        "tags": [
+          "数据库用户管理"
+        ],
+        "operationId": "CreateGaussMySqlDatabaseUser",
+        "summary": "创建数据库用户",
+        "description": "创建云数据库TaurusDB实例数据库用户。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "required": true,
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "required": false,
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "a23fb62bd61e4e9e9636fd2225f395bein07"
+          },
+          {
+            "name": "CreateDatabaseUserRequest",
+            "in": "body",
+            "description": "请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateDatabaseUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/CreateDatabaseUserResponse"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "dff1d289-4d03-4942-8b9f-463ea07c000d"
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "创建数据库用户,只读权限,主机IP地址是127.0.0.1。",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/a23fb62bd61e4e9e9636fd2225f395bein07/db-users",
+        "x-request-examples-1": {
+          "users": [
+            {
+              "name": "gaussdb_mysql_user1",
+              "password": "***",
+              "hosts": [
+                "127.0.0.1"
+              ],
+              "comment": "database_user_comment",
+              "databases": [
+                {
+                  "name": "test",
+                  "readonly": false
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateDatabaseUserList": {
+      "description": "数据库用户列表,列表最大长度为50。",
+      "required": [
+        "name",
+        "password"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "数据库用户名称,数据库用户名称在1到32个字符之间,由字母、数字、下划线组成,不能包含其他特殊字符。"
+        },
+        "comment": {
+          "type": "string",
+          "description": "数据库备注,长度不能超过512个字符,不能包含回车和特殊字符!<\"='>&。\n\n该字段只针对新版本的实例生效,必须大于等于指定的内核版本-2.0.13.0,如果不符合内核版本要求,参考升级内核版本升级至最新。"
+        },
+        "password": {
+          "type": "string",
+          "description": "数据库用户密码,不能同用户名称相同,非空,至少包含以下字符中的三种:大写字母、小写字母、数字和特殊符号~!@#$%^*-_=+?,()&组成,长度8~32个字符。\n\n建议您输入高强度密码,以提高安全性,防止出现密码被暴力破解等安全风险。"
+        },
+        "hosts": {
+          "type": "array",
+          "description": "主机IP地址,即允许数据库用户在当前主机连接数据库,默认IP地址为%,表示允许所有地址访问TaurusDB实例。若IP地址为“10.10.10.%”,则表示10.10.10.X的IP地址都可以访问该TaurusDB实例。若您需要添加多个IP地址,请用英文逗号隔开(逗号前后都不能加空格),例如192.168.0.1,172.16.213.9,一次最多创建50个。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "databases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CreateDatabaseList"
+          }
+        }
+      }
+    },
+    "CreateDatabaseUserRequest": {
+      "description": "创建数据库用户的请求信息。",
+      "required": [
+        "users"
+      ],
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CreateDatabaseUserList"
+          }
+        }
+      }
+    },
+    "CreateDatabaseList": {
+      "description": "数据库名称列表,即创建数据库用户时同步将列表中的数据库授权给用户,列表最大长度为50。列表可以为空,在需要给该用户授权某数据库时,调用数据库用户授权接口即可。",
+      "required": [
+        "name",
+        "readonly"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "数据库名称。"
+        },
+        "readonly": {
+          "type": "boolean",
+          "description": "是否为只读权限:\n- true,表示只读。\n- false,表示可读写。"
+        }
+      }
+    },
+    "CreateDatabaseUserResponse": {
+      "required": [
+        "job_id"
+      ],
+      "description": "创建数据库用户的响应体。",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "创建数据库用户的任务ID。",
+          "example": "6b7dd5d4-4590-4f14-b164-a8737ce071d5"
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

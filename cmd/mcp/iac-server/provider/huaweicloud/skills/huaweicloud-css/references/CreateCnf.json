@@ -1,0 +1,172 @@
+{
+  "name": "CreateCnf",
+  "summary": "创建配置文件",
+  "tags": "Logstash接口",
+  "productshort": "CSS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/clusters/{cluster_id}/lgsconf/submit": {
+      "post": {
+        "x-request-examples-url-1": "POST /v1.0/6204a5bd270343b5885144cf9c8c158d/clusters/4f3deec3-efa8-4598-bf91-560aad1377a3/lgsconf/submit",
+        "x-request-examples-url": "POST /v1.0/6204a5bd270343b5885144cf9c8c158d/clusters/5c77b71c-5b35-4f50-8984-76387e42451a/publickibana/lgsconf/submit",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-publishpath": "",
+        "x-request-examples-description-1": "配置实体对象。",
+        "x-request-examples-text-1": {
+          "name": "conf1",
+          "conf_content": "xxxxxxxx",
+          "setting": {
+            "workers": 2,
+            "batch_size": 125,
+            "batch_delay_ms": 50,
+            "queue_type": "persisted",
+            "queue_check_point_writes": 1024,
+            "queue_max_bytes_mb": 1024
+          }
+        },
+        "tags": [
+          "Logstash接口"
+        ],
+        "summary": "创建配置文件",
+        "description": "该接口用于创建配置文件。",
+        "operationId": "CreateCnf",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID。获取方法请参见[获取项目ID和名称](css_03_0071.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "6204a5bd270343b5885144cf9c8c158d"
+          },
+          {
+            "in": "path",
+            "name": "cluster_id",
+            "description": "指定创建配置文件的集群ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "5c77b71c-5b35-4f50-8984-76387e42451a"
+          },
+          {
+            "in": "body",
+            "name": "CreateCnfReq",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCnfReq"
+            },
+            "description": "创建配置文件的请求体。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功。"
+          },
+          "400": {
+            "description": "非法请求。\n\n建议直接修改该请求,不要重试该请求。"
+          },
+          "409": {
+            "description": "服务器在完成请求时发生冲突。\n\n返回该状态码,表明客户端尝试创建的资源已经存在,或者由于冲突请求的更新操作不能被完成。"
+          },
+          "412": {
+            "description": "未满足前提条件,服务器未满足请求者在请求中设置的其中一个前提条件。"
+          }
+        },
+        "x-request-examples-1": {
+          "name": "conf1",
+          "conf_content": "xxxxxxxx",
+          "setting": {
+            "workers": 2,
+            "batch_size": 125,
+            "batch_delay_ms": 50,
+            "queue_type": "persisted",
+            "queue_check_point_writes": 1024,
+            "queue_max_bytes_mb": 1024
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "setting": {
+      "properties": {
+        "workers": {
+          "type": "integer",
+          "example": 2,
+          "description": "并行执行管道的Filters+Outputs阶段的工作线程数,默认值为CPU核数。"
+        },
+        "batch_size": {
+          "type": "integer",
+          "example": 125,
+          "description": "单个工作线程在尝试执行其Filters和Outputs之前将从inputs收集的最大事件数,该值较大通常更有效,但会增加内存开销,默认为125。"
+        },
+        "batch_delay_ms": {
+          "type": "integer",
+          "example": 50,
+          "description": "每个event被pipeline调度等待的最小时间。 单位毫秒。"
+        },
+        "queue_type": {
+          "type": "string",
+          "example": "persisted",
+          "description": "用于事件缓冲的内部队列模型。memory 为基于内存的传统队列,persisted为基于磁盘的ACKed持久化队列,默认值为memory。"
+        },
+        "queue_check_point_writes": {
+          "type": "integer",
+          "example": 1024,
+          "description": "如果使用持久化队列,则表示强制执行检查点之前写入的最大事件数,默认值为1024。"
+        },
+        "queue_max_bytes_mb": {
+          "type": "integer",
+          "example": 1024,
+          "description": "如果使用持久化队列,则表示持久化队列的总容量(以兆字节MB为单位),确保磁盘的容量大于该值,默认值为1024。"
+        }
+      },
+      "required": [
+        "queue_type"
+      ]
+    },
+    "CreateCnfReq": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "conf1",
+          "description": "配置文件名称。4~32个字符,只能包含数字、字母、中划线和下划线,且必须以字母开头。"
+        },
+        "conf_content": {
+          "type": "string",
+          "example": "xxxxxxxx",
+          "description": "配置文件内容。"
+        },
+        "setting": {
+          "$ref": "#/definitions/setting",
+          "description": "配置实体对象。"
+        },
+        "sensitive_words": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "敏感字符替换\n输入需要隐藏的敏感字串列表。配置隐藏字符串列表后,在返回的配置内容中,会将所有在列表中的字串隐藏为***(列表最大支持20条,单个字串最大长度512字节)"
+        },
+        "desc": {
+          "type": "string",
+          "description": "**参数解释**:\n配置文件描述。\n**约束限制**:\n不涉及\n**取值范围**:\n不超过128个字符。\n**默认取值**:\n不涉及"
+        }
+      },
+      "required": [
+        "name",
+        "conf_content",
+        "setting"
+      ],
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "css.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

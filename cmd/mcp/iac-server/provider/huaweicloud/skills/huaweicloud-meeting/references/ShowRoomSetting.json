@@ -1,0 +1,245 @@
+{
+  "name": "ShowRoomSetting",
+  "summary": "查询网络研讨会高级设置",
+  "tags": "网络研讨会管理",
+  "productshort": "Meeting",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/wss/webinar/open/room-setting/{conference_id}": {
+      "get": {
+        "tags": [
+          "网络研讨会管理"
+        ],
+        "summary": "查询网络研讨会高级设置",
+        "description": "该接口用于查询指定网络研讨会的高级设置。管理员可查询企业内的网络研讨会高级设置,非管理员只可查询自己预定的网络研讨会的高级设置。",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 9,
+        "x-open-region-cloud": "hc",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "ShowRoomSetting",
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Access-Token"
+          },
+          {
+            "$ref": "#/parameters/X-Request-ID"
+          },
+          {
+            "$ref": "#/parameters/Accept-Language"
+          },
+          {
+            "name": "conference_id",
+            "in": "path",
+            "type": "string",
+            "description": "网络研讨会ID",
+            "required": true
+          }
+        ],
+        "x-imports": [
+          "com.huawei.meeting.framework.log.*;",
+          "org.springframework.web.bind.annotation.*;",
+          "com.huawei.springframework.security.auth.annotation.TokenAuthorization;",
+          "com.huawei.springframework.security.auth.constants.*;",
+          "org.springframework.web.multipart.MultipartFile;"
+        ],
+        "x-methodAnnotations": [
+          "@TokenAuthorization(userType = {UserTypeEnum.CORP_MEMBER}, adminType = {AdminTypeEnum.DEFAULT_ADMIN ,AdminTypeEnum.COMMON_ADMIN, AdminTypeEnum.NOT_ADMIN})"
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。",
+            "schema": {
+              "$ref": "#/definitions/OpenRoomSettingResp"
+            },
+            "examples": {
+              "application/json": {
+                "roomIntroduce": "欢迎来到XXX直播间",
+                "cropLogoId": "9b5acc8a2fe411eba39eb7b3f094e0f7",
+                "coverPictureId": "aeb9d18d3a9a11eb92bf678411acc943",
+                "coverVideoId": "eb1c20b32fe411eba39effdbcda344ac",
+                "showAudienceMode": "real_time",
+                "isRedoubleOpen": "Y",
+                "baseAudienceCount": 100,
+                "multiple": 1.5
+              }
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "WSS.301000014",
+                "error_msg": "PARAMETER.INVALID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "401": {
+            "description": "未鉴权或鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "403": {
+            "description": "权限受限。",
+            "examples": {
+              "application/json": {
+                "error_code": "WSS.301000095",
+                "error_msg": "USER_TOKEN_AUTH_FAILED"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "WSS.301000099",
+                "error_msg": "PARAM.SYSTEM.ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedResult"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "OpenRoomSettingVO": {
+      "type": "object",
+      "title": "OpenRoomSettingVO",
+      "description": "网络研讨会高级设置。",
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.*;",
+        "com.huawei.meeting.webinar.annotation.FileMeta;",
+        "com.huawei.meeting.webinar.constant.*;",
+        "com.fasterxml.jackson.databind.JsonNode;"
+      ],
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "properties": {
+        "roomIntroduce": {
+          "type": "string",
+          "description": "网络研讨会介绍。",
+          "example": "带你一起,探索未知世界"
+        },
+        "cropLogoId": {
+          "type": "string",
+          "description": "企业Logo的文件id。",
+          "example": "16868728f90245ac9a267116a1f28ed0",
+          "x-annotations": [
+            "@FileMeta(filePurpose = FilePurposeEnum.CROP_LOGO)",
+            "@JsonAlias({\"cropLogoId\", \"corpLogoId\", \"logoId\"})"
+          ]
+        },
+        "coverPictureId": {
+          "type": "string",
+          "description": "欢迎界面的文件id。",
+          "example": "1213e0bd3abb11eb937179241b151879",
+          "x-annotations": [
+            "@FileMeta(filePurpose = FilePurposeEnum.COVER_PICTURE)",
+            "@JsonAlias({\"coverPictureId\", \"pictureId\"})"
+          ]
+        },
+        "showAudienceMode": {
+          "type": "string",
+          "description": "显示观众人数的模式。默认值为real_time。\n- none: 不显示\n- real_time: 实时显示",
+          "example": "none",
+          "default": "real_time"
+        },
+        "isRedoubleOpen": {
+          "type": "string",
+          "description": "智能倍增开关。默认值为Y。\n- Y 开启智能倍增\n- N 关闭智能倍增",
+          "example": "N",
+          "default": "Y"
+        },
+        "baseAudienceCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "基础设置人数(网络研讨会没人时显示的人数)。默认值为0。取值范围为[0, 10000]。",
+          "example": 100,
+          "default": 0
+        },
+        "multiple": {
+          "type": "number",
+          "format": "double",
+          "description": "设置倍数(基础人数+真实人数*倍数)。默认值为1.0。 取值范围为[0, 10],取1位小数。",
+          "example": 1.5,
+          "default": 1.0
+        }
+      }
+    },
+    "RestFailedResult": {
+      "description": "处理失败返回结果。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "结果码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "结果描述。"
+        }
+      }
+    },
+    "OpenRoomSettingResp": {
+      "type": "object",
+      "title": "OpenRoomSettingResp",
+      "description": "查询高级设置响应。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/OpenRoomSettingVO"
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Request-ID": {
+      "name": "X-Request-Id",
+      "in": "header",
+      "description": "请求requestId,用来标识一路请求,用于问题跟踪定位,建议使用UUID,若不携带,则后台自动生成。",
+      "required": false,
+      "type": "string",
+      "x-example": "208b6e4c92074487bc43292f8554561e"
+    },
+    "Accept-Language": {
+      "name": "Accept-Language",
+      "in": "header",
+      "description": "语言参数,默认为中文zh-CN,英文为en-US。",
+      "required": false,
+      "type": "string",
+      "x-example": "zh-CN"
+    },
+    "X-Access-Token": {
+      "name": "X-Access-Token",
+      "in": "header",
+      "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+      "required": true,
+      "format": "password",
+      "type": "string",
+      "x-example": "stb42Kw30IPpsIRm3DhsE0ym7B2tdAHcwfyY"
+    }
+  },
+  "host": "api.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

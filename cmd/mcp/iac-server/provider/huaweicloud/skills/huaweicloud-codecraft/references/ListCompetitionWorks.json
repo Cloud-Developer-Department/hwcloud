@@ -1,0 +1,269 @@
+{
+  "name": "ListCompetitionWorks",
+  "summary": "获取指定时间内选手提交的作品",
+  "tags": "作品管理",
+  "productshort": "CodeCraft",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v5/competitions/works": {
+      "get": {
+        "tags": [
+          "作品管理"
+        ],
+        "summary": "获取指定时间内选手提交的作品",
+        "description": "第三方服务获取某个大赛某个阶段中一段时间内提交的作品信息。其中以请求参数read_time作为结束时间,定义向前一天或一小时内的时间作为查询范围",
+        "operationId": "ListCompetitionWorks",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "第三方token,需要平台配置账号权限",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvIIDgzCCXXXXXX...",
+            "minLength": 1,
+            "maxLength": 99999
+          },
+          {
+            "name": "competition_id",
+            "in": "query",
+            "description": "要查询的大赛ID,由大赛平台提供",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-example": 1200922751
+          },
+          {
+            "name": "stage_id",
+            "in": "query",
+            "description": "要查询的大赛阶段ID,由大赛平台提供",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-example": 1001
+          },
+          {
+            "name": "read_time",
+            "in": "query",
+            "description": "查询的截止时间",
+            "required": true,
+            "type": "string",
+            "minLength": 19,
+            "maxLength": 30,
+            "x-example": "2021-05-20 13:45:30"
+          },
+          {
+            "name": "time_unit",
+            "in": "query",
+            "description": "查询的时间范围。day表示以read_time作为结束时间,前一天内作为查询范围,hour表示以read_time作为结束时间,前一小内时作为查询范围。",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 10,
+            "x-example": "hour",
+            "enum": [
+              "day",
+              "hour"
+            ],
+            "default": "day",
+            "allowEmptyValue": true
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "作品记录的起始编号,如果不传默认从0开始,offset为0时表示从第一条记录开始",
+            "required": false,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "x-example": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页包含的作品记录数,如果不传默认返回100条,并且返回最大条数为100",
+            "required": false,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "x-example": 1
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "description": "需要排序的字段,只支持works_id字段,如果不传则不进行排序",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 10,
+            "x-example": "works_id"
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "排序类型,支持asc|desc,默认为asc升序",
+            "required": false,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 10,
+            "x-example": "desc",
+            "default": "asc",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "allowEmptyValue": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "schema": {
+              "$ref": "#/definitions/ListWorksResponseModelList"
+            },
+            "examples": {
+              "application/json": "{\n  \"works\": [\n    {\n      \"works_id\": \"4056012\",                                 //说明:作品ID\n      \"domain_id\": \"8624ae47cdc646e49e3fed2562c876e4\",       //说明:大赛ID\n      \"team_id\": \"2288803\"                                   //说明:团队ID\n    }\n  ],\n  \"total\": 1\n}"
+            }
+          },
+          "400": {
+            "description": "该时间段没有可判题的作品",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "CC.0005",
+                "error_msg": "该时间段没有可判题的作品"
+              }
+            }
+          },
+          "403": {
+            "description": "用户无权操作",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "CC.0001",
+                "error_msg": "用户无权操作"
+              }
+            }
+          }
+        },
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#address#",
+            "method": "GET",
+            "path": "/CompetitionService/v5/competitions/works",
+            "scheme": "https",
+            "timeout": 30000
+          }
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-is-registered": "Y",
+        "x-name": "获取一段时间内提交的作品",
+        "x-support-sdk": "Y",
+        "x-version": "v5",
+        "deprecated": false,
+        "x-request-examples-url-1": "GET https://{endpoint}/v5/competitions/works?competition_id=10000001&stage_id=1001&read_time=2021-05-30 12:20:20&time_unit=day&offset=0&limit=5&sort_key=works_id&sort_dir=desc",
+        "x-request-examples-description-1": "正常请求-返回200",
+        "x-request-examples-text-1": "GET https://{endpoint}/v5/competitions/works?competition_id=10000001&stage_id=1001&read_time=2021-05-30 12:20:20&time_unit=day&offset=0&limit=5&sort_key=works_id&sort_dir=desc",
+        "x-request-examples-url-2": "GET https://{endpoint}/v5/competitions/works?competition_id=10000001&stage_id=1001&read_time=2022-05-30 12:20:20&time_unit=day&offset=0&limit=5&sort_key=works_id&sort_dir=desc",
+        "x-request-examples-description-2": "异常请求,返回错误码error_code=CC.0005,该时间段没有可判题的作品",
+        "x-request-examples-text-2": "GET https://{endpoint}/v5/competitions/works?competition_id=10000001&stage_id=1001&read_time=2022-05-30 12:20:20&time_unit=day&offset=0&limit=5&sort_key=works_id&sort_dir=desc"
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "description": "接口返回异常信息",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "异常错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "异常错误描述"
+        }
+      }
+    },
+    "ListWorksResponseModelList": {
+      "type": "object",
+      "required": [
+        "works",
+        "total"
+      ],
+      "properties": {
+        "works": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListWorksResponseModel"
+          },
+          "description": "作品列表",
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "description": "作品总数",
+          "example": 1,
+          "minimum": 1,
+          "maximum": 9999
+        }
+      }
+    },
+    "ListWorksResponseModel": {
+      "type": "object",
+      "required": [
+        "works_id",
+        "domain_id",
+        "team_id"
+      ],
+      "properties": {
+        "works_id": {
+          "type": "string",
+          "description": "作品ID",
+          "example": "4056012",
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "租户ID",
+          "example": "8624ae47cdc646e49e3fed2562c876e4",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "team_id": {
+          "type": "string",
+          "description": "团队ID",
+          "example": "2288803",
+          "minLength": 1,
+          "maxLength": 10
+        }
+      },
+      "title": "ListWorksResponseModel"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "codecraft.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

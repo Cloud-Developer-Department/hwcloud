@@ -1,0 +1,355 @@
+{
+  "name": "ListGroupRoles",
+  "summary": "查询用户组权限配置",
+  "tags": "VDC",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/vdc/v3.2/groups/{group_id}/roles": {
+      "get": {
+        "summary": "查询用户组权限配置",
+        "x-resource": "用户组管理",
+        "description": "查询用户组权限。\n\ncurl命令调用示例:\n\n```\n\ncurl -v -H \"Content-Type:application/json\" -X GET\n\"https://ip:port/rest/vdc/v3.2/groups/02a360946d0c432ead6af207d4221813/roles?limit=10\"\n\n```\n|SLA项|定义|\n|-----|-----|\n|请求成功率| >=99.9%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量|120次/分钟|\n|吞吐量|20次/秒|\n|TP50请求时延|1500ms|\n|TP99.9请求时延|3000ms|",
+        "x-precautions": "错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > VDC特性”章节。",
+        "tags": [
+          "VDC"
+        ],
+        "operationId": "ListGroupRoles",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "接口支持的用户token。运营管理员,VDC管理员权限,代维管理员权限用户的token。"
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "description": "用户组id",
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "授权类型 (GroupProject,GroupDomain,GroupVDC,GroupResource)",
+            "type": "string"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "分页查询起始索引。最小值:0,最大值:2147483647 ,默认值:0。",
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "分页查询每页数量。最小值:1,最大值:1000 ,默认值:100。",
+            "type": "integer",
+            "format": "int32",
+            "default": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询用户组权限成功。",
+            "schema": {
+              "$ref": "#/definitions/QueryGroupRolesResponse"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "roles": [
+                  {
+                    "id": "07392ae9c2584a57bb3d61d8648c0ca9",
+                    "domain_id": null,
+                    "domain_name": null,
+                    "name": "vdc_readonly",
+                    "display_name": "VDC Readonly",
+                    "flag": "",
+                    "catalog": "VDC",
+                    "type": "XA",
+                    "description_cn": "具有对租户中用户、资源空间、自运维等的查询权限",
+                    "description": "Permission to query information about users and resource spaces as well as self-service OM data in the tenant that the user group belongs to",
+                    "cloud_platform": "private_cloud",
+                    "policy": null,
+                    "tag": "all",
+                    "app_name": "SC",
+                    "projects": [],
+                    "vdcs": [],
+                    "inherit": false,
+                    "target_id": "8adb5e0ca001436eb909f80b1667f156",
+                    "target_name": "xxx",
+                    "assign_type": "GroupDomain"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "GET: https://{endpoint}/rest/rest/vdc/v3.2/groups/02a360946d0c432ead6af207d4221813/roles?limit=10",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": ""
+      }
+    }
+  },
+  "definitions": {
+    "GroupRoleVdcModel": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "VDC ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "VDC 名字。"
+        }
+      }
+    },
+    "RoleDepends": {
+      "properties": {
+        "Catalog": {
+          "type": "string",
+          "description": "第三方角色所属服务。"
+        },
+        "Display_name": {
+          "type": "string",
+          "description": "权限名称。"
+        }
+      }
+    },
+    "PolicyBase": {
+      "properties": {
+        "Version": {
+          "type": "string",
+          "description": "版本信息。"
+        },
+        "Depends": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RoleDepends"
+          },
+          "description": "角色信息。"
+        },
+        "Statement": {
+          "type": "array",
+          "description": "策略信息",
+          "items": {
+            "$ref": "#/definitions/StatementInfo"
+          }
+        }
+      }
+    },
+    "GroupRoleModel": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RoleModel"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "projects": {
+              "type": "array",
+              "description": "资源空间列表。",
+              "items": {
+                "$ref": "#/definitions/GroupRoleProjectModel"
+              }
+            },
+            "inherit": {
+              "type": "boolean",
+              "description": "权限是否继承。"
+            },
+            "vdcs": {
+              "type": "array",
+              "description": "VDC列表。",
+              "items": {
+                "$ref": "#/definitions/GroupRoleVdcModel"
+              }
+            },
+            "eps": {
+              "type": "array",
+              "description": "EPS列表。",
+              "items": {
+                "$ref": "#/definitions/GroupRoleProjectModel"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GroupRoleProjectModel": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "资源空间ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "资源空间名字。"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "资源空间别名。"
+        }
+      }
+    },
+    "QueryGroupRolesResponse": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数。"
+        },
+        "roles": {
+          "type": "array",
+          "description": "授权对象列表。",
+          "items": {
+            "$ref": "#/definitions/GroupRoleTarget"
+          }
+        }
+      }
+    },
+    "GroupRoleTarget": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/GroupRoleModel"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "assign_type": {
+              "type": "string",
+              "description": "授权类型。"
+            },
+            "target_id": {
+              "type": "string",
+              "description": "授权对象ID。"
+            },
+            "target_name": {
+              "type": "string",
+              "description": "授权对象名称。"
+            }
+          }
+        }
+      ]
+    },
+    "RoleModel": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "角色ID。"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "所属租户ID。"
+        },
+        "domain_name": {
+          "type": "string",
+          "description": "所属租户名称。"
+        },
+        "name": {
+          "type": "string",
+          "description": "权限名称。"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "角色展示名。"
+        },
+        "flag": {
+          "type": "string",
+          "description": "角色标记。"
+        },
+        "catalog": {
+          "type": "string",
+          "description": "权限所属服务。"
+        },
+        "type": {
+          "type": "string",
+          "description": "角色类型,。"
+        },
+        "description_cn": {
+          "type": "string",
+          "description": "角色的中文描述国际化信息。"
+        },
+        "description": {
+          "type": "string",
+          "description": "角色的描述国际化信息。"
+        },
+        "cloud_platform": {
+          "type": "string",
+          "description": "云平台类型"
+        },
+        "policy": {
+          "description": "角色策略信息。",
+          "$ref": "#/definitions/PolicyBase"
+        },
+        "tag": {
+          "type": "string",
+          "description": "角色类型,用于区分SM场景中的三员管理角色"
+        },
+        "app_name": {
+          "type": "string",
+          "description": "用以区分来源系统,取值范围:OC SC OCC"
+        },
+        "display_type": {
+          "type": "string",
+          "description": "角色展示类型。用以区分系统角色,系统策略和自定义角色. 取值范围:system_role,system_policy,custom_role。"
+        }
+      }
+    },
+    "StatementInfo": {
+      "properties": {
+        "Effect": {
+          "type": "string",
+          "enum": [
+            "Allow",
+            "Deny"
+          ],
+          "description": "策略效果。"
+        },
+        "Action": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "action。"
+        },
+        "Resource": {
+          "type": "object",
+          "description": "指定资源。支持List和Map类型。",
+          "x-object-max-size": 20,
+          "x-object-max-depth": 10
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,252 @@
+{
+  "name": "HandlerAlarm",
+  "summary": "自动处理告警",
+  "tags": "Alarm",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/alarm-mgmt/alarm/{alarm_id}/auto-process": {
+      "post": {
+        "x-imports": [
+          "com.huawei.clouds.wushan.integration.common.auth.EnableAuth",
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta",
+          "com.huawei.coc.common.utils.annotation.CtsExtendMeta",
+          "com.huawei.clouds.wushan.auth.token.meta.BssOpType",
+          "com.huawei.coc.common.utils.model.ResponseData",
+          "com.huawei.coc.alarm.mgmt.framework.auth.AlarmAuth",
+          "com.huawei.coc.alarm.mgmt.framework.auth.AlarmMgmtAuthInitializer"
+        ],
+        "x-method-annotations": [
+          "@IamAuthMeta(needApigwJwtAuthCheck = false, authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"coc:instance:executeDocument\",needAbacResourceCheck = true, authContextInitializerName = \"alarmAuth\", needRbacCheck = false, opType = BssOpType.RESOURCE,needCbcCheck = true)",
+          "@CtsMeta(resourceType = \"alarm\", traceName = \"handleAlarm\", operationId = \"HandlerAlarm\")",
+          "@CtsExtendMeta(resourceId = \"#alarmId\", resourceName = \"#handlerAlarmRequestBody.associatedTaskName\", resourceIdKey = \"alarm_id\", resourceNameKey = \"associated_task_name\")"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "Alarm"
+        ],
+        "x-api-type": "open-api",
+        "summary": "自动处理告警",
+        "description": "自动处理告警",
+        "operationId": "HandlerAlarm",
+        "parameters": [
+          {
+            "name": "alarm_id",
+            "in": "path",
+            "required": true,
+            "description": "告警ID",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 26
+          },
+          {
+            "name": "HandlerAlarmRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "自动处理告警请求体",
+            "schema": {
+              "$ref": "#/definitions/AutoHandlerAlarmRequestBody"
+            }
+          }
+        ],
+        "x-returnType": "ResponseData<String>",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AlarmScheduleInstance": {
+      "type": "object",
+      "description": "保存定时任务关联的实例选择条件或实例信息",
+      "required": [
+        "target_selection",
+        "order_no"
+      ],
+      "properties": {
+        "target_selection": {
+          "type": "string",
+          "description": "目标选择方式,枚举值:ALL 全部实例,MANUAL 手动选择 NONE",
+          "example": "ALL",
+          "enum": [
+            "ALL",
+            "MANUAL",
+            "NONE"
+          ],
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "target_instances": {
+          "type": "string",
+          "description": "实例信息",
+          "readOnly": true
+        },
+        "order_no": {
+          "type": "integer",
+          "format": "int32",
+          "description": "步骤号",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "batch_strategy": {
+          "type": "string",
+          "description": "实例分批策略 AUTO_BATCH 自动分批,MANUAL_BATCH手动分批,NONE不分批",
+          "example": "AUTO_BATCH",
+          "enum": [
+            "AUTO_BATCH",
+            "MANUAL_BATCH",
+            "NONE"
+          ],
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "sub_target_instances": {
+          "type": "array",
+          "description": "子目标实例",
+          "minItems": 0,
+          "maxItems": 10000,
+          "x-minLength": 0,
+          "x-maxLength": 1000,
+          "items": {
+            "$ref": "#/definitions/AlarmScheduleInstance"
+          }
+        }
+      }
+    },
+    "SubTaskInfoDTO": {
+      "x-imports": [
+        "com.huawei.coc.alarm.mgmt.enums.TaskType",
+        "com.huawei.coc.common.utils.enums.TaskSource"
+      ],
+      "type": "object",
+      "description": "应急预案内部包含的作业、脚本信息",
+      "properties": {
+        "sub_task_type": {
+          "type": "string",
+          "description": "子任务类型",
+          "example": "script",
+          "x-type": "TaskType"
+        },
+        "sub_associated_task_id": {
+          "type": "string",
+          "description": "作业、脚本的id",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "sub_associated_task_name": {
+          "type": "string",
+          "description": "作业、脚本的名称",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "sub_associated_task_type": {
+          "type": "string",
+          "description": "作业、脚本的分类:自定义、公共",
+          "example": "CUSTOMIZATION",
+          "x-type": "TaskSource"
+        }
+      }
+    },
+    "AutoHandlerAlarmRequestBody": {
+      "x-imports": [
+        "com.huawei.coc.alarm.mgmt.enums.TaskType",
+        "com.huawei.coc.common.utils.enums.TaskSource",
+        "com.huawei.coc.common.utils.enums.RunbookInstanceMode"
+      ],
+      "type": "object",
+      "description": "创建任务请求体",
+      "required": [
+        "task_type",
+        "associated_task_id",
+        "associated_task_type",
+        "associated_task_name",
+        "input_param"
+      ],
+      "properties": {
+        "task_type": {
+          "type": "string",
+          "description": "任务类型",
+          "example": "script"
+        },
+        "associated_task_id": {
+          "type": "string",
+          "description": "关联任务ID(脚本ID/作业ID)",
+          "maxLength": 100,
+          "minLength": 3,
+          "example": "Customization"
+        },
+        "associated_task_type": {
+          "type": "string",
+          "description": "关联任务的类型",
+          "example": "script"
+        },
+        "associated_task_name": {
+          "type": "string",
+          "description": "关联任务名称(脚本名称/作业名称)",
+          "example": "patch",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "associated_task_enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID",
+          "maxLength": 1000,
+          "minLength": 0,
+          "example": "Customization"
+        },
+        "runbook_instance_mode": {
+          "type": "string",
+          "description": "作业实例模式",
+          "example": "mode"
+        },
+        "input_param": {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 1000,
+          "description": "执行参数,值为json串",
+          "example": {},
+          "additionalProperties": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "target_instances": {
+          "type": "array",
+          "x-minLength": 1,
+          "x-maxLength": 1000,
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/definitions/AlarmScheduleInstance"
+          },
+          "description": "目标实例信息"
+        },
+        "region_id": {
+          "type": "string",
+          "description": "区域ID",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "sub_task_info": {
+          "$ref": "#/definitions/SubTaskInfoDTO"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

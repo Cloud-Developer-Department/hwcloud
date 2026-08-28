@@ -1,0 +1,1770 @@
+{
+  "name": "CreateCoreRuntime",
+  "summary": "创建runtime",
+  "tags": "运行时",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/core/runtimes": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Control-plane",
+        "x-sec-data-level": "L3",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "tags": [
+          "运行时"
+        ],
+        "summary": "创建runtime",
+        "description": "该接口用于创建Agent运行时,支持为该运行时进行入站认证,网络访问,可观测配置等。该接口会同时创建运行时以及对应的初始版本。\n**适用场景:**\n部署一个已经开发完成的Agent应用。\n为Agent应用配置入站认证。\n为Agent应用配置入口和出口网络。",
+        "operationId": "CreateCoreRuntime",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "CreateCoreRuntimeRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCoreRuntimeRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "简单的 Agent 运行时创建",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v1/core/runtimes",
+        "x-request-examples-1": {
+          "name": "hello-agent",
+          "description": "一个简单的 Hello World Agent",
+          "arch": "arm64",
+          "agent_gateway_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "artifact_source": {
+            "url": "swr.cn-north-7.myhuaweicloud.com/agentrun/hello-world:v1"
+          },
+          "identity_configuration": {
+            "authorizer_type": "IAM",
+            "authorizer_configuration": {}
+          }
+        },
+        "x-request-examples-description-2": "生产环境完整配置",
+        "x-request-examples-url-2": "POST https://{Endpoint}/v1/core/runtimes",
+        "x-request-examples-2": {
+          "name": "production-agent",
+          "description": "生产环境 AI 助手运行时",
+          "arch": "arm64",
+          "agent_gateway_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "artifact_source": {
+            "url": "swr.cn-north-7.myhuaweicloud.com/agentrun/ai-assistant:v2.1.0",
+            "commands": [
+              "python",
+              "main.py",
+              "--env=prod"
+            ]
+          },
+          "environment_variables": [
+            {
+              "key": "LOG_LEVEL",
+              "value": "INFO"
+            },
+            {
+              "key": "MAX_TOKENS",
+              "value": "4096"
+            },
+            {
+              "key": "MODEL_NAME",
+              "value": "gpt-4"
+            }
+          ],
+          "identity_configuration": {
+            "authorizer_type": "CUSTOM_JWT",
+            "authorizer_configuration": {
+              "custom_jwt": {
+                "discovery_url": "https://auth.example.com/.well-known/openid-configuration",
+                "allowed_audience": [
+                  "https://api.example.com"
+                ],
+                "allowed_clients": [
+                  "my-client-app"
+                ],
+                "allowed_scopes": [
+                  "read",
+                  "write"
+                ]
+              }
+            }
+          },
+          "invoke_config": {
+            "port": 8080,
+            "protocol": "HTTP",
+            "file_transfer_config": {
+              "enabled": true
+            }
+          },
+          "observability": {
+            "logs": {
+              "enabled": true,
+              "group_id": "prod-lts-group",
+              "stream_id": "prod-lts-stream",
+              "project_id": "prod-lts-stream"
+            },
+            "metrics": {
+              "enabled": true
+            },
+            "tracing": {
+              "enabled": true
+            }
+          },
+          "storage_config": {
+            "sfs_turbo": [
+              {
+                "sfs_turbo_id": "a8f6b2e1-xxxx-xxxx-xxxx-123456789012",
+                "user_id": 1000,
+                "group_id": 1000,
+                "sfs_path": "/shared/knowledge_base",
+                "mount_path": "/mnt/kb",
+                "read_only": false
+              }
+            ]
+          },
+          "tags": [
+            {
+              "key": "env",
+              "value": "production"
+            },
+            {
+              "key": "team",
+              "value": "ai-platform"
+            }
+          ]
+        },
+        "x-request-examples-description-3": "使用 API Key 认证的Agent",
+        "x-request-examples-url-3": "POST https://{Endpoint}/v1/core/runtimes",
+        "x-request-examples-3": {
+          "name": "api-gateway-agent",
+          "description": "对外开放的 API 网关 Agent",
+          "arch": "arm64",
+          "agent_gateway_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "artifact_source": {
+            "url": "swr.cn-north-7.myhuaweicloud.com/agentrun/gateway:v1"
+          },
+          "identity_configuration": {
+            "authorizer_type": "API_KEY",
+            "authorizer_configuration": {
+              "key_auth": {
+                "api_keys": [
+                  {
+                    "api_key_name": "x-api-key",
+                    "api_key": "sk-prod-abc123xyz"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功,返回完整AgentRun信息(含初始版本详情)。",
+            "schema": {
+              "$ref": "#/definitions/CreateCoreRuntimeResponseBody"
+            }
+          },
+          "400": {
+            "description": "客户端参数错误(如name为空、必填配置缺失、格式非法等)。",
+            "schema": {
+              "$ref": "#/definitions/CoreRunBadRequestError"
+            }
+          },
+          "401": {
+            "description": "未授权(认证令牌缺失、无效或已过期)。",
+            "schema": {
+              "$ref": "#/definitions/CoreRunUnauthorizedError"
+            }
+          },
+          "403": {
+            "description": "禁止访问(认证后权限不足)。",
+            "schema": {
+              "$ref": "#/definitions/CoreRunForbiddenError"
+            }
+          },
+          "404": {
+            "description": "引用的资源不存在(如指定的环境ID无效)。",
+            "schema": {
+              "$ref": "#/definitions/CoreRunNotFoundError"
+            }
+          },
+          "409": {
+            "description": "资源冲突(如name对应的runtime_id已存在)。",
+            "schema": {
+              "$ref": "#/definitions/CoreRunConflictError"
+            }
+          },
+          "429": {
+            "description": "请求过于频繁(触发限流)。",
+            "schema": {
+              "$ref": "#/definitions/CoreRunTooManyRequestsError"
+            }
+          },
+          "500": {
+            "description": "服务器错误(如数据库插入失败、依赖服务异常等)。",
+            "schema": {
+              "$ref": "#/definitions/CoreRunInternalServerError"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "agentarts:runtime:createCoreRuntime",
+          "authLevel": "INSTANCE_LIST",
+          "needResourceTagCheck": true,
+          "needApigwJwtAuthCheck": false,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": true,
+          "needCbcCheck": true,
+          "opType": "guessByHttpMethod",
+          "model": "v5",
+          "authContextInitializerName": "runtimeAuthContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CoreRunNotFoundError": {
+      "description": "**参数解释**:\n资源不存在。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "enum": [
+            "AgentArts.03000404"
+          ],
+          "example": "AgentArts.03000404"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "**参数解释**:\n错误详细信息。",
+          "example": "资源不存在:runtime_id为xxx的资源未找到"
+        }
+      }
+    },
+    "CreateCoreRuntimeRequestBody": {
+      "type": "object",
+      "description": "**参数解释**:\n运行时创建请求Body体。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "name",
+        "artifact_source",
+        "identity_configuration"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 48,
+          "pattern": "^[a-z][a-z0-9-]{0,46}[a-z0-9]$",
+          "description": "**参数解释**: \nAgent运行时名称,用于在租户内部唯一标识一个Agent运行时。\n**约束限制**:\n同一账号下名称不可重复。\n**取值范围**:\n以小写字母开头,以小写字母或数字结尾,可以包含小写字母、数字和中划线,长度为2-48个字符。\n**默认取值**:\n不涉及。",
+          "example": "Agent-HelloWorld"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "**参数解释**: \n描述信息,用于对Agent运行时的内容和用途进行简要说明。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 0 - 4096 个字符。\n**默认取值**:\n不涉及。",
+          "example": "首版本"
+        },
+        "artifact_source": {
+          "$ref": "#/definitions/CoreRunArtifactSource"
+        },
+        "environment_variables": {
+          "$ref": "#/definitions/CoreRunEnvironmentVariables"
+        },
+        "identity_configuration": {
+          "$ref": "#/definitions/CoreRunIdentityCreateReqBody"
+        },
+        "execution_agency_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**: \n运行时委托名称。\n**约束限制**:\n必须是一个存在的信任委托名称,且该委托授权对象为安全沙箱元数据。\n**取值范围**:\n长度为 1 - 64 个字符。\n**默认取值**:\n不涉及。",
+          "example": "default-agency"
+        },
+        "network_config": {
+          "$ref": "#/definitions/CoreRunNetworkConfig"
+        },
+        "agent_gateway_id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "**参数解释**: \nAgent网关的唯一ID,用户可以通过AgentGateway的查询网关实例列表接口来查询到对应的网关ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值**:\n不涉及。",
+          "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        },
+        "invoke_config": {
+          "type": "object",
+          "description": "**参数解释**:\n智能体调用相关配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "allOf": [
+            {
+              "$ref": "#/definitions/CoreRunInvokeConfig"
+            },
+            {
+              "type": "object",
+              "description": "**参数解释**:\n智能体调用相关配置。\n**取值范围**:\n不涉及。",
+              "properties": {
+                "url_match_type": {
+                  "type": "string",
+                  "default": "ACCURATE_MATCH",
+                  "enum": [
+                    "ACCURATE_MATCH",
+                    "PREFIX_MATCH"
+                  ],
+                  "description": "**参数解释**:\n智能体运行时调用URL的匹配模式\n- ACCURATE_MATCH: 运行时调用URL为精确匹配,只支持/runtimes/{runtime_name}/invocations的调用路径。\n- PREFIX_MATCH: 运行时调用URL为前缀匹配,支持/runtimes/{runtime_name}/invocations以及/runtimes/{runtime_name}/invocations/{custom_path}的调用路径。\n**约束限制**:\n不涉及。\n**取值范围**:\n- ACCURATE_MATCH\n- PREFIX_MATCH\n**默认值**:\nACCURATE_MATCH"
+                }
+              }
+            }
+          ]
+        },
+        "observability": {
+          "$ref": "#/definitions/CoreRunObservability"
+        },
+        "storage_config": {
+          "$ref": "#/definitions/CoreRunStorageConfig"
+        },
+        "tags": {
+          "$ref": "#/definitions/CoreRunTags"
+        },
+        "arch": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 48,
+          "description": "**参数解释**: \nAgent运行时架构,用于标明运行时需要运行在arm或者x86平台架构。\n**约束限制**:\n无\n**取值范围**:\n只允许填写arm64或者x86_64。\n**默认取值**:\narm64。",
+          "example": "arm64",
+          "default": "arm64",
+          "enum": [
+            "arm64",
+            "x86_64"
+          ]
+        }
+      }
+    },
+    "CoreRunArtifactSource": {
+      "description": "**参数解释**:\nAgent来源数据结构。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "description": "**参数解释**:\nAgent镜像地址,用于运行时拉取镜像启动Agent服务,可以通过SWR控制台以及SWR的镜像查询接口获取对应的镜像地址。\n**约束限制**:\n必须是一个有效的SWR镜像地址。\n**取值范围**:\n长度为 1 - 2048 个字符。\n**默认取值**:\n不涉及。",
+          "example": "swr.cn-north-7.myhuaweicloud.com/agentrun/ai-assistant:v1.0.0"
+        },
+        "commands": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "**参数解释**:\n启动镜像的命令,示例:python main.py --port=8080。\n**约束限制**:\n不涉及。\n**取值范围**:\n最多 10 个元素,每个元素长度为 1 - 256 个字符。\n**默认取值**:\n不涉及。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "example": [
+            "python",
+            "main.py",
+            "--port=8080"
+          ]
+        },
+        "swr_instance_id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "**参数解释**:\nSWR企业版实例ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值**:\n不涉及。",
+          "example": "a8f6b2e1-2222-2222-2222-123456789012"
+        }
+      }
+    },
+    "CoreRunLogsConfigResp": {
+      "type": "object",
+      "description": "**参数解释**:\n日志采集配置。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启日志采集,默认为false。",
+          "default": false,
+          "example": true
+        },
+        "group_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n日志组ID。",
+          "example": "xx-xx"
+        },
+        "stream_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n日志流ID。",
+          "example": "end_user_lts_stream"
+        },
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n日志流所在项目ID。",
+          "example": "end_user_lts_project"
+        }
+      }
+    },
+    "CoreRunLogsConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n日志采集配置。\n**约束限制**:\n日志组ID与日志流ID必须配套使用,要么同时缺省,要么同时填写。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启日志采集,默认为false。\n- 未开启,托管运行时过程产生的日志无法上报至云日志服务(LTS)。\n- 开启后,托管运行时过程产生的日志会上报云日志服务(LTS)。\n**约束限制**:\n不涉及。\n**取值范围**:\n- true\n- false\n**默认值**:\nfalse",
+          "default": false,
+          "example": true
+        },
+        "group_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n日志组ID,可以通过LTS的控制台页面或者LTS日志组查询接口获取。\n**约束限制**:\n与日志流ID配套使用,需同时填写或同时缺省。\n**取值范围**:\n长度为 1 - 64 个字符。\n**默认值**:\n无。",
+          "example": "xx-xx"
+        },
+        "stream_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n日志流ID,可以通过LTS的控制台页面或者LTS日志流查询接口获取。\n**约束限制**:\n与日志组ID配套使用,需同时填写或同时缺省。\n**取值范围**:\n长度为 1 - 64 个字符。\n**默认值**:\n无。",
+          "example": "end_user_lts_stream"
+        },
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n日志流所在项目ID,可以访问我的凭据控制台页面获取对应的项目ID或者通过IAM的项目查询接口获取。\n**约束限制**:\n与日志组ID配套使用,需同时填写或同时缺省。\n**取值范围**:\n长度为 1 - 64 个字符。\n**默认值**:\n不涉及。",
+          "example": "end_user_lts_project"
+        }
+      }
+    },
+    "CoreRunInvokeConfigResp": {
+      "type": "object",
+      "description": "**参数解释**:\n智能体调用相关配置。",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CoreRunInvokeConfig"
+        },
+        {
+          "type": "object",
+          "description": "**参数解释**:\n智能体调用相关配置。",
+          "properties": {
+            "url_match_type": {
+              "type": "string",
+              "default": "ACCURATE_MATCH",
+              "enum": [
+                "ACCURATE_MATCH",
+                "PREFIX_MATCH"
+              ],
+              "description": "**参数解释**:\n智能体运行时调用URL的匹配模式。\n**取值范围**:\n- ACCURATE_MATCH\n- PREFIX_MATCH"
+            }
+          }
+        }
+      ]
+    },
+    "CoreRunVpcConfig": {
+      "type": "object",
+      "description": "**参数解释**:\nvpc网络配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "vpc_id",
+        "subnet_id"
+      ],
+      "properties": {
+        "vpc_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "description": "**参数解释**:\nVPC ID,可以通过VPC的控制台页面或者VPC查询接口获取。\n**约束限制**:\n不涉及。\n**取值范围**:\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值**:\n不涉及。",
+          "example": "1a2ac6ec-c5ae-40f9-9677-bd73f37c0de5"
+        },
+        "subnet_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "description": "**参数解释**:\n子网ID,可以通过VPC的控制台页面或者VPC查询接口获取。\n**约束限制**:\n不涉及。\n**取值范围**:\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值**:\n不涉及。",
+          "example": "2e79ba05-8e10-41f6-9650-00fea3ca24cc"
+        },
+        "security_group_ids": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "**参数解释**:\nVPC关联的安全组ID列表。可以通过VPC的控制台页面或者VPC查询接口获取。\n**约束限制**:\n不涉及。\n**取值范围**:\n元素个数0-10个,每个安全组值的长度为 1 - 36 个字符。。\n**默认取值**:\n不涉及。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 36,
+            "description": "**参数解释**:\nVPC关联的安全组ID,可以通过VPC的控制台页面或者VPC查询接口获取。\n**约束限制**:\n不涉及。\n**取值范围**:\n匹配标准的UUID格式(8-4-4-4-12的十六进制数字串,由连字符分隔),符合正则条件^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$。\n**默认取值**:\n不涉及。"
+          },
+          "example": [
+            "a6f126ca-cb81-4323-9597-72eee3de4439"
+          ]
+        }
+      }
+    },
+    "CoreRunAgentRuntime": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CoreRunAgentRuntimeBasic"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "version_detail": {
+              "$ref": "#/definitions/CoreRunRuntimeVersion",
+              "description": "**参数解释**:\n关联版本信息。"
+            }
+          }
+        }
+      ]
+    },
+    "CoreRunMetricsObservabilityConfigResp": {
+      "type": "object",
+      "description": "**参数解释**:\n自定义指标采集详细配置。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启自定义指标采集,默认为false。",
+          "default": false,
+          "example": true
+        },
+        "instance_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n自定义指标实例ID。",
+          "example": "xx-xx"
+        }
+      }
+    },
+    "CoreRunTooManyRequestsError": {
+      "description": "**参数解释**:\n请求过于频繁(触发限流)。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "enum": [
+            "AgentArts.03000429"
+          ],
+          "example": "AgentArts.03000429"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "**参数解释**:\n错误详细信息。",
+          "example": "请求过于频繁,请稍后重试"
+        }
+      }
+    },
+    "CoreRunUnauthorizedError": {
+      "description": "**参数解释**:\n未授权(认证令牌缺失、无效或已过期)。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "enum": [
+            "AgentArts.03000401"
+          ],
+          "example": "AgentArts.03000401"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "**参数解释**:\n错误详细信息。",
+          "example": "认证令牌已过期,请重新登录"
+        }
+      }
+    },
+    "CoreRunBadRequestError": {
+      "description": "**参数解释**:\n客户端请求参数错误。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "enum": [
+            "AgentArts.03000400"
+          ],
+          "example": "AgentArts.03000400"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "**参数解释**:\n错误详细信息。",
+          "example": "请求参数错误:name字段不能为空"
+        }
+      }
+    },
+    "CoreRunApiKey": {
+      "type": "object",
+      "description": "**参数解释**: \nAPI密钥详细配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "description": "**参数解释**: \nAPI密钥值。轮换期间,可以使用其中任何一个密钥。如果密钥为空,则会生成一个随机字符串。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 512 个字符,只包含字母数字、中划线和下划线。\n**默认取值**:\n不涉及。",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[A-Za-z0-9\\-_]+$"
+        },
+        "api_key_name": {
+          "type": "string",
+          "description": "**参数解释**: \nAPI密钥名称,该名称仅用于标识该密钥,不用于实际认证。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 0 - 64 个字符,只包含字母数字、中划线和下划线。\n**默认取值**:\n不涉及。",
+          "default": "",
+          "minLength": 0,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+        }
+      }
+    },
+    "CoreRunClaimMatchValue": {
+      "type": "object",
+      "description": "**参数解释**: \n入站认证需要校验的自定义Claim字段锁需要的匹配策略。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "match_value_string": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[A-Za-z0-9_.\\-]+$",
+          "description": "**参数解释**: \n入站认证需要校验的自定义Claim字段所要匹配的字符串值。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 255 个字符,只包含字母数字、下划线、点号和中划线。\n**默认取值**:\n不涉及。"
+        },
+        "match_value_string_list": {
+          "type": "array",
+          "description": "**参数解释**: \n入站认证需要校验的自定义Claim字段所要匹配的字符串值列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小数量 1,最大数量 50,每个值的长度为 1 - 255 个字符。\n**默认取值**:\n不涉及。",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9_.\\-]+$",
+            "description": "**参数解释**: \n入站认证需要校验的自定义Claim字段所要匹配的字符串项。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 255 个字符,只包含字母数字、下划线、点号和中划线。\n**默认取值**:\n不涉及。"
+          }
+        }
+      }
+    },
+    "CoreRunWarmUpProbeConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n探针配置,用于沙箱预热探测。",
+      "properties": {
+        "initial_delay_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n容器启动后多少秒开始探测",
+          "default": 0,
+          "example": 0,
+          "minimum": 0,
+          "maximum": 300
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测超时时间(秒)",
+          "default": 1,
+          "example": 1,
+          "minimum": 0,
+          "maximum": 300
+        },
+        "period_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测间隔(秒)",
+          "default": 1,
+          "example": 1,
+          "minimum": 1,
+          "maximum": 300
+        },
+        "success_threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测连续成功次数阈值",
+          "default": 1,
+          "example": 0,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "failure_threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测连续失败次数阈值",
+          "default": 3,
+          "example": 0,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "failure_threshold_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n就绪检查连续失败时长阈值(秒)",
+          "default": 240,
+          "example": 0,
+          "minimum": 1,
+          "maximum": 240
+        },
+        "initial_delay_milliseconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n开始探测的延迟检查时间(毫秒)",
+          "default": 0,
+          "example": 0,
+          "minimum": 0,
+          "maximum": 30000
+        },
+        "timeout_milliseconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测超时时间(毫秒)",
+          "default": 1,
+          "example": 1,
+          "minimum": 0,
+          "maximum": 30000
+        },
+        "period_milliseconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测间隔(毫秒)",
+          "default": 0,
+          "example": 0,
+          "minimum": 200,
+          "maximum": 30000
+        }
+      }
+    },
+    "CoreRunOutboundNetwork": {
+      "type": "object",
+      "description": "**参数解释**:\n出站网络配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "network_mode"
+      ],
+      "properties": {
+        "network_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n出站网络类型,当前支持如下2种:\n- PUBLIC: 表示公网出口。\n- VPC: 表示虚拟私有云出口。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 6 个字符。允许的值为:\n- PUBLIC\n- VPC\n**默认取值**:\nPUBLIC。",
+          "enum": [
+            "PUBLIC",
+            "VPC"
+          ],
+          "example": "VPC",
+          "default": "PUBLIC"
+        },
+        "vpc_config": {
+          "$ref": "#/definitions/CoreRunVpcConfig"
+        }
+      }
+    },
+    "CoreRunNetworkConfigResp": {
+      "$ref": "#/definitions/CoreRunOutboundNetworkResp"
+    },
+    "CoreHealthCheckConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n运行时自定义预热和健康检查配置。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启自定义的预热和健康检查配置。",
+          "example": false
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n健康检查探测的端口号。",
+          "default": 8080,
+          "example": 8080,
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "warm_up_probe": {
+          "$ref": "#/definitions/CoreRunWarmUpProbeConfig"
+        },
+        "liveness_probe": {
+          "$ref": "#/definitions/CoreRunLivenessProbeConfig"
+        }
+      }
+    },
+    "CreateCoreRuntimeResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CoreRunAgentRuntime"
+        }
+      ]
+    },
+    "CoreRunInternalServerError": {
+      "description": "**参数解释**:\n服务器内部错误。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "enum": [
+            "AgentArts.03000500"
+          ],
+          "example": "AgentArts.03000500"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "**参数解释**:\n错误详细信息。",
+          "example": "服务器内部错误,请稍后重试"
+        }
+      }
+    },
+    "CoreRunInvokeConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n智能体调用相关配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n智能体运行时监听的端口号,用于接收外部请求,默认值8080。\n**约束限制**:\n不涉及。\n**取值范围**:\n1 - 65535\n**默认值**:\n8080",
+          "default": 8080,
+          "example": 8080,
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "protocol": {
+          "type": "string",
+          "default": "HTTP",
+          "enum": [
+            "HTTP",
+            "MCP"
+          ],
+          "description": "**参数解释**:\n智能体运行时支持的协议类型,默认值HTTP。\n- HTTP: HTTP协议\n- MCP: MCP协议\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 4 个字符。允许的值为:\n- HTTP\n- MCP\n**默认值**:\nHTTP"
+        },
+        "file_transfer_config": {
+          "$ref": "#/definitions/CoreRunFileTransferConfig"
+        }
+      }
+    },
+    "CoreRunTracingObservabilityConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n调用链采集配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启调用链采集,默认为false。\n- 未开启,托管运行时过程产生的调用链数据无法上报至应用性能管理服务(APM)。\n- 开启后,托管运行时过程产生的调用链数据会上报应用性能管理服务(APM)。\n**约束限制**:\n不涉及。\n**取值范围**:\n- true\n- false\n**默认值**:\nfalse",
+          "default": false,
+          "example": true
+        },
+        "service_group": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n调用链服务应用名。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 64 个字符。\n**默认取值**:\n不涉及。",
+          "example": "app-user"
+        }
+      }
+    },
+    "CoreRunEnvironmentVariableResp": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "description": "**参数解释**:\n单个环境变量配置。\n**取值范围**:\n不涉及。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-zA-Z](?!.*\\.\\.)[a-zA-Z0-9_-]*(?:\\.[a-zA-Z0-9_-]*)*$",
+          "description": "**参数解释**:\n环境变量键。\n**取值范围**:\n必须以字母开头,由英文字母、数字、下划线和点号组成,长度为 1 - 512 个字符。"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1048576,
+          "description": "**参数解释**:\n环境变量值。\n**取值范围**:\n长度为 0 - 1048576 个字符。"
+        }
+      }
+    },
+    "CoreRunObservabilityResp": {
+      "type": "object",
+      "description": "**参数解释**:\n可观测性配置(日志+指标)。",
+      "properties": {
+        "logs": {
+          "$ref": "#/definitions/CoreRunLogsConfigResp"
+        },
+        "metrics": {
+          "$ref": "#/definitions/CoreRunMetricsObservabilityConfigResp"
+        },
+        "tracing": {
+          "$ref": "#/definitions/CoreRunTracingObservabilityConfigResp"
+        }
+      }
+    },
+    "CoreRunMetricsObservabilityConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n自定义指标采集详细配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启自定义指标采集,默认为false。\n- 未开启,托管运行时过程产生的自定义指标无法上报至应用运维管理服务(AOM)。\n- 开启后,托管运行时过程产生的自定义指标会上报应用运维管理服务(AOM)。\n**约束限制**:\n不涉及。\n**取值范围**:\n- true\n- false\n**默认值**:\nfalse",
+          "default": false,
+          "example": true
+        },
+        "instance_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n自定义指标实例ID。可以通过AOM的Prometheus监控 > 实例列表页面获取实例ID,或者通过AOM的实例查询接口获取。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 64 个字符。\n**默认取值**:\n不涉及。",
+          "example": "xx-xx"
+        }
+      }
+    },
+    "CoreRunEnvironmentVariables": {
+      "type": "array",
+      "description": "**参数解释**:\n环境变量配置列表,用于配置运行时环境变量。\n**约束限制**:\n总大小约束2MB。\n**取值范围**:\n支持0 - 1024个元素。\n**默认取值**:\n不涉及。",
+      "items": {
+        "$ref": "#/definitions/CoreRunEnvironmentVariable"
+      },
+      "minItems": 0,
+      "maxItems": 1024,
+      "example": [
+        {
+          "key": "PORT",
+          "value": "8080"
+        },
+        {
+          "key": "DEBUG_MODE",
+          "value": "false"
+        },
+        {
+          "key": "LOG_LEVEL",
+          "value": "INFO"
+        }
+      ]
+    },
+    "CoreRunTags": {
+      "type": "array",
+      "description": "**参数解释**:\n标签配置列表。",
+      "items": {
+        "$ref": "#/definitions/CoreRunTagItem"
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "CoreRunConflictError": {
+      "description": "**参数解释**:\n资源冲突。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "enum": [
+            "AgentArts.03000409"
+          ],
+          "example": "AgentArts.03000409"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "**参数解释**:\n错误详细信息。",
+          "example": "资源冲突:已存在同名资源"
+        }
+      }
+    },
+    "CoreRunObservability": {
+      "type": "object",
+      "description": "**参数解释**:\n可观测性配置(日志+指标)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "logs": {
+          "$ref": "#/definitions/CoreRunLogsConfig"
+        },
+        "metrics": {
+          "$ref": "#/definitions/CoreRunMetricsObservabilityConfig"
+        },
+        "tracing": {
+          "$ref": "#/definitions/CoreRunTracingObservabilityConfig"
+        }
+      }
+    },
+    "CoreRunErrorDetail": {
+      "type": "object",
+      "description": "**参数解释**:\n错误详情结构体。",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:\n错误信息。",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ]
+    },
+    "CoreRunAuthorizerType": {
+      "type": "string",
+      "description": "**参数解释**: \nAgent运行时所需的入站认证类型,Agent网关将根据该配置进行入站认证。\n- CUSTOM_JWT: OAuth 2.0认证方式,使用自定义JWT认证机制\n- IAM: IAM认证方式,使用IAM签名认证机制\n- API_KEY: API Key认证方式,使用自定义API Key进行认证\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为1-10个字符。允许的值:\n- CUSTOM_JWT\n- IAM\n- API_KEY\n**默认取值**:\nIAM",
+      "enum": [
+        "CUSTOM_JWT",
+        "IAM",
+        "API_KEY"
+      ],
+      "default": "IAM"
+    },
+    "CoreRunEnvironmentVariablesResp": {
+      "type": "array",
+      "description": "**参数解释**:\n环境变量配置列表,用于配置运行时环境变量。\n**取值范围**:\n支持0 - 1024个元素。",
+      "items": {
+        "$ref": "#/definitions/CoreRunEnvironmentVariableResp"
+      },
+      "minItems": 0,
+      "maxItems": 1024,
+      "example": [
+        {
+          "key": "PORT",
+          "value": "8080"
+        },
+        {
+          "key": "DEBUG_MODE",
+          "value": "false"
+        },
+        {
+          "key": "LOG_LEVEL",
+          "value": "INFO"
+        }
+      ]
+    },
+    "CoreRunTagItem": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "description": "**参数解释**:\n单个标签的数据结构。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "**参数解释**:\n标签键。"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "**参数解释**:\n标签值。"
+        }
+      }
+    },
+    "CoreRunRuntimeVersion": {
+      "description": "**参数解释**:\nAgentRuntime版本数据结构。\n**取值范围**:\n不涉及。",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "**参数解释**:\n版本名称,默认为v1、v2自增长,用户也可自定义。\n**取值范围**:\n以小写字母或数字开头,以小写字母或数字结尾,可以包含小写字母、数字和中划线,长度为2-24个字符。",
+          "pattern": "^[a-z][a-z0-9-]{0,22}[a-z0-9]$",
+          "minLength": 2,
+          "maxLength": 24,
+          "example": "v1"
+        },
+        "description": {
+          "type": "string",
+          "description": "**参数解释**:\n版本描述(创建/更新版本时可选)。\n**取值范围**:\n长度为 0 - 4096 个字符。",
+          "minLength": 0,
+          "maxLength": 4096,
+          "example": "优化日志上报格式,新增环境变量DEBUG_MODE"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释**:\n创建时间(系统自动生成,UTC时区)。\n**取值范围**:\n不涉及。",
+          "example": "2024-05-20T14:30:00Z"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释**:\n最近更新时间(系统自动生成,版本更新/标签修改时刷新)。\n**取值范围**:\n不涉及。",
+          "example": "2024-05-21T09:15:00Z"
+        },
+        "artifact_source": {
+          "$ref": "#/definitions/CoreRunArtifactSourceResp"
+        },
+        "network_config": {
+          "$ref": "#/definitions/CoreRunNetworkConfigResp"
+        },
+        "environment_variables": {
+          "$ref": "#/definitions/CoreRunEnvironmentVariablesResp"
+        },
+        "invoke_config": {
+          "$ref": "#/definitions/CoreRunInvokeConfigResp"
+        },
+        "observability": {
+          "$ref": "#/definitions/CoreRunObservabilityResp"
+        },
+        "storage_config": {
+          "$ref": "#/definitions/CoreRunStorageConfig"
+        },
+        "health_config": {
+          "$ref": "#/definitions/CoreHealthCheckConfig"
+        }
+      }
+    },
+    "CoreRunTagsResp": {
+      "type": "array",
+      "description": "**参数解释**:\n标签配置列表。",
+      "items": {
+        "$ref": "#/definitions/CoreRunTagItemResp"
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "CoreRunKeyAuthAuthorizerConfiguration": {
+      "type": "object",
+      "description": "**参数解释**: \nAPIKEY入站认证配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "api_keys"
+      ],
+      "properties": {
+        "api_keys": {
+          "type": "array",
+          "description": "**参数解释**: \n入站认证允许的所有的API KEY密钥列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小数量 0,最大数量 10。\n**默认取值**:\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreRunApiKey"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    },
+    "CoreRunCustomClaimValidation": {
+      "type": "object",
+      "description": "**参数解释**: \n要检查的自定义声明。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "authorizing_claim_match_value",
+        "inbound_token_claim_name",
+        "inbound_token_claim_value_type"
+      ],
+      "properties": {
+        "authorizing_claim_match_value": {
+          "$ref": "#/definitions/CoreRunAuthorizingClaimMatchValue"
+        },
+        "inbound_token_claim_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[A-Za-z0-9_.\\-:]+$",
+          "description": "**参数解释**: \n要检查的自定义声明字段的名称。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 255 个字符,只包含字母数字、下划线、点号、中划线和冒号。\n**默认取值**:\n不涉及。"
+        },
+        "inbound_token_claim_value_type": {
+          "type": "string",
+          "description": "**参数解释**: \n要检查的声明值的数据类型。\n- STRING: 表示字符串类型。\n- STRING_ARRAY: 表示字符串数组类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 12 个字符。\n- STRING\n- STRING_ARRAY\n**默认取值**:\n不涉及。",
+          "enum": [
+            "STRING",
+            "STRING_ARRAY"
+          ]
+        }
+      }
+    },
+    "CoreRunOutboundNetworkResp": {
+      "type": "object",
+      "description": "**参数解释**:\n出站网络配置。\n**取值范围**:\n不涉及。",
+      "required": [
+        "network_mode"
+      ],
+      "properties": {
+        "network_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n出站网络类型。\n**取值范围**:\n- PUBLIC: 表示公网出口。\n- VPC: 表示虚拟私有云出口。",
+          "enum": [
+            "PUBLIC",
+            "VPC"
+          ],
+          "example": "VPC",
+          "default": "PUBLIC"
+        },
+        "vpc_config": {
+          "$ref": "#/definitions/CoreRunVpcConfigResp"
+        }
+      }
+    },
+    "CoreRunLivenessProbeConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n探针配置,用于沙箱健康检查探测。",
+      "properties": {
+        "initial_delay_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n容器启动后多少秒开始探测",
+          "default": 0,
+          "example": 0,
+          "minimum": 0,
+          "maximum": 300
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测超时时间(秒)",
+          "default": 1,
+          "example": 1,
+          "minimum": 0,
+          "maximum": 300
+        },
+        "period_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测间隔(秒)",
+          "default": 5,
+          "example": 0,
+          "minimum": 1,
+          "maximum": 300
+        },
+        "success_threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测连续成功次数阈值",
+          "default": 1,
+          "example": 0,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "failure_threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测连续失败次数阈值",
+          "default": 3,
+          "example": 0,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "failure_threshold_seconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n就绪检查连续失败时长阈值(秒)",
+          "default": 240,
+          "example": 0,
+          "minimum": 1,
+          "maximum": 300
+        },
+        "initial_delay_milliseconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n开始探测的延迟检查时间(毫秒)",
+          "default": 0,
+          "example": 0,
+          "minimum": 0,
+          "maximum": 30000
+        },
+        "timeout_milliseconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测超时时间(毫秒)",
+          "default": 1,
+          "example": 1,
+          "minimum": 0,
+          "maximum": 30000
+        },
+        "period_milliseconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n探测间隔(毫秒)",
+          "default": 1000,
+          "example": 0,
+          "minimum": 1000,
+          "maximum": 30000
+        }
+      }
+    },
+    "CoreRunStorageConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n运行时存储配置,支持挂载SFS Turbo存储类型。",
+      "properties": {
+        "sfs_turbo": {
+          "type": "array",
+          "description": "**参数解释**:\nSFS Turbo存储挂载配置列表。",
+          "items": {
+            "$ref": "#/definitions/CoreRunSfsTurboStorageConfig"
+          },
+          "minItems": 0,
+          "maxItems": 5,
+          "default": []
+        }
+      }
+    },
+    "CoreRunIdentityCreateReqBody": {
+      "type": "object",
+      "description": "**参数解释**: \n运行时入站认证配置请求Body体。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "authorizer_type",
+        "authorizer_configuration"
+      ],
+      "properties": {
+        "authorizer_type": {
+          "$ref": "#/definitions/CoreRunAuthorizerType"
+        },
+        "authorizer_configuration": {
+          "$ref": "#/definitions/CoreRunAuthorizerConfiguration"
+        }
+      }
+    },
+    "CoreRunCustomJWTAuthorizerConfiguration": {
+      "type": "object",
+      "description": "**参数解释**:\n运行时自定义JWT类型认证配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "discovery_url"
+      ],
+      "properties": {
+        "discovery_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "description": "**参数解释**: \n此 URL 用于获取 OpenID Connect 配置或授权服务器元数据,以验证传入的令牌。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 2048 个字符。\n**默认取值**:\n不涉及。"
+        },
+        "allowed_audience": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "**参数解释**: \n允许对入站 JWT 进行验证的受众值列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n元素个数0 - 10,每个受众值元素的长度为1-512个字符。\n**默认取值**:\n不涉及。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "**参数解释**: \n允许对入站 JWT 进行验证的受众值。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 512 个字符。\n**默认取值**:\n不涉及。"
+          }
+        },
+        "allowed_clients": {
+          "type": "array",
+          "description": "**参数解释**: \n允许用于入站 JWT 验证的客户端标识符值列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n元素个数0 - 50,每个客户端值的长度为 1 - 256 个字符。\n**默认取值**:\n不涉及。",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "**参数解释**: \n允许用于入站 JWT 验证的客户端标识符。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 256 个字符。\n**默认取值**:\n不涉及。"
+          }
+        },
+        "allowed_scopes": {
+          "type": "array",
+          "description": "**参数解释**: \n允许对入站 JWT 进行验证的范围值列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n元素个数0 - 50,每个范围值的长度为 1 - 256 个字符。\n**默认取值**:\n不涉及。",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "**参数解释**: \n允许对入站 JWT 进行验证的范围值。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 256 个字符。\n**默认取值**:\n不涉及。"
+          }
+        },
+        "custom_claims": {
+          "type": "array",
+          "description": "**参数解释**: \n对入站 JWT 应用自定义声明验证规则。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小数量 1,最大数量 20。\n**默认取值**:\n不涉及。",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/CoreRunCustomClaimValidation"
+          },
+          "example": [
+            {
+              "inbound_token_claim_name": "tenant",
+              "inbound_token_claim_value_type": "STRING",
+              "authorizing_claim_match_value": {
+                "claim_match_operator": "EQUALS",
+                "claim_match_value": {
+                  "match_value_string": "acme"
+                }
+              }
+            },
+            {
+              "inbound_token_claim_name": "roles",
+              "inbound_token_claim_value_type": "STRING_ARRAY",
+              "authorizing_claim_match_value": {
+                "claim_match_operator": "CONTAINS_ANY",
+                "claim_match_value": {
+                  "match_value_string_list": [
+                    "admin",
+                    "editor"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CoreRunAgentRuntimeBasic": {
+      "description": "**参数解释**:\nAgentRuntime数据结构。",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "**参数解释**:\nAgentRuntime唯一标识。",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "maxLength": 36,
+          "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "**参数解释**:\n描述信息。",
+          "example": "首版本"
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:\nAgent名称。",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9-]{0,46}[a-zA-Z0-9]$",
+          "minLength": 2,
+          "maxLength": 48,
+          "example": "helloAgent"
+        },
+        "latest_version": {
+          "type": "string",
+          "description": "**参数解释**:\n最新版本名称。",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9-]{0,22}[a-zA-Z0-9]$",
+          "minLength": 2,
+          "maxLength": 24,
+          "example": "prod"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释**:\n创建时间。"
+        },
+        "agent_gateway_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "format": "uuid",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "**参数解释**:\nAgent Gateway ID。",
+          "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释**:\n最后更新时间。"
+        },
+        "workload_identity_urn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500,
+          "format": "uuid",
+          "description": "**参数解释**:\nIdentity URN。",
+          "example": "xxxxxx"
+        },
+        "tags": {
+          "$ref": "#/definitions/CoreRunTagsResp"
+        },
+        "arch": {
+          "type": "string",
+          "enum": [
+            "arm64",
+            "x86_64"
+          ],
+          "description": "**参数解释**:\n运行时架构。\n**取值范围**:\narm64、x86_64"
+        }
+      }
+    },
+    "CoreRunAuthorizerConfiguration": {
+      "type": "object",
+      "description": "**参数解释**:\n运行时入站认证配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "custom_jwt": {
+          "$ref": "#/definitions/CoreRunCustomJWTAuthorizerConfiguration"
+        },
+        "key_auth": {
+          "$ref": "#/definitions/CoreRunKeyAuthAuthorizerConfiguration"
+        }
+      }
+    },
+    "CoreRunArtifactSourceResp": {
+      "description": "**参数解释**:\nAgent来源数据结构。\n**取值范围**:\n不涉及。",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "description": "**参数解释**:\nAgent镜像地址,用于运行时拉取镜像启动Agent服务。\n**取值范围**:\n长度为 1 - 2048 个字符。",
+          "example": "swr.cn-north-7.myhuaweicloud.com/agentrun/ai-assistant:v1.0.0"
+        },
+        "commands": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "**参数解释**:\n启动镜像的命令。\n**取值范围**:\n最多 10 个元素,每个元素长度为 1 - 256 个字符。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "example": [
+            "python",
+            "main.py",
+            "--port=8080"
+          ]
+        },
+        "swr_instance_id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "**参数解释**:\nSWR企业版实例ID。\n**取值范围**:\n匹配标准的UUID格式。",
+          "example": "a8f6b2e1-2222-2222-2222-123456789012"
+        }
+      }
+    },
+    "CoreRunAuthorizingClaimMatchValue": {
+      "type": "object",
+      "description": "**参数解释**: \n自定义声明匹配配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "required": [
+        "claim_match_operator",
+        "claim_match_value"
+      ],
+      "properties": {
+        "claim_match_operator": {
+          "type": "string",
+          "description": "**参数解释**: \n定义声明字段值与要匹配的值之间的关系。\n- EQUALS: 表示完全匹配\n- CONTAINS: 表示包含匹配项\n- CONTAINS_ANY: 表示包含任意匹配项。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 1 - 12 个字符。允许的值:\n- EQUALS\n- CONTAINS\n- CONTAINS_ANY。\n**默认取值**:\n不涉及。",
+          "enum": [
+            "EQUALS",
+            "CONTAINS",
+            "CONTAINS_ANY"
+          ]
+        },
+        "claim_match_value": {
+          "$ref": "#/definitions/CoreRunClaimMatchValue"
+        }
+      }
+    },
+    "CoreRunFileTransferConfig": {
+      "type": "object",
+      "description": "**参数解释**:\n智能体运行时文件操作配置。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启文件上传/下载功能,默认为false。\n- 未开启,智能体运行时将不对外提供文件上传/下载的API接口。\n- 开启后,智能体运行时将提供文件上传/下载的API接口。\n**约束限制**:\n不涉及。\n**取值范围**:\n- true\n- false\n**默认值**:\nfalse",
+          "default": false,
+          "example": true
+        }
+      }
+    },
+    "CoreRunForbiddenError": {
+      "description": "**参数解释**:\n禁止访问(认证后权限不足)。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码。",
+          "enum": [
+            "AgentArts.03000403"
+          ],
+          "example": "AgentArts.03000403"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "**参数解释**:\n错误详细信息。",
+          "example": "无权访问该资源"
+        },
+        "coded_authorization_message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "description": "**参数解释**:\nIAM5 当OpenAPI无权限时报错信息。",
+          "example": "eyJlcnJvciI6ICJVbmF1dGhvcml6ZWQifQ=="
+        },
+        "details": {
+          "type": "array",
+          "description": "**参数解释**:\n依赖的下游服务错误信息列表。",
+          "minItems": 0,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/CoreRunErrorDetail"
+          }
+        }
+      }
+    },
+    "CoreRunVpcConfigResp": {
+      "type": "object",
+      "description": "**参数解释**:\nvpc网络配置。\n**取值范围**:\n不涉及。",
+      "required": [
+        "vpc_id",
+        "subnet_id"
+      ],
+      "properties": {
+        "vpc_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "description": "**参数解释**:\nVPC ID。\n**取值范围**:\n匹配标准的UUID格式。",
+          "example": "1a2ac6ec-c5ae-40f9-9677-bd73f37c0de5"
+        },
+        "subnet_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "description": "**参数解释**:\n子网ID。\n**取值范围**:\n匹配标准的UUID格式。",
+          "example": "2e79ba05-8e10-41f6-9650-00fea3ca24cc"
+        },
+        "security_group_ids": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "**参数解释**:\nVPC关联的安全组ID列表。\n**取值范围**:\n元素个数0-10个,每个安全组值的长度为 1 - 36 个字符。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 36,
+            "description": "**参数解释**:\nVPC关联的安全组ID。\n**取值范围**:\n匹配标准的UUID格式。"
+          },
+          "example": [
+            "a6f126ca-cb81-4323-9597-72eee3de4439"
+          ]
+        }
+      }
+    },
+    "CoreRunNetworkConfig": {
+      "$ref": "#/definitions/CoreRunOutboundNetwork"
+    },
+    "CoreRunTracingObservabilityConfigResp": {
+      "type": "object",
+      "description": "**参数解释**:\n调用链采集配置。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否开启调用链采集,默认为false。",
+          "default": false,
+          "example": true
+        },
+        "service_group": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "**参数解释**:\n调用链服务应用名。",
+          "example": "app-user"
+        }
+      }
+    },
+    "CoreRunSfsTurboStorageConfig": {
+      "type": "object",
+      "description": "**参数解释**:\nSFS Turbo挂载配置。",
+      "required": [
+        "sfs_turbo_id",
+        "mount_path"
+      ],
+      "properties": {
+        "sfs_turbo_id": {
+          "type": "string",
+          "format": "uuid",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "**参数解释**:\nSFS Turbo实例ID。",
+          "example": "a8f6b2e1-1111-1111-1111-123456789012"
+        },
+        "sfs_path": {
+          "type": "string",
+          "description": "**参数解释**:\nSFS Turbo存储的目录路径。",
+          "minLength": 0,
+          "maxLength": 4000,
+          "default": "/",
+          "example": "/shared/knowledge_base"
+        },
+        "mount_path": {
+          "type": "string",
+          "pattern": "^/.*",
+          "description": "**参数解释**:\n挂载到运行时的目录路径。",
+          "minLength": 2,
+          "maxLength": 4000,
+          "example": "/mnt/kb"
+        },
+        "read_only": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否以只读方式挂载。",
+          "default": false,
+          "example": false
+        }
+      }
+    },
+    "CoreRunTagItemResp": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "description": "**参数解释**:\n单个标签的数据结构。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "**参数解释**:\n标签键。"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "**参数解释**:\n标签值。"
+        }
+      }
+    },
+    "CoreRunEnvironmentVariable": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "description": "**参数解释**:\n单个环境变量配置。\n**取值范围**:\n不涉及。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-zA-Z](?!.*\\.\\.)[a-zA-Z0-9_-]*(?:\\.[a-zA-Z0-9_-]*)*$",
+          "description": "**参数解释**:\n环境变量键。\n**约束限制**:\n不涉及。\n**取值范围**:\n必须以字母开头,由英文字母、数字、下划线和点号组成,长度为 1 - 512 个字符。\n**默认取值**:\n不涉及。"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1048576,
+          "description": "**参数解释**:\n环境变量值。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为 0 - 1048576 个字符。\n**默认取值**:\n不涉及。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,286 @@
+{
+  "name": "ShowEdgeNodeHostsInfo",
+  "summary": "查询边缘节点下的主机详情",
+  "tags": "节点管理",
+  "productshort": "IoTEdge",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/{project_id}/edge-nodes/{edge_node_id}/hosts": {
+      "get": {
+        "tags": [
+          "BasicNode"
+        ],
+        "summary": "查询边缘节点下的主机详情",
+        "description": "查询边缘节点下的主机详情",
+        "operationId": "ShowEdgeNodeHostsInfo",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-externalAPI": true,
+        "x-iftype": "OpenAPI_new",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/edge_node_id"
+          }
+        ],
+        "x-returnType": "ResponseEntity<QueryEdgeNodeHostsResp>",
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/QueryEdgeNodeHostsResp"
+            }
+          },
+          "401": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IoTEdge.00000002"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "x-Error": [
+              "IoTEdge.00000001"
+            ]
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/edge-nodes/{edge_node_id}/hosts"
+      }
+    }
+  },
+  "definitions": {
+    "NpuUsedInfoDTO": {
+      "type": "object",
+      "description": "NPU设备使用详情",
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "description": "模块名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "user_npu_module"
+        },
+        "used_ai_core_num": {
+          "type": "integer",
+          "format": "int16",
+          "minimum": 1,
+          "maximum": 64,
+          "description": "模块使用AI核的个数",
+          "example": 2
+        },
+        "used_cpu_core_num": {
+          "type": "integer",
+          "format": "int16",
+          "minimum": 0,
+          "maximum": 64,
+          "description": "模块使用NPU芯片中的cpu核数",
+          "example": 2
+        }
+      }
+    },
+    "Nic": {
+      "type": "object",
+      "description": "网络网卡信息",
+      "properties": {
+        "eth": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 32,
+          "description": "网卡信息,如eth0,eth1"
+        },
+        "ip": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "网卡ip"
+        }
+      }
+    },
+    "HostInfoDTO": {
+      "type": "object",
+      "description": "主机信息",
+      "properties": {
+        "host_tag": {
+          "description": "主机标签DEFAULT|MASTER|SLAVE",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "host_status": {
+          "description": "主机工作状态(ONLINE|OFFLINE)",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "example": "ONLINE"
+        },
+        "os_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "边缘节点操作系统。例如:Ubuntu 20.04;CentOS 7.9。不同于os_type边缘节点系统类型。",
+          "example": "Euler 2.0"
+        },
+        "host_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "边缘节点主机名"
+        },
+        "container_version": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "容器运行时版本",
+          "example": "17.0.1"
+        },
+        "nics": {
+          "type": "array",
+          "maxItems": 10,
+          "minItems": 0,
+          "description": "边缘节点网络网卡信息",
+          "items": {
+            "$ref": "#/definitions/Nic"
+          }
+        },
+        "specification": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "网络规格,如4 cores | 3867 MB"
+        },
+        "npu_details": {
+          "type": "array",
+          "description": "NPU设备详细信息,包括硬件信息和使用情况。",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/definitions/NPUDetailsDTO"
+          }
+        }
+      }
+    },
+    "NPUDetailsDTO": {
+      "type": "object",
+      "description": "NPU设备信息",
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "description": "昇腾设备ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "davinci0"
+        },
+        "npu_type": {
+          "type": "string",
+          "pattern": "(D310|D310P|D910)",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "华为AI加速卡型号,如D310推理卡、D310P推理卡、D910训练卡。"
+        },
+        "product_name": {
+          "type": "string",
+          "description": "昇腾设备产品类型",
+          "example": "Atlas 300I Model 3010",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "ai_core": {
+          "type": "integer",
+          "format": "int16",
+          "description": "AI加速卡包含ai核个数",
+          "example": "2",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "health": {
+          "type": "string",
+          "description": "昇腾设备健康状态",
+          "example": "healthy",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "昇腾设备故障信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "used_info": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "description": "NPU使用信息",
+          "items": {
+            "$ref": "#/definitions/NpuUsedInfoDTO"
+          }
+        }
+      }
+    },
+    "QueryEdgeNodeHostsResp": {
+      "type": "object",
+      "description": "查询主机信息响应体",
+      "properties": {
+        "hosts": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "节点主机信息详情",
+          "items": {
+            "$ref": "#/definitions/HostInfoDTO"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。获取方法请参见 [获取项目ID](x-wc://file=zh-cn_topic_0225049489.xml)。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{1,32}$",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "minLength": 0,
+      "maxLength": 20000
+    },
+    "edge_node_id": {
+      "name": "edge_node_id",
+      "in": "path",
+      "description": "边缘节点ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-zA-Z0-9_-]*$",
+      "x-example": "446007715895193600"
+    }
+  },
+  "host": "iotedge-api.cn-north-4.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

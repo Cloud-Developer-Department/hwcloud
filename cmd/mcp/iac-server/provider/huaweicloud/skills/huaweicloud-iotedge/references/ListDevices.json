@@ -1,0 +1,247 @@
+{
+  "name": "ListDevices",
+  "summary": "查询设备列表",
+  "tags": "设备管理",
+  "productshort": "IoTEdge",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/{project_id}/edge-nodes/{edge_node_id}/devices": {
+      "get": {
+        "tags": [
+          "DeviceManager"
+        ],
+        "operationId": "ListDevices",
+        "description": "查询设备列表",
+        "summary": "查询设备列表",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-externalAPI": true,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/edge_node_id"
+          },
+          {
+            "name": "gateway_id",
+            "in": "query",
+            "description": "父设备ID,对应之前的gatewayId的概念,传该参数时代表查询网关下的子设备,不传代表查询网关直连设备",
+            "required": false,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "minLength": 0,
+            "maxLength": 256
+          },
+          {
+            "name": "device_name",
+            "in": "query",
+            "description": "设备名称",
+            "required": false,
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0,
+            "x-annotations": "@Pattern(regexp = \"^[\\\\一-\\\\龥a-zA-Z0-9_?'#()\\\\.,&%@!-]*$\")"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "查询的起始位置,取值范围为非负整数,默认为0",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int32",
+            "maximum": 1000000,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页记录数,默认值为10,取值区间为1-1000",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "format": "int32",
+            "maximum": 1000,
+            "minimum": 1
+          }
+        ],
+        "x-returnType": "ResponseEntity<QueryEdgeDevicesDto>",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "x-SuccessCode": true,
+            "examples": {
+              "application/json": {
+                "devices": [
+                  {
+                    "device_id": "string",
+                    "node_id": "string",
+                    "gateway_id": "string",
+                    "device_name": "string",
+                    "protocol_type": "string",
+                    "product_name": "string",
+                    "product_id": "string"
+                  }
+                ],
+                "count": "0,",
+                "page_info": {
+                  "offset": 1000000,
+                  "limit": 1000
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/QueryEdgeDevicesDto"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QueryEdgeDevicesDto": {
+      "type": "object",
+      "properties": {
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QueryDeviceSimplifyDto"
+          },
+          "description": "查询设备列表响应结构体",
+          "maxItems": 1000000,
+          "minItems": 0
+        },
+        "count": {
+          "type": "integer",
+          "description": "满足查询条件的记录总数。",
+          "format": "int64",
+          "maximum": 1000000,
+          "minimum": 0,
+          "example": 0
+        },
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageInfoDTO"
+        }
+      }
+    },
+    "PageInfoDTO": {
+      "title": "分页列表响应结构体",
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 1000000,
+          "minimum": 0,
+          "description": "页码"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 1000,
+          "minimum": 1,
+          "description": "每页记录数"
+        }
+      }
+    },
+    "QueryDeviceSimplifyDto": {
+      "type": "object",
+      "description": "设备信息",
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "description": "设备id",
+          "maxLength": 256,
+          "minLength": 0
+        },
+        "node_id": {
+          "type": "string",
+          "description": "设备识别码",
+          "maxLength": 64,
+          "minLength": 0
+        },
+        "gateway_id": {
+          "type": "string",
+          "description": "父设备id",
+          "maxLength": 256,
+          "minLength": 0
+        },
+        "device_name": {
+          "type": "string",
+          "description": "设备名称",
+          "maxLength": 256,
+          "minLength": 0
+        },
+        "protocol_type": {
+          "type": "string",
+          "description": "设备协议类型",
+          "minLength": 0,
+          "maxLength": 20
+        },
+        "product_name": {
+          "type": "string",
+          "description": "产品名称",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "product_id": {
+          "type": "string",
+          "description": "产品ID",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。获取方法请参见 [获取项目ID](x-wc://file=zh-cn_topic_0225049489.xml)。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{1,32}$",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "minLength": 0,
+      "maxLength": 20000
+    },
+    "edge_node_id": {
+      "name": "edge_node_id",
+      "in": "path",
+      "description": "边缘节点ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-zA-Z0-9_-]*$",
+      "x-example": "446007715895193600"
+    }
+  },
+  "host": "iotedge-api.cn-south-1.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

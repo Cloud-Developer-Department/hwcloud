@@ -1,0 +1,212 @@
+{
+  "name": "ImportGraph2",
+  "summary": "增量导入图",
+  "tags": "图管理API",
+  "productshort": "GES",
+  "region_id": "cn-north-2",
+  "paths": {
+    "/v2/{project_id}/graphs/{graph_id}/import-graph": {
+      "post": {
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "POST http://Endpoint/v2/{project_id}/graphs/{graph_id}/import-graph",
+        "x-request-examples-text-1": {
+          "edgeset_path": "testbucket/demo_movie/edges/",
+          "edgeset_format": "csv",
+          "vertexset_path": "testbucket/demo_movie/vertices/",
+          "vertexset_format": "csv",
+          "schema_path": "testbucket/demo_movie/incremental_data_schema.xml",
+          "log_dir": "testbucket/importlogdir",
+          "parallel_edge": {
+            "action": "override",
+            "ignore_label": true
+          },
+          "delimiter": ",",
+          "trim_quote": "\"",
+          "offline": false
+        },
+        "x-request-examples-1": {
+          "edgeset_path": "testbucket/demo_movie/edges/",
+          "edgeset_format": "csv",
+          "vertexset_path": "testbucket/demo_movie/vertices/",
+          "vertexset_format": "csv",
+          "schema_path": "testbucket/demo_movie/incremental_data_schema.xml",
+          "log_dir": "testbucket/importlogdir",
+          "parallel_edge": {
+            "action": "override",
+            "ignore_label": true
+          },
+          "delimiter": ",",
+          "trim_quote": "\"",
+          "offline": false
+        },
+        "x-is-registered": "Y",
+        "tags": [
+          "图管理API"
+        ],
+        "summary": "增量导入图",
+        "description": "增量导入图数据。\n> 为防止系统重启时,不能正常恢复导入图数据,建议在使用图期间,不要删除存储在OBS中的数据。",
+        "operationId": "ImportGraph2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/graph_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "ImportGraphReq",
+            "in": "body",
+            "required": false,
+            "description": "增量导入图请求体",
+            "schema": {
+              "$ref": "#/definitions/ImportGraphReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/ImportGraphResp"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "b4f2e9a0-0439-4edd-a3ad-199bb523b613"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_msg": "parameter format error",
+                "error_code": "GES.8013"
+              }
+            }
+          }
+        },
+        "x-order": 6
+      }
+    }
+  },
+  "definitions": {
+    "ImportGraphReq": {
+      "type": "object",
+      "description": "增量导入图请求体",
+      "properties": {
+        "edgeset_path": {
+          "type": "string",
+          "description": "边文件目录或边文件名。"
+        },
+        "edgeset_format": {
+          "type": "string",
+          "description": "边数据集格式。当前仅支持csv。\n\n默认为csv。"
+        },
+        "vertexset_path": {
+          "type": "string",
+          "description": "点文件目录或点文件名。"
+        },
+        "vertexset_format": {
+          "type": "string",
+          "description": "点数据集格式。当前仅支持csv。\n\n默认为csv。"
+        },
+        "schema_path": {
+          "type": "string",
+          "description": "新增数据的元数据文件路径。"
+        },
+        "log_dir": {
+          "type": "string",
+          "description": "导入图日志存放目录,用于存储导入失败的数据和详细错入原因。"
+        },
+        "parallel_edge": {
+          "description": "重复边处理。\n\n图规格为(一千亿边)的图暂不支持该参数。",
+          "properties": {
+            "action": {
+              "type": "string",
+              "description": "处理方式,取值为allow,ignore和override,默认为allow。\n\n- allow表示允许重复边。\n- ignore表示忽略之后的重复边。\n- override表示覆盖之前的重复边。\n图规格为(一千亿边)的图暂不支持该参数。"
+            },
+            "ignore_label": {
+              "type": "boolean",
+              "description": "重复边的定义,是否忽略Label。取值为true或者false,默认取true。\n\n- true 表示重复边定义不包含Label,即用<源点,终点>标记一条边,不包含Label。\n- false 表示重复边定义包含Label,即用<源点,终点,Label>标记一条边。\n图规格为(一千亿边)的图暂不支持该参数。"
+            },
+            "sort_key_column": {
+              "type": "string",
+              "description": "sortKey在边文件中的位置,当前仅支持\"lastColumn\",边文件中无sortKey时,不传此参数。"
+            }
+          }
+        },
+        "delimiter": {
+          "type": "string",
+          "description": "csv格式文件字段分隔符,默认值为逗号(,)。list/set类型的字段内元素分隔符默认为分号(;)。"
+        },
+        "trim_quote": {
+          "type": "string",
+          "description": "csv格式文件字段包围符,默认值为双引号(\")。用来包围一个字段,如字段中含有分隔符或者换行等。"
+        },
+        "offline": {
+          "type": "boolean",
+          "description": "是否离线导入,取值为true或者false,默认取false。\n\n- true 表示离线导入,导入速度较快,但导入过程中图处于锁定状态,不可读不可写。\n- false 表示在线导入,相对离线导入,在线导入速度略慢,但导入过程中图并未锁定,可读不可写。"
+        }
+      }
+    },
+    "ErrorResp": {
+      "type": "object",
+      "description": "错误响应体",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,字段可能为空。执行失败时,用于显示错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,字段可能为空。执行失败时,用于显示错误信息。"
+        }
+      }
+    },
+    "ImportGraphResp": {
+      "type": "object",
+      "description": "增量导入图响应体",
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "执行该异步任务的jobId。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "graph_id": {
+      "name": "graph_id",
+      "in": "path",
+      "required": true,
+      "description": "图ID。",
+      "type": "string"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目编号,用于资源隔离。",
+      "type": "string"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string"
+    }
+  },
+  "host": "ges.cn-north-2.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,208 @@
+{
+  "name": "ShowInstanceStatus",
+  "summary": "查询实例状态",
+  "tags": "裸机实例管理",
+  "productshort": "CloudDC",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v1/{project_id}/instances/{id}/status": {
+      "get": {
+        "tags": [
+          "裸机实例管理"
+        ],
+        "summary": "查询实例状态",
+        "description": "查询实例状态",
+        "operationId": "ShowInstanceStatus",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/InstanceID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "实例状态",
+            "schema": {
+              "$ref": "#/definitions/InstanceStatus"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "InstanceOperationStatus": {
+      "type": "string",
+      "enum": [
+        "install-processing",
+        "install-succeed",
+        "install-failed",
+        "reinstall-processing",
+        "reinstall-succeed",
+        "reinstall-failed",
+        "switch-install-processing",
+        "switch-install-succeed",
+        "switch-install-failed",
+        "modify-ip-processing",
+        "modify-ip-succeed",
+        "modify-ip-failed",
+        "uninstall-processing",
+        "uninstall-succeed",
+        "uninstall-failed"
+      ],
+      "minLength": 2,
+      "maxLength": 32,
+      "description": "**参数解释**: \n操作状态\n**约束限制**: \n不涉及\n**取值范围**: \n- install-processing: 安装OS中\n- install-succeed: 安装OS成功\n- install-failed: 安装OS失败\n- reinstall-processing: 重装OS中\n- reinstall-succeed: 重装OS成功\n- reinstall-failed: 重装OS失败\n- switch-install-processing: 切换OS中\n- switch-install-succeed: 切换OS成功\n- switch-install-failed: 切换OS失败\n- modify-ip-processing: 修改IP地址中\n- modify-ip-succeed: 修改IP地址成功\n- modify-ip-failed: 修改IP地址失败\n- uninstall-processing: 卸载OS中\n- uninstall-succeed: 卸载OS成功\n- uninstall-failed: 卸载OS失败\n\n**默认取值**: \n不涉及"
+    },
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "InstanceState": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "stopped",
+        "shutting-down",
+        "terminated",
+        "error"
+      ],
+      "minLength": 2,
+      "maxLength": 32,
+      "description": "**参数解释**:\n实例状态\n**约束限制**:\n不涉及\n**取值范围**:\n- pending:实例正在启动(分配资源/启动操作系统)\n- running:实例正常运行(可接受SSH/RDP连接)\n- stopped: 实例已完全关闭(存储卷保留)\n- shutting-down:实例正在终止(删除流程中)\n- terminated:实例已终止(资源完全删除,不可恢复)\n- error:实例处于异常状态(资源未完全删除)\n\n```mermaid\nstateDiagram-v2\n    [*] --> pending: CreateInstance\n    pending --> running: CreateInstance Succeed\n    pending --> shutting_down: DeleteInstance\n    running --> stopped: PowerOff/PowerReboot\n    stopped --> running: PowerOn/Provision Succeed\n    stopped --> stopped: ChangePassword\n    pending --> error: CreateInstance Failed\n    stopped --> error: Provision Failed\n    error --> running: Retry Provision Succeed\n    stopped --> shutting_down: DeleteInstance\n    error --> shutting_down: Retry DeleteInstance\n    shutting_down --> error: DeleteInstance Failed\n    shutting_down --> terminated: DeleteInstance Succeed\n```\n\n**默认取值**:\n不涉及"
+    },
+    "ErrorStatus": {
+      "description": "失败时返回的错误对象\n\ncreate_instance_error:创建实例失败\t \ndelete_instance_error:删除实例失败\nreinstall_error:重新安装OS失败\nmodify_ip_error:修改ip失败\t\nverify_server_error:验证服务器失败\t\ndelete_server_error:删除服务器失败",
+      "required": [
+        "error_code",
+        "error_msg",
+        "error_type"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        },
+        "error_type": {
+          "type": "string",
+          "description": "错误类型",
+          "enum": [
+            "create_instance_error",
+            "delete_instance_error",
+            "reinstall_error",
+            "modify_ip_error",
+            "verify_server_error",
+            "delete_server_error"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "InstanceStatus": {
+      "type": "object",
+      "description": "实例状态详情,包括实例错误信息",
+      "properties": {
+        "state": {
+          "$ref": "#/definitions/InstanceState"
+        },
+        "operation_state": {
+          "$ref": "#/definitions/InstanceOperationStatus"
+        },
+        "error": {
+          "$ref": "#/definitions/ErrorStatus"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "InstanceID": {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "imetal instance id",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

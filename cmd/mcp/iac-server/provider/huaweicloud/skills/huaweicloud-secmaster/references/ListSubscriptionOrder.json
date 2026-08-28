@@ -1,0 +1,557 @@
+{
+  "name": "ListSubscriptionOrder",
+  "summary": "查询租户订阅资源",
+  "tags": "计量计费管理",
+  "productshort": "SecMaster",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/subscriptions/orders": {
+      "get": {
+        "tags": [
+          "计量计费管理"
+        ],
+        "summary": "查询租户订阅资源",
+        "description": "查询租户版本信息,注意:目前其中参数purchase、usage、smn互斥,同时只能有一个请求参数被命中,优先级为:smn > usage > purchase",
+        "operationId": "ListSubscriptionOrder",
+        "consumes": [
+          "application/json;charset=utf-8"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户projectId",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。 通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 640000,
+            "minLength": 2
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "用户当前语言环境",
+            "required": true,
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 2
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "smn订阅偏移量",
+            "required": false,
+            "type": "integer",
+            "maximum": 1000000,
+            "minimum": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "smn订阅返回数量",
+            "required": false,
+            "type": "integer",
+            "maximum": 100,
+            "minimum": 1
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "订单资源详情信息枚举,DEFAULT:默认缺省值,获取开通的资源列表,不包含套餐包;PURCHASE:在DEFAULT基础上返回租户名下ECS数量;RESOURCE_LIST在DEFAULT基础上返回套餐包列表;USAGE:返回资源用量信息;SMN:返回已订阅的smn topic列表",
+            "required": false,
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 3,
+            "enum": [
+              "DEFAULT",
+              "PURCHASE",
+              "SMN",
+              "USAGE",
+              "RESOURCE_LIST"
+            ],
+            "x-example": "PURCHASE"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户历史订阅信息响应",
+            "examples": {
+              "application/json": {
+                "csb_version": "PROFESSIONAL",
+                "ecs_count": 12,
+                "resources": [
+                  {
+                    "resource_id": "c9528aa2-d593-11f0-a34e-fa163e798915",
+                    "resource_type": "xxx.resource.type.secmaster.typical",
+                    "resource_spec_code": "csb.professional",
+                    "resource_type_name": "SecMaster Professional",
+                    "resource_size": 2,
+                    "resource_status": 0,
+                    "order_id": "CS2510212051NLDL4",
+                    "cloud_service": "SecMaster,",
+                    "charging_mode": "PREPAID",
+                    "to_period": false,
+                    "create_time": 1765349400000,
+                    "update_time": 1765349400000,
+                    "expire_time": 1796885400000,
+                    "tag_list": [
+                      {
+                        "key": "dept",
+                        "value": "dev",
+                        "create_time": 1765349400000,
+                        "update_time": 1765349400000
+                      }
+                    ],
+                    "usages": [
+                      {
+                        "resource_type_name": "SecMaster Professional-Security Orchestration",
+                        "source_resource_spec_code": "csb.professional",
+                        "resource_spec_code": "soar.action",
+                        "source_type": "xxx.resource.type.csb.professional",
+                        "unit": "OPS",
+                        "quota": 100,
+                        "used_percent": 0.2,
+                        "used": 20,
+                        "free": 80
+                      }
+                    ]
+                  }
+                ],
+                "subscription_count": 1,
+                "subscriptions": [
+                  {
+                    "owner": "7bae9770eb3a47d3ba4759a88e4b748d",
+                    "endpoint": "maizhelun@xxx.com",
+                    "protocol": "email",
+                    "subscription_urn": "urn:smn:demo-region:7bae9770eb3a47d3ba4759a88e4b748d:test-topic-abc:d4b4f367adf9420abc03736391069934",
+                    "topic_urn": "urn:smn:demo-region:7bae9770eb3a47d3ba4759a88e4b748d:test-topic-abc",
+                    "status": 1
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SubscribeRecord"
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionErrorResp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-surpport-hcs": "N",
+        "x-surpport-apiexplorer": true,
+        "x-api-type": "open-api",
+        "x-sec-data-level": "L2",
+        "x-api-service-plane": "Management-plane",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{projectId}/subscriptions/orders",
+        "x-request-examples-description-1": "返回租户资源列表",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/{projectId}/subscriptions/orders?purchase=true",
+        "x-request-examples-description-2": "返回携带ECS数量的租户资源列表",
+        "x-request-examples-url-3": "GET https://{endpoint}/v1/{projectId}/subscriptions/orders?usage=true",
+        "x-request-examples-description-3": "返回租户资源用量列表"
+      }
+    }
+  },
+  "definitions": {
+    "SmnSubscription": {
+      "type": "object",
+      "required": [
+        "endpoint",
+        "owner",
+        "protocol",
+        "status",
+        "subscription_urn",
+        "topic_urn"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "example": "7bae9770eb3a47d3ba4759a88e4b748d",
+          "description": "租户project_id",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "endpoint": {
+          "type": "string",
+          "example": "maizhelun@xxx.com",
+          "description": "订阅终端",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "protocol": {
+          "type": "string",
+          "example": "email",
+          "description": "终端协议,比如HTTPS协议,SMS协议,EMAIL协议,HTTP协议",
+          "minLength": 2,
+          "maxLength": 32,
+          "enum": [
+            "HTTP",
+            "HTTPS",
+            "SMS",
+            "EMAIL"
+          ]
+        },
+        "subscription_urn": {
+          "type": "string",
+          "example": "urn:smn:demo-region:7bae9770eb3a47d3ba4759a88e4b748d:test-topic-abc:d4b4f367adf9420abc03736391069934",
+          "description": "smn订阅的urn",
+          "minLength": 10,
+          "maxLength": 256
+        },
+        "topic_urn": {
+          "type": "string",
+          "example": "urn:smn:demo-region:7bae9770eb3a47d3ba4759a88e4b748d:test-topic-abc",
+          "description": "订阅topic对应的urn",
+          "minLength": 10,
+          "maxLength": 256
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "订阅状态\n0:未确认\n1:已确认\n2:不需要确认\n3:已取消确认\n4:已经删除。",
+          "minimum": 0,
+          "maximum": 4,
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      },
+      "description": "租户smn订阅信息"
+    },
+    "ResourceUsage": {
+      "type": "object",
+      "properties": {
+        "unit": {
+          "type": "string",
+          "example": "OPS",
+          "description": "使用量单位,OPS 次,MB 流量体积MB,GB 流量体积GB",
+          "minLength": 2,
+          "maxLength": 32,
+          "enum": [
+            "OPS",
+            "MB",
+            "GB"
+          ]
+        },
+        "resource_type_name": {
+          "type": "string",
+          "example": "SecMaster Professional-Security Orchestration",
+          "description": "资源类型名称",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "source_resource_spec_code": {
+          "type": "string",
+          "example": "csb.professional",
+          "description": "源资源规格编码",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "resource_spec_code": {
+          "type": "string",
+          "example": "soar.action",
+          "description": "源资源规格编码",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "source_type": {
+          "type": "string",
+          "example": "xxx.resource.type.csb.professional",
+          "description": "源资源类型编码",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "used_percent": {
+          "type": "number",
+          "format": "double",
+          "example": 0.2,
+          "description": "用量百分比",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "quota": {
+          "type": "number",
+          "format": "double",
+          "example": 100.0,
+          "description": "配额总量",
+          "minimum": 0,
+          "maximum": 200000000
+        },
+        "used": {
+          "type": "number",
+          "format": "double",
+          "example": 20.0,
+          "description": "已用量",
+          "minimum": 0,
+          "maximum": 200000000
+        },
+        "free": {
+          "type": "number",
+          "format": "double",
+          "example": 80.0,
+          "description": "剩余量",
+          "minimum": 0,
+          "maximum": 200000000
+        }
+      },
+      "description": "资源用量,当接口请求参数usage=true时会返回具体的使用量信息,其它场景不返回"
+    },
+    "SubscriptionTagInfo": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "dept",
+          "description": "键。\n最大长度36个字符。 字符集:A-Z,a-z , 0-9,‘-’,‘_’,UNICODE字符(\\一-\\鿿)",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "value": {
+          "type": "string",
+          "example": "dev",
+          "description": "值。 最大长度43个字符,可以为空字符串。 字符集:A-Z,a-z , 0-9,‘.’,‘-’,‘_’,UNICODE字符(\\一-\\鿿)",
+          "minLength": 0,
+          "maxLength": 43
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1704038400000,
+          "description": "创建时间戳",
+          "minimum": 1672502400000,
+          "maximum": 3000000000000
+        },
+        "update_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1704038400000,
+          "description": "更新时间戳",
+          "minimum": 1672502400000,
+          "maximum": 3000000000000
+        }
+      }
+    },
+    "SubscribeRecord": {
+      "type": "object",
+      "properties": {
+        "csb_version": {
+          "type": "string",
+          "example": "PROFESSIONAL",
+          "description": "租户当前的版本信息 BASIC(基础版),STANDARD(标准版),PROFESSIONAL(专业版),NA(无版本),大小写不敏感",
+          "minLength": 2,
+          "maxLength": 64,
+          "enum": [
+            "BASIC",
+            "STANDARD",
+            "PROFESSIONAL",
+            "NA"
+          ]
+        },
+        "ecs_count": {
+          "type": "integer",
+          "example": 12,
+          "description": "ecs个数,当请求参数purchase=true时才会返回该值,否则为0",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "resources": {
+          "type": "array",
+          "description": "资源列表",
+          "items": {
+            "$ref": "#/definitions/SubscriptionResource"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "subscription_count": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "topic订阅条数,当请求参数为smn=true,返回该字段",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "subscriptions": {
+          "type": "array",
+          "description": "租户订阅信息,当请求参数为smn=true,会返回租户名下可订阅的smn topic列表",
+          "items": {
+            "$ref": "#/definitions/SmnSubscription"
+          },
+          "maxItems": 1000,
+          "minItems": 1
+        }
+      },
+      "description": "用户历史订阅信息响应"
+    },
+    "SubscriptionResource": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "example": "c9528aa2-d593-11f0-a34e-fa163e798915",
+          "description": "资源Id",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "resource_type_name": {
+          "type": "string",
+          "example": "SecMaster Professional",
+          "description": "资源名称",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "resource_size": {
+          "type": "integer",
+          "format": "int32",
+          "example": 2,
+          "description": "资源规格",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "cloud_service": {
+          "type": "string",
+          "example": "SecMaster",
+          "description": "订单来源,默认数据为SecMaster",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "resource_type": {
+          "type": "string",
+          "example": "xxx.resource.type.secmaster.typical",
+          "description": "资源类型",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "resource_spec_code": {
+          "type": "string",
+          "example": "secmaster.professional",
+          "description": "资源规格编码",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "to_period": {
+          "type": "boolean",
+          "example": false,
+          "description": "当前资源是否能进行按需转包周期操作"
+        },
+        "create_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1765349400000,
+          "description": "创建时间戳",
+          "minimum": 1640966400000,
+          "maximum": 4796640000000
+        },
+        "update_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1796885400000,
+          "description": "更新时间戳",
+          "minimum": 1640966400000,
+          "maximum": 4796640000000
+        },
+        "expire_time": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1796885400000,
+          "description": "到期时间戳,只有包年包月资源才有该字段",
+          "minimum": 1640966400000,
+          "maximum": 4796640000000
+        },
+        "resource_status": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "资源状态,目前返回正常运行的资源,其状态值为0",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "order_id": {
+          "type": "string",
+          "example": "CS2510212051NLDL4",
+          "description": "订单Id,包周期资源有该字段",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "charging_mode": {
+          "type": "string",
+          "example": "PREPAID",
+          "description": "计费模式,目前有包周期(包年包月)PREPAID、按需POSTPAID,大小写不敏感",
+          "minLength": 2,
+          "maxLength": 64,
+          "enum": [
+            "PREPAID",
+            "POSTPAID"
+          ]
+        },
+        "tag_list": {
+          "type": "array",
+          "description": "资源列表",
+          "items": {
+            "$ref": "#/definitions/SubscriptionTagInfo"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "usages": {
+          "type": "array",
+          "description": "资源使用量,当usage=true时返回该字段",
+          "items": {
+            "$ref": "#/definitions/ResourceUsage"
+          },
+          "maxItems": 20,
+          "minItems": 0
+        }
+      },
+      "description": "租户资源类"
+    },
+    "SubscriptionErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "SecMaster.20040001",
+          "description": "**参数解释**:\n错误码\n**取值范围**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Parameter error.",
+          "description": "**参数解释**:\n错误描述\n**取值范围**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "description": "请求失败错误响应体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "secmaster.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

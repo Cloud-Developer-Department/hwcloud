@@ -1,0 +1,792 @@
+{
+  "name": "ShowFunctionConfig",
+  "summary": "获取函数的metadata",
+  "tags": "函数生命周期管理",
+  "productshort": "FunctionGraph",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/fgs/functions/{function_urn}/config": {
+      "get": {
+        "tags": [
+          "函数生命周期管理"
+        ],
+        "summary": "获取函数的metadata",
+        "description": "获取指定函数的metadata。",
+        "operationId": "ShowFunctionConfig",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/function_urn"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Content-Type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "func_id": "0d075978-5a54-4ee1-8e24-ff5bd070xxxx",
+                "resource_id": "0d075978-5a54-4ee1-8e24-ff5bd070xxxx:test",
+                "func_urn": "urn:fss:xxxxxxxxxx:7aad83af3e8d42e99ac194e8419e2c9b:function:default:test:latest",
+                "func_name": "test",
+                "domain_id": "14ee2e3501124efcbca7998baa24xxxx",
+                "namespace": "46b6f338fc3445b8846c71dfb1fbxxxx",
+                "project_name": "xxxxxxxxx",
+                "package": "default",
+                "runtime": "Node.js6.10",
+                "timeout": 3,
+                "handler": "test.handler",
+                "memory_size": 128,
+                "cpu": 300,
+                "code_type": "inline",
+                "code_filename": "index.js",
+                "code_size": 272,
+                "digest": "faa825575c45437cddd4e369bea69893bcbe195d478178462ad90984fe72993f3f59d15f41c5373f807f3e05fb9af322c55dabeb16565c386e402413458e6068",
+                "version": "latest",
+                "image_name": "latest-191025153727@zehht",
+                "last_modified_utc": 1571989047,
+                "last_modified": "2019-10-25T15:37:27+08:00",
+                "func_code": {},
+                "strategy_config": {
+                  "concurrency": 0
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowFunctionConfigResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request 请求错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "401": {
+            "description": "Unauthorized 鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "403": {
+            "description": "Forbidden 没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "404": {
+            "description": "Not Found 找不到资源。",
+            "examples": {
+              "application/json": {
+                "error_code": "FSS.1051",
+                "error_msg": "Not found the function"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error 服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询指定函数metadata。",
+        "x-request-examples-url-1": "GET https://{Endpoint}/v2/{project_id}/fgs/functions/{function_urn}/config",
+        "x-support-sdk": "Y",
+        "x-produc-type": "functiongraph"
+      }
+    }
+  },
+  "definitions": {
+    "MountUser": {
+      "required": [
+        "user_group_id",
+        "user_id"
+      ],
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "description": "用户ID(-1~65534的非0整数)"
+        },
+        "user_group_id": {
+          "type": "integer",
+          "description": "用户组ID(-1~65534的非0整数)"
+        }
+      },
+      "description": "挂载用户信息。"
+    },
+    "StrategyConfig": {
+      "required": [
+        "concurrency",
+        "concurrent_num"
+      ],
+      "properties": {
+        "concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "description": "单函数最大实例数,v1取值0和-1,v2取值-1到1000\n-1代表该函数实例数无限制\n0代表该函数被禁用"
+        },
+        "concurrent_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "单实例并发数,v2版本才支持,取值1到1000"
+        }
+      },
+      "description": "函数策略配置。"
+    },
+    "ErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    },
+    "FuncVpc": {
+      "required": [
+        "subnet_id",
+        "vpc_id"
+      ],
+      "properties": {
+        "domain_id": {
+          "type": "string",
+          "description": "域名id。"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "租户的project id。"
+        },
+        "vpc_name": {
+          "type": "string",
+          "description": "虚拟私有云名称。"
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "虚拟私有云唯一标识。"
+        },
+        "subnet_name": {
+          "type": "string",
+          "description": "子网名称。"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "子网编号。"
+        },
+        "cidr": {
+          "type": "string",
+          "description": "子网掩码。"
+        },
+        "gateway": {
+          "type": "string",
+          "description": "网关。"
+        },
+        "security_groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "安全组"
+        },
+        "is_safety": {
+          "type": "boolean",
+          "description": "是否开启安全访问。开启时,需要您自行配置VPCEP网络但可以提供更安全的VPC连接访问并打通内网域名。注意:开启后无法关闭。"
+        }
+      },
+      "description": "函数vpc配置。需同时为函数配置具有vpc权限的委托。"
+    },
+    "ShowFunctionConfigResponseBody": {
+      "required": [
+        "code_size",
+        "code_type",
+        "cpu",
+        "digest",
+        "domain_id",
+        "func_name",
+        "func_urn",
+        "handler",
+        "image_name",
+        "last_modified",
+        "memory_size",
+        "namespace",
+        "package",
+        "project_name",
+        "runtime",
+        "timeout",
+        "version"
+      ],
+      "properties": {
+        "func_id": {
+          "type": "string",
+          "description": "函数id,唯一标识函数。"
+        },
+        "resource_id": {
+          "type": "string",
+          "description": "资源id。"
+        },
+        "func_urn": {
+          "type": "string",
+          "description": "函数的URN(Uniform Resource Name),唯一标识函数。"
+        },
+        "func_name": {
+          "type": "string",
+          "description": "函数名称。"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "域名id。"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "租户的project id。"
+        },
+        "project_name": {
+          "type": "string",
+          "description": "租户的project name。"
+        },
+        "package": {
+          "type": "string",
+          "description": "函数所属的分组Package,用于用户针对函数的自定义分组。"
+        },
+        "runtime": {
+          "type": "string",
+          "description": "FunctionGraph函数的执行环境\nJava8: Java语言8版本。\nJava11: Java语言11版本。\nJava17: Java语言17版本(当前仅支持华北-乌兰察布二零二)\nPython2.7: Python语言2.7版本。\nPython3.6: Pyton语言3.6版本。\nPython3.9: Python语言3.9版本。\nPython3.10: Python语言3.10版本。\nGo1.8: Go语言1.8版本。\nGo1.x: Go语言1.x版本。\nNode.js6.10: Nodejs语言6.10版本。\nNode.js8.10: Nodejs语言8.10版本。\nNode.js10.16: Nodejs语言10.16版本。\nNode.js12.13: Nodejs语言12.13版本。\nNode.js14.18: Nodejs语言14.18版本。\nNode.js16.17: Nodejs语言16.17版本。\nNode.js18.15: Nodejs语言18.15版本。\nC#(.NET Core 2.0): C#语言2.0版本。\nC#(.NET Core 2.1): C#语言2.1版本。\nC#(.NET Core 3.1): C#语言3.1版本。\nC#(.NET Core 6.0): C#语言6.0版本(当前仅支持华北-乌兰察布二零二)。\nCustom: 自定义运行时。\nPHP7.3: Php语言7.3版本。\nPHP8.3: Php语言8.3版本。\nCangjie1.0:仓颉语言1.0版本。\nhttp: HTTP函数。\nCustom Image: 自定义镜像函数。",
+          "enum": [
+            "Java8",
+            "Java11",
+            "Java17",
+            "Python2.7",
+            "Python3.6",
+            "Python3.9",
+            "Python3.10",
+            "Go1.8",
+            "Go1.x",
+            "Node.js6.10",
+            "Node.js8.10",
+            "Node.js10.16",
+            "Node.js12.13",
+            "Node.js14.18",
+            "Node.js16.17",
+            "Node.js18.15",
+            "C#(.NET Core 2.0)",
+            "C#(.NET Core 2.1)",
+            "C#(.NET Core 3.1)",
+            "C#(.NET Core 6.0)",
+            "Custom",
+            "PHP7.3",
+            "PHP8.3",
+            "Cangjie1.0",
+            "http",
+            "Custom Image"
+          ]
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "函数执行超时时间,超时函数将被强行停止,范围3~259200秒。"
+        },
+        "handler": {
+          "type": "string",
+          "description": "函数执行入口\n规则:xx.xx,必须包含“. ”\n举例:对于node.js函数:myfunction.handler,则表示函数的文件名为myfunction.js,执行的入口函数名为handler。"
+        },
+        "memory_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "函数消耗的内存。\n单位M。\n取值范围为:128、256、512、768、1024、1280、1536、1792、2048、2560、3072、3584、4096。\n最小值为128,最大值为4096。"
+        },
+        "gpu_memory": {
+          "type": "integer",
+          "format": "int32",
+          "description": "函数消耗的显存,只支持自定义运行时与自定义镜像函数配置GPU。\n单位MB。\n取值范围为:1024、2048、3072、4096、5120、6144、7168、8192、9216、10240、11264、12288、13312、14336、15360、16384。\n最小值为1024,最大值为16384。"
+        },
+        "gpu_type": {
+          "type": "string",
+          "description": "显卡类型。",
+          "example": "nvidia-a30"
+        },
+        "cpu": {
+          "type": "integer",
+          "format": "int32",
+          "description": "函数占用的cpu资源。\n单位为millicore(1 core=1000 millicores)。\n取值与MemorySize成比例,默认是128M内存占0.1个核(100 millicores)。"
+        },
+        "code_type": {
+          "type": "string",
+          "description": "函数代码类型,取值有5种。\ninline: UI在线编辑代码。\nzip: 函数代码为zip包。\nobs: 函数代码来源于obs存储。\njar: 函数代码为jar包,主要针对Java函数。\nCustom-Image-Swr: 函数代码来源与SWR自定义镜像。",
+          "enum": [
+            "inline",
+            "zip",
+            "obs",
+            "jar",
+            "Custom-Image-Swr"
+          ]
+        },
+        "code_url": {
+          "type": "string",
+          "description": "当CodeType为obs时,该值为函数代码包在OBS上的地址,CodeType为其他值时,该字段为空。"
+        },
+        "code_filename": {
+          "type": "string",
+          "description": "函数的文件名,当CodeType为jar/zip时必须提供该字段,inline和obs不需要提供。"
+        },
+        "code_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "函数大小,单位:字节。"
+        },
+        "user_data": {
+          "type": "string",
+          "description": "用户自定义的name/value信息。 在函数中使用的参数。 举例:如函数要访问某个主机,可以设置自定义参数:Host={host_ip},最多定义20个,总长度不超过4KB。",
+          "example": "{\"host\":\"192.168.0.1\"}"
+        },
+        "encrypted_user_data": {
+          "type": "string",
+          "description": "用户自定义的name/value信息,用于需要加密的配置。"
+        },
+        "digest": {
+          "type": "string",
+          "description": "函数代码SHA512 hash值,用于判断函数是否变化。"
+        },
+        "version": {
+          "type": "string",
+          "description": "函数版本号,由系统自动生成,规则:vYYYYMMDD-HHMMSS(v+年月日-时分秒)。"
+        },
+        "image_name": {
+          "type": "string",
+          "description": "函数版本的内部标识。"
+        },
+        "xrole": {
+          "type": "string",
+          "description": "函数配置委托。需要IAM支持,并在IAM界面创建委托,当函数需要访问其他服务时,必须提供该字段。配置后用户可以通过函数执行入口方法中的context参数获取具有委托中权限的token、ak、sk,用于访问其他云服务。如果用户函数不访问任何云服务,则不用提供委托名称。"
+        },
+        "app_xrole": {
+          "type": "string",
+          "description": "函数执行委托。可为函数执行单独配置执行委托,这将减小不必要的性能损耗;不单独配置执行委托时,函数执行和函数配置将使用同一委托。"
+        },
+        "description": {
+          "type": "string",
+          "description": "函数描述。"
+        },
+        "last_modified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "函数最后一次更新时间。"
+        },
+        "ephemeral_storage": {
+          "type": "integer",
+          "description": "临时存储大小。默认情况下会为函数的/tmp目录分配512MB的空间。您可以通过临时存储设置将函数的/tmp目录大小调整为10G。",
+          "enum": [
+            512,
+            10240
+          ]
+        },
+        "func_vpc": {
+          "$ref": "#/definitions/FuncVpc"
+        },
+        "peering_cidr": {
+          "type": "string",
+          "description": "VPC对等连接网段。您可以声明代码中使用到的VPC网段,用以检测是否与服务使用VPC网段冲突。网段间使用分号分隔且不能超过5个。"
+        },
+        "mount_config": {
+          "$ref": "#/definitions/MountConfig"
+        },
+        "depend_list": {
+          "type": "array",
+          "description": "依赖id列表",
+          "items": {
+            "type": "string"
+          }
+        },
+        "depend_version_list": {
+          "type": "array",
+          "description": "依赖版本id列表",
+          "items": {
+            "type": "string"
+          }
+        },
+        "strategy_config": {
+          "$ref": "#/definitions/StrategyConfig"
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "函数依赖代码包列表。",
+          "items": {
+            "$ref": "#/definitions/Dependency"
+          }
+        },
+        "initializer_handler": {
+          "type": "string",
+          "description": "函数初始化入口,规则:xx.xx,必须包含“. ”。当配置初始化函数时,此参数必填。\n举例:对于node.js函数:myfunction.initializer,则表示函数的文件名为myfunction.js,初始化的入口函数名为initializer。"
+        },
+        "initializer_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "初始化超时时间,超时函数将被强行停止,范围1~300秒。当配置初始化函数时,此参数必填。"
+        },
+        "pre_stop_handler": {
+          "type": "string",
+          "description": "函数预停止函数的入口,规则:xx.xx,必须包含“. ”。\n举例:对于node.js函数:myfunction.pre_stop_handler,则表示函数的文件名为myfunction.js,初始化的入口函数名为pre_stop_handler。"
+        },
+        "pre_stop_timeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "初始化超时时间,超时函数将被强行停止,范围1~90秒。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID,在企业用户创建函数时必填。"
+        },
+        "long_time": {
+          "type": "boolean",
+          "description": "是否允许进行长时间超时设置。"
+        },
+        "log_group_id": {
+          "type": "string",
+          "description": "自定义日志查询组id"
+        },
+        "log_stream_id": {
+          "type": "string",
+          "description": "自定义日志查询流id"
+        },
+        "type": {
+          "type": "string",
+          "description": "v2表示为正式版本,v1为废弃版本。",
+          "enum": [
+            "v1",
+            "v2"
+          ]
+        },
+        "enable_cloud_debug": {
+          "type": "string",
+          "description": "适配CloudDebug场景,是否开启云调试(已废弃)"
+        },
+        "enable_dynamic_memory": {
+          "type": "boolean",
+          "description": "是否允许动态内存配置"
+        },
+        "is_stateful_function": {
+          "type": "boolean",
+          "description": "是否支持有状态,如果需要支持,需要固定传参为true,v2版本支持"
+        },
+        "is_bridge_function": {
+          "type": "boolean",
+          "description": "是否为bridge函数"
+        },
+        "enable_auth_in_header": {
+          "type": "boolean",
+          "description": "是否允许在请求头中添加鉴权信息,只支持自定义镜像函数"
+        },
+        "custom_image": {
+          "$ref": "#/definitions/CustomImage"
+        },
+        "reserved_instance_idle_mode": {
+          "type": "boolean",
+          "description": "是否开启预留实例闲置模式"
+        },
+        "apig_route_enable": {
+          "type": "boolean",
+          "description": "是否配置下沉apig路由规则。",
+          "example": true
+        },
+        "heartbeat_handler": {
+          "type": "string",
+          "description": "心跳函数函数的入口,规则:xx.xx,必须包含“. ”,只支持JAVA运行时配置。\n心跳函数入口需要与函数执行入口在同一文件下。在开启心跳函数配置时,此参数必填。"
+        },
+        "enable_class_isolation": {
+          "type": "boolean",
+          "description": "类隔离开关,只支持JAVA运行时配置。开启类隔离后可以支持Kafka转储并提升类加载效率,但也可能会导致某些兼容性问题,请谨慎开启。",
+          "example": true
+        },
+        "allow_ephemeral_storage": {
+          "type": "boolean",
+          "description": "是否支持配置临时存储。"
+        },
+        "network_controller": {
+          "$ref": "#/definitions/NetworkControlConfig"
+        },
+        "is_return_stream": {
+          "type": "boolean",
+          "description": "是否返回流式数据(已废弃)"
+        },
+        "enable_lts_log": {
+          "type": "boolean",
+          "description": "是否开启日志。"
+        },
+        "lts_custom_tag": {
+          "type": "object",
+          "description": "自定义日志标签。函数执行时,可以按照自定义标签配置上报标签到云日志服务(LTS),用户可以通过标签对日志进行过滤筛选。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "user_data_encrypt_kms_key_id": {
+          "type": "string",
+          "description": "用于环境变量加密的kms主秘钥ID。"
+        },
+        "code_encrypt_kms_key_id": {
+          "type": "string",
+          "description": "用于用户代码加密的kms主秘钥ID。"
+        }
+      }
+    },
+    "VpcConfig": {
+      "properties": {
+        "vpc_name": {
+          "type": "string",
+          "description": "vpc名称。"
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "vpc ID。"
+        }
+      },
+      "description": "vpc信息。"
+    },
+    "CustomImage": {
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用"
+        },
+        "image": {
+          "type": "string",
+          "description": "镜像地址"
+        },
+        "command": {
+          "type": "string",
+          "description": "启动容器镜像的命令"
+        },
+        "args": {
+          "type": "string",
+          "description": "启动容器镜像的命令行参数"
+        },
+        "working_dir": {
+          "type": "string",
+          "description": "镜像容器工作目录"
+        },
+        "uid": {
+          "type": "string",
+          "description": "镜像容器的用户id"
+        },
+        "gid": {
+          "type": "string",
+          "description": "镜像容器的用户组id"
+        },
+        "is_public": {
+          "type": "boolean",
+          "description": "是否是公共镜像"
+        }
+      },
+      "description": "用户容器镜像。"
+    },
+    "MountConfig": {
+      "required": [
+        "func_mounts",
+        "mount_user"
+      ],
+      "properties": {
+        "mount_user": {
+          "$ref": "#/definitions/MountUser"
+        },
+        "func_mounts": {
+          "type": "array",
+          "description": "函数挂载列表。",
+          "items": {
+            "$ref": "#/definitions/FuncMount"
+          }
+        }
+      },
+      "description": "函数挂载配置。"
+    },
+    "FuncMount": {
+      "required": [
+        "local_mount_path",
+        "mount_resource",
+        "mount_type"
+      ],
+      "properties": {
+        "mount_type": {
+          "type": "string",
+          "description": "挂载类型(sfs/sfsTurbo/ecs),func_mounts非空时必选。"
+        },
+        "mount_resource": {
+          "type": "string",
+          "description": "挂载资源ID(对应云服务ID),func_mounts非空时必选。"
+        },
+        "mount_share_path": {
+          "type": "string",
+          "description": "远端挂载路径(例如192.168.0.12:/data),如果mount_type为ecs,必选。"
+        },
+        "local_mount_path": {
+          "type": "string",
+          "description": "函数访问路径,func_mounts非空时必选。"
+        }
+      },
+      "description": "函数挂载结构体。"
+    },
+    "NetworkControlConfig": {
+      "properties": {
+        "disable_public_network": {
+          "type": "boolean",
+          "description": "禁止公网访问开关。"
+        },
+        "trigger_access_vpcs": {
+          "description": "指定触发函数vpc配置。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VpcConfig"
+          }
+        }
+      },
+      "description": "函数网络配置。"
+    },
+    "Dependency": {
+      "required": [
+        "description",
+        "etag",
+        "link",
+        "name",
+        "owner",
+        "runtime",
+        "size"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "依赖包版本ID。",
+          "example": "6578de50-9a18-48fa-b84e-b2d36636e433"
+        },
+        "owner": {
+          "type": "string",
+          "description": "依赖包属主的domainId。"
+        },
+        "link": {
+          "type": "string",
+          "description": "依赖包在OBS上的链接。"
+        },
+        "runtime": {
+          "type": "string",
+          "description": "FunctionGraph函数的执行环境\nJava8: Java语言8版本。\nJava11: Java语言11版本。\nJava17: Java语言17版本(当前仅支持华北-乌兰察布二零二)\nPython2.7: Python语言2.7版本。\nPython3.6: Pyton语言3.6版本。\nPython3.9: Python语言3.9版本。\nPython3.10: Python语言3.10版本。\nGo1.8: Go语言1.8版本。\nGo1.x: Go语言1.x版本。\nNode.js6.10: Nodejs语言6.10版本。\nNode.js8.10: Nodejs语言8.10版本。\nNode.js10.16: Nodejs语言10.16版本。\nNode.js12.13: Nodejs语言12.13版本。\nNode.js14.18: Nodejs语言14.18版本。\nNode.js16.17: Nodejs语言16.17版本。\nNode.js18.15: Nodejs语言18.15版本。\nC#(.NET Core 2.0): C#语言2.0版本。\nC#(.NET Core 2.1): C#语言2.1版本。\nC#(.NET Core 3.1): C#语言3.1版本。\nC#(.NET Core 6.0): C#语言6.0版本(当前仅支持华北-乌兰察布二零二)。\nCustom: 自定义运行时。\nPHP7.3: Php语言7.3版本。\nPHP8.3: Php语言8.3版本。\nCangjie1.0:仓颉语言1.0版本。\nhttp: HTTP函数。\nCustom Image: 自定义镜像函数。",
+          "enum": [
+            "Java8",
+            "Java11",
+            "Java17",
+            "Python2.7",
+            "Python3.6",
+            "Python3.9",
+            "Python3.10",
+            "Go1.8",
+            "Go1.x",
+            "Node.js6.10",
+            "Node.js8.10",
+            "Node.js10.16",
+            "Node.js12.13",
+            "Node.js14.18",
+            "Node.js16.17",
+            "Node.js18.15",
+            "C#(.NET Core 2.0)",
+            "C#(.NET Core 2.1)",
+            "C#(.NET Core 3.1)",
+            "C#(.NET Core 6.0)",
+            "Custom",
+            "PHP7.3",
+            "PHP8.3",
+            "Cangjie1.0",
+            "http",
+            "Custom Image"
+          ]
+        },
+        "etag": {
+          "type": "string",
+          "description": "依赖包的md5值"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "依赖包大小。"
+        },
+        "name": {
+          "type": "string",
+          "description": "依赖包名称。"
+        },
+        "description": {
+          "type": "string",
+          "description": "依赖包描述。"
+        },
+        "file_name": {
+          "type": "string",
+          "description": "依赖包文件名,如果创建方式为zip时。"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int64",
+          "description": "依赖包版本编号。"
+        },
+        "dep_id": {
+          "type": "string",
+          "description": "依赖包ID",
+          "example": "3cf4xxxx-xxxx-xxxx-xxxx-823f0dxxxxxx"
+        },
+        "last_modified": {
+          "type": "integer",
+          "format": "int64",
+          "description": "依赖包最后一次更新时间。"
+        }
+      },
+      "description": "函数依赖包结构。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Content-Type": {
+      "in": "header",
+      "name": "Content-Type",
+      "type": "string",
+      "required": true,
+      "x-example": "application/json",
+      "default": "application/json",
+      "description": "消息体的类型(格式)"
+    },
+    "project_id": {
+      "in": "path",
+      "name": "project_id",
+      "required": true,
+      "type": "string",
+      "x-example": "46b6f338fc3445b8846c71dfb1fbd9e8",
+      "description": "租户项目 ID,获取方式请参见[获取项目ID](functiongraph_06_0260.xml)。"
+    },
+    "function_urn": {
+      "in": "path",
+      "name": "function_urn",
+      "required": true,
+      "type": "string",
+      "x-example": "urn:fss:{region}:46b6f338fc3445b8846c71dfb1fbxxxx:function:csharp:test2-0:latest",
+      "description": "函数的URN,详细解释见FunctionGraph函数模型的描述。"
+    },
+    "X-Auth-Token": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。"
+    }
+  },
+  "host": "functiongraph.ae-ad-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

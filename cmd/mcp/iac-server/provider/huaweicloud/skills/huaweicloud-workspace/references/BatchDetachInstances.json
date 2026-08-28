@@ -1,0 +1,321 @@
+{
+  "name": "BatchDetachInstances",
+  "summary": "批量解绑用户",
+  "tags": "桌面",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktops/batch-detach": {
+      "post": {
+        "tags": [
+          "Desktop"
+        ],
+        "summary": "批量解绑用户",
+        "description": "批量将桌面和用户解绑。",
+        "operationId": "BatchDetachInstances",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "BatchDetachInstancesRequestBody",
+            "description": "解绑用户的请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchDetachInstancesReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常。",
+            "examples": {
+              "application/json": {
+                "failed_operation_list": [],
+                "job_id": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchActionDesktopsRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "409": {
+            "description": "操作冲突。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST /v2/0bec5db98280d2d02fd6c00c2de791ce/desktops/batch-detach",
+        "x-request-examples-1": {
+          "desktops": [
+            {
+              "desktop_id": "string",
+              "is_detach_all_users": "false",
+              "detach_user_infos": [
+                {
+                  "user_id": "string",
+                  "user_name": "string",
+                  "user_group": "string",
+                  "type": "USER"
+                }
+              ]
+            }
+          ]
+        },
+        "x-request-examples-text-1": {
+          "desktops": [
+            {
+              "desktop_id": "string",
+              "is_detach_all_users": "false",
+              "detach_user_infos": [
+                {
+                  "user_id": "string",
+                  "user_name": "string",
+                  "user_group": "string",
+                  "type": "USER"
+                }
+              ]
+            }
+          ]
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-support-hcs": "Y",
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceField = \"desktops.![desktopId]\")",
+          "@WksDependIamAuthMeta(resourceParamSpEL = {\"USER:name:desktops.![detachUserInfos.![userName]]\"})",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"workspace:desktops:batchDetach\",  needApigwJwtAuthCheck = false, authContextInitializerName = \"workspaceInstanceListAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"batchDetachDesktops\")"
+        ],
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "internal_token,public",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "DetachInstancesUserInfo": {
+      "required": [
+        "user_name"
+      ],
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "当type字段为USER时,填写用户id;当type字段为GROUP时,填写用户组id,后端服务会校验组id是否存在;",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "user_name": {
+          "type": "string",
+          "description": "桌面解分配对象的名称,当type类型USER时填写用户名字;当type类型GROUP时填写用户组名称。\n- 当type类型USER时:桌面所属的用户,当桌面分配成功后此用户可以登录该桌面。只允许输入大写字母、小写字母、数字、中划线(-)和下划线(_)。域类型为LITE_AD时,使用小写字母或者大写字母开头,长度范围为[1-20]。当域类型为LOCAL_AD时,用户名可以使用小写字母或者大写字母或者数字开头,长度范围为[1-64]。Windows桌面用户最长支持20个字符,Linux桌面用户最长支持64个字符。后端服务会校验用户名是否存在,并且用户名不能与机器名重复。\n- 当type类型GROUP时:只能为中文、字母、数字及特殊符号-_。",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-isSensitive": true
+        },
+        "domain": {
+          "type": "string",
+          "description": "用户所属域。"
+        },
+        "user_group": {
+          "type": "string",
+          "description": "桌面用户所属的用户组。\n- sudo:Linux管理员组。\n- default:Linux默认用户组。\n- administrators:Windows管理员组。管理员拥有对该桌面的完全访问权,可以做任何需要的更改(禁用操作除外)。\n- users:Windows标准用户组。标准用户可以使用大多数软件,并可以更改不影响其他用户的系统设置。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "type": {
+          "type": "string",
+          "description": "对象类型,可选值为,默认值为USER:\n- USER:用户。\n- GROUP:用户组。",
+          "minLength": 1,
+          "maxLength": 20,
+          "default": "USER",
+          "enum": [
+            "USER",
+            "GROUP"
+          ]
+        }
+      },
+      "description": "桌面解分配用户信息。"
+    },
+    "BatchActionDesktopsRsp": {
+      "properties": {
+        "failed_operation_list": {
+          "type": "array",
+          "description": "操作失败桌面列表。",
+          "items": {
+            "$ref": "#/definitions/VmOperateResult"
+          },
+          "maxItems": 100,
+          "minItems": 0,
+          "x-maxLength": 100,
+          "x-minLength": 0
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务ID,池桌面返回job_id,普通桌面job_id为空。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "success_job_ids": {
+          "type": "array",
+          "description": "内部服务操作成功jobId",
+          "readOnly": true,
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 255
+          }
+        }
+      },
+      "description": "批量操作桌面响应。"
+    },
+    "DetachInstancesDesktopInfo": {
+      "properties": {
+        "desktop_id": {
+          "type": "string",
+          "description": "分配的桌面ID。",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "is_detach_all_users": {
+          "type": "boolean",
+          "description": "表示解关联所有用户:true,如果指定那么detach_user_infos会失效;指定解关联用户:false,通过detach_user_infos指定解关联的用户。",
+          "default": false
+        },
+        "detach_user_infos": {
+          "type": "array",
+          "description": "解分配的用户信息列表。",
+          "items": {
+            "$ref": "#/definitions/DetachInstancesUserInfo"
+          },
+          "maxItems": 500,
+          "minItems": 0,
+          "x-maxLength": 500,
+          "x-minLength": 0
+        }
+      },
+      "description": "分配用户请求桌面信息。"
+    },
+    "BatchDetachInstancesReq": {
+      "properties": {
+        "desktops": {
+          "type": "array",
+          "description": "解绑的桌面信息列表。",
+          "items": {
+            "$ref": "#/definitions/DetachInstancesDesktopInfo"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100,
+          "x-minLength": 1
+        }
+      },
+      "description": "批量解绑用户请求。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    },
+    "VmOperateResult": {
+      "properties": {
+        "desktop_id": {
+          "type": "string",
+          "description": "桌面ID。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "desktop_name": {
+          "type": "string",
+          "description": "桌面名称。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "error_code": {
+          "type": "string",
+          "description": "操作失败的错误码。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "操作失败的原因描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        }
+      },
+      "description": "操作失败的桌面列表。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

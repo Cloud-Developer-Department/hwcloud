@@ -1,0 +1,240 @@
+{
+  "name": "ListData",
+  "summary": "查询数据列表",
+  "tags": "数据管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/datas": {
+      "get": {
+        "tags": [
+          "数据管理"
+        ],
+        "x-interface-name": "IDataController",
+        "summary": "查询数据列表",
+        "description": "查询指定目录下的数据列表,如果不指定默认查询根目录",
+        "operationId": "ListData",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1,
+            "x-example": "termToken"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "限制量,单次查询总量,必须由数字组成,默认为100,取值范围[1,1000]",
+            "required": false,
+            "type": "integer",
+            "default": 100,
+            "maximum": 1000,
+            "minimum": 1,
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量,查询起始偏移,必须由数字组成,默认为0,取值范围[0,100000000]",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "maximum": 100000000,
+            "minimum": 0,
+            "format": "int32"
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "description": "指定文件夹(项目名称:/路径)",
+            "required": false,
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "search_key",
+            "in": "query",
+            "description": "查询关键词",
+            "required": false,
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "description": "降序或升序(分别对应desc和asc,默认为desc)",
+            "required": false,
+            "type": "string",
+            "default": "desc",
+            "x-enum-type": "SortDir"
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "description": "排序字段(支持type,create_time)",
+            "required": false,
+            "type": "string",
+            "x-enum-type": "SortDataKey"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "开始标签",
+            "required": false,
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "datas": [
+                  {
+                    "path": "test-project-id:/db_test1.txt",
+                    "name": "db_test1.txt",
+                    "type": "FILE",
+                    "size": 1024,
+                    "create_time": "2021-02-01T14:25:34.000+00:00",
+                    "allowed_operate": true,
+                    "deletable": true
+                  }
+                ],
+                "next_marker": "text-01"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListDataRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-partial": true,
+        "x-request-examples-description-1": "查询数据列表",
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/datas"
+      }
+    }
+  },
+  "definitions": {
+    "PathType": {
+      "type": "string",
+      "enum": [
+        "FILE",
+        "FOLDER"
+      ],
+      "x-json-name": "type"
+    },
+    "DataSummaryRsp": {
+      "properties": {
+        "path": {
+          "type": "string",
+          "example": "test-project-01:/db_test1.txt",
+          "description": "对象全路径(项目名称:/路径)"
+        },
+        "name": {
+          "type": "string",
+          "example": "db_test1.txt",
+          "description": "名称"
+        },
+        "type": {
+          "$ref": "#/definitions/PathType"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1862,
+          "description": "大小",
+          "default": 0
+        },
+        "create_time": {
+          "type": "string",
+          "example": "2021-02-01T14:25:34Z",
+          "description": "创建时间"
+        },
+        "allowed_operate": {
+          "type": "boolean",
+          "example": true,
+          "description": "可操作标记",
+          "default": true
+        },
+        "deletable": {
+          "type": "boolean",
+          "example": true,
+          "description": "可删除标记",
+          "default": true
+        }
+      },
+      "title": "DataObject",
+      "description": "数据对象"
+    },
+    "ListDataRsp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "example": 10,
+          "description": "数据对象(目录,文件)总数量"
+        },
+        "datas": {
+          "type": "array",
+          "description": "数据对象列表",
+          "items": {
+            "$ref": "#/definitions/DataSummaryRsp"
+          }
+        },
+        "next_marker": {
+          "type": "string",
+          "example": "text-01",
+          "description": "下一页开始标签"
+        }
+      },
+      "title": "GetChildDataResponse",
+      "description": "查询数据列表响应参数"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

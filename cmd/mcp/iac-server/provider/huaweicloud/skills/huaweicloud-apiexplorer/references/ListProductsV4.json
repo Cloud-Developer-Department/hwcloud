@@ -1,0 +1,237 @@
+{
+  "name": "ListProductsV4",
+  "summary": "查询云服务列表",
+  "tags": "API",
+  "productshort": "APIExplorer",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v4/products": {
+      "get": {
+        "tags": [
+          "ProductServerV4"
+        ],
+        "summary": "查询云服务列表",
+        "description": "查询云服务列表\n- 区分有数据的云服务和无数据的云服务\n- 如果online_cli=true,返回cli上线的云服务列表\n- 如果base=true,只显示产品基本属性",
+        "operationId": "ListProductsV4",
+        "parameters": [
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言类型 中文:zh-cn 英文:en-us",
+            "required": false,
+            "type": "string",
+            "default": "zh-cn",
+            "maxLength": 16,
+            "minLength": 5,
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ],
+            "x-example": "zh-cn",
+            "x-notgenerate": true
+          },
+          {
+            "name": "online_cli",
+            "in": "query",
+            "description": "true为只获取已经上线cli的云服务,false为获取全量云服务",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "base",
+            "in": "query",
+            "description": "true只显示产品基本属性(不包含产品api相关属性),false显示产品所有属性",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "groups": [
+                  {
+                    "name": "计算",
+                    "products": [
+                      {
+                        "name": "弹性云服务器",
+                        "productshort": "ECS",
+                        "link": "/product/ecs.html",
+                        "has_data": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ProductRes"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "APIEXPLORER.1036",
+                "error_msg": "query product list failed"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "DEV.00000003",
+                "error_msg": "Token expired."
+              }
+            }
+          }
+        },
+        "x-support-sdk": "N",
+        "x-is-registered": "Y",
+        "x-methodAnnotations": [
+          "@CrossOrigin"
+        ],
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": "GET https://{endpoint}/v4/products?online_cli=true&base=false"
+      }
+    }
+  },
+  "definitions": {
+    "ProductClass": {
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;",
+      "required": [
+        "id",
+        "name"
+      ],
+      "example": {
+        "id": "***",
+        "name": "计算"
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "分类ID",
+          "example": "****",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "name": {
+          "type": "string",
+          "description": "云服务类型",
+          "example": "计算",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "products": {
+          "type": "array",
+          "description": "云服务列表",
+          "items": {
+            "$ref": "#/definitions/Product"
+          },
+          "minItems": 0,
+          "maxItems": 10000,
+          "x-annotations": [
+            "@JsonInclude(JsonInclude.Include.NON_NULL)"
+          ]
+        },
+        "groups": {
+          "type": "array",
+          "description": "云服务子类型",
+          "items": {
+            "$ref": "#/definitions/ProductClass"
+          },
+          "minItems": 0,
+          "maxItems": 10000,
+          "x-annotations": [
+            "@JsonInclude(JsonInclude.Include.NON_EMPTY)"
+          ]
+        }
+      }
+    },
+    "Product": {
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "云服务名称",
+          "example": "云日志服务",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "productshort": {
+          "type": "string",
+          "description": "云服务简称",
+          "example": "LTS",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "alias": {
+          "type": "string",
+          "description": "切换后的云服务简称",
+          "example": "AOM",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-annotations": [
+            "@JsonInclude(JsonInclude.Include.NON_NULL)"
+          ]
+        },
+        "link": {
+          "type": "string",
+          "description": "产品详情页链接",
+          "example": "/product/lts.html",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "has_data": {
+          "type": "boolean",
+          "default": false,
+          "example": true,
+          "description": "是否有数据"
+        },
+        "api_count": {
+          "type": "integer",
+          "description": "该云服务发布的api数",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 1000100
+        },
+        "is_global": {
+          "type": "boolean",
+          "default": false,
+          "example": true,
+          "description": "是否是全局云服务"
+        },
+        "is_recommend": {
+          "type": "boolean",
+          "default": false,
+          "example": true,
+          "description": "是否是推荐的云服务"
+        }
+      }
+    },
+    "ProductRes": {
+      "properties": {
+        "groups": {
+          "$ref": "#/definitions/ProductClassList"
+        }
+      }
+    },
+    "ProductClassList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProductClass"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "apiexplorer.ap-southeast-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

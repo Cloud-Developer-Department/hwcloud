@@ -1,0 +1,217 @@
+{
+  "name": "BatchCheckJobs",
+  "summary": "批量预检查",
+  "tags": "公共接口管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/jobs/batch-precheck": {
+      "post": {
+        "tags": [
+          "公共接口管理"
+        ],
+        "summary": "批量预检查",
+        "description": "批量预检查,校验是否可进行迁移。",
+        "operationId": "BatchCheckJobs",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token,请参见认证鉴权。",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "请求语言类型",
+            "required": false,
+            "type": "string",
+            "default": "en-us",
+            "x-example": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "x-order": 3
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "指定类型为application/json。",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "x-example": "application/json",
+            "x-order": 4
+          },
+          {
+            "in": "body",
+            "name": "requestBody",
+            "description": "批量预检查请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchPrecheckReq"
+            },
+            "x-order": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "id": "140b5236-88ad-43c8-811c-1268453jb101",
+                    "status": "success",
+                    "precheck_id": "140b5236-88ad-43c8-811c-1268453jb101"
+                  }
+                ],
+                "count": 1
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchPrecheckResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-name": "批量预检查",
+        "x-constraint": "- 任务创建成功之后,任务状态为CONFIGURATION,并且测试连接通过、修改任务接口调用成功后才能调用。\n- 双主灾备时,需要正向任务状态为INCRE_TRANSFER_STARTED时,反向任务不需要调用该接口,父任务不支持调用。",
+        "x-version": "v3",
+        "x-scope": "Commercial",
+        "x-order": 4,
+        "x-request-examples-description-1": "实时迁移MySQL预检查示例",
+        "x-request-examples-url-1": "https://{endpoint}/v3/054ba152d480d55b2f5dc0069e7ddef0/jobs/batch-precheck",
+        "x-request-examples-1": {
+          "jobs": [
+            {
+              "job_id": "140b5236-88ad-43c8-811c-1268453jb101",
+              "precheck_mode": "forStartJob"
+            }
+          ]
+        },
+        "x-request-examples-text-1": {
+          "jobs": [
+            {
+              "job_id": "140b5236-88ad-43c8-811c-1268453jb101",
+              "precheck_mode": "forStartJob"
+            }
+          ]
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "BatchCheckJobs"
+      }
+    }
+  },
+  "definitions": {
+    "PostPreCheckResp": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "e11eaf8f-71ef-4fad-8890-aed7572ajb11",
+          "description": "任务id。"
+        },
+        "precheck_id": {
+          "type": "string",
+          "example": "e11eaf8f-71ef-4fad-8890-aed7572ajb11",
+          "description": "预检查id。"
+        },
+        "status": {
+          "type": "string",
+          "example": "success",
+          "description": "成功或失败的状态",
+          "enum": [
+            "success",
+            "failed"
+          ]
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息。"
+        }
+      },
+      "description": ""
+    },
+    "BatchPrecheckReq": {
+      "required": [
+        "jobs"
+      ],
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "description": "批量预检查请求列表",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/PreCheckInfo"
+          }
+        }
+      },
+      "description": "批量预检查请求体"
+    },
+    "BatchPrecheckResp": {
+      "properties": {
+        "results": {
+          "type": "array",
+          "description": "预检查响应体",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/PostPreCheckResp"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数"
+        }
+      },
+      "description": "批量预检查返回体"
+    },
+    "PreCheckInfo": {
+      "required": [
+        "job_id",
+        "precheck_mode"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务id"
+        },
+        "precheck_mode": {
+          "type": "string",
+          "description": "预检查模式",
+          "enum": [
+            "forStartJob",
+            "forRetryJob"
+          ]
+        }
+      },
+      "description": "预检查信息体",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

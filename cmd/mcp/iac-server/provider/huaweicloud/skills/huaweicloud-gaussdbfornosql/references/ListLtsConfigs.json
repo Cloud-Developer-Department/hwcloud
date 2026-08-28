@@ -1,0 +1,285 @@
+{
+  "name": "ListLtsConfigs",
+  "summary": "查询LTS日志配置信息",
+  "tags": "日志管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/logs/lts-configs": {
+      "get": {
+        "tags": [
+          "日志管理"
+        ],
+        "operationId": "ListLtsConfigs",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "summary": "查询LTS日志配置信息",
+        "description": "分页查询实例关联的LTS日志配置信息。",
+        "x-constraint": "慢日志配置信息查询支持如下数据库:\n- GeminiDB Redis\n审计日志配置信息查询支持如下数据库:\n- GeminiDB Redis\n- GeminiDB Mongo",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "required": true,
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "索引位置偏移量,表示从第一条数据偏移offset条数据后开始查询。取值必须为数字,不能为负数。默认取0值,表示从第一条数据开始查询。"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "查询记录数。取值范围:1~100,必须为数字。不传该参数时,默认查询前100条实例信息。"
+          },
+          {
+            "name": "instance_id",
+            "in": "query",
+            "type": "string",
+            "description": "根据实例ID精确搜索。",
+            "x-example": "362b42f769ff45d884e1866f8ee00bb4in12"
+          },
+          {
+            "name": "instance_name",
+            "in": "query",
+            "type": "string",
+            "description": "根据实例名称模糊搜索。",
+            "x-example": "test"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "type": "string",
+            "description": "根据企业项目ID精确搜索。",
+            "x-example": "0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/LogConfigQueryResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "instance_lts_configs": [
+                  {
+                    "instance": {
+                      "id": "362b42f769ff45d884e1866f8ee00bb4in12",
+                      "name": "nosql-c316",
+                      "mode": "RedisCluster",
+                      "datastore": {
+                        "version": "5.0",
+                        "type": "redis"
+                      },
+                      "status": "normal",
+                      "actions": [
+                        "GROWING"
+                      ],
+                      "enterprise_project_id": "0",
+                      "supported_log_types": [
+                        "slow_log",
+                        "audit_log"
+                      ]
+                    },
+                    "lts_configs": [
+                      {
+                        "log_type": "slow_log",
+                        "lts_group_id": "65442dd4-b8de-4e9f-8a80-b60aa0698354",
+                        "lts_stream_id": "5992dd29-fd11-4228-a852-5f6e578789c5",
+                        "enabled": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/0549b4a43100d4f32f51c01c2fe4acdb/instances/logs/lts-configs?limit=10&offset=0&instance_id=362b42f769ff45d884e1866f8ee00bb4in12&instance_name=c316&enterprise_project_id=0"
+      }
+    }
+  },
+  "definitions": {
+    "InstanceLogConfig": {
+      "required": [
+        "instance",
+        "lts_configs"
+      ],
+      "properties": {
+        "instance": {
+          "description": "实例信息。",
+          "$ref": "#/definitions/LogInstanceInfo"
+        },
+        "lts_configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InstanceLogConfigDetail"
+          },
+          "description": "LTS日志配置明细。从未设置LTS日志流,不返回该字段。"
+        }
+      }
+    },
+    "InstancesDatastoreResult": {
+      "required": [
+        "type",
+        "version"
+      ],
+      "description": "数据库信息。",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "数据库引擎。"
+        },
+        "version": {
+          "type": "string",
+          "description": "数据库版本号。"
+        }
+      }
+    },
+    "LogInstanceInfo": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "实例ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "实例名称。"
+        },
+        "status": {
+          "type": "string",
+          "description": "实例状态。\n取值:\n- normal,表示实例正常。\n- abnormal,表示实例异常。\n- creating,表示实例创建中。\n- frozen,表示实例被冻结。\n- data_disk_full,表示实例磁盘已满。\n- createfail,表示实例创建失败。\n- enlargefail,表示实例扩容节点失败。",
+          "example": "creating"
+        },
+        "mode": {
+          "type": "string",
+          "description": "实例类型。\n  -  取值为“Cluster”,表示GeminiDB Redis经典部署模式集群实例类型。\n  -  取值为“CloudNativeCluster”,表示GeminiDB Redis云原生部署模式集群实例类型。"
+        },
+        "datastore": {
+          "description": "数据库信息。",
+          "$ref": "#/definitions/InstancesDatastoreResult"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "实例正在执行的动作。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID。"
+        },
+        "supported_log_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "日志类型。slow_log表示慢日志,audit_log表示审计日志。"
+        }
+      }
+    },
+    "LogConfigQueryResponseBody": {
+      "required": [
+        "instance_lts_configs",
+        "total_count"
+      ],
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "description": "实例总记录数。"
+        },
+        "instance_lts_configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InstanceLogConfig"
+          },
+          "description": "实例-LTS日志配置信息列表。"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "InstanceLogConfigDetail": {
+      "required": [
+        "log_type",
+        "lts_group_id",
+        "lts_stream_id",
+        "enbaled"
+      ],
+      "properties": {
+        "log_type": {
+          "type": "string",
+          "enum": [
+            "slow_log"
+          ],
+          "description": "日志类型。slow_log表示慢日志。"
+        },
+        "lts_group_id": {
+          "type": "string",
+          "description": "关联的LTS日志组ID,若enabled为false,表示最近一次关联的LTS日志组ID。"
+        },
+        "lts_stream_id": {
+          "type": "string",
+          "description": "关联的LTS日志流ID,若enabled为false,表示最近一次关联的LTS日志流ID。"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "关联的LTS日志流是否启用,true代表已启用,false代表未启用。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

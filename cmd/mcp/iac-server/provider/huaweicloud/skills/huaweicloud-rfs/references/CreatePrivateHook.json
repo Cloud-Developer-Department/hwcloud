@@ -1,0 +1,341 @@
+{
+  "name": "CreatePrivateHook",
+  "summary": "创建私有hook",
+  "tags": "资源编排-Hook",
+  "productshort": "RFS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/private-hooks": {
+      "post": {
+        "tags": [
+          "Hook"
+        ],
+        "summary": "创建私有hook",
+        "description": "创建私有hook(CreatePrivateHook)\n\n创建一个带有初始默认版本的私有hook,创建私有hook的时候需要同时创建一个初始化的默认版本,不允许空私有hook的创建。\n设置配置(Configuration)后的私有hook才会在触发资源栈部署时生效,资源栈使用私有hook的默认版本。若创建私有hook时未指定配置项,则该私有hook在资源栈部署时不生效,后续可通过UpdatePrivateHook API更新配置。\n\n  * 支持hook策略模板检验的资源栈服务API:\n      CreateExecutionPlan\n      ApplyExecutionPlan\n      CreateStack\n      DeployStack\n      ContinueDeployStack\n      DeleteStack\n      DeleteStackEnhanced\n  * 创建私有hook时指定的版本为初始默认版本。\n  * 如果同名的私有hook在当前domain_id+region下已经存在,则会返回409。\n  * 对于私有hook的名字,推荐用户使用三段命名空间:{自定义hook名称}-{hook应用场景}-hook。\n  * 私有hook版本号遵循语义化版本号(Semantic Version),为用户自定义。\n  * 资源编排服务会对私有hook进行校验,如文件大小,策略文件语法校验等。若存在错误,则会创建失败。\n  * 当前仅支持部署资源前的检测,不支持部署资源过程中的检测。如果通过了部署资源前的检测,资源栈则会继续部署资源。反之会停止部署资源,并记录资源栈事件(stack events)。\n  * 仅支持OPA开源引擎识别的,以Rego(https://www.openpolicyagent.org/docs/latest/policy-language/)语言编写的策略模板(用户可以通过policy_uri或policy_body给予策略文件内容)。\n  * 策略模板中的决策结果使用object类型的hook_result,hook_result所在包的包名必须使用policy。hook_result格式如下:\n      ```\n      hook_result := {\n        \"is_passed\": Bool,\n        \"err_msg\": String,\n      }\n      ```\n    其中is_passed必选,err_msg可选。RFS通过查询policy.hook_result[is_passed]判断是否通过策略校验。\n    * 如果policy.hook_result[is_passed]的结果是true,则表示通过策略校验,资源编排服务会继续部署资源。\n    * 如果policy.hook_result[is_passed]的结果是false,则表示没有通过策略校验,资源编排服务会停止部署资源。并记录资源栈事件信息,信息的内容为policy.hook_result[err_msg]。如果没有设置err_msg,则资源栈事件信息内容为默认错误信息(校验私有hook失败)。\n    * 如果没有使用policy.hook_result,则该策略不会生效,资源编排服务会继续部署资源。\n  * 策略模板中不支持调用其他服务API等方式获取数据、不支持任何形式的网络访问、不支持以任何形式的自定义函数或者方法等、不支持读取本地文件以及系统操作。\n\n私有hook的策略模板语法如下:\n```\npackage policy\n\nimport rego.v1\n\nhook_result := {\n  \"is_passed\": input.message == \"world\",\n  \"err_msg\": \"The error msg when private hook is not passed the validation\",\n}\n```",
+        "operationId": "CreatePrivateHook",
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一Id,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "in": "body",
+            "name": "CreatePrivateHookRequestBody",
+            "description": "CreatePrivateHook API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePrivateHookRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "examples": {
+              "x-response-examples-1": {
+                "hook_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreatePrivateHookResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 用户无权限调用此API\n2. 私有hook数量达到上限",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "创建冲突,同名的私有hook已经存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-rfs-internal": "Y",
+        "x-rfs-external": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/private-hooks",
+        "x-request-examples-description-1": "通过policy_uri创建一个带有初始默认版本的私有hook",
+        "x-request-examples-1": {
+          "hook_name": "my-hello-world-hook-name",
+          "hook_version": "0.0.1",
+          "policy_uri": "https://my_hello_world_bucket.{region}.myhuaweicloud.com/policy.rego",
+          "configuration": {
+            "target_stacks": "NONE",
+            "failure_mode": "WARN"
+          },
+          "hook_description": "my first private hook",
+          "hook_version_description": "my first private hook version"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/private-hooks",
+        "x-request-examples-description-2": "通过policy_body创建一个带有初始默认版本的私有hook",
+        "x-request-examples-2": {
+          "hook_name": "my-hello-world-hook-name",
+          "hook_version": "0.0.1",
+          "policy_body": "package policy\n\nimport rego.v1\n\nhook_result := {\n\"is_passed\": input.message == \"world\",\n\"err_msg\": \"The error msg when private hook is not passed the validation\",\n}",
+          "configuration": {
+            "target_stacks": "NONE",
+            "failure_mode": "WARN"
+          },
+          "hook_description": "my first private hook",
+          "hook_version_description": "my first private hook version"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PrivatePolicyURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "policy_uri": {
+          "type": "string",
+          "description": "策略文件的OBS地址。内容仅支持OPA开源引擎识别的,以Rego(https://www.openpolicyagent.org/docs/latest/policy-language/)语言编写的策略模板。\n\n请确保OBS地址所在局点与使用RFS服务局点一致。\n\n策略文件当前支持单文件或zip压缩包,单文件需要以\".rego\"结尾,压缩包当前只支持zip格式,文件需要以`.zip`结尾。\n\n关于策略文件的校验要求如下:\n  * 文件必须是UTF8编码\n  * 创建时会对大小、格式、语法等进行校验\n  * 策略文件必须是UTF-8编码\n  * 单文件或压缩包解压前后的大小应控制在1MB以内\n  * 压缩包内的文件数量不能超过100个\n  * 压缩包内的文件路径最长为2048\n  * 压缩包内的文件名最长为255个字节\n\npolicy_uri和policy_body必须有且只有一个存在",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.rego|\\.zip){1}(\\?[\\S]+)?$"
+        }
+      },
+      "example": {
+        "policy_uri": "https://your-bucket.cn-north-7.myhuaweicloud.com/my-hello-world-policy.zip"
+      }
+    },
+    "ConfigurationPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "configuration": {
+          "type": "object",
+          "description": "私有hook配置项,可以指定私有hook生效的目标资源栈以及私有hook校验失败后资源栈的行为。可通过UpdatePrivateHook API更新私有hook配置项。",
+          "properties": {
+            "target_stacks": {
+              "type": "string",
+              "description": "指定私有hook生效的目标资源栈,有效值为NONE或ALL,默认值为NONE。\n\nNONE:指定此私有hook不会作用于任何资源栈\nALL:指定此私有hook将会应用于账号下的所有资源栈",
+              "default": "NONE",
+              "enum": [
+                "NONE",
+                "ALL"
+              ]
+            },
+            "failure_mode": {
+              "type": "string",
+              "description": "指定私有hook校验失败后的行为,有效值为FAIL或WARN,默认值为WARN。\n\nFAIL:指定此私有hook校验失败后资源栈将停止部署,资源栈状态将更新为DEPLOYMENT_FAILED。\nWARN:指定此私有hook校验失败后仅通过资源栈事件展示警告消息,但不影响资源栈部署。",
+              "default": "WARN",
+              "enum": [
+                "WARN",
+                "FAIL"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "PrivatePolicyBodyPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "policy_body": {
+          "type": "string",
+          "description": "策略内容。仅支持OPA开源引擎识别的,以Rego(https://www.openpolicyagent.org/docs/latest/policy-language/)语言编写的策略模板。\n\npolicy_body和policy_uri 必须有且只有一个存在",
+          "minLength": 0,
+          "maxLength": 51200
+        }
+      },
+      "example": {
+        "policy_body": "package policy\n\nimport rego.v1\n\nhook_result := {\n  \"is_passed\": input.message == \"world\",\n  \"err_msg\": \"The error msg when private hook is not passed the validation\",\n}"
+      }
+    },
+    "CreatePrivateHookResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateHookIdPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PrivateHookDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "hook_description": {
+          "type": "string",
+          "description": "私有hook的描述。可用于客户识别创建的私有hook。可通过UpdatePrivateHook API更新私有hook的描述。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "hook_description": "My First Hello World Hook Description"
+      }
+    },
+    "PrivateHookVersionPrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "hook_version"
+      ],
+      "properties": {
+        "hook_version": {
+          "type": "string",
+          "description": "私有hook的版本号。版本号必须遵循语义化版本号(Semantic Version),为用户自定义。",
+          "minLength": 5,
+          "maxLength": 128,
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "hook_version": "1.0.0"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "PrivateHookNamePrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "hook_name"
+      ],
+      "properties": {
+        "hook_name": {
+          "type": "string",
+          "description": "私有hook的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+        }
+      },
+      "example": {
+        "hook_name": "test-limit_vpc_resource-hook"
+      }
+    },
+    "PrivateHookIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "hook_id": {
+          "type": "string",
+          "description": "私有hook(private-hook)的唯一Id。\n\n此Id由资源编排服务在生成私有hook的时候生成,为UUID。\n\n由于私有hook名称仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的私有hook,删除,再重新创建一个同名私有hook。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有hook就是我认为的那个,而不是其他队友删除后创建的同名私有hook。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有hook所对应的Id都不相同,更新不会影响Id。如果给予的hook_id和当前hook的Id不一致,则返回400。",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "hook_id": "77dad9a0-6b11-4bf5-ba62-c7e0029dcb6f"
+      }
+    },
+    "CreatePrivateHookRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateHookNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateHookVersionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateHookDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateHookVersionDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ConfigurationPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivatePolicyURIPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivatePolicyBodyPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PrivateHookVersionDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "hook_version_description": {
+          "type": "string",
+          "description": "私有hook版本的描述。可用于客户识别创建私有hook的版本。注意:hook版本为不可更新(immutable),所以该字段不可更新,如果需要更新,请删除后重建。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "hook_version_description": "My First Hello World Hook Version Description"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

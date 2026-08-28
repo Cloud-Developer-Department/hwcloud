@@ -1,0 +1,206 @@
+{
+  "name": "ShowFunctionAsyncInvokeConfig",
+  "summary": "获取函数异步配置信息",
+  "tags": "函数异步配置",
+  "productshort": "FunctionGraph",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config": {
+      "get": {
+        "tags": [
+          "函数异步配置"
+        ],
+        "summary": "获取函数异步配置信息",
+        "description": "获取指定函数某一版本的异步配置信息。",
+        "operationId": "ShowFunctionAsyncInvokeConfig",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/function_urn"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Content-Type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "func_urn": "urn:fss:xxxxxxxxx:7aad83af3e8d42e99ac194xxxxxxxxxx:function:default:test:latest",
+                "max_async_event_age_in_seconds": 60,
+                "max_async_retry_attempts": 1,
+                "destination_config": {
+                  "on_success": {
+                    "destination": "FunctionGraph",
+                    "param": "{\"func_urn\":\"urn:fss:{region}:5691ba790e2b46ceb38316xxxxxxxxxx:function:default:testPython:latest\"}"
+                  },
+                  "on_failure": {
+                    "destination": "FunctionGraph",
+                    "param": "{\"func_urn\":\"urn:fss:{region}:5691ba790e2b46ceb38316xxxxxxxxxx:function:default:testPython:latest\"}"
+                  }
+                },
+                "created_time": "2021-03-04T14:50:02+08:00",
+                "last_modified": "2021-03-04T14:50:02+08:00"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowFunctionAsyncInvokeConfigResponseBody"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "获取函数异步配置信息。",
+        "x-request-examples-url-1": "GET /v2/{project_id}/fgs/functions/{function_urn}/async-invoke-config",
+        "x-support-sdk": "Y",
+        "x-produc-type": "functiongraph"
+      }
+    }
+  },
+  "definitions": {
+    "FuncAsyncDestinationConfig": {
+      "properties": {
+        "on_success": {
+          "description": "当函数执行成功时,函数计算将调用该配置对应的目标。",
+          "$ref": "#/definitions/FuncDestinationConfig"
+        },
+        "on_failure": {
+          "description": "当函数执行失败(系统错误或函数内部错误)时,函数计算将调用该配置对应的目标。",
+          "$ref": "#/definitions/FuncDestinationConfig"
+        }
+      },
+      "description": "函数异步调用目标参数配置。"
+    },
+    "ErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    },
+    "FuncDestinationConfig": {
+      "properties": {
+        "destination": {
+          "type": "string",
+          "example": "OBS",
+          "description": "目标类型。\n\n- OBS:通知到OBS服务。\n- SMN:通知到SMN服务。\n- DIS:通知到DIS服务。\n- FunctionGraph: 通知到函数服务。",
+          "enum": [
+            "OBS",
+            "SMN",
+            "DIS",
+            "FunctionGraph"
+          ]
+        },
+        "param": {
+          "type": "string",
+          "example": "{\"bucket\":\"fgs-invoke\",\"prefix\":\"/function1/\",\"expires\":1}",
+          "description": "通知目标服务对应参数,json字符串。\n\n- OBS:包含bucket桶,对象目录前缀prefix,对象默认expires过期时间[0~365]天,0默认不过期。\n- SMN:包含smn 主题topic_urn。\n- DIS:包含DIS 通道名stream_name。\n- FunctionGraph:包含func_urn,函数urn"
+        }
+      },
+      "description": "函数通知目标参数配置。"
+    },
+    "ShowFunctionAsyncInvokeConfigResponseBody": {
+      "required": [
+        "destination_config",
+        "func_urn",
+        "max_async_event_age_in_seconds",
+        "max_async_retry_attempts"
+      ],
+      "properties": {
+        "func_urn": {
+          "type": "string",
+          "example": "urn:fss:{region}:5691ba790e2b46ceb38316xxxxxxxxxx:function:default:test_async:latest",
+          "description": "函数URN。",
+          "minLength": 1,
+          "maxLength": 269
+        },
+        "max_async_event_age_in_seconds": {
+          "type": "integer",
+          "example": 60,
+          "description": "消息最大存活时长,取值范围[60,86400]。单位:秒。"
+        },
+        "max_async_retry_attempts": {
+          "type": "integer",
+          "example": 3,
+          "description": "异步调用失败后的最大重试次数,默认值为3。取值范围[0,8]。"
+        },
+        "destination_config": {
+          "description": "异步调用目标。",
+          "$ref": "#/definitions/FuncAsyncDestinationConfig"
+        },
+        "created_time": {
+          "type": "string",
+          "example": "2021-03-04T14:50:02+08:00",
+          "description": "异步调用配置的创建时间。"
+        },
+        "last_modified": {
+          "type": "string",
+          "example": "2021-03-04T14:50:02+08:00",
+          "description": "异步调用配置的最后更改时间。"
+        },
+        "enable_async_status_log": {
+          "type": "boolean",
+          "example": false,
+          "description": "开启异步调用状态持久化"
+        }
+      },
+      "description": "函数异步配置返回结构体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Content-Type": {
+      "in": "header",
+      "name": "Content-Type",
+      "type": "string",
+      "required": true,
+      "x-example": "application/json",
+      "default": "application/json",
+      "description": "消息体的类型(格式)"
+    },
+    "project_id": {
+      "in": "path",
+      "name": "project_id",
+      "required": true,
+      "type": "string",
+      "x-example": "46b6f338fc3445b8846c71dfb1fbd9e8",
+      "description": "租户项目 ID,获取方式请参见[获取项目ID](functiongraph_06_0260.xml)。"
+    },
+    "function_urn": {
+      "in": "path",
+      "name": "function_urn",
+      "required": true,
+      "type": "string",
+      "x-example": "urn:fss:{region}:46b6f338fc3445b8846c71dfb1fbxxxx:function:csharp:test2-0:latest",
+      "description": "函数的URN,详细解释见FunctionGraph函数模型的描述。"
+    },
+    "X-Auth-Token": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。"
+    }
+  },
+  "host": "functiongraph.ae-ad-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

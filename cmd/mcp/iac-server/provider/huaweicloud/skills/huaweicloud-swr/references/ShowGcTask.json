@@ -1,0 +1,223 @@
+{
+  "name": "ShowGcTask",
+  "summary": "查询制品清理的任务详情",
+  "tags": "制品清理(SWR企业版)",
+  "productshort": "SWR",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/system/gc/{gc_id}": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-publishpath": "swr_03_1602",
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "tags": [
+          "制品清理(SWR企业版)"
+        ],
+        "summary": "查询制品清理的任务详情",
+        "operationId": "ShowGcTask",
+        "description": "查询制品清理的任务详情",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "x-example": "project id",
+            "x-order": 2
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "企业仓库实例ID",
+            "required": true,
+            "type": "string",
+            "x-example": "test_instance_id",
+            "x-order": 3
+          },
+          {
+            "name": "gc_id",
+            "in": "path",
+            "description": "任务ID",
+            "required": true,
+            "type": "integer",
+            "x-example": 1001,
+            "x-order": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询制品清理的任务详情成功",
+            "schema": {
+              "$ref": "#/definitions/GcTask"
+            },
+            "examples": {
+              "application/json": "{\n  \"id\": 1001,\n  \"job_name\": \"daily-gc-task\",\n  \"job_kind\": \"SCHEDULE\",\n  \"job_parameters\": {\"delete_untagged\":true,\"dry_run\":true,\"workers\":3}\",\n  \"job_status\": \"Success\",\n  \"creation_time\": \"2024-01-20T10:00:00Z\",\n  \"update_time\": \"2024-01-26T02:30:15Z\"\n}"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "500": {
+            "$ref": "#/responses/500"
+          }
+        },
+        "x-name": "查询制品清理的任务详情",
+        "x-constraint": "此接口当前是租户白名单开放,请提交工单申请开通访问。",
+        "x-version": "v2",
+        "x-scope": "Commercial",
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/instances/{instance_id}/system/gc/{gc_id}",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "x-apiexplorer-hide": "false",
+        "x-apigateway-backend": {
+          "httpVpcEndpoints": {
+            "description": "",
+            "host": "swr-ee-internal.{{region_id}}.myhuaweicloud.com",
+            "method": "ANY",
+            "name": "cer-instance-manage",
+            "path": "/v2/{project_id}/instances/{instance_id}/system/gc/{gc_id}",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "type": "HTTP-VPC"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public"
+      }
+    }
+  },
+  "definitions": {
+    "GcTask": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "gc任务的ID。"
+        },
+        "job_name": {
+          "type": "string",
+          "description": "gc任务的名称。"
+        },
+        "job_kind": {
+          "type": "string",
+          "enum": [
+            "MANUAL",
+            "SCHEDULE"
+          ],
+          "description": "任务类型,MANUAL:手动执行,SCHEDULE:定时执行。"
+        },
+        "job_parameters": {
+          "$ref": "#/definitions/JobParameters",
+          "description": "gc任务的作业参数。"
+        },
+        "job_status": {
+          "type": "string",
+          "enum": [
+            "Success",
+            "Stopped",
+            "Running",
+            "Pending",
+            "Error"
+          ],
+          "description": "gc任务的状态,Success:已完成,Stopped:已停止,Running:清理中,Pending:排队中,Error:失败。",
+          "x-api-type": "open-api"
+        },
+        "creation_time": {
+          "type": "string",
+          "description": "gc任务的创建时间。"
+        },
+        "update_time": {
+          "type": "string",
+          "description": "gc任务的更新时间。"
+        }
+      }
+    },
+    "JobParameters": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/GcParameters"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "purged_blobs": {
+              "type": "integer",
+              "description": "清理镜像层的个数。"
+            },
+            "purged_manifests": {
+              "type": "integer",
+              "description": "清理镜像manifest的个数。"
+            },
+            "freed_space": {
+              "type": "integer",
+              "description": "释放的镜像存储空间大小(单位为字节)。"
+            }
+          }
+        }
+      ]
+    },
+    "GcParameters": {
+      "type": "object",
+      "required": [
+        "workers"
+      ],
+      "properties": {
+        "delete_untagged": {
+          "type": "boolean",
+          "description": "是否删除无tag的制品;默认为false,不删除无tag的制品。",
+          "default": true,
+          "x-api-type": "open-api"
+        },
+        "workers": {
+          "type": "integer",
+          "description": "并行执行制品清理任务的工作者数量,最小值为1,最大值为5。",
+          "minimum": 1,
+          "maximum": 5,
+          "x-api-type": "open-api",
+          "default": 1
+        },
+        "dry_run": {
+          "type": "boolean",
+          "description": "是否模拟执行任务;默认值为false,非模拟运行。",
+          "x-api-type": "open-api",
+          "default": false
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "swr-api.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

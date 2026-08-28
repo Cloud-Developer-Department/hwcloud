@@ -1,0 +1,238 @@
+{
+  "name": "ListRelations",
+  "summary": "查询指定资源类型的所有关系信息",
+  "tags": "资源管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/cmdb/v1/classes/{className}/relations": {
+      "get": {
+        "summary": "查询指定资源类型的所有关系信息",
+        "description": "查询指定资源类型的所有关系信息\n\n**接口SLA:**\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| ≥ 99.9%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量|10 tps|\n|TP50请求时延|1000 ms|\n|TP99.9请求时延|2000 ms|",
+        "x-precautions": "使用前请参考《资源北向模型》,获取系统支持的资源类型、关系类型、资源分类及属性列表。调用该接口需要“查询模型”权限,归属权限组:运维中心>模型管理。\n错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 资源管理特性”章节。\n",
+        "tags": [
+          "资源管理"
+        ],
+        "operationId": "ListRelations",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "IAM_OP token、SSO token。"
+          },
+          {
+            "name": "className",
+            "type": "string",
+            "in": "path",
+            "required": true,
+            "description": "资源类型标识。"
+          },
+          {
+            "name": "includeSource",
+            "type": "boolean",
+            "in": "query",
+            "description": "是否包括源端关系,默认值false"
+          },
+          {
+            "name": "includeTarget",
+            "type": "boolean",
+            "in": "query",
+            "description": "是否包括目的端关系,默认值false"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询关系类型成功",
+            "schema": {
+              "$ref": "#/definitions/CIRelationDefList"
+            },
+            "examples": {
+              "application/json": {
+                "totalNum": 2,
+                "objList": [
+                  {
+                    "name": "M_ResourcePoolContainsAzone",
+                    "sourceClassName": "SYS_ResourcePool",
+                    "targetClassName": "SYS_Azone",
+                    "sourceRemark": {
+                      "en_US": "Contains",
+                      "zh_CN": "包含"
+                    },
+                    "targetRemark": {
+                      "en_US": "Is contained in",
+                      "zh_CN": "属于"
+                    },
+                    "targetReportAttrName": null,
+                    "sourceReportAttrName": null,
+                    "cardinality": 2,
+                    "preset": true
+                  },
+                  {
+                    "name": "M_RoomContainsRack",
+                    "sourceClassName": "SYS_Room",
+                    "targetClassName": "SYS_Rack",
+                    "sourceRemark": {
+                      "en_US": "Contains",
+                      "zh_CN": "包含"
+                    },
+                    "targetRemark": {
+                      "en_US": "Is located in",
+                      "zh_CN": "位于"
+                    },
+                    "targetReportAttrName": null,
+                    "sourceReportAttrName": null,
+                    "cardinality": 2,
+                    "preset": true
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "GET https://{endpoint}/rest/cmdb/v1/classes/SYS_VM/relations?includeSource=true",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": ""
+      }
+    }
+  },
+  "definitions": {
+    "CIRelationDefList": {
+      "description": "资源关系查询结果",
+      "properties": {
+        "totalNum": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总的记录数"
+        },
+        "objList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CIRelationDef"
+          },
+          "description": "关系数据"
+        }
+      }
+    },
+    "CIRelationDef": {
+      "description": "资源关系定义",
+      "required": [
+        "name",
+        "sourceClassName",
+        "targetClassName",
+        "sourceRemark",
+        "targetRemark",
+        "cardinality"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "关系类型标识,字母或下划线开头,支持数字字母下划线,最大长度60",
+          "maxLength": 32,
+          "minLength": 1
+        },
+        "sourceClassName": {
+          "type": "string",
+          "description": "源端资源类型的标示"
+        },
+        "targetClassName": {
+          "type": "string",
+          "description": "目的端资源类型的标示"
+        },
+        "sourceRemark": {
+          "$ref": "#/definitions/I18nObj",
+          "description": "源端到目的端关系的描述,默认值null, 格式为{\"key1\":\"value1\",\"key2\":\"value2\"},最大长度500,其中key是国际化locale标识,如zh_CN、en_US等",
+          "maxLength": 500,
+          "minLength": 1
+        },
+        "targetRemark": {
+          "$ref": "#/definitions/I18nObj",
+          "description": "目的端到源端关系的描述,默认值null, 格式为{\"key1\":\"value1\",\"key2\":\"value2\"},最大长度500,其中key是国际化locale标识,如zh_CN、en_US等",
+          "maxLength": 500,
+          "minLength": 1
+        },
+        "targetReportAttrName": {
+          "type": "string",
+          "maxLength": 30,
+          "minLength": 1,
+          "description": "目的端上报关系的字段名称,目的端上报资源信息时使用该字段上报关系,字母或下划线开头,支持数字字母下划线,最大长度60"
+        },
+        "sourceReportAttrName": {
+          "type": "string",
+          "maxLength": 30,
+          "minLength": 1,
+          "description": "源端上报关系的字段名称,源端上报资源信息时使用该字段上报关系,字母或下划线开头,支持数字字母下划线,最大长度60"
+        },
+        "cardinality": {
+          "type": "integer",
+          "format": "int32",
+          "description": "基数类型:1{1:1},2{1:N},3{M:1}:4{M:N}"
+        },
+        "preset": {
+          "type": "boolean",
+          "description": "是否预置模型,创建时不需要。"
+        },
+        "type": {
+          "type": "string",
+          "description": "关系类型"
+        }
+      }
+    },
+    "I18nObj": {
+      "description": "国际化对象",
+      "required": [
+        "en_US",
+        "zh_CN"
+      ],
+      "properties": {
+        "en_US": {
+          "type": "string",
+          "description": "英文信息"
+        },
+        "zh_CN": {
+          "type": "string",
+          "description": "中文信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,324 @@
+{
+  "name": "UpdateRecurringSubMeeting",
+  "summary": "编辑周期性会议的子会议",
+  "tags": "会议管理",
+  "productshort": "Meeting",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1/mmc/management/conferences/cyclesubconf": {
+      "put": {
+        "tags": [
+          "会议管理"
+        ],
+        "summary": "编辑周期性会议的子会议",
+        "description": "该接口用于修改已预约的周期性会议的子会议。会议开始后,不能被修改。",
+        "operationId": "UpdateRecurringSubMeeting",
+        "x-apiexplorer-auth": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-order": 8,
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Access-Token"
+          },
+          {
+            "$ref": "#/parameters/X-Authorization-Type"
+          },
+          {
+            "$ref": "#/parameters/userUUID"
+          },
+          {
+            "name": "X-Site-Id",
+            "in": "header",
+            "required": false,
+            "description": "用于区分到哪个HCSO站点鉴权。\n> 该参数将废弃,请勿使用。",
+            "type": "string"
+          },
+          {
+            "name": "conferenceID",
+            "in": "query",
+            "required": true,
+            "description": "会议ID。",
+            "type": "string"
+          },
+          {
+            "name": "reqBody",
+            "in": "body",
+            "required": true,
+            "description": "编辑周期会议子会议请求。",
+            "schema": {
+              "$ref": "#/definitions/RestScheduleCycleConfDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功。"
+          },
+          "400": {
+            "description": "参数异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "MMC.111070005",
+                "error_msg": "CONF_DATA_NOT_FOUND"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedRsp"
+            }
+          },
+          "401": {
+            "description": "未鉴权或鉴权失败。",
+            "examples": {
+              "application/json": {
+                "error_code": "MMC.118000001",
+                "error_msg": "USER_TOKEN_AUTH_FAILED"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedRsp"
+            }
+          },
+          "500": {
+            "description": "服务端异常。",
+            "examples": {
+              "application/json": {
+                "error_code": "MMC.11070003",
+                "error_msg": "CONF_EXCEPTION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RestFailedRsp"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "修改周期子会议",
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/mmc/management/conferences/cyclesubconf?conferenceID=987495910",
+        "x-request-examples-1": {
+          "cycleSubConfID": "04eb5acd0a0511ec8546359413178027",
+          "mediaTypes": "HDVideo",
+          "startTime": "2021-08-31 08:35:00",
+          "length": 120
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CycleSubConfConfigDTO": {
+      "type": "object",
+      "x-imports": [
+        "lombok.Getter;",
+        "lombok.Setter;",
+        "lombok.ToString;",
+        "org.hibernate.validator.constraints.Range;",
+        "javax.validation.constraints.Max;",
+        "com.huawei.ncms.model.conf.bo.ShowAudienceCountInfo"
+      ],
+      "x-annotations": [
+        "@Getter",
+        "@Setter",
+        "@ToString"
+      ],
+      "properties": {
+        "callInRestriction": {
+          "description": "允许加入会议的范围。\n- 0: 所有用户\n- 2: 企业内用户\n- 3: 被邀请用户",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "audienceCallInRestriction": {
+          "description": "允许加入网络研讨会的观众范围。\n- 0:所有用户\n- 2:企业内用户和被邀请用户",
+          "type": "integer",
+          "format": "int32"
+        },
+        "allowGuestStartConf": {
+          "description": "是否允许来宾启动会议。\n- false:禁止来宾启动会议\n- true:允许来宾启动会议\n> 仅随机会议ID的会议生效。",
+          "type": "boolean"
+        },
+        "enableWaitingRoom": {
+          "description": "是否启用等候室。",
+          "type": "boolean"
+        },
+        "showAudienceCountInfo": {
+          "description": "网络研讨会观众数显示策略。",
+          "$ref": "#/definitions/ShowAudienceCountInfo"
+        }
+      }
+    },
+    "RestFailedRsp": {
+      "description": "错误码信息。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "example": "MMC.111072065"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误码描述。",
+          "example": "CONF_NOT_FOUND_OR_AUTH_FAILED"
+        }
+      }
+    },
+    "RestScheduleCycleConfDTO": {
+      "type": "object",
+      "x-imports": [
+        "lombok.Getter;",
+        "lombok.Setter;",
+        "lombok.extern.slf4j.Slf4j;",
+        "org.hibernate.validator.constraints.Length;",
+        "org.hibernate.validator.constraints.Range;",
+        "org.hibernate.validator.constraints.Range;",
+        "com.huawei.ncms.model.conf.dto.CycleParamsDTO;",
+        "com.huawei.ncms.model.conf.dto.RestAttendeeDTO;",
+        "com.huawei.ncms.model.conf.dto.RestConfConfigDTO;",
+        "com.huawei.ncms.model.conf.bo.interpreter.InterpreterGroupInfo;"
+      ],
+      "x-annotations": [
+        "@Getter",
+        "@Setter",
+        "@Slf4j"
+      ],
+      "required": [
+        "cycleSubConfID",
+        "mediaTypes",
+        "startTime",
+        "length"
+      ],
+      "properties": {
+        "cycleSubConfID": {
+          "description": "子会议UUID。",
+          "type": "string",
+          "x-annotations": [
+            "@Length(max=32, message=\"the RestScheduleCycleConfDTO.cycleSubConfID length larger than 32\")",
+            "@NotNull(message=\"the RestScheduleCycleConfDTO.cycleSubConfID is null\")"
+          ],
+          "maxLength": 32,
+          "minLength": 0
+        },
+        "mediaTypes": {
+          "description": "会议的媒体类型。\n* Voice:语音会议\n* HDVideo:视频会议",
+          "type": "string",
+          "x-annotations": [
+            "@NotNull(message=\"the RestScheduleCycleConfDTO.mediaTypes is null\")"
+          ]
+        },
+        "startTime": {
+          "description": "会议开始时间(UTC时间)。格式:yyyy-MM-dd HH:mm。\n> * 如果没有指定开始时间或填空串,则表示会议马上开始\n> * 时间是UTC时间,即0时区的时间",
+          "type": "string"
+        },
+        "length": {
+          "description": "会议持续时长,单位分钟。默认30分钟。最大1440分钟(24小时),最小15分钟。",
+          "type": "integer",
+          "format": "int32",
+          "x-annotations": [
+            "@Range(min=15L, max=1440L, message=\"the RestScheduleCycleConfDTO.length must between 15 or 1440\")"
+          ],
+          "maximum": 1440,
+          "minimum": 15,
+          "default": 30
+        },
+        "isAutoRecord": {
+          "description": "会议是否自动启动录制,在录播类型为:录播、录播+直播时才生效。默认为不自动启动。\n* 1:自动启动录制\n* 0:不自动启动录制",
+          "type": "integer",
+          "format": "int32",
+          "x-annotations": [
+            "@Range(min=0L, max=1L, message=\"the RestScheduleCycleConfDTO.isAutoRecord must be 0 or 1\")"
+          ],
+          "maximum": 1,
+          "minimum": 0,
+          "default": 0
+        },
+        "confConfigInfo": {
+          "description": "会议其他配置信息。",
+          "$ref": "#/definitions/CycleSubConfConfigDTO"
+        },
+        "recordAuthType": {
+          "description": "录播观看鉴权方式,在录播类型为:录播、直播+录播时有效。\n* 0:可通过链接观看/下载\n* 1:企业用户可观看/下载\n* 2:与会者可观看/下载",
+          "type": "integer",
+          "format": "int32",
+          "x-annotations": [
+            "@Range(min=0L, max=2L, message=\"the RestScheduleCycleConfDTO.recordAuthType must be 0 or 1 or 2\")"
+          ],
+          "maximum": 2,
+          "minimum": 0
+        },
+        "description": {
+          "description": "会议描述,长度限制为200个字符。",
+          "type": "string",
+          "x-annotations": [
+            "@Length(max=200, message=\"the RestScheduleCycleConfDTO.description length must <= 200\")"
+          ],
+          "maxLength": 200,
+          "minLength": 0
+        }
+      }
+    },
+    "ShowAudienceCountInfo": {
+      "type": "object",
+      "properties": {
+        "showAudienceMode": {
+          "description": "观众显示策略。\n* 0:不显示\n* 1:倍增显示与会人数。基于实时与会人数或累计与会人次(假设为N),可以再进行倍增设置。支持设置倍增倍数X和基础人数Y,设置后,显示的人数为:N*X+Y",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "baseAudienceCount": {
+          "description": "基础人数。范围是0~10000。",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "multiple": {
+          "description": "倍增倍数。范围是1~10, 支持设置到小数点后1位。",
+          "type": "number",
+          "format": "double",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Authorization-Type": {
+      "name": "X-Authorization-Type",
+      "in": "header",
+      "required": false,
+      "description": "标识是否为第三方portal过来的请求。\n> 该参数将废弃,请勿使用。",
+      "type": "string"
+    },
+    "X-Access-Token": {
+      "name": "X-Access-Token",
+      "in": "header",
+      "description": "Access Token。通过[执行App ID鉴权](https://support.huaweicloud.com/api-meeting/meeting_21_0311.html) 接口返回的accessToken。",
+      "required": true,
+      "format": "password",
+      "type": "string",
+      "x-example": "stb42Kw30IPpsIRm3DhsE0ym7B2tdAHcwfyY"
+    },
+    "userUUID": {
+      "name": "userUUID",
+      "in": "query",
+      "required": false,
+      "description": "用户的UUID。\n> 该参数将废弃,请勿使用。",
+      "type": "string",
+      "x-example": "c350dba240ed4fd5b37236865c64cd1d"
+    }
+  },
+  "host": "api-intl.meeting.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

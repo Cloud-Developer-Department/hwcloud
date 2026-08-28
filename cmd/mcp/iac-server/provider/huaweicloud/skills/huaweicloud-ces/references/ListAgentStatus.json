@@ -1,0 +1,313 @@
+{
+  "name": "ListAgentStatus",
+  "summary": "插件状态查询",
+  "tags": "插件状态查询",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/agent-status/batch-query": {
+      "post": {
+        "tags": [
+          "插件状态查询"
+        ],
+        "operationId": "ListAgentStatus",
+        "summary": "插件状态查询",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-version": "v3",
+        "x-api-type": "open-api",
+        "description": "插件状态查询,包括uniagent状态以及插件状态",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectID"
+          },
+          {
+            "$ref": "#/parameters/ContentType"
+          },
+          {
+            "$ref": "#/parameters/ProjectAuthToken"
+          },
+          {
+            "name": "ListAgentStatusRequestBody",
+            "description": "批量查询插件状态请求体",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ListAgentStatusRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "插件状态查询返回体",
+            "schema": {
+              "$ref": "#/definitions/ListAgentStatusResp"
+            },
+            "examples": {
+              "application/json": {
+                "agent_status": [
+                  {
+                    "instance_id": "111111111111",
+                    "uniagent_status": "none",
+                    "extensions": [
+                      {
+                        "name": "telescope",
+                        "status": "none",
+                        "version": "2.5.6"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp400"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp401"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp403"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp500"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListAgentStatusRequestBody": {
+      "example": {
+        "instance_ids": [
+          "111111111111"
+        ],
+        "uniagent_status": "none",
+        "extension_name": "telescope",
+        "extension_status": "none"
+      },
+      "required": [
+        "instance_ids"
+      ],
+      "properties": {
+        "instance_ids": {
+          "description": "**参数解释**:\n机器实例id列表\n**约束限制**:\n包含的机器实例id最多为2000个,最少为1个\n",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2000,
+          "items": {
+            "type": "string",
+            "description": "机器实例id",
+            "pattern": "^[a-zA-Z0-9-]{1,64}$"
+          }
+        },
+        "uniagent_status": {
+          "type": "string",
+          "description": "**参数解释**:\nuniagent运行状态,不传值则查出所有状态\n**约束限制**:\n不涉及。\n**取值范围**:\n- none: 未安装\n- running: 运行中\n- silent: 静默状态,用于大规模插件异常时,紧急规避的一种措施,现象是kill掉telescope,只保留uniagent的心跳功能\n- unknown: 心跳故障,不上报心跳数据,属于连接丢失故障\n**默认取值**:\n不涉及\n",
+          "enum": [
+            "none",
+            "running",
+            "silent",
+            "unknown"
+          ]
+        },
+        "extension_name": {
+          "type": "string",
+          "description": "**参数解释**:\n插件名称,不传查所有插件\n**约束限制**:\n当前仅支持查询telescope插件\n**取值范围**:\n- telescope: 主机监控插件telescope\n**默认取值**:\ntelescope\n",
+          "enum": [
+            "telescope"
+          ]
+        },
+        "extension_status": {
+          "type": "string",
+          "description": "**参数解释**:\n插件状态,不传查所有状态 \n**约束限制**:\n不涉及\n**取值范围**:\n- none: 未安装\n- running: 运行中\n- stopped:已停止\n- fault: 进程故障,应该运行的插件,没运行,属于客户端故障\n- unknown: 心跳故障,不上报心跳数据,属于连接丢失故障\n**默认取值**:\n不涉及\n",
+          "enum": [
+            "none",
+            "running",
+            "stopped",
+            "fault",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "ErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "pattern": "^(taskmgr\\.[0-9]{4})$"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "ErrorResp400": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0005",
+        "error_msg": "Some content in message body is not correct."
+      }
+    },
+    "ErrorResp401": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0003",
+        "error_msg": "Authentication fails or the authentication information is not provided"
+      }
+    },
+    "ErrorResp500": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0001",
+        "error_msg": "Internal service error"
+      }
+    },
+    "ErrorResp403": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ErrorResp"
+        }
+      ],
+      "example": {
+        "error_code": "taskmgr.0007",
+        "error_msg": "The authentication information is incorrect or the service invoker does not have sufficient rights."
+      }
+    },
+    "ExtensionInfo": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:\n插件名称\n**取值范围**:\n长度为[1,64]个字符\n",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:\n 插件状态\n**取值范围**:\n- none: 未安装\n- running: 运行中\n- stopped: 已停止\n- fault: 故障(进程异常)\n- unknown: 故障(连接异常)\n",
+          "enum": [
+            "none",
+            "running",
+            "stopped",
+            "fault",
+            "unknown"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "description": "**参数解释**:\n插件版本\n**取值范围**:\n长度为[1,32]个字符\n",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      }
+    },
+    "ListAgentStatusResp": {
+      "properties": {
+        "agent_status": {
+          "type": "array",
+          "description": "**参数解释**:\nagent插件状态列表\n",
+          "minItems": 1,
+          "maxItems": 2000,
+          "items": {
+            "$ref": "#/definitions/AgentStatusInfo"
+          }
+        }
+      }
+    },
+    "AgentStatusInfo": {
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "**参数解释**:\n机器id\n**取值范围**:\n1到64个字符的字符串,且只包含字母、数字和连字符\n",
+          "pattern": "^[a-zA-Z0-9-]{1,64}$"
+        },
+        "uniagent_status": {
+          "type": "string",
+          "description": "**参数解释**:\nuniagent运行状态\n**取值范围**:\n- none: 未安装\n- running: 运行中\n- silent: 静默状态,用于大规模插件异常时,紧急规避的一种措施,现象是kill掉telescope,只保留uniagent的心跳功能\n- unknown: 心跳故障,不上报心跳数据,属于连接丢失故障\n",
+          "enum": [
+            "none",
+            "running",
+            "silent",
+            "unknown"
+          ]
+        },
+        "extensions": {
+          "type": "array",
+          "description": "**参数解释**:\n插件信息列表\n",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/ExtensionInfo"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectID": {
+      "name": "project_id",
+      "in": "path",
+      "description": "**参数解释**:项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见“[获取项目ID](ces_03_0057.xml)”。取值范围: 字符串的长度必须在 1 到 64个字符之间。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1,64]个字符\n**默认取值**:\n不涉及\n",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "required": true
+    },
+    "ContentType": {
+      "name": "Content-Type",
+      "in": "header",
+      "description": "**参数解释**:\n发送的实体的MIME类型\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,64]个字符\n**默认取值**:\napplication/json; charset=UTF-8\n",
+      "required": false,
+      "type": "string",
+      "default": "application/json; charset=UTF-8",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ProjectAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户project Token。用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,16384]个字符\n**默认取值**:\n不涉及\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

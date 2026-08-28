@@ -1,0 +1,506 @@
+{
+  "name": "BatchListMetricData",
+  "summary": "批量查询监控数据",
+  "tags": "监控数据管理",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/V1.0/{project_id}/batch-query-metric-data": {
+      "post": {
+        "tags": [
+          "监控数据管理"
+        ],
+        "summary": "批量查询监控数据",
+        "description": "批量查询指定时间范围内指定指标的指定粒度的监控数据,目前最多支持500指标的批量查询。 对于不同的period取值和查询的指标数量,默认的最大查询区间(to-from)不同。 规则为\"指标数量*(to-from)/监控周期<=3000\",若超出阈值,会自动调整from以满足规则。",
+        "operationId": "BatchListMetricData",
+        "x-ces-version": "v1",
+        "x-api-type": "open-api",
+        "x-php-exclude": "Y",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ContentType"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "in": "body",
+            "name": "BatchListMetricDataRequestBody",
+            "description": "批量查询监控数据,请求参数。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchListMetricDataRequestBody"
+            },
+            "x-order": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BatchListMetricDataResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "metrics": [
+                  {
+                    "unit": "request/s",
+                    "datapoints": [
+                      {
+                        "average": 0,
+                        "timestamp": 1484401920000
+                      },
+                      {
+                        "average": 1,
+                        "timestamp": 1484407920000
+                      }
+                    ],
+                    "namespace": "MINE.APP",
+                    "dimensions": [
+                      {
+                        "name": "instance_id",
+                        "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                      }
+                    ],
+                    "metric_name": "cpu_util"
+                  },
+                  {
+                    "unit": "request/s",
+                    "datapoints": [
+                      {
+                        "average": 2.3,
+                        "timestamp": 1484401920000
+                      },
+                      {
+                        "average": 1.2,
+                        "timestamp": 1484407920000
+                      }
+                    ],
+                    "namespace": "MINE.APP",
+                    "dimensions": [
+                      {
+                        "name": "instance_id",
+                        "value": "33328f02-3814-422e-b688-bfdba93d4051"
+                      }
+                    ],
+                    "metric_name": "cpu_util"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string",
+              "description": "请求错误。"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string",
+              "description": "未提供认证信息,或认证信息错误。"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "string",
+              "description": "请求页面被禁止访问。"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "schema": {
+              "type": "string",
+              "description": "请求超出了服务器的等待时间。"
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "schema": {
+              "type": "string",
+              "description": "请求过多。"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string",
+              "description": "请求未完成,服务异常。"
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "schema": {
+              "type": "string",
+              "description": "系统暂时不可用,请求受限。"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "批量查询监控数据",
+        "x-constraint": "须知:\n1. 单次POST请求消息体大小不能超过512KB,否则请求会被服务端拒绝。\n2. 单个API的调用次数限制为500次/分钟,如果返回信息中包含ces.0429或Too Many Requests,则说明该API被限流。处理方法请参见[API调用流控处理建议](ces_03_0162.xml)。\n3. 对于不同的period取值和查询的指标数量,其对应的默认最大查询区间(to - from)也不同,计算规则为“指标数量 * (to - from) / 监控周期 ≤ 3000”。\n指标数量:请求参数metrics属性对应元素的个数。\n监控周期:请求参数period属性对应的值,需要转为毫秒值。\n3000:响应体中的所有datapoints(指标数据列表)总和。\n- 当period值为“1”时,监控周期为60*1000ms=60000ms。\n- 当period值为\"300\" 时,监控周期为300*1000ms=300000ms。\n- 当period值为\"1200\" 时,监控周期为1200*1000ms=1200000ms。\n- 当period值为\"3600\" 时,监控周期为3600*1000ms=3600000ms。\n- 当period值为\"14400\" 时,监控周期为14400*1000ms=14400000ms。\n- 当period值为\"86400\" 时,监控周期为86400*1000ms=86400000ms。\n例如批量查询300个指标,监控周期为60000ms,可算出(to - from)最大值为\"600000\",若设定的请求参数使(to - from)超出最大值,from值会自动调整为\"to-600000\"。",
+        "x-version": "V1",
+        "x-scope": "Commercial",
+        "x-order": 11,
+        "x-request-examples-1": {
+          "metrics": [
+            {
+              "namespace": "MINE.APP",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                }
+              ],
+              "metric_name": "cpu_util"
+            },
+            {
+              "namespace": "MINE.APP",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "33328f02-3814-422e-b688-bfdba93d4051"
+                }
+              ],
+              "metric_name": "cpu_util"
+            }
+          ],
+          "from": 1484153313000,
+          "to": 1484653313000,
+          "period": "1",
+          "filter": "average"
+        },
+        "x-request-examples-text-1": {
+          "metrics": [
+            {
+              "namespace": "MINE.APP",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                }
+              ],
+              "metric_name": "cpu_util"
+            },
+            {
+              "namespace": "MINE.APP",
+              "dimensions": [
+                {
+                  "name": "instance_id",
+                  "value": "33328f02-3814-422e-b688-bfdba93d4051"
+                }
+              ],
+              "metric_name": "cpu_util"
+            }
+          ],
+          "from": 1484153313000,
+          "to": 1484653313000,
+          "period": "1",
+          "filter": "average"
+        },
+        "x-is-registered": "Y",
+        "x-first-open-time": "",
+        "x-source": "SelfDeveloped",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "Filter": {
+      "type": "string",
+      "description": "**参数解释**:\n数据聚合的方式。\n**约束限制**:\nperiod为1(原始值)时,filter字段不生效,参数值默认为average。period大于1时filter才起作用。\n**取值范围**:\n支持 average、variance、min、max、sum。\n- average: 平均值\n- variance:方差\n- min:最小值\n- max:最大值\n- sum:求和\n**默认取值**:\n不涉及。",
+      "enum": [
+        "average",
+        "variance",
+        "min",
+        "max",
+        "sum"
+      ]
+    },
+    "MetricsDimensionResp": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "**参数解释**\n资源维度,如:弹性云服务器,则维度为instance_id;目前最大支持4个维度,各服务资源的维度名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。\n**取值范围**\n由字母开头,后面可以包含字母、数字、_或-,长度为[1,32]个字符",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-)*$"
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释**\n资源维度值,为资源的实例ID,如:4270ff17-aba3-4138-89fa-820594c39755。\n**取值范围**\n长度为[1,256]个字符",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^([a-z]|[A-Z]|[0-9]|\\*|_|/|#|\\(|\\)){1}([a-z]|[A-Z]|[0-9]|_|-|\\.|/|#|\\(|\\))*$"
+        }
+      },
+      "description": "**参数解释**\n指标维度响应体"
+    },
+    "BatchMetricData": {
+      "required": [
+        "datapoints",
+        "metric_name"
+      ],
+      "properties": {
+        "unit": {
+          "type": "string",
+          "description": "**参数解释**\n指标单位\n**取值范围**\n不涉及",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "datapoints": {
+          "type": "array",
+          "description": "**参数解释**\n指标数据列表。由于查询数据时,云监控会根据所选择的聚合粒度向前取整from参数,所以datapoints中包含的数据点有可能会多于预期,最多返回3000个数据点(响应参数metrics属性对应对象datapoints属性累加最多返回3000个数据点)",
+          "items": {
+            "$ref": "#/definitions/DatapointForBatchMetric"
+          }
+        },
+        "namespace": {
+          "type": "string",
+          "description": "**参数解释**\n服务命名空间\n**取值范围**\n不涉及",
+          "minLength": 3,
+          "maxLength": 32
+        },
+        "metric_name": {
+          "type": "string",
+          "description": "**参数解释**\n指标名称,例如弹性云服务器监控指标中的cpu_util。\n**取值范围**\n不涉及",
+          "minLength": 1,
+          "maxLength": 96
+        },
+        "dimensions": {
+          "type": "array",
+          "description": "**参数解释**\n服务维度列表",
+          "items": {
+            "$ref": "#/definitions/MetricsDimensionResp"
+          }
+        }
+      },
+      "description": ""
+    },
+    "BatchPeriod": {
+      "type": "string",
+      "enum": [
+        "1",
+        "60",
+        "300",
+        "1200",
+        "3600",
+        "14400",
+        "86400"
+      ],
+      "description": "**参数解释**\n监控数据的聚合粒度,聚合解释可查看:“[聚合含义](https://support.huaweicloud.com/ces_faq/ces_faq_0009.html)”。\n**约束限制**\n不涉及\n**取值范围**\n枚举值:\n- 1 监控资源的实时数据\n- 60 聚合1分钟粒度数据,表示1分钟一个数据点\n- 300 聚合5分钟粒度数据,表示5分钟一个数据点\n- 1200 聚合20分钟粒度数据,表示20分钟一个数据点\n- 3600 聚合1小时粒度数据,表示1小时一个数据点\n- 14400 聚合4小时粒度数据,表示4小时一个数据点\n- 86400 聚合1天粒度数据,表示1天一个数据点\n**默认取值**\n不涉及"
+    },
+    "FromTimeStampSchema": {
+      "type": "integer",
+      "format": "int64",
+      "description": "**参数解释**\n查询数据起始时间,UNIX时间戳,单位毫秒\n**约束限制**\n当period为1时,若(to- from) >4*3600*1000,则from调整为 to - 4*3600*1000\n当period为300时,若(to - from) >24*3600*1000,则from调整为 to - 24*3600*1000\n当period为1200时,若(to - from) >3*24*3600*1000,则from调整为 to - 3*24*3600*1000\n当period为3600时,若(to -from) > 10*24*3600*1000,则from调整为 to -10*24*3600*1000\n当period为14400时,若(to - from) >30*24*3600*1000,则from调整为 to - 30*24*3600*1000\n当period为86400时,若(to -from) > 180*24*3600*1000,则from调整为 to - 180*24*3600*1000\n**取值范围**\n毫秒级时间戳范围为[1111111111111,9999999999999]\n**默认取值**\n不涉及",
+      "minimum": 1111111111111,
+      "maximum": 9999999999999,
+      "example": 1234567898765
+    },
+    "MetricNameSchema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "description": "**参数解释**:\n指标ID,例如弹性云服务器的监控指标CPU使用率,对应的metric_name为cpu_util。各服务资源的指标名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。\n**约束限制**:\n不涉及。\n**取值范围**:\n必须以字母开头,只能包含0-9/a-z/A-Z/_/-;如:弹性云服务器中的监控指标cpu_util,表示弹性服务器的CPU使用率;文档数据库中的指标mongo001_command_ps,表示command执行频率。字符串长度为[1,96]。\n**默认取值**:\n不涉及。",
+      "example": "cpu_util",
+      "pattern": "^([A-Za-z]){1}([0-9A-Za-z]|_|-)*$"
+    },
+    "BatchListMetricDataRequestBody": {
+      "required": [
+        "metrics",
+        "period",
+        "filter",
+        "from",
+        "to"
+      ],
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "description": "**参数解释**\n指标数据\n**约束限制**\n包含的指标数据对象个数为[1,500]",
+          "items": {
+            "$ref": "#/definitions/MetricInfo"
+          },
+          "minItems": 1,
+          "maxItems": 500
+        },
+        "period": {
+          "$ref": "#/definitions/BatchPeriod"
+        },
+        "filter": {
+          "$ref": "#/definitions/Filter"
+        },
+        "from": {
+          "$ref": "#/definitions/FromTimeStampSchema"
+        },
+        "to": {
+          "$ref": "#/definitions/ToTimeStampSchema"
+        }
+      },
+      "description": ""
+    },
+    "BatchListMetricDataResponseBody": {
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "description": "**参数解释**\n监控指标响应体",
+          "minLength": 0,
+          "maxLength": 3000,
+          "items": {
+            "$ref": "#/definitions/BatchMetricData"
+          }
+        }
+      },
+      "description": ""
+    },
+    "DatapointForBatchMetric": {
+      "required": [
+        "timestamp"
+      ],
+      "properties": {
+        "max": {
+          "type": "number",
+          "format": "double",
+          "description": "**参数解释**\n聚合周期内指标数据的最大值\n**取值范围**\n不涉及"
+        },
+        "min": {
+          "type": "number",
+          "description": "**参数解释**\n聚合周期内指标数据的最小值\n**取值范围**\n不涉及",
+          "format": "double"
+        },
+        "average": {
+          "type": "number",
+          "description": "**参数解释**\n聚合周期内指标数据的平均值\n**取值范围**\n不涉及",
+          "format": "double"
+        },
+        "sum": {
+          "type": "number",
+          "description": "**参数解释**\n聚合周期内指标数据的求和值\n**取值范围**\n不涉及",
+          "format": "double"
+        },
+        "variance": {
+          "type": "number",
+          "description": "**参数解释**\n聚合周期内指标数据的方差\n**取值范围**\n不涉及",
+          "format": "double"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**\n指标采集时间,UNIX时间戳,单位毫秒\n**取值范围**\n不涉及"
+        }
+      },
+      "description": ""
+    },
+    "NamespaceSchema": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 32,
+      "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*\\.([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_)*$",
+      "description": "**参数解释**\n服务命名空间,样例:弹性云服务器的命名空间为SYS.ECS。\n各服务命名空间请参阅[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)。\n**约束限制**\n不涉及\n**取值范围**\n格式为service.item,service和item以点号拼接组成。\nservice和item必须以字母(大写或小写)开头,后面可以跟零个或多个字母(大写或小写)、数字、下划线(_),长度为[3,32]个字符\n**默认取值**\n不涉及",
+      "example": "SYS.ECS"
+    },
+    "MetricInfo": {
+      "required": [
+        "namespace",
+        "metric_name",
+        "dimensions"
+      ],
+      "properties": {
+        "namespace": {
+          "$ref": "#/definitions/NamespaceSchema"
+        },
+        "metric_name": {
+          "$ref": "#/definitions/MetricNameSchema"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/MetricsDimensionArray"
+        }
+      },
+      "description": "**参数解释**:\n指标信息\n**约束限制**:\n不涉及"
+    },
+    "ToTimeStampSchema": {
+      "type": "integer",
+      "format": "int64",
+      "description": "**参数解释**\n查询数据截止时间,UNIX时间戳,单位毫秒\n**约束限制**\nfrom 必须小于to\n**取值范围**\n毫秒级时间戳范围为[1111111111111,9999999999999]\n**默认取值**\n不涉及",
+      "minimum": 1111111111111,
+      "maximum": 9999999999999,
+      "example": 1234567898765
+    },
+    "MetricsDimension": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "**参数解释**\n资源维度,如:弹性云服务器,则维度为instance_id;目前最大支持4个维度,各服务资源的维度名称,请参阅具体云服务的文档。您可以直接从[支持监控的服务列表](https://support.huaweicloud.com/api-ces/ces_03_0059.html)页面导航至相应文档。\n**约束限制**\n不涉及\n**取值范围**\n由字母开头,后面可以包含字母、数字、_或-,长度为[1,32]个字符\n**默认取值**\n不涉及",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^([a-z]|[A-Z]){1}([a-z]|[A-Z]|[0-9]|_|-)*$"
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释**\n资源维度值,为资源的实例ID,如:4270ff17-aba3-4138-89fa-820594c39755。\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,256]个字符\n**默认取值**\n不涉及",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^([a-z]|[A-Z]|[0-9]|\\*|_|/|#|\\(|\\)){1}([a-z]|[A-Z]|[0-9]|_|-|\\.|/|#|\\(|\\))*$"
+        }
+      },
+      "description": "指标维度",
+      "required": [
+        "name",
+        "value"
+      ]
+    },
+    "MetricsDimensionArray": {
+      "type": "array",
+      "minLength": 1,
+      "maxLength": 4,
+      "items": {
+        "$ref": "#/definitions/MetricsDimension"
+      },
+      "description": "**参数解释**\n指标维度\n**约束限制**\n包含的指标维度对象个数为[1,4]"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,64]个字符。\n**默认取值**:\n不涉及。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ContentType": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "**参数解释**:\n发送的实体的MIME类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,64]个字符。\n**默认取值**:\n默认使用 application/json; charset=UTF-8,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+      "type": "string",
+      "default": "application/json; charset=UTF-8",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-order": 1
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "**参数解释**:\n用户Token。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度为[1,16384]个字符。\n**默认取值**:\n不涉及。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "x-order": 2
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

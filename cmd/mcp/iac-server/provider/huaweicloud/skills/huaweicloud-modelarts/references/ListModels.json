@@ -1,0 +1,376 @@
+{
+  "name": "ListModels",
+  "summary": "查询AI应用列表",
+  "tags": "AI应用管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/models": {
+      "get": {
+        "tags": [
+          "AI应用管理"
+        ],
+        "summary": "查询AI应用列表",
+        "description": "查询AI应用列表,可以根据不同的检索参数进行查询。",
+        "operationId": "ListModels",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户项目ID。获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "0500cb339e00d3262f37c01db69d3e61"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "model_name",
+            "in": "query",
+            "description": "模型名称,可支持模糊匹配。当模型名称包含下划线时,由于下划线涉及转义处理,因此需要在请求中增加exact_match参数,且参数值设置为true,确保能够正常执行查询操作。",
+            "required": false,
+            "type": "string",
+            "x-example": "my-model"
+          },
+          {
+            "name": "exact_match",
+            "in": "query",
+            "required": false,
+            "description": "是否对下划线进行转义处理,当模型名称包含下划线时,需要将该参数值设置为true,确保能够正常执行查询操作。默认不填该值。",
+            "type": "string"
+          },
+          {
+            "name": "model_version",
+            "in": "query",
+            "description": "模型版本。格式需为“数值:数值:数值”,其中数值为1-2位正整数,注意:版本不可以出现例如01.01.01等以0开头的版本号形式。",
+            "required": false,
+            "type": "string",
+            "x-example": "0.0.1"
+          },
+          {
+            "name": "model_status",
+            "in": "query",
+            "description": "模型状态,可根据模型状态执行查询。模型状态:\n- publishing:发布中\n- published:已发布\n- failed:发布失败\n- building: 构建镜像中\n- building_failed: 构建失败",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "publishing",
+              "published",
+              "failed",
+              "building",
+              "building_failed"
+            ],
+            "x-example": "published"
+          },
+          {
+            "name": "description",
+            "in": "query",
+            "description": "描述信息,可支持模糊匹配。",
+            "required": false,
+            "type": "string",
+            "x-example": "my-description"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "指定要查询页的索引,默认为“0”。",
+            "required": false,
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "指定每一页返回的最大条目数,默认为“1000”。",
+            "required": false,
+            "type": "integer",
+            "default": 1000
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "指定排序字段,枚举值如下:\n- create_at:默认值,AI应用创建时间\n- model_version:AI应用版本\n- model_size:AI应用大小",
+            "required": false,
+            "type": "string",
+            "default": "create_at",
+            "enum": [
+              "create_at",
+              "model_version",
+              "model_size"
+            ]
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "排序方式,枚举值如下:\n- asc: 递增排序\n- desc: 递减排序,默认值",
+            "required": false,
+            "type": "string",
+            "default": "desc",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "description": "工作空间ID。获取方法请参见[查询工作空间列表](ListWorkspace.xml)。未创建工作空间时默认值为“0”,存在创建并使用的工作空间,以实际取值为准。",
+            "required": false,
+            "type": "string",
+            "default": "0"
+          },
+          {
+            "name": "model_type",
+            "in": "query",
+            "description": "模型类型,查询属于该类型的模型列表。model_type与not_model_type为互斥关系,不能同时存在。可选值为TensorFlow、PyTorch、MindSpore、Image、Custom、Template。",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "TensorFlow",
+              "MXNet",
+              "Caffe",
+              "Spark_MLlib",
+              "Scikit_Learn",
+              "XGBoost",
+              "Image",
+              "PyTorch",
+              "Template"
+            ],
+            "x-example": "TensorFlow"
+          },
+          {
+            "name": "not_model_type",
+            "in": "query",
+            "description": "模型类型,查询不属于该类型的模型列表。可选值为TensorFlow、PyTorch、MindSpore、Image、Custom、Template。",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "TensorFlow",
+              "MXNet",
+              "Caffe",
+              "Spark_MLlib",
+              "Scikit_Learn",
+              "XGBoost",
+              "Image",
+              "PyTorch",
+              "Template"
+            ],
+            "x-example": "TensorFlow"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "模型列表",
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "count": 1,
+                "models": [
+                  {
+                    "model_name": "mnist",
+                    "model_version": "1.0.0",
+                    "model_id": "10eb0091-887f-4839-9929-cbc884f1e20e",
+                    "model_type": "tensorflow",
+                    "model_size": 5012312,
+                    "tenant": "6d28e85aa78b4e1a9b4bd83501bcd4a1",
+                    "project": "d04c10db1f264cfeb1966deff1a3527c",
+                    "owner": "6d28e85aa78b4e1a9b4bd83501bcd4a1",
+                    "create_at": 1533041553000,
+                    "description": "mnist model",
+                    "workspace_id": "0",
+                    "specification": {}
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListModelsResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/models",
+        "x-support-sdk": "N",
+        "x-is-registered": "Y",
+        "x-publish-doc": "Y",
+        "x-open-region-cloud": "hk,hc,fcs,fcs-super"
+      }
+    }
+  },
+  "definitions": {
+    "ModelListItem": {
+      "properties": {
+        "owner": {
+          "type": "string",
+          "example": "6d28e85aa78b4e1a9b4bd83501bcd4a1",
+          "description": "模型所属租户的用户id。"
+        },
+        "model_version": {
+          "type": "string",
+          "example": "1.0.0",
+          "description": "模型版本。"
+        },
+        "model_type": {
+          "type": "string",
+          "example": "TensorFlow",
+          "description": "模型类型。"
+        },
+        "description": {
+          "type": "string",
+          "example": "my model",
+          "description": "模型描述信息。"
+        },
+        "project": {
+          "type": "string",
+          "example": "d04c10db1f264cfeb1966deff1a3527c",
+          "description": "模型所属租户的项目id。"
+        },
+        "source_type": {
+          "type": "string",
+          "example": "auto",
+          "description": "模型来源的类型,仅当模型为自动学习部署过来时有值,取值为auto。"
+        },
+        "model_id": {
+          "type": "string",
+          "example": "10eb0091-887f-4839-9929-cbc884f1e20e",
+          "description": "模型id。"
+        },
+        "model_source": {
+          "type": "string",
+          "example": "auto",
+          "description": "模型来源。auto:自动学习;algos:预置算法;custom:自定义。"
+        },
+        "install_type": {
+          "type": "array",
+          "example": [
+            "real-time",
+            "batch",
+            "edge"
+          ],
+          "description": "模型支持的部署类型列表。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "model_size": {
+          "type": "integer",
+          "example": 5012312,
+          "description": "模型大小,单位为字节数。"
+        },
+        "workspace_id": {
+          "type": "string",
+          "example": "0",
+          "description": "工作空间ID。获取方法请参见[查询工作空间列表](ListWorkspace.xml)。未创建工作空间时默认值为“0”,存在创建并使用的工作空间,以实际取值为准。"
+        },
+        "model_status": {
+          "type": "string",
+          "example": "published",
+          "description": "模型状态。"
+        },
+        "market_flag": {
+          "type": "boolean",
+          "example": false,
+          "description": "标识模型是否来自市场。"
+        },
+        "tunable": {
+          "type": "boolean",
+          "example": false,
+          "description": "标识模型是否支持二次调优。true表示支持,false表示不支持。"
+        },
+        "model_name": {
+          "type": "string",
+          "example": "my-model",
+          "description": "模型名称。"
+        },
+        "create_at": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1533041553000,
+          "description": "模型创建时间,距“1970.1.1 0:0:0 UTC”毫秒数。"
+        },
+        "publishable_flag": {
+          "type": "boolean",
+          "example": false,
+          "description": "标识模型是否可发布至市场。"
+        },
+        "source_copy": {
+          "type": "string",
+          "description": "镜像复制开关,仅当“model_type”为“Image”时有效。\n\n- true:表示复制镜像模式,无法极速创建AI应用,SWR源目录中的镜像更改或删除不影响服务部署。\n- false:表示不复制镜像模式,可极速创建AI应用,更改或删除SWR源目录中的镜像会影响服务部署。\n不设置值时,默认为复制镜像模式。"
+        },
+        "tenant": {
+          "type": "string",
+          "example": "6d28e85aa78b4e1a9b4bd83501bcd4a1",
+          "description": "模型所属租户的账号id。"
+        },
+        "subscription_id": {
+          "type": "string",
+          "description": "模型订阅ID。"
+        },
+        "extra": {
+          "type": "string",
+          "description": "扩展字段。"
+        },
+        "specification": {
+          "$ref": "#/definitions/ModelSpecification"
+        }
+      },
+      "description": "模型列表展示的信息。",
+      "type": "object"
+    },
+    "ListModelsResponse": {
+      "properties": {
+        "models": {
+          "type": "array",
+          "description": "模型元数据信息。",
+          "items": {
+            "$ref": "#/definitions/ModelListItem"
+          }
+        },
+        "total_count": {
+          "type": "integer",
+          "example": 1,
+          "description": "不分页的情况下符合查询条件的总模型数量。"
+        },
+        "count": {
+          "type": "integer",
+          "example": 1,
+          "description": "符合查询条件的模型数量。"
+        }
+      },
+      "description": "模型列表接口的响应。"
+    },
+    "ModelSpecification": {
+      "properties": {
+        "min_cpu": {
+          "type": "string",
+          "description": "最小CPU规格。"
+        },
+        "min_gpu": {
+          "type": "string",
+          "description": "最小GPU规格。"
+        },
+        "min_memory": {
+          "type": "string",
+          "description": "最小内存。"
+        },
+        "min_ascend": {
+          "type": "string",
+          "description": "最小Ascend规格。"
+        }
+      },
+      "description": "模型部署最小部署规格。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

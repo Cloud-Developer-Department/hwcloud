@@ -1,0 +1,232 @@
+{
+  "name": "CreateExportTask",
+  "summary": "创建导出任务",
+  "tags": "导出任务",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/export-tasks": {
+      "post": {
+        "operationId": "CreateExportTask",
+        "tags": [
+          "ExportTasks"
+        ],
+        "summary": "创建导出任务",
+        "description": "应用服务器可调用此接口创建资源导出任务。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-externalAPI": true,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0079.html#section1) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "body",
+            "name": "CreateExportTasksRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddExportTask"
+            }
+          }
+        ],
+        "x-returnType": "ResponseEntity<ExportTask>",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "x-SuccessCode": true,
+            "schema": {
+              "$ref": "#/definitions/ExportTask"
+            },
+            "examples": {
+              "application/json": {
+                "export_task_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+                "resource_type": "BatchTask",
+                "resource_condition": {
+                  "task_id": "32822e5744a45ede319d2c50"
+                },
+                "export_format": "xls",
+                "status": "Processing",
+                "export_count": 10000,
+                "progress": "98,",
+                "create_time": "2020-08-12T12:12:12.333Z",
+                "end_time": "2020-08-12T12:12:12.333Z",
+                "app_type": "string",
+                "app_id": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.013005",
+              "IOTDA.014034",
+              "IOTDA.014800"
+            ]
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "x-Error": [
+              "IOTDA.001005",
+              "IOTDA.001006",
+              "IOTDA.001007",
+              "IOTDA.013006",
+              "IOTDA.000022",
+              "IOTDA.014805",
+              "IOTDA.014801"
+            ]
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/export-tasks",
+        "x-request-examples-description-1": "创建导出任务。",
+        "x-request-examples-text-1": {
+          "resource_type": "BatchTask",
+          "resource_condition": {
+            "task_id": "5f433ce0c24389024365fdfa"
+          },
+          "export_format": "xls",
+          "app_type": "APP",
+          "app_id": "jeQDJQZltU8iKgFFoW060F5SGZka"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddExportTask": {
+      "title": "创建导出任务结构体",
+      "type": "object",
+      "description": "创建导出任务结构体。",
+      "required": [
+        "resource_type",
+        "resource_condition"
+      ],
+      "properties": {
+        "resource_type": {
+          "type": "string",
+          "description": "导出源资源类型,支持批量任务导出类型BatchTask。",
+          "pattern": "(BatchTask|Device|DevicePropertyHistory|MessageTraceData)",
+          "example": "BatchTask"
+        },
+        "resource_condition": {
+          "description": "资源过滤条件,Json 格式,里面是(K,V)键值对,当resource_type为BatchTask时填写填写key为task_id,value为BatchTask的task_id(task_id从批量任务接口获得)。",
+          "type": "object",
+          "example": {
+            "task_id": "5f433ce0c24389024365fdfa"
+          }
+        },
+        "export_format": {
+          "type": "string",
+          "description": "导出格式,目前仅支持xls格式,默认格式为xls.(注意下载的文件已使用zip打包,后缀为'.zip',此处格式指的导出内容承载格式)",
+          "pattern": "(xls)",
+          "example": "xls"
+        },
+        "app_type": {
+          "type": "string",
+          "description": "租户规则的生效范围,默认GLOBAL,取值如下:\n- GLOBAL:生效范围为租户级\n- APP:生效范围为应用级,如果类型为APP,需要携带app_id,如果不带,生效范围为defaultApp。",
+          "pattern": "(GLOBAL|APP)",
+          "example": "GLOBAL"
+        },
+        "app_id": {
+          "type": "string",
+          "description": "应用ID。此参数为非必选参数,用于兼容平台老用户存在多应用的场景。存在多应用的用户需要使用该接口时,必须携带该参数指定创建的规则归属到哪个应用下,否则接口会提示错误。如果用户存在多应用,同时又不想携带该参数,可以联系华为技术支持对用户数据做应用合并。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka"
+        }
+      }
+    },
+    "ExportTask": {
+      "title": "导出任务信息",
+      "type": "object",
+      "description": "导出任务信息。",
+      "properties": {
+        "export_task_id": {
+          "type": "string",
+          "description": "导出任务唯一id。",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka"
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "导出源资源类型,支持批量任务导出类型BatchTask。",
+          "pattern": "(BatchTask|Device|DevicePropertyHistory|MessageTraceData)",
+          "example": "BatchTask"
+        },
+        "resource_condition": {
+          "description": "资源过滤条件,Json格式,里面是(K,V)键值对,当resource_type为BatchTask时填写填写key为task_id,value为BatchTask的task_id(task_id从批量任务接口获得)。",
+          "type": "object",
+          "example": {
+            "task_id": "32822e5744a45ede319d2c50"
+          }
+        },
+        "export_format": {
+          "type": "string",
+          "description": "导出格式,目前xls格式。",
+          "pattern": "(xls)",
+          "example": "xls"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务状态,状态分别有:Processing:执行中,Success:成功,Failed:失败。",
+          "example": "Processing"
+        },
+        "export_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "已导出的资源数量。",
+          "example": 10000
+        },
+        "progress": {
+          "type": "integer",
+          "description": "导出任务的执行进度,取值范围为1-100,当100表示进度为100%,任务完成。",
+          "example": 98
+        },
+        "create_time": {
+          "x-isSensitive": true,
+          "description": "在物联网平台创建产品的时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',如2020-08-12T12:12:12.333Z。",
+          "type": "string",
+          "example": "2020-08-12T12:12:12.333Z"
+        },
+        "end_time": {
+          "x-isSensitive": true,
+          "description": "导出任务的执行结束时间,格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',如2020-08-12T12:12:12.333Z。",
+          "type": "string",
+          "example": "2020-08-12T12:12:12.333Z"
+        },
+        "app_type": {
+          "type": "string",
+          "description": "租户规则的生效范围,默认GLOBAL,取值如下:\n- GLOBAL:生效范围为租户级\n- APP:生效范围为应用级,如果类型为APP,需要携带app_id,如果不带,生效范围为defaultApp。",
+          "pattern": "(GLOBAL|APP)"
+        },
+        "app_id": {
+          "type": "string",
+          "description": "应用ID。此参数为非必选参数,用于兼容平台老用户存在多应用的场景。存在多应用的用户需要使用该接口时,必须携带该参数指定创建的规则归属到哪个应用下,否则接口会提示错误。如果用户存在多应用,同时又不想携带该参数,可以联系华为技术支持对用户数据做应用合并。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,291 @@
+{
+  "name": "ResizeDesktop",
+  "summary": "变更规格",
+  "tags": "桌面",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktops/resize": {
+      "post": {
+        "tags": [
+          "Desktop"
+        ],
+        "summary": "变更规格",
+        "description": "变更云桌面规格,只支持变更CPU和内存,不支持变更磁盘,不支持同规格互相变更。",
+        "operationId": "ResizeDesktop",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "ResizeDesktopRequestBody",
+            "description": "变更规格请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResizeDesktopReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "变更规格响应。",
+            "examples": {
+              "application/json": {
+                "job_id": "c566b960-69d1-44ec-9397-2172fdd01xxx",
+                "jobs": [
+                  {
+                    "desktop_id": "c566b960-69d1-44ec-9397-2172fdd015d9",
+                    "job_id": "41162624-ba52-42f3-bdda-15c6d345ff60"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResizeDesktopRsp"
+            }
+          },
+          "400": {
+            "description": "由于包含语法错误,当前请求无法被服务器理解。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "409": {
+            "description": "操作冲突。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-request-examples-text-1": {
+          "desktops": [
+            {
+              "desktop_id": "538946c2-7ff8-4444-b1bd-e9a1f8137b81"
+            }
+          ],
+          "product_id": "workspace.k.xlarge.2.linux",
+          "mode": "STOP_DESKTOP"
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceField = \"desktops.![desktopId]\")",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"workspace:desktops:resize\",  needApigwJwtAuthCheck = false, authContextInitializerName = \"workspaceInstanceListAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"resizeDesktop\")"
+        ],
+        "x-request-examples-url-1": "POST /v2/0bec5db98280d2d02fd6c00c2de791ce/desktops/resize",
+        "x-request-examples-1": {
+          "desktops": [
+            {
+              "desktop_id": "538946c2-7ff8-4444-b1bd-e9a1f8137b81"
+            }
+          ],
+          "product_id": "workspace.k.xlarge.2.linux",
+          "mode": "STOP_DESKTOP"
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-support-hcs": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "public,internal_token,internal_appcode",
+        "x-api-type": "open-api",
+        "x-workspace-api-auth": "CBC"
+      }
+    }
+  },
+  "definitions": {
+    "ResizeDesktopReq": {
+      "required": [
+        "desktops",
+        "mode",
+        "product_id"
+      ],
+      "properties": {
+        "desktops": {
+          "type": "array",
+          "description": "桌面数据。支持批量将桌面变更为同一规格。",
+          "items": {
+            "$ref": "#/definitions/ResizeDesktopData"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100
+        },
+        "product_id": {
+          "type": "string",
+          "description": "套餐id。批量变更时,则变更为同一规格的虚拟机。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "mode": {
+          "type": "string",
+          "description": "是否支持开机状态下执行变更规格操作。固定传值STOP_DESKTOP,如果桌面处于开机状态,会先关机再变更规格。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "auto_placement": {
+          "type": "string",
+          "description": "是否自动放置,专属主机桌面变更规格时使用,默认是off关闭自动放置,on表示开启自动放置。",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "desktop_pool_id": {
+          "type": "string",
+          "description": "桌面池id。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "description": "变更规格请求。"
+    },
+    "BaseError": {
+      "description": "API响应基类,用于老接口200响应,对文档不呈现。"
+    },
+    "ResizeDesktopRsp": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CbcCallbackRsp"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "jobs": {
+              "type": "array",
+              "description": "桌面变更规格返回的任务信息(jobs字段后续会下线,请使用job_id字段)。",
+              "items": {
+                "$ref": "#/definitions/ResizeDesktopJobResponse"
+              },
+              "maxItems": 2147483647,
+              "minItems": 0
+            },
+            "job_id": {
+              "type": "string",
+              "description": "变更规格任务id。",
+              "readOnly": true
+            }
+          }
+        }
+      ],
+      "description": "变更规格响应。"
+    },
+    "CbcCallbackRsp": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "description": "CBC回调创建包周期桌面时的响应体。注意:根据云运营平台的API规范,部分参数为驼峰型,不能修改为下划线连接,API规范检查时需要忽略。",
+      "x-is_inner_param": "True"
+    },
+    "ResizeDesktopData": {
+      "properties": {
+        "desktop_id": {
+          "type": "string",
+          "description": "桌面ID。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "description": "变更规格的桌面对象。"
+    },
+    "ResizeDesktopJobResponse": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseError"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "desktop_id": {
+              "type": "string",
+              "description": "桌面ID。",
+              "minLength": 0,
+              "maxLength": 255
+            },
+            "job_id": {
+              "type": "string",
+              "description": "任务ID。",
+              "minLength": 0,
+              "maxLength": 255
+            }
+          }
+        }
+      ],
+      "description": "变更桌面规格Job响应。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

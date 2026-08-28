@@ -1,0 +1,235 @@
+{
+  "name": "BatchCreatePoolTags",
+  "summary": "批量创建资源池标签",
+  "tags": "资源标签管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/pools/{pool_name}/tags/create": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-publish-doc": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hk,hc,hcso,hcs,fcs,fcs-super,hcs_sm",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/pools/a55eba18-1ebf-4e9a-8229-d2d3b593a3dc/tags/create",
+        "x-request-examples-text-1": {
+          "tags": [
+            {
+              "key": "test",
+              "value": "service-gpu"
+            },
+            {
+              "key": "model_version",
+              "value": "0.1"
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "tags": [
+            {
+              "key": "test",
+              "value": "service-gpu"
+            },
+            {
+              "key": "model_version",
+              "value": "0.1"
+            }
+          ]
+        },
+        "tags": [
+          "资源标签管理"
+        ],
+        "summary": "批量创建资源池标签",
+        "description": "批量创建资源池标签接口用于为指定资源池添加或更新多个标签信息。该接口适用于以下场景:当需要对资源池进行统一分类管理(如成本归属、环境标识)、批量配置元数据(如项目归属、负责人信息)或更新已有标签值时,管理员可通过此接口一次性操作多个标签。使用该接口的前提条件是目标资源池必须已存在且处于可管理状态,调用者需具备资源池标签管理权限,且提交的标签数据需符合格式规范(如key非空、value长度限制)。操作完成后,系统将为资源池添加新标签或覆盖同名标签的值,且不会影响资源池的其他配置属性。若资源池不存在、用户权限不足、标签格式错误或系统服务异常,接口将返回对应的错误信息(如\"404 Not Found\"、\"403 Forbidden\"、\"400 Bad Request\"或\"503 Service Unavailable\")。",
+        "operationId": "BatchCreatePoolTags",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:用户项目ID。获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。\n**约束限制**:1 - 64字符,字母、数字和中划线。\n**取值范围**:不涉及。\n**默认取值**:不涉及。"
+          },
+          {
+            "name": "pool_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:资源池名称。取自资源池详情的metadata字段中的name的值。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。"
+          },
+          {
+            "name": "createTagsRequest",
+            "in": "body",
+            "required": true,
+            "description": "**参数解释**:创建标签请求body体。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "schema": {
+              "$ref": "#/definitions/CreateTagRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "正常添加成功。",
+            "examples": {
+              "application/json": {
+                "tags": [
+                  {
+                    "key": "test",
+                    "value": "service-gpu"
+                  },
+                  {
+                    "key": "model_version",
+                    "value": "0.1"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/TagList"
+            }
+          },
+          "400": {
+            "description": "参数非法。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "权限不足。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源未找到。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateTagRequest": {
+      "type": "object",
+      "description": "**参数解释**:给资源添加标签请求体。",
+      "required": [
+        "tags"
+      ],
+      "properties": {
+        "tags": {
+          "type": "array",
+          "description": "**参数解释**:待添加的标签列表。",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/Tag"
+          }
+        }
+      }
+    },
+    "Tag": {
+      "type": "object",
+      "description": "**参数解释**:资源标签的详细信息。",
+      "example": {
+        "key": "test",
+        "value": "service-gpu"
+      },
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释**:标签的key。\n**取值范围**:不涉及。",
+          "pattern": "^((?!\\s)(?!_sys_)[\\p{L}\\p{Z}\\p{N}_.:=+\\-@]*)(?<!\\s)$",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释**:标签的value。\n**取值范围**:不涉及。",
+          "pattern": "^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "PoolTag": {
+      "type": "object",
+      "description": "资源类型的标签",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释**: 资源类型的标签。\n**取值范围**: 不涉及。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs,fcs"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**: 资源类型的标签值。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs,fcs"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "description": "请求失败时返回的错误对象。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:ModelArts错误码。\n**取值范围**:不涉及。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:具体错误信息。\n**取值范围**:不涉及。"
+        }
+      }
+    },
+    "TagList": {
+      "type": "object",
+      "description": "资源标签列表。",
+      "required": [
+        "tags"
+      ],
+      "properties": {
+        "tags": {
+          "items": {
+            "$ref": "#/definitions/PoolTag"
+          },
+          "description": "**参数解释**:资源标签的列表。",
+          "type": "array",
+          "x-open-region-cloud": "hk,hc,hcso,hcs,fcs"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

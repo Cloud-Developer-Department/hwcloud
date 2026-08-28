@@ -1,0 +1,293 @@
+{
+  "name": "ListSample",
+  "summary": "查询时序数据",
+  "tags": "监控",
+  "productshort": "AOM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/samples": {
+      "post": {
+        "x-request-examples-url-1": "https://{Endpoint}/v2/{project_id}/samples",
+        "x-request-examples-description-1": "通过namespace,metric_name和dimensions信息查询最近五分钟的监控时序数据。",
+        "x-request-examples-text-1": "{\n    \"samples\": [\n        {\n            \"namespace\": \"PAAS.CONTAINER\",\n            \"metric_name\": \"aom_process_cpu_usage\",\n            \"dimensions\": [\n                {\n                    \"name\": \"appName\",\n                    \"value\": \"aomApp\"\n                }\n            ]\n        }\n    ],\n    \"period\": 60,\n    \"time_range\": \"-1.-1.5\",// 最近5分钟\n      \"statistics\": [\n        \"sum\"\n    ]\n}\n",
+        "x-hybridcloud": true,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "tags": [
+          "监控"
+        ],
+        "operationId": "ListSample",
+        "summary": "查询时序数据",
+        "description": "该接口用于查询指定时间范围内的监控时序数据,可以通过参数指定需要查询的数据维度,数据周期等。",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的projectid,一般为32位字符串。",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "fill_value",
+            "in": "query",
+            "description": "用于对查询到的时序数据进行断点插值,默认值为-1。-1:断点处使用-1进行表示。0 :断点处使用0进行表示。null:断点处使用null进行表示。average:断点处使用前后邻近的有效数据的平均值进行表示,如果不存在有效数据则使用null进行表示。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ListSampleRequestBody",
+            "in": "body",
+            "description": "查询时序数据所需参数。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QuerySampleParam"
+            }
+          }
+        ],
+        "x-request-examples-1": "{\n    \"samples\": [\n        {\n            \"namespace\": \"PAAS.CONTAINER\",\n            \"metric_name\": \"aom_process_cpu_usage\",\n            \"dimensions\": [\n                {\n                    \"name\": \"appName\",\n                    \"value\": \"aomApp\"\n                }\n            ]\n        }\n    ],\n    \"period\": 60,\n    \"time_range\": \"-1.-1.5\",\n      \"statistics\": [\n        \"sum\"\n    ]\n}\n",
+        "responses": {
+          "200": {
+            "description": "OK 请求执行完成。",
+            "examples": {
+              "application/json": {
+                "samples": [
+                  {
+                    "sample": {
+                      "namespace": "PAAS.CONTAINER",
+                      "metric_name": "aom_process_cpu_usage",
+                      "dimensions": [
+                        {
+                          "name": "appName",
+                          "value": "aomApp"
+                        }
+                      ]
+                    },
+                    "data_points": [
+                      {
+                        "timestamp": 1694673300000,
+                        "unit": "Percent",
+                        "statistics": [
+                          {
+                            "statistic": "sum",
+                            "value": "23"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/QuerySampleData"
+            }
+          },
+          "400": {
+            "description": "BadRequest 非法请求。建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.04008105",
+                "error_msg": "Query metric data samples is invalid",
+                "error_type": "BAD_REQUEST",
+                "trace_id": ""
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/FailedRsp"
+            }
+          },
+          "401": {
+            "description": "Unauthorized  在客户端提供认证信息后,返回该状态码,表明服务端指出客户端所提供的认证信息不正确或非法。"
+          },
+          "403": {
+            "description": "Forbidden 请求被拒绝访问。返回该状态码,表明请求能够到达服务端,且服务端能够理解用户请求,但是拒绝做更多的事情,因为该请求被设置为拒绝访问,建议直接修改该请求,不要重试该请求。"
+          },
+          "500": {
+            "description": "InternalServerError 表明服务端能被请求访问到,但是不能理解用户的请求。"
+          },
+          "503": {
+            "description": "ServiceUnavailable 被请求的服务无效。建议直接修改该请求,不要重试该请求。"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StatisticValue": {
+      "description": "统计结果",
+      "type": "object",
+      "properties": {
+        "statistic": {
+          "type": "string",
+          "description": "统计方式。"
+        },
+        "value": {
+          "type": "number",
+          "description": "统计结果。",
+          "format": "double"
+        }
+      }
+    },
+    "DimensionSeries": {
+      "description": "时间序列维度列表。",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "维度名称。"
+        },
+        "value": {
+          "type": "string",
+          "description": "维度取值。"
+        }
+      }
+    },
+    "QuerySampleParam": {
+      "description": "时序数据查询参数。",
+      "properties": {
+        "samples": {
+          "type": "array",
+          "description": "时序数据对象列表。取值范围:JSON数组大小不超过20。",
+          "items": {
+            "$ref": "#/definitions/QuerySample"
+          }
+        },
+        "statistics": {
+          "type": "array",
+          "description": "统计方式。取值范围:maximum,minimum,sum,average,sampleCount。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "period": {
+          "type": "integer",
+          "description": "监控数据粒度。取值范围(枚举):60(表示粒度为1分钟),300(表示粒度为5分钟),900(表示粒度为15分钟),3600(表示粒度为1小时)。",
+          "format": "int32"
+        },
+        "time_range": {
+          "type": "string",
+          "description": "timeRange用于指标查询时间范围,主要用于解决客户端时间和服务端时间不一致情况下,查询最近N分钟的数据。另可用于精确查询某一段时间的数据。\n\n\n如:\n\n\n- -1.-1.60(表示最近60分钟),不管当前客户端是什么时间,都以服务端时间为准查询最近60分钟。\n\n\n- 1650852000000.1650852300000.5(表示GMT+8 2022-04-25 10:00:00至2022-04-25\n10:05:00指定的5分钟)\n\n\n格式:\n\n\nstartTimeInMillis.endTimeInMillis.durationInMinutes\n\n\n参数解释:\n\n\n- startTimeInMillis: 查询的开始时间,格式为UTC毫秒,如果指定为-1,服务端将按(endTimeInMillis -\ndurationInMinutes * 60 *\n1000)计算开始时间。如-1.1650852300000.5,则相当于1650852000000.1650852300000.5\n\n\n- endTimeInMillis: 查询的结束时间,格式为UTC毫秒,如果指定为-1,服务端将按(startTimeInMillis +\ndurationInMinutes * 60 *\n1000)计算结束时间,如果计算出的结束时间大于当前系统时间,则使用当前系统时间。如1650852000000.-1.5,则相当于1650852000000.1650852300000.5\n\n\n- durationInMinutes:查询时间的跨度分钟数。 取值范围大于0并且大于等于(endTimeInMillis -\nstartTimeInMillis) / (60 * 1000) -\n1。当开始时间与结束时间都设置为-1时,系统会将结束时间设置为当前时间UTC毫秒值,并按(endTimeInMillis -\ndurationInMinutes * 60 * 1000)计算开始时间。如:-1.-1.60(表示最近60分钟)\n\n\n约束:\n\n\n单次请求中,查询时长与周期需要满足以下条件: durationInMinutes * 60 / period <= 1440"
+        }
+      },
+      "required": [
+        "samples",
+        "statistics",
+        "period",
+        "time_range"
+      ],
+      "type": "object"
+    },
+    "MetricDataPoints": {
+      "description": "查询重点指标。",
+      "properties": {
+        "statistics": {
+          "type": "array",
+          "description": "统计方式。",
+          "items": {
+            "$ref": "#/definitions/StatisticValue"
+          }
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "时间戳。",
+          "format": "int64"
+        },
+        "unit": {
+          "type": "string",
+          "description": "时间序列单位。"
+        }
+      }
+    },
+    "QuerySampleData": {
+      "description": "响应结果。",
+      "type": "object",
+      "properties": {
+        "samples": {
+          "type": "array",
+          "description": "时间序列对象列表。",
+          "items": {
+            "$ref": "#/definitions/SampleDataValue"
+          }
+        }
+      }
+    },
+    "QuerySample": {
+      "description": "查询参数集。",
+      "properties": {
+        "namespace": {
+          "description": "时间序列命名空间。取值范围: PAAS.CONTAINER、PAAS.NODE、PAAS.SLA、PAAS.AGGR、CUSTOMMETRICS等。PAAS.CONTAINER:应用时间序列命名空间; PAAS.NODE:节点时间序列命名空间; PAAS.SLA:SLA时间序列命名空间;PAAS.AGGR:集群时间序列命名空间; CUSTOMMETRICS:自定义时间序列命名空间。",
+          "type": "string"
+        },
+        "dimensions": {
+          "type": "array",
+          "description": "时间序列维度列表。\n可通过/v2/{project_id}/series接口中namespace+metric_name,查询当前监控的时间序列名称的时间序列维度列表。",
+          "items": {
+            "$ref": "#/definitions/DimensionSeries"
+          }
+        },
+        "metric_name": {
+          "type": "string",
+          "description": "时间序列名称。名称长度取值范围为1~255个字符。取值范围:AOM提供的基础时间序列名称,cpuUsage、cpuCoreUsed等,cpuUsage:cpu使用率;cpuCoreUsed:cpu内核占用;用户上报的自定义时间序列名称。"
+        }
+      },
+      "required": [
+        "namespace",
+        "dimensions",
+        "metric_name"
+      ],
+      "type": "object"
+    },
+    "FailedRsp": {
+      "description": "失败时的返回对象。",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息描述。"
+        },
+        "error_type": {
+          "type": "string",
+          "description": "错误类型。"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "请求id"
+        }
+      }
+    },
+    "SampleDataValue": {
+      "description": "查询结果详细。",
+      "type": "object",
+      "properties": {
+        "sample": {
+          "description": "时间序列对象列表。",
+          "$ref": "#/definitions/QuerySample"
+        },
+        "data_points": {
+          "type": "array",
+          "description": "时序数据。",
+          "items": {
+            "$ref": "#/definitions/MetricDataPoints"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "aom.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

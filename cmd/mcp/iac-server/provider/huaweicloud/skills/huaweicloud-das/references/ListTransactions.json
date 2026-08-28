@@ -1,0 +1,276 @@
+{
+  "name": "ListTransactions",
+  "summary": "查询历史事务列表",
+  "tags": "云DBA",
+  "productshort": "DAS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/transaction": {
+      "get": {
+        "x-das-is-publish": "#GetTransactionSwitch_Placeholder#",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://das.cn-north-1.myhuaweicloud.com/v3/054c630ff780d4cc2f40c00d7f6fb21d/instances/a77c88dcfd404a64a466ca2cd2f5b8e5in01/transaction?datastore_type=MySQL&start_at=1&end_at=1717399020000",
+        "x-request-examples-description-1": "获取历史事务列表",
+        "tags": [
+          "云DBA"
+        ],
+        "summary": "查询历史事务列表",
+        "description": "查询历史事务列表。\n目前仅支持MySQL实例,仅支持查看最近7天的历史事务。",
+        "operationId": "ListTransactions",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例ID"
+          },
+          {
+            "name": "datastore_type",
+            "in": "query",
+            "required": true,
+            "description": "数据库类型。仅支持MySQL",
+            "type": "string",
+            "enum": [
+              "MySQL"
+            ]
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户token",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "语言",
+            "type": "string",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "start_at",
+            "in": "query",
+            "required": true,
+            "description": "采集开始时间(Unix timestamp),单位:毫秒。",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "end_at",
+            "in": "query",
+            "required": true,
+            "description": "采集结束时间(Unix timestamp),单位:毫秒。",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "description": "页数",
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "description": "页大小",
+            "type": "integer",
+            "format": "int32",
+            "default": 10
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "description": "排序字段",
+            "type": "string",
+            "default": "collectTime",
+            "enum": [
+              "occurrenceTime",
+              "lastSec",
+              "waitLockStructCount",
+              "holdLockStructCount",
+              "collectTime"
+            ]
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "required": false,
+            "description": "升序|降序",
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "desc"
+          },
+          {
+            "name": "last_sec_min",
+            "in": "query",
+            "required": false,
+            "description": "持续时间下限",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "last_sec_max",
+            "in": "query",
+            "required": false,
+            "description": "持续时间上限",
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/GetTransactionListResp"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "transaction_info_list": [
+                  {
+                    "collect_time": 1717398965000,
+                    "last_sec": 5,
+                    "wait_locks": 3,
+                    "hold_locks": 3,
+                    "occurrence_time": 1717398965000,
+                    "detail": "MySQL thread id 17485282, OS thread handle 140455451772672, query id 48549222 xxx root updating\ndelete from dead_lock_test where v1 = 5 and v2 = 5\n*** HOLDS THE LOCK:\nRECORD LOCKS space id 34691 page no 3 n bits 80 index PRIMARY of table `at_cloud_dba_001`.`dead_lock_test` trx id 690888 lock_mode X locks rec but not gap\nRecord lock, heap no 7 PHYSICAL RECORD: n_fields 5; compact format; info bits 0\n"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    },
+    "GetTransactionListResp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "example": 120,
+          "description": "历史事务总数"
+        },
+        "transaction_info_list": {
+          "items": {
+            "properties": {
+              "last_sec": {
+                "type": "integer",
+                "format": "int32",
+                "example": 5,
+                "description": "事务持续时间"
+              },
+              "wait_locks": {
+                "type": "integer",
+                "format": "int32",
+                "example": 3,
+                "description": "等待锁数量"
+              },
+              "hold_locks": {
+                "type": "integer",
+                "format": "int32",
+                "example": 3,
+                "description": "持有锁数量"
+              },
+              "occurrence_time": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1717398965000,
+                "description": "发生时间"
+              },
+              "detail": {
+                "type": "string",
+                "example": "MySQL thread id 17485282, OS thread handle 140455451772672, query id 48549222 100.125.9.95 root updating\ndelete from dead_lock_test where v1 = 5 and v2 = 5\n*** HOLDS THE LOCK:\nRECORD LOCKS space id 34691 page no 3 n bits 80 index PRIMARY of table `at_cloud_dba_001`.`dead_lock_test` trx id 690888 lock_mode X locks rec but not gap\nRecord lock, heap no 7 PHYSICAL RECORD: n_fields 5; compact format; info bits 0\n",
+                "description": "事务内容"
+              },
+              "collect_time": {
+                "type": "integer",
+                "format": "int64",
+                "description": "收集时间"
+              }
+            },
+            "required": [
+              "last_sec",
+              "wait_locks",
+              "hold_locks",
+              "occurrence_time",
+              "detail",
+              "collect_time"
+            ]
+          },
+          "type": "array",
+          "description": "历史事务信息列表"
+        }
+      },
+      "description": "历史事务列表返回体",
+      "required": [
+        "total",
+        "transaction_info_list"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "das.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

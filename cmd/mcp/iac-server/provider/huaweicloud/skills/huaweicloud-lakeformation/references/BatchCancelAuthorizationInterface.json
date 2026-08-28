@@ -1,0 +1,518 @@
+{
+  "name": "BatchCancelAuthorizationInterface",
+  "summary": "取消批量授权",
+  "tags": "接入管理",
+  "productshort": "LakeFormation",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/instances/{instance_id}/policies/revoke": {
+      "post": {
+        "tags": [
+          "Access"
+        ],
+        "summary": "取消批量授权",
+        "description": "批量取消授权接口",
+        "operationId": "BatchCancelAuthorizationInterface",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "租户token",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9]+$"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "instance id",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9-]{36}$"
+          },
+          {
+            "in": "body",
+            "name": "policy_input",
+            "description": "policy input body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccessPolicyInput"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "failed to read http request, please check your input, code: 400, reason: Type mismatch., cause: TypeMismatchException"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": "{\n  \"error_code\": 'APIG.1002',\n  \"error_msg\": 'Incorrect token or token resolution failed'\n}"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "403",
+                  "message": "X-Auth-Token is invalid in the request",
+                  "title": "Forbidden"
+                },
+                "error_code": "403",
+                "error_msg": "X-Auth-Token is invalid in the request",
+                "title": "Forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "common.01000001",
+                "error_msg": "response status exception, code: 404"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          },
+          "408": {
+            "description": "Request Timeout",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000408",
+                "error_msg": "timeout exception occurred"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "error_code": "common.00000500",
+                "error_msg": "internal error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            }
+          }
+        },
+        "x-request-examples-url-1": "/v1/{project_id}/instances/{instance_id}/policies/revoke",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-cts-meta-anno": {
+          "resourceType": "Access",
+          "traceName": "revokeAccess",
+          "isAsyncApi": "false"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TableInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "columns": {
+          "description": "sub columns info",
+          "$ref": "#/definitions/ColumnInfo"
+        },
+        "name": {
+          "type": "string",
+          "example": "tb1",
+          "description": "table name",
+          "pattern": "^[a-zA-Z0-9\\一-\\龥_*]*$"
+        }
+      },
+      "title": "TableInfo",
+      "description": "table input when grant policy"
+    },
+    "FunctionInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "function name"
+        }
+      },
+      "title": "FunctionInfo",
+      "description": "function input when grant policy"
+    },
+    "AccessPolicyInput": {
+      "type": "object",
+      "required": [
+        "effect",
+        "permissions",
+        "principal_list",
+        "resource"
+      ],
+      "properties": {
+        "principal_list": {
+          "type": "array",
+          "description": "主体信息",
+          "items": {
+            "$ref": "#/definitions/Principal"
+          },
+          "maxItems": 20
+        },
+        "resource": {
+          "description": "资源信息",
+          "$ref": "#/definitions/ResourceInfo"
+        },
+        "effect": {
+          "type": "boolean",
+          "description": "拒绝/允许",
+          "default": true,
+          "x-imports": [
+            "com.huawei.us.validator.annotation.UsNoConstraint;"
+          ],
+          "x-annotations": [
+            "@UsNoConstraint(reason = \"Boolean类型无需校验\")"
+          ]
+        },
+        "permissions": {
+          "type": "array",
+          "example": "ALTER,DROP",
+          "description": "权限列表",
+          "items": {
+            "type": "string",
+            "example": "ALTER",
+            "enum": [
+              "ALL",
+              "CREATE",
+              "ALTER",
+              "DROP",
+              "DESCRIBE",
+              "EXEC",
+              "CREATE_DATABASE",
+              "LIST_DATABASE",
+              "CREATE_TABLE",
+              "LIST_TABLE",
+              "CREATE_FUNC",
+              "LIST_FUNC",
+              "REGISTER_MODEL",
+              "LIST_MODEL",
+              "INSERT",
+              "UPDATE",
+              "DELETE",
+              "SELECT",
+              "READ",
+              "WRITE",
+              "OPERATE"
+            ]
+          }
+        },
+        "grant_able_permissions": {
+          "type": "array",
+          "example": "ALTER,DROP",
+          "description": "可传递的权限列表",
+          "items": {
+            "type": "string",
+            "example": "ALTER",
+            "enum": [
+              "ALL",
+              "CREATE",
+              "ALTER",
+              "DROP",
+              "DESCRIBE",
+              "EXEC",
+              "CREATE_DATABASE",
+              "LIST_DATABASE",
+              "CREATE_TABLE",
+              "LIST_TABLE",
+              "CREATE_FUNC",
+              "LIST_FUNC",
+              "REGISTER_MODEL",
+              "LIST_MODEL",
+              "INSERT",
+              "UPDATE",
+              "DELETE",
+              "SELECT",
+              "READ",
+              "WRITE",
+              "OPERATE"
+            ]
+          }
+        },
+        "conditions": {
+          "type": "string",
+          "example": "ip=127.0.0.1",
+          "description": "条件",
+          "minLength": 1
+        },
+        "data_filter": {
+          "type": "string",
+          "example": "c1 < 0",
+          "description": "行过滤",
+          "minLength": 1
+        },
+        "data_mask": {
+          "type": "string",
+          "example": "Include:c1,c2:mask",
+          "description": "列掩码",
+          "minLength": 1
+        }
+      },
+      "title": "AccessPolicyInput",
+      "description": "access policy input body"
+    },
+    "DatabaseInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "db1",
+          "description": "数据库名",
+          "pattern": "^[a-zA-Z0-9\\一-\\龥_*]*$"
+        },
+        "tables": {
+          "type": "array",
+          "description": "子表信息",
+          "items": {
+            "$ref": "#/definitions/TableInfo"
+          },
+          "maxItems": 10
+        },
+        "functions": {
+          "type": "array",
+          "description": "子方法信息",
+          "items": {
+            "$ref": "#/definitions/FunctionInfo"
+          },
+          "maxItems": 10
+        }
+      },
+      "title": "DatabaseInfo",
+      "description": "database input when grant policy"
+    },
+    "ErrorMessage": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "lakeformation.00010003"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "failed"
+        },
+        "common_error_code": {
+          "description": "CBC公共错误码",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36,
+          "example": "CMM.1008"
+        },
+        "solution_msg": {
+          "description": "解决方案描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 4096,
+          "example": "Please use correct instance id."
+        }
+      },
+      "type": "object"
+    },
+    "Principal": {
+      "type": "object",
+      "required": [
+        "principal_name",
+        "principal_source",
+        "principal_type"
+      ],
+      "properties": {
+        "principal_type": {
+          "type": "string",
+          "example": "USER",
+          "description": "主体类型\nUSER用户\nGROUP组\nROLE角色\nSHARE共享\nOTHER其它",
+          "enum": [
+            "USER",
+            "GROUP",
+            "ROLE",
+            "SHARE",
+            "OTHER"
+          ]
+        },
+        "principal_source": {
+          "type": "string",
+          "example": "IAM",
+          "description": "主体来源\nIAM云用户\nSAML联邦\nLDAP ld用户\nLOCAL 本地用户",
+          "enum": [
+            "IAM",
+            "SAML",
+            "LDAP",
+            "LOCAL"
+          ]
+        },
+        "principal_name": {
+          "type": "string",
+          "example": "user1",
+          "description": "主体名",
+          "minLength": 1,
+          "maxLength": 49,
+          "pattern": "^[A-Za-z0-9_]+$"
+        }
+      },
+      "title": "Principal"
+    },
+    "ColumnInfo": {
+      "type": "object",
+      "required": [
+        "column_name",
+        "filter"
+      ],
+      "properties": {
+        "column_name": {
+          "type": "array",
+          "example": "c1,c2",
+          "description": "列名",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_\\-\\+*\\\\(), \\一-\\龥]+$"
+          }
+        },
+        "filter": {
+          "type": "string",
+          "example": "Include",
+          "description": "是否排除:Include包含,Exclude排除",
+          "enum": [
+            "Include",
+            "Exclude"
+          ]
+        }
+      },
+      "title": "ColumnInfo",
+      "description": "column input when grant policy"
+    },
+    "ResourceInfo": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "catalogs": {
+          "type": "array",
+          "description": "catalog info",
+          "items": {
+            "$ref": "#/definitions/CatalogInfo"
+          },
+          "maxItems": 10,
+          "minItems": 0
+        },
+        "uris": {
+          "type": "array",
+          "description": "uri",
+          "items": {
+            "type": "string",
+            "description": "路径地址",
+            "maxLength": 4000,
+            "pattern": "^(obs|har)://.+/.+$"
+          },
+          "maxItems": 10
+        },
+        "type": {
+          "type": "string",
+          "example": "CATALOG",
+          "description": "resource type",
+          "enum": [
+            "CATALOG",
+            "DATABASE",
+            "TABLE",
+            "COLUMN",
+            "FUNC",
+            "MODEL",
+            "URI"
+          ]
+        }
+      },
+      "title": "ResourceInfo",
+      "description": "catalog input when grant policy"
+    },
+    "CatalogInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "databases": {
+          "type": "array",
+          "description": "子数据库信息",
+          "items": {
+            "$ref": "#/definitions/DatabaseInfo"
+          },
+          "maxItems": 10
+        },
+        "name": {
+          "type": "string",
+          "example": "catalog1",
+          "description": "catalog名"
+        }
+      },
+      "title": "CatalogInfo",
+      "description": "catalog input when grant policy"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "lakeformation.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

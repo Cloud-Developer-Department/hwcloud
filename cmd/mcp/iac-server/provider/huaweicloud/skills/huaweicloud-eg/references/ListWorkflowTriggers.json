@@ -1,0 +1,626 @@
+{
+  "name": "ListWorkflowTriggers",
+  "summary": "查询单个函数流的EG触发器",
+  "tags": "触发器管理",
+  "productshort": "EG",
+  "region_id": "cn-north-9",
+  "paths": {
+    "/v1/{project_id}/subscription-triggers/workflow/{workflow_id}": {
+      "get": {
+        "x-api-framework": "RestfulAPI",
+        "x-is-open-doc": "Y",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "触发器管理"
+        ],
+        "operationId": "ListWorkflowTriggers",
+        "summary": "查询单个函数流的EG触发器",
+        "description": "查询触发器,支持指定函数流id,一个以函数流id为目标的订阅为一个触发器。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/IamToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/WorkflowId"
+          },
+          {
+            "$ref": "#/parameters/QueryOffset"
+          },
+          {
+            "$ref": "#/parameters/QueryLimit"
+          },
+          {
+            "$ref": "#/parameters/QuerySort"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "事件订阅列表",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionList"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EgTargetDetail": {
+      "type": "object",
+      "required": [
+        "target_project_id",
+        "target_channel_id",
+        "target_region",
+        "agency_name"
+      ],
+      "properties": {
+        "target_project_id": {
+          "type": "string",
+          "description": "目标项目id",
+          "example": "c5be311886934b7c8afb4f8970376130"
+        },
+        "target_channel_id": {
+          "type": "string",
+          "description": "目标通道id",
+          "example": "10a79a30-bd4a-4955-a3ec-d62dc799347b"
+        },
+        "target_region": {
+          "type": "string",
+          "description": "目标region",
+          "example": "cn-north-test"
+        },
+        "cross_region": {
+          "type": "boolean",
+          "description": "跨region开关",
+          "default": false
+        },
+        "cross_account": {
+          "type": "boolean",
+          "description": "跨账号开关",
+          "default": false
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "委托名称",
+          "example": "EG_TARGET_AGENCY"
+        }
+      }
+    },
+    "SubscriptionInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "订阅ID",
+          "example": "23709d68-54d5-423b-a6be-03302e893152"
+        },
+        "name": {
+          "type": "string",
+          "description": "订阅名称",
+          "example": "test-subscription"
+        },
+        "description": {
+          "type": "string",
+          "description": "订阅描述",
+          "example": "this is a test subscription"
+        },
+        "type": {
+          "type": "string",
+          "description": "类型",
+          "enum": [
+            "EVENT",
+            "SCHEDULED"
+          ],
+          "example": "EVENT"
+        },
+        "status": {
+          "type": "string",
+          "description": "状态",
+          "enum": [
+            "CREATED",
+            "ENABLED",
+            "DISABLED",
+            "FROZEN",
+            "ERROR"
+          ],
+          "example": "CREATED"
+        },
+        "channel_id": {
+          "type": "string",
+          "description": "通道ID",
+          "example": "05649f9a-b324-4920-9c49-156d4cd2e546"
+        },
+        "channel_name": {
+          "type": "string",
+          "description": "通道名称",
+          "example": "channel006"
+        },
+        "used": {
+          "type": "array",
+          "description": "标签信息",
+          "items": {
+            "$ref": "#/definitions/SubscriptionUsedInfo"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "description": "订阅源列表",
+          "items": {
+            "$ref": "#/definitions/SubscriptionSourceInfo"
+          }
+        },
+        "targets": {
+          "type": "array",
+          "description": "订阅目标列表",
+          "items": {
+            "$ref": "#/definitions/SubscriptionTargetInfo"
+          }
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "更新时间",
+          "example": "2021-12-09 09:00:00"
+        }
+      }
+    },
+    "SmnTargetDetail": {
+      "required": [
+        "urn",
+        "agency_name"
+      ],
+      "type": "object",
+      "description": "订阅的SMN事件目标参数列表,该字段序列化后总长度不超过1024字节",
+      "properties": {
+        "urn": {
+          "type": "string",
+          "description": "主题urn",
+          "example": "urn:smn:cn-north-7:bac852160cc743158936edaab6dda813:122"
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "委托名称",
+          "example": "EG_SMN_PUBLISHER_AGENCY"
+        },
+        "subject_transform": {
+          "required": [
+            "type",
+            "value"
+          ],
+          "type": "object",
+          "description": "标题规则",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "标题规则类型",
+              "enum": [
+                "VARIABLE",
+                "CONSTANT"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "description": "标题规则"
+            },
+            "template": {
+              "type": "string",
+              "description": "标题规则模板,键值规则为VARIABLE时必填"
+            }
+          }
+        }
+      }
+    },
+    "TransForm": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "description": "订阅的事件目标转换规则",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "转换规则类型",
+          "enum": [
+            "ORIGINAL",
+            "CONSTANT",
+            "VARIABLE"
+          ],
+          "example": "VARIABLE"
+        },
+        "value": {
+          "type": "string",
+          "description": "常量类型规则时,字段为常量内容定义;\n变量类型规则时,为变量定义,内容必须为JsonObject字符串。\n变量最多支持100个,且不支持嵌套结构定义;\n变量名由字母、数字、点、下划线和中划线组成,必须字母或数字开头不能以HC.开头,长度不超过64个字符;\n变量值表达式支持常量或JsonPath表达式,字符串长度不超过1024个字符。",
+          "maxLength": 1024,
+          "example": "{\"contant_boolean\": true,\"contant_string\": \"constant\",\"varaible_string\": \"$.data.string\",\"varaible_json_object\": \"$.data.object\"}"
+        },
+        "template": {
+          "type": "string",
+          "description": "变量类型规则时,规则内容的模板定义,支持对已定义变量的引用。",
+          "maxLength": 2048,
+          "example": "{\"contant_boolean\": ${contant_boolean},\"contant_string\": \"${contant_string!\\\"default\\\"}\",\"varaible_string\": \"${contant_boolean}\",\"varaible_json_object\": ${varaible_json_object!\"null\"}}"
+        }
+      }
+    },
+    "SubscriptionTargetInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "订阅目标ID",
+          "example": "3a0eeff2-78a4-4122-dfge-7ty5e37f64er"
+        },
+        "name": {
+          "type": "string",
+          "description": "订阅的事件目标名称",
+          "example": "WEBHOOK"
+        },
+        "provider_type": {
+          "type": "string",
+          "description": "订阅的事件目标的提供方类型",
+          "example": "CUSTOM"
+        },
+        "connection_id": {
+          "type": "string",
+          "description": "订阅的事件目标使用的目标链接ID",
+          "maxLength": 64,
+          "example": "456eekj3-778u-4tyu-dfrt-er55e37f667t"
+        },
+        "detail": {
+          "type": "object",
+          "description": "订阅的事件目标参数列表",
+          "example": {
+            "url": "http://10.213.96.90:8080/t/nodeapp/trigger-hello-nodejs"
+          }
+        },
+        "kafka_detail": {
+          "description": "订阅的事件kafka目标参数列表,该字段序列化后总长度不超过1024字节,kafka订阅目标必填",
+          "$ref": "#/definitions/KafkaTargetDetail"
+        },
+        "smn_detail": {
+          "description": "订阅的事件smn目标参数列表,该字段序列化后总长度不超过1024字节,smn订阅目标必填",
+          "$ref": "#/definitions/SmnTargetDetail"
+        },
+        "eg_detail": {
+          "description": "订阅的事件eg通道目标参数列表,该字段序列化后总长度不超过1024字节,eg通道目标必填",
+          "$ref": "#/definitions/EgTargetDetail"
+        },
+        "apigw_detail": {
+          "description": "订阅的事件APIGWurl目标参数列表,该字段序列化后总长度不超过1024字节,APIGW目标必填",
+          "$ref": "#/definitions/ApigwTargetDetail"
+        },
+        "retry_times": {
+          "type": "integer",
+          "description": "重试次数",
+          "example": 16
+        },
+        "transform": {
+          "$ref": "#/definitions/TransForm"
+        },
+        "dead_letter_queue": {
+          "$ref": "#/definitions/DeadLetterQueue"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "更新时间",
+          "example": "2021-12-09 09:00:00"
+        }
+      }
+    },
+    "KafkaTargetDetail": {
+      "required": [
+        "topic"
+      ],
+      "type": "object",
+      "description": "订阅的kafka事件目标参数列表,该字段序列化后总长度不超过1024字节",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "主题",
+          "example": "8516d278-268a-4a8b-8766-9bf9b3302f43"
+        },
+        "keyTransform": {
+          "type": "object",
+          "description": "键值规则",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "键值规则类型",
+              "enum": [
+                "NONE",
+                "VARIABLE",
+                "CONSTANT"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "description": "键值规则,键值规则为VARIABLE,CONSTANT时必填"
+            },
+            "template": {
+              "type": "string",
+              "description": "键值规则模板,键值规则为VARIABLE时必填"
+            }
+          }
+        }
+      }
+    },
+    "DeadLetterQueue": {
+      "required": [
+        "type",
+        "instance_id",
+        "connection_id",
+        "topic"
+      ],
+      "type": "object",
+      "description": "订阅的死信参数列表",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "队列类型",
+          "example": "KAFKA",
+          "enum": [
+            "KAFKA"
+          ]
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "实例id",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "ff0e3f10-fcab-4c3a-84bb-cf5a8b6f7722"
+        },
+        "connection_id": {
+          "type": "string",
+          "description": "目标连接id",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "8516d278-268a-4a8b-8766-9bf9b3302f43"
+        },
+        "topic": {
+          "type": "string",
+          "description": "主题",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "topic"
+        }
+      }
+    },
+    "SubscriptionList": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "总数",
+          "minimum": 0,
+          "maximum": 100,
+          "example": 1
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "本页数量",
+          "example": 1
+        },
+        "items": {
+          "type": "array",
+          "description": "对象列表",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/SubscriptionInfo"
+          }
+        }
+      }
+    },
+    "ApigwTargetDetail": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "目标url",
+          "example": "https://dms.cn-north-4.myhuaweicloud.com/testaaa"
+        },
+        "invocation_http_parameters": {
+          "$ref": "#/definitions/InvocationHttpParameters"
+        }
+      }
+    },
+    "HeaderParameter": {
+      "type": "object",
+      "properties": {
+        "is_value_secret": {
+          "type": "boolean",
+          "description": "是否加密",
+          "example": false
+        },
+        "key": {
+          "type": "string",
+          "description": "header的key值",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "test-key"
+        },
+        "value": {
+          "type": "string",
+          "description": "deader的value值",
+          "minLength": 1,
+          "maxLength": 1024,
+          "example": "test-value"
+        }
+      }
+    },
+    "SubscriptionUsedInfo": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "description": "关联资源ID",
+          "example": "23709d68-54d5-423b-a6be-03302e893152"
+        },
+        "owner": {
+          "type": "string",
+          "description": "管理租户账号",
+          "example": "op_svc_obs"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述",
+          "example": null
+        }
+      }
+    },
+    "SubscriptionSourceInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "订阅源ID",
+          "example": "3a0eeff2-78a4-4122-dfge-7ty5e37f64er"
+        },
+        "name": {
+          "type": "string",
+          "description": "订阅的事件源名称",
+          "example": "HC.OBS"
+        },
+        "provider_type": {
+          "type": "string",
+          "description": "订阅的事件源的提供方类型",
+          "example": "OFFICIAL"
+        },
+        "detail": {
+          "type": "object",
+          "description": "订阅的事件源参数列表",
+          "example": {
+            "name": "name"
+          }
+        },
+        "filter": {
+          "type": "object",
+          "description": "订阅事件源的匹配过滤规则",
+          "example": {
+            "data": {
+              "count": [
+                {
+                  "op": "NumberIn",
+                  "values": [
+                    1,
+                    2
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "更新时间",
+          "example": "2021-12-09 09:00:00"
+        }
+      }
+    },
+    "InvocationHttpParameters": {
+      "type": "object",
+      "properties": {
+        "header_parameters": {
+          "type": "array",
+          "description": "对象列表",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/HeaderParameter"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "租户资源空间ID",
+      "required": true,
+      "type": "string",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "QueryLimit": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页显示的条目数量,不能小于1或大于1000",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000,
+      "default": 15,
+      "x-example": 15
+    },
+    "WorkflowId": {
+      "name": "workflow_id",
+      "in": "path",
+      "required": true,
+      "description": "目标函数流的id",
+      "type": "string",
+      "x-example": "7e4a3ae2-0e50-465a-a2d2-2b658c7a7a31"
+    },
+    "QueryOffset": {
+      "name": "offset",
+      "in": "query",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量不能小于0",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "x-example": 1
+    },
+    "QuerySort": {
+      "name": "sort",
+      "in": "query",
+      "description": "指定查询排序",
+      "type": "string",
+      "default": "created_time:DESC",
+      "x-example": "created_time:DESC"
+    },
+    "IamToken": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "required": true,
+      "maxLength": 16384,
+      "minLength": 1
+    }
+  },
+  "host": "eg.cn-north-9.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

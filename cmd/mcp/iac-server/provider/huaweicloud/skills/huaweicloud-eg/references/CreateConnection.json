@@ -1,0 +1,315 @@
+{
+  "name": "CreateConnection",
+  "summary": "创建目标连接",
+  "tags": "目标连接管理",
+  "productshort": "EG",
+  "region_id": "na-mexico-1",
+  "paths": {
+    "/v1/{project_id}/connections": {
+      "post": {
+        "x-api-framework": "RestfulAPI",
+        "x-is-open-doc": "Y",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "目标连接管理"
+        ],
+        "operationId": "CreateConnection",
+        "summary": "创建目标连接",
+        "description": "创建目标连接。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/IamToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "CreateConnectonRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "create request",
+            "schema": {
+              "$ref": "#/definitions/ConnectionCreateReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Demo Information",
+            "schema": {
+              "$ref": "#/definitions/ConnectionInfo"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "This field is the request ID number for task tracking. Format is request_uuid-timestamp-hostname."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorInfo": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "EGS.00511000"
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "unknown"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "internal server error, unknown"
+        }
+      }
+    },
+    "ConnectionType": {
+      "type": "string",
+      "description": "目标连接类型。目前支持webhook:http连接;kafka:华为云官方kafka实例",
+      "enum": [
+        "WEBHOOK",
+        "KAFKA"
+      ],
+      "default": "WEBHOOK"
+    },
+    "KafkaConnectionDetail": {
+      "required": [
+        "instance_id",
+        "addr",
+        "enable_sasl_ssl"
+      ],
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "kafka实例id。",
+          "example": "8516d278-268a-4a8b-8766-9bf9b3302f43"
+        },
+        "addr": {
+          "type": "string",
+          "description": "kafka连接地址。",
+          "example": "192.168.0.58:9093,192.168.0.210:9093,192.168.0.203:9093"
+        },
+        "security_protocol": {
+          "type": "string",
+          "description": "安全协议。",
+          "example": "PLAINTEXT"
+        },
+        "enable_sasl_ssl": {
+          "type": "boolean",
+          "description": "kafka实例是否开启了SASL_SSL。",
+          "example": false,
+          "default": false
+        },
+        "user_name": {
+          "type": "string",
+          "description": "kafka实例用户名。实例开启了SASL_SSL时必填",
+          "example": "kafka"
+        },
+        "password": {
+          "type": "string",
+          "description": "kafka实例密码。实例开启了SASL_SSL时必填",
+          "example": "pwd"
+        },
+        "acks": {
+          "type": "string",
+          "description": "收到Server端确认信号个数,表示procuder需要收到多少个这样的确认信号,算消息发送成功。acks参数代表了数据备份的可用性。支持选项:\nacks=0:表示producer不需要等待任何确认收到的信息,副本将立即加到socket buffer并认为已经发送。没有任何保障可以保证此种情况下server已经成功接收数据,同时重试配置不会发生作用(因为客户端不知道是否失败)回馈的offset会总是设置为-1。\nacks=1:这意味着至少要等待leader已经成功将数据写入本地log,但是并没有等待所有follower是否成功写入。如果follower没有成功备份数据,而此时leader又无法提供服务,则消息会丢失。\nacks=all:这意味着leader需要等待ISR中所有备份都成功写入日志,只有任何一个备份存活,数据都不会丢失。min.insync.replicas指定必须确认写入才能被认为成功的副本的最小数量。",
+          "enum": [
+            "0",
+            "1",
+            "all"
+          ],
+          "example": "1",
+          "default": "1"
+        }
+      }
+    },
+    "ConnectionInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "事件源ID",
+          "example": "90e0b962-c6c1-438c-ba8a-3024fe592bda"
+        },
+        "name": {
+          "type": "string",
+          "description": "目标连接名称,租户下唯一,由小写字母、数字、点、下划线和中划线组成,必须以字母或数字开头,不能为default",
+          "example": "private-link"
+        },
+        "description": {
+          "type": "string",
+          "description": "目标连接描述",
+          "example": ""
+        },
+        "status": {
+          "type": "string",
+          "description": "目标连接状态",
+          "enum": [
+            "CREATING",
+            "CREATED",
+            "CREATE_FAILED"
+          ],
+          "example": "CREATING"
+        },
+        "error_info": {
+          "$ref": "#/definitions/ErrorInfo"
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "待连接的VPC ID",
+          "example": "ac14144e-8fec-53d6-bdfd-8f09b52c09iu"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "待连接的子网ID",
+          "example": "bf14153e-5fec-67d6-b89d-5409b52c0op8"
+        },
+        "agency": {
+          "type": "string",
+          "description": "私网目标连接使用的用户委托名称",
+          "example": "EG_TRUST"
+        },
+        "flavor": {
+          "type": "object",
+          "description": "规格",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "规格名称",
+              "example": "default"
+            },
+            "concurrency_type": {
+              "type": "string",
+              "description": "并发规格类型",
+              "enum": [
+                "shared",
+                "exclusive"
+              ],
+              "example": "exclusive"
+            },
+            "concurrency": {
+              "type": "integer",
+              "description": "并发数",
+              "example": 500
+            },
+            "bandwidth_type": {
+              "type": "string",
+              "description": "带宽类型",
+              "enum": [
+                "shared",
+                "exclusive"
+              ],
+              "example": "exclusive"
+            }
+          }
+        },
+        "type": {
+          "$ref": "#/definitions/ConnectionType"
+        },
+        "kafka_detail": {
+          "$ref": "#/definitions/KafkaConnectionDetail"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建UTC时间",
+          "example": "2021-12-09 09:00:00"
+        },
+        "updated_time": {
+          "type": "string",
+          "description": "更新UTC时间",
+          "example": "2021-12-09 09:00:00"
+        }
+      }
+    },
+    "ConnectionCreateReq": {
+      "type": "object",
+      "required": [
+        "name",
+        "vpc_id",
+        "subnet_id"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "目标连接名称,租户下唯一,由字母、数字、点、下划线和中划线组成,必须以字母或数字开头,不能为default",
+          "example": "private-link",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "目标连接描述",
+          "example": "",
+          "maxLength": 255
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "待连接的VPC ID",
+          "example": "ac14144e-8fec-53d6-bdfd-8f09b52c09iu",
+          "maxLength": 128
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "待连接的子网ID",
+          "example": "bf14153e-5fec-67d6-b89d-5409b52c0op8",
+          "maxLength": 128
+        },
+        "type": {
+          "$ref": "#/definitions/ConnectionType"
+        },
+        "kafka_detail": {
+          "$ref": "#/definitions/KafkaConnectionDetail"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "description": "租户资源空间ID",
+      "required": true,
+      "type": "string",
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "IamToken": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "required": true,
+      "maxLength": 16384,
+      "minLength": 1
+    }
+  },
+  "host": "eg.na-mexico-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

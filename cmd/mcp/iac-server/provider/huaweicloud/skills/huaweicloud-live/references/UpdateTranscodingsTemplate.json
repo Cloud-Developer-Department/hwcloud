@@ -1,0 +1,280 @@
+{
+  "name": "UpdateTranscodingsTemplate",
+  "summary": "配置直播转码模板",
+  "tags": "转码模板管理",
+  "productshort": "Live",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/{project_id}/template/transcodings": {
+      "put": {
+        "tags": [
+          "转码模板管理"
+        ],
+        "summary": "配置直播转码模板",
+        "description": "修改直播转码模板",
+        "operationId": "UpdateTranscodingsTemplate",
+        "x-publishpath": "live_03_0006",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-live/live_03_0023.html)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "UpdateTranscodingsTemplateRequestBody",
+            "in": "body",
+            "description": "流转码模板信息",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StreamTranscodingTemplate"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "直播转码模板修改成功"
+          },
+          "400": {
+            "description": "直播转码模板修改失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "参数校验失败"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "PUT https://{endpoint}/v1/{project_id}/template/transcodings",
+        "x-request-examples-1": {
+          "domain": "play.example.huawei.com",
+          "app_name": "live",
+          "quality_info": [
+            {
+              "quality": "SD",
+              "PVC": "off",
+              "codec": "H264",
+              "width": 1920,
+              "height": 1080,
+              "bitrate": 4500,
+              "video_frame_rate": 20,
+              "protocol": "HLS"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StreamTranscodingTemplate": {
+      "type": "object",
+      "required": [
+        "domain",
+        "app_name",
+        "quality_info"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "推流域名",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "play.example.huawei.com"
+        },
+        "app_name": {
+          "type": "string",
+          "description": "应用名称。\n默认为“live”,若您需要自定义应用名称,请先提交工单申请。",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "live"
+        },
+        "trans_type": {
+          "type": "string",
+          "description": "转码流触发模式。\n- play:拉流触发转码。\n- publish:推流触发转码。\n默认为play",
+          "enum": [
+            "play",
+            "publish"
+          ],
+          "default": "play"
+        },
+        "quality_info": {
+          "type": "array",
+          "description": "视频质量信息",
+          "items": {
+            "$ref": "#/definitions/QualityInfo"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "QualityInfo": {
+      "type": "object",
+      "required": [
+        "quality",
+        "bitrate"
+      ],
+      "properties": {
+        "templateName": {
+          "type": "string",
+          "description": "自定义模板名称。\n- 若需要自定义模板名称,请将quality参数设置为userdefine;\n- 多个自定义模板名称之间不能重复;\n- 自定义模板名称不能与其他模板的quality参数重复;\n- 若quality不为userdefine,请勿填写此字段。",
+          "example": "templateName_001"
+        },
+        "quality": {
+          "type": "string",
+          "description": "包含如下取值:\n- lud: 超高清,系统缺省名称;\n- lhd: 高清,系统缺省名称;\n- lsd: 标清,系统缺省名称;\n- lld: 流畅,系统缺省名称;\n- userdefine: 视频质量自定义。填写userdefine时,templateName字段不能为空。"
+        },
+        "PVC": {
+          "type": "string",
+          "description": "是否使用窄带高清转码。默认值:off。\n\n注意:该字段已不再维护,建议使用hdlb。\n\n包含如下取值:\n- off:不启用。\n- on:启用。",
+          "enum": [
+            "on",
+            "off"
+          ],
+          "default": "on"
+        },
+        "hdlb": {
+          "type": "string",
+          "description": "是否启用高清低码,较PVC相比画质增强。默认值:off。\n\n提示:使用hdlb字段开启高清低码时,PVC字段不生效。\n\n包含如下取值:\n- off:不开启高清低码;\n- on:开启高清低码。",
+          "enum": [
+            "on",
+            "off"
+          ],
+          "default": "off",
+          "example": "off",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "codec": {
+          "type": "string",
+          "description": "视频编码格式。默认为H264。\n- H264:使用H.264。\n- H265:使用H.265。",
+          "enum": [
+            "H264",
+            "H265"
+          ],
+          "default": "H264"
+        },
+        "width": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 32,
+          "maximum": 3840,
+          "description": "视频长边(横屏的宽,竖屏的高)\n\n单位:像素;默认值:0\n- H264 建议取值范围:32-3840,必须为2的倍数 。\n- H265 建议取值范围:320-3840 ,必须为2的倍数。\n\n注意:width和height全为0,则输出分辨率和源一致;width和height只有一个为0, 则分辨率按非0项的比例缩放。"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 32,
+          "maximum": 3840,
+          "description": "视频短边(横屏的高,竖屏的宽)\n\n单位:像素;默认值:0\n- H264 建议取值范围:32-2160,必须为2的倍数。\n- H265 建议取值范围:240-2160,必须为2的倍数。\n\n注意:width和height全为0,则输出分辨率和源一致;width和height只有一个为0, 则分辨率按非0项的比例缩放。"
+        },
+        "bitrate": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 40,
+          "maximum": 30000,
+          "description": "转码视频的码率\n\n单位:Kbps\n\n取值范围:40-30000"
+        },
+        "video_frame_rate": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 30,
+          "description": "转码视频帧率\n\n单位:fps\n\n默认值:0\n\n取值范围:0-60,0表示保持帧率不变。",
+          "default": 0
+        },
+        "protocol": {
+          "type": "string",
+          "description": "转码输出支持的协议类型。默认为RTMP。当前只支持RTMP。\n\n包含如下取值:\n- RTMP",
+          "enum": [
+            "RTMP",
+            "HLS",
+            "DASH"
+          ],
+          "default": "RTMP"
+        },
+        "iFrameInterval": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 500,
+          "description": "最大I帧间隔\n\n单位:帧数\n\n取值范围:[0, 500],默认值:50\n\n注意:若希望通过iFrameInterval设置i帧间隔,请将gop设为0,或不传gop参数。",
+          "default": 0
+        },
+        "gop": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "按时间设置I帧间隔\n\n单位:秒\n\n取值范围:[0,10],默认值:2\n\n注意:gop不为0时,则以gop设置i帧间隔,iFrameInterval字段不生效。",
+          "default": 0
+        },
+        "bitrate_adaptive": {
+          "type": "string",
+          "description": "自适应码率参数,默认值:off。\n\n包含如下取值:\n- off:关闭码率自适应,目标码率按设定的码率输出;\n- minimum:目标码率按设定码率和源文件码率最小值输出(即码率不上扬);\n- adaptive:目标码率按源文件码率自适应输出。",
+          "example": "off",
+          "enum": [
+            false,
+            "minimum",
+            "adaptive"
+          ],
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "i_frame_policy": {
+          "type": "string",
+          "description": "编码输出I帧策略,默认值:auto。\n\n包含如下取值:\n- auto:I帧按设置的gop时长输出;\n- strictSync:编码输出I帧完全和源保持一致(源是I帧则编码输出I帧,源不是I帧则编码非I帧),设置该参数后gop时长设置无效。",
+          "example": "auto",
+          "enum": [
+            "auto",
+            "strictSync"
+          ],
+          "minLength": 0,
+          "maxLength": 32
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

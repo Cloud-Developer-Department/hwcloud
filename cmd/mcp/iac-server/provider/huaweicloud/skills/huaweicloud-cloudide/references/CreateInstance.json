@@ -1,0 +1,341 @@
+{
+  "name": "CreateInstance",
+  "summary": "创建IDE实例",
+  "tags": "IDE实例管理",
+  "productshort": "CloudIDE",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{org_id}/instances": {
+      "post": {
+        "tags": [
+          "IDE实例管理"
+        ],
+        "summary": "创建IDE实例",
+        "description": "创建IDE实例",
+        "operationId": "CreateInstance",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100000,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "in": "body",
+            "name": "CreateInstanceRequestBody",
+            "description": "CreateInstanceRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InstanceParam"
+            }
+          },
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "租户id(对应华为云帐号的domainId)",
+            "minLength": 3,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9][-_.a-zA-Z0-9]{1,126}[a-zA-Z0-9]$",
+            "required": true,
+            "type": "string",
+            "x-example": "6251b1ee539f4c02ad4b83daeda81633"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/InstancesResponseInstancesVO"
+            },
+            "examples": {
+              "application/json": {
+                "result": {
+                  "link": "https://****/cloudide/loading?instanceId=mpdrao",
+                  "arch": "x86",
+                  "id": "mpdrao",
+                  "private": false
+                },
+                "status": "success"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          },
+          "406": {
+            "description": "Not Acceptable",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/CloudBUErrorResponse"
+            }
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/6251b1ee539f4c02ad4b83daeda81633/instances",
+        "x-request-examples-description-1": "创建IDE实例",
+        "x-request-examples-1": {
+          "display_name": "testjava",
+          "stack_id": "java",
+          "description": "",
+          "cpu_memory": "2U4G",
+          "pvc_quantity": "5GB",
+          "refresh_interval": "30"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "InstancesResponseInstancesVO": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "返回值",
+          "type": "object",
+          "properties": {
+            "link": {
+              "type": "string",
+              "description": "链接",
+              "minLength": 0,
+              "maxLength": 255
+            },
+            "arch": {
+              "type": "string",
+              "description": "cpu架构 x86|arm",
+              "enum": [
+                "x86",
+                "arm"
+              ],
+              "pattern": "^arm$|^x86$"
+            },
+            "id": {
+              "type": "string",
+              "description": "实例id",
+              "pattern": "^[a-zA-Z0-9][-_.a-zA-Z0-9]{1,126}[a-zA-Z0-9]$"
+            },
+            "private": {
+              "type": "boolean",
+              "description": "是否私有平台"
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "状态",
+          "minLength": 0,
+          "maxLength": 100,
+          "example": "success"
+        }
+      },
+      "title": "InstancesResponseInstancesVO"
+    },
+    "CloudBUErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 0,
+          "maxLength": 100
+        }
+      },
+      "title": "CloudBUErrorResponse"
+    },
+    "InstanceParam": {
+      "type": "object",
+      "required": [
+        "display_name",
+        "refresh_interval",
+        "stack_id",
+        "cpu_memory",
+        "pvc_quantity"
+      ],
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "代理商id,教程活动场景下使用",
+          "pattern": "[a-zA-Z0-9_-]*$",
+          "example": "xxx"
+        },
+        "arch": {
+          "type": "string",
+          "description": "cpu架构 x86|arm",
+          "example": "x86",
+          "enum": [
+            "x86",
+            "arm"
+          ],
+          "pattern": "^arm$|^x86$"
+        },
+        "cpu_memory": {
+          "type": "string",
+          "description": "cpu规格.arm架构支持4U8G,x86架构支持1U1G,2U4G,2U8G\n与技术栈配置的规格对应,可通过技术栈管理ListStacks接口获取。如果标签不为空,以标签配置的技术栈规格为准。\nquantum技术栈,x86架构cpu规格为2U8G;其他技术栈,x86架构cpu规格为1U1G,2U4G",
+          "example": "2U4G",
+          "enum": [
+            "1U1G",
+            "2U4G",
+            "2U8G",
+            "4U8G"
+          ],
+          "pattern": "^1U1G$|^2U4G$|^2U8G$|^4U8G$"
+        },
+        "description": {
+          "type": "string",
+          "description": "描述",
+          "example": "test",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "display_name": {
+          "type": "string",
+          "description": "实例名。\n可以输入中文、数字、字母、下划线、点、破折号。长度介于3-100之间",
+          "example": "test",
+          "minLength": 3,
+          "maxLength": 100
+        },
+        "is_temporary": {
+          "type": "boolean",
+          "description": "是否页面显示(以标签配置为准)",
+          "example": false
+        },
+        "label_tag": {
+          "type": "string",
+          "description": "实例标签(不同的第三方需要和CodeArtsIDEOnline服务共同设定标签),不传默认为default",
+          "maxLength": 127,
+          "pattern": "[a-zA-Z0-9_-]*$"
+        },
+        "plugin_enable_list": {
+          "type": "array",
+          "description": "预装插件列表",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "type": "string"
+          }
+        },
+        "plugin_vars": {
+          "type": "object",
+          "description": "预装插件参数,请注意敏感信息保护,若涉及敏感信息,请自行加密",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "port_id": {
+          "type": "string",
+          "description": "云服务器对应的portId,小网连接ecs的场景下使用",
+          "example": "4152b10c-2a5e-4301-965d-1d07dd569a7c",
+          "pattern": "^[a-zA-Z0-9][-_.a-zA-Z0-9]{1,126}[a-zA-Z0-9]$"
+        },
+        "private_ip": {
+          "type": "string",
+          "description": "云服务器ip,小网连接ecs的场景下使用",
+          "example": "192.168.63.204",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "pvc_quantity": {
+          "type": "string",
+          "description": "PVC规格 5GB|10GB|20GB",
+          "example": "5GB",
+          "enum": [
+            "5GB",
+            "10GB",
+            "20GB"
+          ],
+          "pattern": "^5GB$|^10GB$|^20GB$"
+        },
+        "refresh_interval": {
+          "description": "自动休眠时长。\narm架构,自动休眠时长只能设置成30,60。x86架构可取值为30,60,240,1440和-1。除-1外,其它值的单位为“分钟”。实例无操作超过自动休眠时长后,将会被暂停(已保存的数据不会被删除)。-1表示实例不会自动停止",
+          "example": "30",
+          "type": "string",
+          "pattern": "^30$|^60$|^240$|^1440$|^-1$"
+        },
+        "repository_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "解放号的仓库id,解放号场景下使用",
+          "example": 2066,
+          "pattern": "^[0-9]*$",
+          "minimum": 1,
+          "maximum": 9223372036854776000
+        },
+        "stack_id": {
+          "type": "string",
+          "description": "技术栈ID,通过技术栈管理ListStacks接口获取。",
+          "example": "all",
+          "pattern": "^[a-zA-Z0-9][-_.a-zA-Z0-9]{0,126}[a-zA-Z0-9]$"
+        },
+        "task_type": {
+          "type": "string",
+          "description": "任务类型,教程活动场景下使用",
+          "example": "DAILY",
+          "pattern": "[a-zA-Z0-9_-]*$"
+        },
+        "token": {
+          "type": "string",
+          "description": "解放号的token,解放号场景下使用",
+          "example": "bb34feba-8e92-41a6-a4be-7be8c5a3854a",
+          "pattern": "[a-zA-Z0-9_-]*$"
+        },
+        "vpc_id": {
+          "type": "string",
+          "description": "云服务器对应的vpcId,小网连接ecs的场景下使用",
+          "example": "ce097f0f-7456-400a-85df-19387c452d92",
+          "pattern": "^[a-zA-Z0-9][-_.a-zA-Z0-9]{1,126}[a-zA-Z0-9]$"
+        },
+        "instance_domain_id": {
+          "type": "string",
+          "description": "实例授权用户租户ID",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "instance_user_id": {
+          "type": "string",
+          "description": "实例授权用户ID",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      },
+      "title": "InstanceParam"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cloudide.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

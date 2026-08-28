@@ -1,0 +1,244 @@
+{
+  "name": "CreateQueue",
+  "summary": "创建队列",
+  "tags": "队列相关API",
+  "productshort": "DLI",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/queues": {
+      "post": {
+        "tags": [
+          "队列相关API"
+        ],
+        "summary": "创建队列",
+        "description": "该API用于创建队列,该队列将会绑定用户指定的计算资源。",
+        "operationId": "CreateQueue",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。",
+            "required": true,
+            "type": "string",
+            "x-example": "48cc2c48765f481480c7db940d6409d1",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "xxx",
+            "x-order": 3,
+            "x-vision": ""
+          },
+          {
+            "in": "body",
+            "name": "CreateQueueRequestBody",
+            "description": "创建队列请求body体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateQueueRequestBody"
+            },
+            "x-order": 2,
+            "x-vision": ""
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/CreateQueueResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/FailResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "deprecated": false,
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hws_hk",
+        "x-apiErrorCodes": "[]",
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "FailResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述信息。"
+        }
+      },
+      "type": "object"
+    },
+    "Tag": {
+      "type": "object",
+      "description": "资源标签",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "key",
+          "description": "参数解释:  键 示例: key\n约束限制:  长度大于等于1且小于等于128\n取值范围: 无\n默认取值: 无",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "value": {
+          "type": "string",
+          "example": "value",
+          "description": "参数解释:  值 示例: value\n约束限制:  长度大于等于1且小于等于255\n取值范围: 无\n默认取值: 无",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      }
+    },
+    "CreateQueueRequestBody": {
+      "required": [
+        "queue_name",
+        "cu_count"
+      ],
+      "properties": {
+        "queue_name": {
+          "type": "string",
+          "example": "queue1",
+          "description": "新建的队列名称,名称只能包含数字、英文字母和下划线,但不能是纯数字,且不能以下划线开头。长度限制:1~128个字符。\\n说明: \\n队列名称不区分大小写,系统会自动转换为小写。",
+          "x-vision": ""
+        },
+        "queue_type": {
+          "type": "string",
+          "example": "sql",
+          "description": "队列的类型,。有如下两种类型:\nsql\ngeneral\n如果不指定,默认为sql。",
+          "default": "sql",
+          "x-vision": ""
+        },
+        "description": {
+          "type": "string",
+          "example": "test",
+          "description": "队列的描述信息。",
+          "x-vision": ""
+        },
+        "cu_count": {
+          "type": "integer",
+          "format": "int32",
+          "example": 16,
+          "description": "队列的实际CU。",
+          "x-vision": ""
+        },
+        "charging_mode": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "队列的收费模式。只能设置为“1”,表示按照CU时收费。",
+          "x-vision": ""
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "企业项目ID,“0”表示default,即默认的企业项目。\n说明:\n开通了企业管理服务的用户可设置该参数绑定指定的项目。",
+          "default": "0",
+          "x-vision": ""
+        },
+        "platform": {
+          "type": "string",
+          "description": "队列计算资源的cpu架构。"
+        },
+        "resource_mode": {
+          "type": "integer",
+          "format": "int32",
+          "description": "队列资源模式。支持以下两种类型:0:共享资源模式1:专属资源模式"
+        },
+        "labels": {
+          "type": "array",
+          "description": "创建队列的标签信息,目前包括队列是否跨AZ的标签信息(Json字符串),且只支持值为“2”,即创建一个计算资源分布在2个可用区的双AZ队列",
+          "items": {
+            "type": "object"
+          }
+        },
+        "feature": {
+          "type": "string",
+          "description": "队列特性。支持以下两种类型:basic:基础型ai:AI增强型(仅SQL的x86_64专属队列支持选择)默认值为“basic”。"
+        },
+        "tags": {
+          "type": "array",
+          "description": "标签",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          },
+          "minItems": 0
+        },
+        "elastic_resource_pool_name": {
+          "type": "string",
+          "description": "新建的弹性资源池名称,名称只能包含数字、小写英文字母和下划线,但不能是纯数字,且不能以下划线开头。长度限制:1~128个字符。"
+        },
+        "properties": {
+          "type": "object",
+          "description": "添加队列属性。",
+          "properties": {
+            "computeEngine.spark.nativeEnabled": {
+              "type": "string",
+              "description": "是否使用DLI Native。当前只涉及开启两种算子:Scan 和 Filter。修改现有队列的本属性,需要重启队列才会生效。",
+              "example": "true"
+            }
+          }
+        },
+        "engine": {
+          "type": "string",
+          "description": "只有在queue_type是sql条件下才可配置,默认是spark。可以选择spark引擎或hetuEngin。"
+        }
+      },
+      "description": "创建队列的请求参数。",
+      "type": "object"
+    },
+    "CreateQueueResponseBody": {
+      "properties": {
+        "is_success": {
+          "type": "boolean",
+          "example": true,
+          "description": "请求执行是否成功。“true”表示请求执行成功。",
+          "x-vision": ""
+        },
+        "message": {
+          "type": "string",
+          "example": "message",
+          "description": "系统提示信息,执行成功时,信息可能为空。",
+          "x-vision": ""
+        },
+        "queue_name": {
+          "type": "string",
+          "example": "queue1",
+          "description": "新增队列的名称。",
+          "x-vision": ""
+        }
+      },
+      "description": "创建队列的响应参数。",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dli.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

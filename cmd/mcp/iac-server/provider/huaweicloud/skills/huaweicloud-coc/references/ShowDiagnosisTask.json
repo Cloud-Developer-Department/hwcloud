@@ -1,0 +1,314 @@
+{
+  "name": "ShowDiagnosisTask",
+  "summary": "查询单个诊断任务详情",
+  "tags": "Diagnosis",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/diagnosis/tasks/{task_id}": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-requestHandler": true,
+        "x-responseHandler": true,
+        "x-is-registered": "Y",
+        "tags": [
+          "Diagnosis"
+        ],
+        "summary": "查询单个诊断任务详情",
+        "description": "查询单个诊断任务详情",
+        "operationId": "ShowDiagnosisTask",
+        "x-imports": [
+          "com.huawei.clouds.wushan.cts.meta.CtsMeta",
+          "com.huawei.clouds.wushan.auth.token.meta.BssOpType",
+          "com.huawei.clouds.wushan.auth.token.IamAuthLevel",
+          "com.huawei.clouds.wushan.auth.token.IamAuthMeta",
+          "com.huawei.coc.instance.mgmt.framework.auth.ResourceDiagnosisAuthInitializer"
+        ],
+        "x-method-annotations": [
+          "@IamAuthMeta(needApigwJwtAuthCheck = false, authLevel = IamAuthLevel.INSTANCE, abacAction = \"coc:job:get\", opType = BssOpType.QUERY, needAbacResourceCheck = true, authContextInitializer = ResourceDiagnosisAuthInitializer.class,needCbcCheck = false)",
+          "@CtsExtendMeta(resourceId = \"#taskId\", resourceName = \"diagnosisName\", resourceIdKey = \"task_id\")",
+          "@CtsMeta(resourceType = \"diagnosis\", traceName = \"showDiagnosisTask\", operationId = \"ShowDiagnosisTask\")"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "诊断工单ID",
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "name": "instance_id",
+            "in": "query",
+            "required": true,
+            "description": "非必填,被诊断实例的ID,传入后查询该实例诊断报告",
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 128
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询单个诊断任务详情",
+            "schema": {
+              "$ref": "#/definitions/DiagnosisTaskDetailResponse"
+            }
+          },
+          "400": {
+            "description": "客户端错误",
+            "schema": {
+              "$ref": "#/definitions/BasicResponse"
+            }
+          },
+          "500": {
+            "description": "服务端错误",
+            "schema": {
+              "$ref": "#/definitions/BasicResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DiagnosisTaskNode": {
+      "description": "单诊断步骤结果对象",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicDTO"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "诊断步骤名称",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "name_zh": {
+              "type": "string",
+              "description": "诊断步骤名称(中文)",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "diagnosis_task_id": {
+              "type": "string",
+              "description": "诊断任务ID",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "status": {
+              "type": "string",
+              "description": "任务状态,waiting,executing,failed,finish,cancel",
+              "minLength": 0,
+              "maxLength": 32
+            }
+          }
+        }
+      ]
+    },
+    "BasicResponse": {
+      "type": "object",
+      "description": "基础响应对象",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "error_code",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "error_msg",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "BasicDTO": {
+      "type": "object",
+      "description": "基础请求对象",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "code": {
+          "type": "string",
+          "description": "code",
+          "maxLength": 64,
+          "minLength": 0
+        }
+      }
+    },
+    "DiagnosisTaskDetail": {
+      "description": "诊断记录详情对象",
+      "allOf": [
+        {
+          "$ref": "#/definitions/DiagnosisTask"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "region": {
+              "type": "string",
+              "description": "诊断资源所属局点",
+              "minLength": 0,
+              "maxLength": 32
+            },
+            "node_list": {
+              "type": "array",
+              "description": "诊断步骤",
+              "minItems": 0,
+              "maxItems": 10,
+              "items": {
+                "$ref": "#/definitions/DiagnosisTaskNode"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "诊断结果",
+              "minLength": 0,
+              "maxLength": 1000000
+            }
+          }
+        }
+      ]
+    },
+    "DiagnosisTaskDetailResponse": {
+      "description": "单个诊断任务响应对象",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "description": "data",
+              "$ref": "#/definitions/DiagnosisTaskDetail"
+            }
+          }
+        }
+      ]
+    },
+    "DiagnosisTask": {
+      "description": "诊断记录对象",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicDTO"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "domain_id": {
+              "type": "string",
+              "description": "诊断记录所属租户ID",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "project_id": {
+              "type": "string",
+              "description": "被诊断实例所属项目ID",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "user_id": {
+              "type": "string",
+              "description": "诊断记录所属用户ID",
+              "minLength": 0,
+              "maxLength": 128
+            },
+            "user_name": {
+              "type": "string",
+              "description": "诊断记录所属用户名称",
+              "minLength": 0,
+              "maxLength": 2048
+            },
+            "progress": {
+              "type": "integer",
+              "format": "int32",
+              "description": "诊断进度",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "work_order_id": {
+              "type": "string",
+              "description": "诊断任务工单ID",
+              "minLength": 0,
+              "maxLength": 128
+            },
+            "instance_id": {
+              "type": "string",
+              "description": "被诊断的实例ID",
+              "minLength": 0,
+              "maxLength": 128
+            },
+            "instance_name": {
+              "type": "string",
+              "description": "被诊断的实例名称",
+              "minLength": 0,
+              "maxLength": 128
+            },
+            "type": {
+              "type": "string",
+              "description": "被诊断实例类别,ECS、RDS等",
+              "minLength": 0,
+              "maxLength": 64
+            },
+            "status": {
+              "type": "string",
+              "description": "诊断任务状态执行状态",
+              "minLength": 0,
+              "maxLength": 32
+            },
+            "start_time": {
+              "type": "string",
+              "description": "创建时间,遵循RFC3339规范,精确到秒\n示例:2020-09-01T18:50:20Z",
+              "minLength": 0,
+              "maxLength": 32
+            },
+            "end_time": {
+              "type": "string",
+              "description": "结束时间,遵循RFC3339规范,精确到秒\n示例:2020-09-01T18:50:20Z",
+              "minLength": 0,
+              "maxLength": 32
+            },
+            "instance_num": {
+              "type": "integer",
+              "format": "int32",
+              "description": "被诊断实例的数量",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "os_type": {
+              "type": "string",
+              "description": "被诊断实例的操作系统类型",
+              "minLength": 0,
+              "maxLength": 16
+            },
+            "region": {
+              "type": "string",
+              "description": "被诊断实例所在区域",
+              "minLength": 0,
+              "maxLength": 128
+            }
+          }
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

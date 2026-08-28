@@ -1,0 +1,238 @@
+{
+  "name": "UpdateStream",
+  "summary": "更新视频流",
+  "tags": "视频流管理",
+  "productshort": "VIS",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v1/{project_id}/streams/{stream_name}": {
+      "put": {
+        "tags": [
+          "视频流管理"
+        ],
+        "summary": "更新视频流",
+        "description": "该接口用于更新视频流的详情,包括RTMP以及HTTP-FLV类型视频流。",
+        "operationId": "UpdateStream",
+        "consumes": [],
+        "produces": [],
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-constraint": "当视频流处于ACTIVE状态时,不允许修改视频接入类型",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "description": "视频流名称",
+            "required": true,
+            "type": "string",
+            "x-example": "stream****"
+          },
+          {
+            "name": "UpdateStreamRequest",
+            "in": "body",
+            "description": "更新视频流请求体",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/UpdateStreamRequestList"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常",
+            "examples": {
+              "application/json": {
+                "result": "success"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/UpdateResponse"
+            }
+          },
+          "400": {
+            "description": "请求错误",
+            "examples": {
+              "application/json": {
+                "error_msg": "Invalid request parameter, url can not be null or empty when access type is HTTP-FLV.",
+                "error_code": "VIS.0005"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "更新视频流",
+        "x-request-examples-url-1": "PUT /v1/3266392d188c47d09948b1**********/streams/streamTest",
+        "x-request-examples-1": {
+          "state": "ACTIVE"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StreamTag": {
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "group",
+          "description": "标签的键。最大长度为36个UNICODE字符(一-鿿),可以包含大小写字母、数字、中划线(-)或者下划线(_),不能包含其他的特殊字符。"
+        },
+        "value": {
+          "type": "string",
+          "example": "number1",
+          "description": "标签的值。最大长度为43个UNICODE字符(一-鿿),可以包含大小写字母、数字、点(.)、中划线(-)或者下划线(_),不能包含其他的特殊字符,也可以为空字符串。"
+        }
+      }
+    },
+    "UpdateResponse": {
+      "properties": {
+        "result": {
+          "type": "string",
+          "example": "success",
+          "description": "处理成功时返回"
+        }
+      }
+    },
+    "UpdateStreamRequestList": {
+      "properties": {
+        "access_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[A-Za-z0-9\\-_]*",
+          "enum": [
+            "HTTP-FLV",
+            "RTMP",
+            "RTP"
+          ],
+          "example": "RTMP",
+          "description": "视频接入类型,例如HTTP-FLV、RTMP等,不区分大小写。当视频流处于ACTIVE状态时,不允许修改该项。"
+        },
+        "encode_type": {
+          "type": "string",
+          "example": "H264",
+          "enum": [
+            "H264",
+            "H265",
+            "NONE"
+          ],
+          "description": "视频流编码格式,当前支持H264,不区分大小写。"
+        },
+        "access_key": {
+          "type": "string",
+          "example": "ALKJOWLKJSDNFGO******KSJDF",
+          "description": "RTMP视频流绑定的秘钥Access Key。"
+        },
+        "url": {
+          "type": "string",
+          "example": "https://xxxxxxxx.com/live",
+          "description": "HTTP-FLV视频流的拉流地址。URL必须是http或https协议的合法URL。格式要求:以“http://”或“https://”开头的字符串,例如“http://xxxx.xxx”。"
+        },
+        "description": {
+          "type": "string",
+          "example": "",
+          "maxLength": 500,
+          "description": "视频流的描述信息。"
+        },
+        "share_type": {
+          "type": "string",
+          "example": "PRIVATE",
+          "enum": [
+            "PUBLIC",
+            "PRIVATE"
+          ],
+          "description": "视频流共享类型。\n- PRIVATE:非共享。\n- PUBLIC:共享。\n\n不区分大小写。"
+        },
+        "tag": {
+          "type": "array",
+          "minimum": 0,
+          "maximum": 10,
+          "items": {
+            "$ref": "#/definitions/StreamTag"
+          },
+          "description": "和视频流关联的标签,一个视频流最多添加10个标签。"
+        },
+        "state": {
+          "type": "string",
+          "example": "STOPPED",
+          "enum": [
+            "ACTIVE",
+            "STOPPED"
+          ],
+          "description": "视频流状态,可选值如下。\n- ACTIVE:表示已激活。\n- STOPPED:表示已停用。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-vis/vis_03_0005.html)",
+      "minLength": 32,
+      "maxLength": 32,
+      "required": true,
+      "type": "string"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "普通租户的token。",
+      "required": true,
+      "minLength": 1,
+      "maxLength": 10240,
+      "type": "string"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    }
+  },
+  "host": "vis.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

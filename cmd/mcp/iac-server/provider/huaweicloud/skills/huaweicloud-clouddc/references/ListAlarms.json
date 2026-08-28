@@ -1,0 +1,284 @@
+{
+  "name": "ListAlarms",
+  "summary": "服务器告警列表",
+  "tags": "物理服务器诊断",
+  "productshort": "CloudDC",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/{project_id}/physicalservers/alarms": {
+      "get": {
+        "tags": [
+          "物理服务器诊断"
+        ],
+        "summary": "服务器告警列表",
+        "description": "该 API 用于查询服务器告警列表",
+        "operationId": "ListAlarms",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "name": "alarm_record_id",
+            "in": "query",
+            "required": false,
+            "description": "告警记录ID,以ah开头,后跟22位由字母或数字组成的字符串",
+            "maxLength": 24,
+            "minLength": 24,
+            "type": "string"
+          },
+          {
+            "name": "alarm_status",
+            "in": "query",
+            "required": false,
+            "description": "告警状态,ok为正常,alarm为告警,invalid为已失效",
+            "type": "string",
+            "enum": [
+              "ok",
+              "alram",
+              "invalid"
+            ]
+          },
+          {
+            "name": "alarm_type",
+            "in": "query",
+            "required": false,
+            "description": "告警类型",
+            "type": "string",
+            "enum": [
+              "event",
+              "metric"
+            ]
+          },
+          {
+            "name": "resource_id",
+            "in": "query",
+            "required": false,
+            "description": "告警资源ID,多值可以以逗号分割,",
+            "maxLength": 1024,
+            "type": "string"
+          },
+          {
+            "name": "alarm_level",
+            "in": "query",
+            "required": false,
+            "description": "告警级别,1为紧急,2为重要,3为次要,4为提示",
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "产生告警开始时间,from 必须小于 to。",
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "产生告警结束时间,from 必须小于 to。",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "分页游标",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "分页大小",
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/AlarmHistoryResponse"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "AlarmHistory": {
+      "type": "object",
+      "properties": {
+        "alarm_record_id": {
+          "type": "string",
+          "description": "告警记录ID"
+        },
+        "alarm_id": {
+          "type": "string",
+          "description": "告警ID"
+        },
+        "alarm_name": {
+          "type": "string",
+          "description": "告警名称"
+        },
+        "alarm_status": {
+          "type": "string",
+          "description": "告警状态"
+        },
+        "alarm_level": {
+          "type": "integer",
+          "description": "告警级别"
+        },
+        "begin_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "告警开始时间,Unix时间戳"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "告警结束时间,Unix时间戳"
+        },
+        "last_alarm_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "最后一次告警时间,Unix时间戳"
+        },
+        "metric": {
+          "$ref": "#/definitions/Metric"
+        }
+      }
+    },
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "metric_name": {
+          "type": "string",
+          "description": "资源的监控指标名称,必须以字母开头,只能包含0-9/a-z/A-Z/_,字符长度最短为1,最大为64;如:弹性云服务器中的监控指标cpu_util,表示弹性服务器的CPU使用率;文档数据库中的指标mongo001_command_ps,表示command执行频率;各服务的指标名称可查看:[服务指标名称](https://support.huaweicloud.com/usermanual-ces/zh-cn_topic_0202622212.html)。"
+        },
+        "dimensions": {
+          "type": "array",
+          "description": "资源维度",
+          "items": {
+            "$ref": "#/definitions/Dimension"
+          }
+        }
+      }
+    },
+    "AlarmHistoryResponse": {
+      "type": "object",
+      "description": "服务器告警列表响应体",
+      "properties": {
+        "alarms": {
+          "description": "告警列表对象",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlarmHistory"
+          }
+        },
+        "count": {
+          "description": "告警总数",
+          "type": "integer"
+        }
+      }
+    },
+    "Dimension": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "资源维度,如:弹性云服务器,则维度为instance_id;目前最大支持4个维度,各服务资源的指标维度名称可查看:[服务指标维度](https://support.huaweicloud.com/usermanual-ces/zh-cn_topic_0202622212.html)。"
+        },
+        "value": {
+          "type": "string",
+          "description": "资源维度值,为资源的实例ID,如:4270ff17-aba3-4138-89fa-820594c39755。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

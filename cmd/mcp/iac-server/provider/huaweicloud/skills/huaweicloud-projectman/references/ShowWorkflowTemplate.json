@@ -1,0 +1,270 @@
+{
+  "name": "ShowWorkflowTemplate",
+  "summary": "获取工作流的详情及每条流转线的详情",
+  "tags": "IPD工作流",
+  "productshort": "ProjectMan",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/ipdprojectservice/projects/{project_id}/workflow-template": {
+      "get": {
+        "tags": [
+          "IPD工作流"
+        ],
+        "summary": "获取工作流的详情及每条流转线的详情",
+        "operationId": "ShowWorkflowTemplate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "devcloud项目的32位id",
+            "x-example": "39d30be0842e4e5d8e28ee7e1712c6a2"
+          },
+          {
+            "name": "issue_category",
+            "in": "query",
+            "required": true,
+            "description": "工作项类型",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/WorkflowTemplateResponseBody"
+            },
+            "examples": {
+              "application/json": "{\n\t\"status\": \"success\",\n\t\"message\": null,\n\t\"result\": {\n\t\t\"process_nodes\": [\n\t\t\t{\n\t\t\t\t\"code\": \"Analyse\",\n\t\t\t\t\"name\": \"分析\"\n\t\t\t}\n\t\t],\n\t\t\"process_flows\": [\n\t\t\t{\n\t\t\t\t\"code\": \"Analyse2ToBeConfirmed\",\n\t\t\t\t\"name\": \"退回\",\n\t\t\t\t\"from_code\": \"Analyse\",\n\t\t\t\t\"to_code\": \"ToBeConfirmed\",\n\t\t\t\t\"before_rule_configs\": [],\n\t\t\t\t\"before_rule_validator\": []\n\t\t\t}\n\t\t]\n\t}\n}"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/BadRequestError"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/UnauthorizedRequestError"
+            }
+          }
+        },
+        "deprecated": false,
+        "description": "获取工作流的详情及每条流转线的详情",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/ipdprojectservice/projects/39d30be0842e4e5d8e28ee7e1712c6a2/workflow-template?issue_category=RR"
+      }
+    }
+  },
+  "definitions": {
+    "WorkflowTemplateResponseBody": {
+      "type": "object",
+      "description": "获取工作流的详情返回值",
+      "properties": {
+        "result": {
+          "description": "查询结果",
+          "$ref": "#/definitions/WorkflowTemplateVO"
+        },
+        "status": {
+          "type": "string",
+          "description": "状态码"
+        },
+        "message": {
+          "type": "string",
+          "description": "响应信息"
+        }
+      }
+    },
+    "UnauthorizedRequestError": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "认证信息过期"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DEV.00000003"
+        }
+      }
+    },
+    "WorkflowTemplateNodesVO": {
+      "type": "object",
+      "description": "状态流中状态信息",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "状态编码"
+        },
+        "name": {
+          "type": "string",
+          "description": "状态名称"
+        }
+      }
+    },
+    "BadRequestError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "参数错误"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "PM.00000001"
+        }
+      }
+    },
+    "WorkflowTemplateVO": {
+      "type": "object",
+      "description": "工作流信息",
+      "properties": {
+        "processNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkflowTemplateNodesVO"
+          },
+          "description": "状态流中的状态信息"
+        },
+        "processFlows": {
+          "type": "array",
+          "description": "状态流中的流转线信息",
+          "items": {
+            "$ref": "#/definitions/WorkflowTemplateFlowsVO"
+          }
+        }
+      }
+    },
+    "WorkflowTemplateFlowsVO": {
+      "type": "object",
+      "description": "状态流中流转线信息",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "流转线编码"
+        },
+        "name": {
+          "type": "string",
+          "description": "流转线名称"
+        },
+        "before_rule_validator": {
+          "type": "array",
+          "description": "流转前校验配置",
+          "items": {
+            "$ref": "#/definitions/WorkflowTemplateConfigsVO"
+          }
+        },
+        "before_rule_configs": {
+          "type": "array",
+          "description": "流转中界面配置",
+          "items": {
+            "$ref": "#/definitions/WorkflowTemplateConfigsVO"
+          }
+        },
+        "from_code": {
+          "type": "string",
+          "description": "流转线的入口状态"
+        },
+        "to_code": {
+          "type": "string",
+          "description": "流转线的出口状态"
+        }
+      }
+    },
+    "WorkflowTemplateConfigsVO": {
+      "type": "object",
+      "description": "状态流流转线流转配置信息",
+      "properties": {
+        "configValue": {
+          "type": "array",
+          "items": {
+            "additionalProperties": {
+              "type": "string",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "操作项"
+                },
+                "field_code": {
+                  "type": "string",
+                  "description": "字段名称"
+                },
+                "value_type": {
+                  "type": "string",
+                  "description": "默认值类型"
+                },
+                "field_range": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "选择范围"
+                },
+                "field_operation": {
+                  "type": "string",
+                  "description": "判断条件"
+                },
+                "field_value": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "默认值"
+                },
+                "open": {
+                  "type": "boolean",
+                  "description": "操作项开关"
+                }
+              }
+            },
+            "type": "object"
+          },
+          "description": "操作项配置"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "projectman-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v4",
+  "method": "get",
+  "uri": null
+}

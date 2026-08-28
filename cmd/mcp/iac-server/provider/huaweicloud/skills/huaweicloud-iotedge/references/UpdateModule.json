@@ -1,0 +1,340 @@
+{
+  "name": "UpdateModule",
+  "summary": "修改边缘模块",
+  "tags": "模块管理",
+  "productshort": "IoTEdge",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/{project_id}/edge-nodes/{edge_node_id}/modules/{module_id}": {
+      "put": {
+        "tags": [
+          "EdgeModuleManagement"
+        ],
+        "summary": "修改边缘模块",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "description": "用户通过Console接口查询指定边缘节点上指定边缘模块",
+        "operationId": "UpdateModule",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/edge_node_id"
+          },
+          {
+            "$ref": "#/parameters/module_id"
+          },
+          {
+            "name": "UpdateModuleRequestBody",
+            "in": "body",
+            "description": "修改边缘模块请求的结构体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateEdgeModuleReqDTO"
+            }
+          }
+        ],
+        "x-returnType": "ResponseEntity<EdgeModuleDTO>",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "x-SuccessCode": true,
+            "examples": {
+              "application/json": {
+                "edge_app_id": "test-app",
+                "app_version": "1.0.0",
+                "state": "PENDING",
+                "control_status": "0000000000000000",
+                "node_id": "test-node",
+                "module_name": "edge_module",
+                "module_id": "test-module-id",
+                "create_time": "2020-05-28T11:31:29.740Z",
+                "update_time": "2020-05-28T11:31:29.740Z",
+                "app_type": "SYSTEM_REQUIRED",
+                "function_type": "DATA_PROCESSING"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/EdgeModuleDTO"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "x-request-examples-url-1": "PUT https://{endpoint}/v2/{project_id}/edge-nodes/{edge_node_id}/modules/{module_id}",
+        "x-request-examples-1": {
+          "app_version": "1.1.0",
+          "module_name": "edge_module",
+          "container_settings": {
+            "configs": [
+              {
+                "container_port_list": null,
+                "container_port": 65535,
+                "host_port": 65535,
+                "host_ip": "string"
+              }
+            ]
+          },
+          "desired_state": "RUNNING"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ContainerPortDTO": {
+      "title": "容器网络配置结构体",
+      "type": "object",
+      "properties": {
+        "container_port": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 65535,
+          "minimum": 1,
+          "description": "构成一堆映射的容器端口"
+        },
+        "host_port": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 65535,
+          "minimum": 1,
+          "description": "构成一对映射的物理机对应网卡端口"
+        },
+        "host_ip": {
+          "type": "string",
+          "description": "对应网卡地址",
+          "minLength": 0,
+          "maxLength": 64
+        }
+      }
+    },
+    "ContainerConfigsReqDTO": {
+      "title": "容器特殊配置结构体",
+      "type": "object",
+      "properties": {
+        "container_port_list": {
+          "type": "array",
+          "description": "容器端口映射值",
+          "minItems": 0,
+          "maxItems": 1000000,
+          "items": {
+            "$ref": "#/definitions/ContainerPortDTO"
+          }
+        }
+      }
+    },
+    "ContainerSettingsReqDTO": {
+      "title": "容器相关配置",
+      "type": "object",
+      "x-imports": "java.util.Map;",
+      "properties": {
+        "configs": {
+          "description": "容器相关配置",
+          "$ref": "#/definitions/ContainerConfigsReqDTO"
+        }
+      }
+    },
+    "UpdateEdgeModuleReqDTO": {
+      "title": "更新边缘模块请求结构体",
+      "description": "更新边缘模块请求结构体",
+      "type": "object",
+      "properties": {
+        "app_version": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9-_.]*$",
+          "description": "边缘应用版本",
+          "example": "1.1.0"
+        },
+        "module_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256,
+          "pattern": "^[\\一-\\龥a-zA-Z0-9_?'#()\\.,&%@!-]*$",
+          "description": "边缘模块名称",
+          "example": "edge_module"
+        },
+        "container_settings": {
+          "description": "容器设置",
+          "$ref": "#/definitions/ContainerSettingsReqDTO"
+        },
+        "desired_state": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "模块期望状态: RUNNING(升级后期望模块运行),STOPPED(升级后期望模块停止),空值默认继承升级前模块期望状态",
+          "pattern": "(RUNNING|STOPPED)",
+          "enum": [
+            "RUNNING",
+            "STOPPED"
+          ]
+        }
+      }
+    },
+    "EdgeModuleDTO": {
+      "title": "查询模块列表模块相关信息",
+      "description": "查询模块列表模块相关信息",
+      "type": "object",
+      "properties": {
+        "edge_app_id": {
+          "type": "string",
+          "description": "应用ID",
+          "example": "test-app",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "app_version": {
+          "type": "string",
+          "description": "应用版本",
+          "example": "1.0.0",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "state": {
+          "type": "string",
+          "description": "模块运行状态",
+          "enum": [
+            "PENDING",
+            "PENDING_DELETE",
+            "DELETE_FAILED",
+            "RUNNING",
+            "FAILED",
+            "SUCCEEDED",
+            "UNKNOWN",
+            "DELETE_SUCCESS",
+            "STOPPED"
+          ]
+        },
+        "control_status": {
+          "type": "string",
+          "description": "模块管控状态",
+          "example": "0000000000000000"
+        },
+        "node_id": {
+          "type": "string",
+          "description": "边缘节点(同deviceID)ID",
+          "example": "test-node",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "module_name": {
+          "type": "string",
+          "description": "模块名称",
+          "example": "edge_module",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "module_id": {
+          "type": "string",
+          "description": "模块ID",
+          "example": "test-module-id",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "create_time": {
+          "type": "string",
+          "description": "创建时间",
+          "example": "2020-05-28T11:31:29.740Z",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "update_time": {
+          "type": "string",
+          "description": "最后一次修改时间",
+          "example": "2020-05-28T11:31:29.740Z",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "app_type": {
+          "type": "string",
+          "description": "应用类型",
+          "enum": [
+            "SYSTEM_REQUIRED",
+            "SYSTEM_OPTIONAL",
+            "USER"
+          ]
+        },
+        "function_type": {
+          "type": "string",
+          "description": "功能类型",
+          "enum": [
+            "DATA_PROCESSING",
+            "PROTOCOL_PARSING",
+            "ON_PREMISE_INTEGRATION",
+            "GATEWAY_MANAGER",
+            "COMPOSITE_APPLICATION",
+            "DATA_COLLECTION"
+          ]
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。获取方法请参见 [获取项目ID](x-wc://file=zh-cn_topic_0225049489.xml)。",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{1,32}$",
+      "minLength": 1,
+      "maxLength": 64,
+      "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-iothub/iot_06_v5_0091.html#section0)。",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "minLength": 0,
+      "maxLength": 20000
+    },
+    "edge_node_id": {
+      "name": "edge_node_id",
+      "in": "path",
+      "description": "边缘节点ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-zA-Z0-9_-]*$",
+      "x-example": "446007715895193600"
+    },
+    "module_id": {
+      "name": "module_id",
+      "in": "path",
+      "description": "边缘模块ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9-_]*$",
+      "x-example": "user-module-1"
+    }
+  },
+  "host": "iotedge-api.cn-north-4.myhuaweicloud.com",
+  "base_path": "/v2",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

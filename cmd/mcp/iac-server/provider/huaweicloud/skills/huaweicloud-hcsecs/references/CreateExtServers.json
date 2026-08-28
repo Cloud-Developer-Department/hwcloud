@@ -1,0 +1,925 @@
+{
+  "name": "CreateExtServers",
+  "summary": "创建云服务器",
+  "tags": "生命周期管理",
+  "productshort": "HCSECS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1.1/{tenant_id}/cloudservers": {
+      "post": {
+        "tags": [
+          "生命周期管理"
+        ],
+        "summary": "创建云服务器",
+        "description": "创建一台或多台云服务器,兼容v1接口。\n\n1. 支持批量创建云服务器。\n\n2. 该接口与创建云服务器_社区兼容的区别:该接口可以直接根据用户输入参数自动先调用vpc或neutron创建port、安全组、调用evs创建卷挂载卷,最后再调nova的接口创建虚拟机,然后自动绑定弹性ip。而OpenStack原生的创建接口对于一些场景,则需要用户自己先创建好port和卷。因此对于创建非快速发放、sriov端口的虚拟机,建议使用该接口。",
+        "operationId": "CreateExtServers",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "发送的实体的MIME类型,媒体类型可按照流类型的不同进行确定。",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "enum": [
+              "application/json"
+            ]
+          },
+          {
+            "name": "Content-Length",
+            "in": "header",
+            "description": "请求body长度,单位为Byte。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "project id,项目编号。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,请参考《华为云Stack 8.6.1 API参考》的“ManageOne 8.6.1 API参考 >  ManageOne xxx OTenantSecurity服务API参考 > API参考 > Token > 获取用户Token”章节。",
+            "required": true,
+            "type": "string",
+            "pattern": "[\\\\w\\\\-\\\\+=]*"
+          },
+          {
+            "in": "body",
+            "name": "ApicomCreateServersV1Req",
+            "description": "This is a auto create Body Object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApicomCreateServersV1Req"
+            }
+          },
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "pattern": "[0-9a-f]{32}",
+            "x-order": 1
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "任务提交成功。",
+            "examples": {
+              "application/json": {
+                "job_id": "2201e6827643550b01764c0d5c7b15d9"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApicomCreateServersV1Resp"
+            }
+          },
+          "202": {
+            "description": "任务提交成功,当前系统繁忙,下发的任务会延迟处理。",
+            "examples": {
+              "application/json": {
+                "job_id": "2201e6827643550b01764c0d5c7b15d9"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApicomCreateServersV1Resp"
+            }
+          },
+          "400": {
+            "description": "服务器未能处理请求。",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "message": "{\"NeutronError\": {\"message\": \"Network bec5a4ba-90a9-491a-962a-817d8a2b61be could not be found.\", \"type\": \"NetworkNotFound\", \"detail\": \"\"}}",
+                  "code": "Ecs.0310"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码。"
+          },
+          "403": {
+            "description": "对被请求页面的访问被禁止。"
+          },
+          "404": {
+            "description": "服务器无法找到被请求的页面。"
+          },
+          "500": {
+            "description": "请求未完成。服务异常。"
+          },
+          "503": {
+            "description": "请求未完成。系统暂时异常。"
+          }
+        },
+        "x-order": 1,
+        "x-request-examples-description-1": "双网卡场景",
+        "x-request-examples-url-1": "POST /v1.1/4c04e5b8a7e84e849441c16c07bbc6a7/cloudservers",
+        "x-request-examples-1": {
+          "server": {
+            "availability_zone": "az1.dc1",
+            "root_volume": {
+              "volumetype": "business_type_01"
+            },
+            "tags": [
+              "a.b"
+            ],
+            "power_on": false,
+            "vpcid": "780c6cbe-3e62-4fc2-a4e0-2ec1778e2a1f",
+            "name": "ecs-test-P2Nz25",
+            "nics": [
+              {
+                "subnet_id": "5441a50d-96e4-430d-ac88-dcdbfa3cea52"
+              },
+              {
+                "subnet_id": "c9524879-5c02-4436-808c-1fca0e330f0c"
+              }
+            ],
+            "flavorRef": "flavor_1u1g_az",
+            "imageRef": "83ad3005-0ae1-4e66-9d6e-35117b6abd6d"
+          }
+        },
+        "x-request-examples-text-1": {
+          "server": {
+            "availability_zone": "az1.dc1",
+            "root_volume": {
+              "volumetype": "business_type_01"
+            },
+            "tags": [
+              "a.b"
+            ],
+            "power_on": false,
+            "vpcid": "780c6cbe-3e62-4fc2-a4e0-2ec1778e2a1f",
+            "name": "ecs-test-P2Nz25",
+            "nics": [
+              {
+                "subnet_id": "5441a50d-96e4-430d-ac88-dcdbfa3cea52"
+              },
+              {
+                "subnet_id": "c9524879-5c02-4436-808c-1fca0e330f0c"
+              }
+            ],
+            "flavorRef": "flavor_1u1g_az",
+            "imageRef": "83ad3005-0ae1-4e66-9d6e-35117b6abd6d"
+          }
+        },
+        "x-request-examples-description-2": "",
+        "x-request-examples-text-2": {
+          "server": {
+            "availability_zone": "az1.dc1",
+            "name": "newserver",
+            "imageRef": "imageid_123",
+            "root_volume": {
+              "volumetype": "SATA"
+            },
+            "data_volumes": [
+              {
+                "volumetype": "SATA",
+                "size": 100
+              },
+              {
+                "volumetype": "SSD",
+                "size": 100,
+                "multiattach": true,
+                "hw:passthrough": "true"
+              }
+            ],
+            "flavorRef": "m1.larger",
+            "personality": [
+              {
+                "path": "/etc/banner.txt",
+                "contents": "ICAgICAgDQoiQmFjaA=="
+              }
+            ],
+            "vpcid": "0dae26c9-9a70-4392-93f3-87d53115d171",
+            "security_groups": [
+              {
+                "id": "507ca48f-814c-4293-8706-300564d54620"
+              }
+            ],
+            "nics": [
+              {
+                "subnet_id": "157ee789-03ea-45b1-a698-76c92660dd83"
+              }
+            ],
+            "publicip": {
+              "eip": {
+                "iptype": "eip_external_net",
+                "bandwidth": {
+                  "size": 10,
+                  "sharetype": "PER"
+                }
+              }
+            },
+            "key_name": "sshkey-123",
+            "adminPass": "",
+            "count": 1,
+            "power_on": false,
+            "os:scheduler_hints": {
+              "group": "f8e0ecc8-3825-4ee8-9596-fb4258ffdcaa"
+            },
+            "extendparam": {
+              "postfix": "0001",
+              "enterprise_project_id": "0"
+            }
+          }
+        },
+        "x-request-examples-url-2": "POST /v1.1/4c04e5b8a7e84e849441c16c07bbc6a7/cloudservers",
+        "x-request-examples-2": {
+          "server": {
+            "availability_zone": "az1.dc1",
+            "name": "newserver",
+            "imageRef": "imageid_123",
+            "root_volume": {
+              "volumetype": "SATA"
+            },
+            "data_volumes": [
+              {
+                "volumetype": "SATA",
+                "size": 100
+              },
+              {
+                "volumetype": "SSD",
+                "size": 100,
+                "multiattach": true,
+                "hw:passthrough": "true"
+              }
+            ],
+            "flavorRef": "m1.larger",
+            "personality": [
+              {
+                "path": "/etc/banner.txt",
+                "contents": "ICAgICAgDQoiQmFjaA=="
+              }
+            ],
+            "vpcid": "0dae26c9-9a70-4392-93f3-87d53115d171",
+            "security_groups": [
+              {
+                "id": "507ca48f-814c-4293-8706-300564d54620"
+              }
+            ],
+            "nics": [
+              {
+                "subnet_id": "157ee789-03ea-45b1-a698-76c92660dd83"
+              }
+            ],
+            "publicip": {
+              "eip": {
+                "iptype": "eip_external_net",
+                "bandwidth": {
+                  "size": 10,
+                  "sharetype": "PER"
+                }
+              }
+            },
+            "key_name": "sshkey-123",
+            "adminPass": "",
+            "count": 1,
+            "power_on": false,
+            "os:scheduler_hints": {
+              "group": "f8e0ecc8-3825-4ee8-9596-fb4258ffdcaa"
+            },
+            "extendparam": {
+              "postfix": "0001",
+              "enterprise_project_id": "0"
+            }
+          }
+        },
+        "x-request-examples-description-3": "cloud-init镜像场景",
+        "x-request-examples-url-3": "POST /v1.1/4c04e5b8a7e84e849441c16c07bbc6a7/cloudservers",
+        "x-request-examples-text-3": {
+          "server": {
+            "availability_zone": "az1.dc1",
+            "root_volume": {
+              "volumetype": "business_type_01"
+            },
+            "tags": [
+              "a.b"
+            ],
+            "power_on": true,
+            "config_drive": true,
+            "vpcid": "780c6cbe-3e62-4fc2-a4e0-2ec1778e2a1f",
+            "name": "mata_admin_pass",
+            "nics": [
+              {
+                "subnet_id": "5441a50d-96e4-430d-ac88-dcdbfa3cea52"
+              }
+            ],
+            "flavorRef": "flavor_1u1g_az",
+            "imageRef": "3bee43cc-aaf0-4bc0-b28e-4e927a1a33c9",
+            "metadata": {
+              "admin_pass": "password"
+            }
+          }
+        },
+        "x-request-examples-3": {
+          "server": {
+            "availability_zone": "az1.dc1",
+            "root_volume": {
+              "volumetype": "business_type_01"
+            },
+            "tags": [
+              "a.b"
+            ],
+            "power_on": true,
+            "config_drive": true,
+            "vpcid": "780c6cbe-3e62-4fc2-a4e0-2ec1778e2a1f",
+            "name": "mata_admin_pass",
+            "nics": [
+              {
+                "subnet_id": "5441a50d-96e4-430d-ac88-dcdbfa3cea52"
+              }
+            ],
+            "flavorRef": "flavor_1u1g_az",
+            "imageRef": "3bee43cc-aaf0-4bc0-b28e-4e927a1a33c9",
+            "metadata": {
+              "admin_pass": "password"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "admin_pass": {
+          "type": "string",
+          "description": "以cloud-init镜像创建的弹性云服务器的用户密码。\n密码复杂度要求:\n1.长度为8-26位。2.密码至少必须包含大写字母(A~Z)、小写字母(a~z)、数字(0~9)和特殊字符(`~!@#$%^&*()-_=+\\|[{}];:'\",<.>/?)中的三种。3.密码不能包含用户名或用户名的逆序,不能包含用户名中超过两个连续字符的部分。"
+        },
+        "hw_watchdog_action": {
+          "type": "string",
+          "description": "软件狗策略,为云服务器提供一种心跳检测机制,主要用于监控虚拟机内部系统的健康状况。\n说明:\n此参数仅在配置6300软件狗场景下生效\nreset  表示打开软件狗,故障后重启并发送告警;\nnone 表示打开软件狗,故障后仅告警,不会重启;\ndisabled 表示关闭软件狗"
+        },
+        "__instance_vwatchdog": {
+          "type": "string",
+          "description": "软件狗策略,为云服务器提供一种心跳检测机制,主要用于监控虚拟机内部系统的健康状况。\n说明:\n此参数仅在配置ipmi软件狗(ipmi只支持X86)场景下生效\ntrue  表示打开软件狗;\nfalse 表示关闭软件狗"
+        },
+        "_ha_policy_type": {
+          "type": "string",
+          "description": "虚拟机高可用(HA),即虚拟机在其运行的主机发生故障(异常掉电或者主机管理、存储、业务网卡均中断),或者虚拟机状态异常(虚拟机状态变为ERROR)时,在其他可用主机上重建新的虚拟机,并保留原来虚拟机的网络、存储。 说明:\nremote_rebuild,开启虚拟机高可用开关。\nclose,关闭虚拟机高可用开关。"
+        }
+      },
+      "description": "创建云服务器元数据。 创建密码方式鉴权的Windows弹性云服务器时,为必填字段。 说明 该字段暂不支持用户写入数据,但是当使用Windows镜像创建弹性云服务器时,该字段为必选字段。"
+    },
+    "security_groups": {
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "待创建云服务器的安全组,会对创建云服务器中配置的网卡生效。需要指定已有安全组的ID,UUID格式。"
+        }
+      },
+      "description": "云服务器对应安全组信息。约束:当该值指定为空时,默认给云服务器绑定default安全组。"
+    },
+    "device": {
+      "type": "object",
+      "properties": {
+        "device_type": {
+          "type": "string",
+          "description": "设备类型,此参数只支持cdrom,例如:device_type : cdrom",
+          "enum": [
+            "cdrom"
+          ]
+        }
+      }
+    },
+    "serverForApicom": {
+      "type": "object",
+      "required": [
+        "availability_zone",
+        "flavorRef",
+        "imageRef",
+        "name",
+        "nics",
+        "power_on",
+        "root_volume",
+        "vpcid"
+      ],
+      "properties": {
+        "imageRef": {
+          "type": "string",
+          "description": "待创建云服务器的系统镜像,需要指定已创建镜像的ID,ID格式为通用唯一识别码(Universally Unique Identifier,简称UUID)。"
+        },
+        "flavorRef": {
+          "type": "string",
+          "description": "待创建云服务器的系统规格的ID"
+        },
+        "description": {
+          "type": "string",
+          "description": "云服务器的描述信息。"
+        },
+        "name": {
+          "type": "string",
+          "description": "云服务器名称。\n取值范围:\n1.只能由中文字符、英文字母(a~z,A~Z)、数字(0~9)、下划线(_)、中划线(-)组成,且长度为[1-64]个字符。\n2.创建的云服务器数量(count字段对应的值)大于1时,为区分不同云服务器,创建过程中系统会自动在名称后加“-0000”的类似标记,故此时名称的长度为[1-59]个字符。",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "[\\一-\\龥a-zA-Z0-9_\\-]{1,64}"
+        },
+        "personality": {
+          "type": "array",
+          "description": "创建云服务器过程中注入文件信息。 最大支持注入5个文件,每个文件最大1KB。",
+          "items": {
+            "$ref": "#/definitions/personality"
+          },
+          "maxItems": 5
+        },
+        "user_data": {
+          "type": "string",
+          "description": "创建云服务器过程中注入用户数据。支持注入文本、文本文件或gzip文件。更多关于待注入用户数据的信息,请参见“华为云Stack 8.6.1资源发放指南”的 计算服务 > 弹性云服务器(ECS) > 创建前配置  > (制作用户数据注入脚本 || 制作文件注入脚本)。\n\n约束:\n\n1.注入内容,需要进行base64格式编码。\n\n2.注入内容(编码之前的内容)最大长度32KB。\n\n3.当key_name没有指定时,user_data注入的数据默认为云服务器root账号的登录密码。\n\n4.创建密码方式鉴权的弹性云服务器时,设置自定义密码建议使用adminPass字段。\n\n\n建议密码复杂度如下:\n\n1.长度为8-26位。\n\n2.密码至少必须包含大写字母(A~Z)、小写字母(a~z)、数字(0~9)和特殊字符(`~!@#$%^&*()-_=+\\|[{}];:'\",<.>/?)中的三种。\n\n\n示例:\n\n使用明文密码(存在安全风险),以密码password为例:\n\n#!/bin/bash\n\necho 'root:password' | chpasswd\n\n使用密文密码: \n\n#!/bin/bash\n\necho 'root:$6$V6XXXXXXXXXXXXXXXXXXXXXXXXXXXXDd910' | chpasswd -e\n\n其中,$6$V6XXXXXXXXXXXXXXXXXXXXXXXXXXXXDd910为密文密码,生成方法如下:\n\n1.执行如下命令生成加密盐值:python -c \"import crypt, getpass, pwd;print(crypt.mksalt())\"\n\n回显示例:$6$V6XXXXXXXXXXXpY\n\n2.按行依次执行如下命令根据盐值生成密文密码,'password'为需要加密的密码明文:\n\npython\n\nimport crypt, getpass, pwd;\n\nprint(crypt.crypt('password','$6$V6XXXXXXXXXXXpY'))\n\n最终回显示例:$6$V6XXXXXXXXXXXXXXXXXXXXXXXXXXXXDd910"
+        },
+        "adminPass": {
+          "type": "string",
+          "description": "虚拟机密码,当前使用cloud-init的方式实现密码注入,metadata里的admin_pass字段优先于该字段。当metadata里传入admin_pass时,该字段不生效,当metadata不传入admin_pass时,该字段生效。"
+        },
+        "key_name": {
+          "type": "string",
+          "description": "如果需要使用SSH密钥方式登录云服务器,请指定已创建密钥的名称。 \n约束:当key_name与user_data同时指定时,user_data只做用户数据注入。"
+        },
+        "vpcid": {
+          "type": "string",
+          "description": "待创建云服务器所属虚拟私有云(简称VPC),需要指定已创建VPC的ID,UUID格式。"
+        },
+        "nics": {
+          "type": "array",
+          "description": "待创建云服务器的网卡信息。\n约束:\n1.当前单个云服务器支持最多挂载16张网卡。",
+          "items": {
+            "$ref": "#/definitions/nic"
+          },
+          "maxItems": 16,
+          "minItems": 1
+        },
+        "publicip": {
+          "description": "配置云服务器的弹性IP信息,弹性IP有三种配置方式。\n不使用(无该字段)。\n自动分配,需要指定新创建弹性IP的信息。\n使用已有,需要指定已创建弹性IP的信息。",
+          "$ref": "#/definitions/publicip"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建云服务器数量。 \n约束:\n1.不传该字段时默认取值为1。\n2.租户的配额足够时,最大值为1000。",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 1
+        },
+        "isAutoRename": {
+          "type": "boolean",
+          "description": "云服务器名称是否允许重名。True,表示允许重名。False,表示不允许重名。"
+        },
+        "root_volume": {
+          "description": "云服务器对应系统盘相关配置。",
+          "$ref": "#/definitions/root_volume"
+        },
+        "data_volumes": {
+          "type": "array",
+          "description": "云服务器对应数据盘相关配置。每一个数据结构代表一块待创建的数据盘。\n约束:目前新创建的弹性云服务器最多可挂载59块数据盘。",
+          "items": {
+            "$ref": "#/definitions/data_volume"
+          },
+          "maxItems": 59,
+          "minItems": 0
+        },
+        "security_groups": {
+          "type": "array",
+          "description": "云服务器对应安全组信息。 约束:当该值指定为空时,默认给云服务器绑定default安全组。",
+          "items": {
+            "$ref": "#/definitions/security_groups"
+          }
+        },
+        "availability_zone": {
+          "type": "string",
+          "description": "待创建云服务器所在的可用分区,需要指定可用分区(AZ)的名称。请参考“查询可用分区列表”接口获取。"
+        },
+        "extendparam": {
+          "description": "创建云服务器附加信息。",
+          "$ref": "#/definitions/extendparmForVm"
+        },
+        "metadata": {
+          "description": "创建云服务器元数据。 创建密码方式鉴权的Windows弹性云服务器时,为必填字段。 说明 该字段暂不支持用户写入数据,但是当使用Windows镜像创建弹性云服务器时,该字段为必选字段。",
+          "$ref": "#/definitions/metadata"
+        },
+        "os:scheduler_hints": {
+          "description": "云服务器调度信息。",
+          "$ref": "#/definitions/os_scheduler_hints"
+        },
+        "tags": {
+          "type": "array",
+          "description": "标签的格式为“key.value”。其中,key的长度不超过36个字符,value的长度不超过43个字符。\n标签命名时,需满足如下要求:\n1.标签的key值只能包含大写字母(A~Z)、小写字母(a~z)、数字(0-9)、下划线(_)、中划线(-)以及中文字符。\n2.标签的value值只能包含大写字母(A~Z)、小写字母(a~z)、数字(0-9)、下划线(_)、中划线(-)、小数点(.)以及中文字符。\n说明:\n1.创建弹性云服务器时,一台弹性云服务器最多可以添加10个标签。\n2.若配置了__single_storage字段时,表示云服务器的系统盘和数据盘位于同一套后端存储。\n    例如\"tags\" : [\"__single_storage\"]",
+          "items": {
+            "type": "string"
+          }
+        },
+        "server_tags": {
+          "type": "array",
+          "description": "弹性云服务器的标签。详情请参见server_tags\n字段数据结构说明\n说明\n● 创建弹性云服务器时,一台弹性云服务器最多可\n以添加10个标签。\n● 云服务新增server_tags字段,该字段与tags字段\n功能相同,支持的key、value取值范围更广,建\n议使用server_tags字段。",
+          "items": {
+            "$ref": "#/definitions/tags_action"
+          }
+        },
+        "power_on": {
+          "type": "boolean",
+          "description": "云服务器创建完成之后的运行状态。true,表示开机状态。false,表示关机状态。\n说明:默认为开机状态。"
+        },
+        "extra": {
+          "description": "作为一个从 ECS-UI 到 nova 的数据传送通道,若所创建的虚拟机需要带有cdrom驱动器,则devices中device_type值必须为cdrom。\n例如:\n\t\"extra\" : {\n\t\t\"devices\" : [{\n\t\t\t\t\"device_type\" : \"cdrom\"                                                                         *\n\t\t\t}\n\t\t]",
+          "$ref": "#/definitions/extra"
+        },
+        "config_drive": {
+          "type": "boolean",
+          "description": "是否配置使用config_drive盘"
+        },
+        "advanced_properties": {
+          "type": "object",
+          "description": "云服务器高级配置。",
+          "properties": {
+            "iohang": {
+              "type": "object",
+              "description": "IO悬挂。",
+              "properties": {
+                "timeout": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "超时时间,0代表关闭,unit为minute时,取值范围[0, 65536],unit为second时,取值范围为[0, 3932160]。"
+                },
+                "unit": {
+                  "type": "string",
+                  "description": "时间单位,可选second,minute。"
+                }
+              },
+              "required": [
+                "timeout",
+                "unit"
+              ]
+            }
+          }
+        }
+      },
+      "description": "弹性云服务器信息。"
+    },
+    "root_volume": {
+      "type": "object",
+      "required": [
+        "volumetype"
+      ],
+      "properties": {
+        "extendparam": {
+          "description": "磁盘的产品信息。",
+          "$ref": "#/definitions/extendparamForVolume"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "系统盘大小,容量单位为GB。\n约束:\n1.系统盘大小取值应不小于镜像支持的系统盘的最小值(镜像的min_disk属性)。\n2.若该参数没有指定或者指定为0,系统盘大小默认取值为镜像中系统盘的最小值(镜像的min_disk属性)。"
+        },
+        "volumetype": {
+          "type": "string",
+          "description": "云服务器系统盘对应的磁盘类型,需要与系统所提供的磁盘类型相匹配。"
+        },
+        "image_metadata": {
+          "type": "object",
+          "description": "系统盘的镜像元数据。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "encryption_info": {
+          "description": "系统盘的磁盘加密信息",
+          "$ref": "#/definitions/encryption_info"
+        }
+      },
+      "description": "云服务器对应系统盘相关配置。"
+    },
+    "personality": {
+      "required": [
+        "contents",
+        "path"
+      ],
+      "properties": {
+        "contents": {
+          "type": "string",
+          "description": "注入文件的内容。 该值应指定为注入文件的内容进行base64格式编码后的信息。"
+        },
+        "path": {
+          "type": "string",
+          "description": "注入文件路径信息。 .Linux系统请输入注入文件保存路径,例如 “/etc/foo.txt”。"
+        }
+      },
+      "description": "创建云服务器过程中注入文件信息。 最大支持注入5个文件,每个文件最大1KB。\n说明:\nLinux操作系统支持,Windows不支持。"
+    },
+    "data_volume": {
+      "type": "object",
+      "required": [
+        "size",
+        "volumetype"
+      ],
+      "properties": {
+        "extendparam": {
+          "description": "磁盘的产品信息。",
+          "$ref": "#/definitions/extendparamForVolume"
+        },
+        "hw:passthrough": {
+          "type": "string",
+          "description": "数据卷是否使用SCSI锁。如果使用,请将该字段值配置为“true”,否则,请勿填写该字段。"
+        },
+        "multiattach": {
+          "type": "boolean",
+          "description": "创建共享磁盘的信息。true:创建的磁盘为共享盘。false:创建的磁盘为普通云硬盘。\n说明:\n1.shareable当前为废弃字段,如果确实需要同时使用shareable字段和multiattach字段,请确保两个字段的参数值相同。\n2.当不指定该字段时,系统默认创建普通云硬盘。"
+        },
+        "shareable": {
+          "type": "boolean",
+          "description": "是否为共享磁盘。true为共享盘,false为普通云硬盘。说明:该字段已废弃,请使用multiattach。"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "数据盘大小,容量单位为GB,输入大小范围为[1,65536]。",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "volumetype": {
+          "type": "string",
+          "description": "云服务器数据盘对应的磁盘类型,需要与系统所提供的磁盘类型相匹配。"
+        },
+        "volume_id": {
+          "type": "string",
+          "description": "支持数据盘。\n说明:\n1.数据盘ID参数不为空,创建虚拟机时,不再创建空白的数据盘,使用已有的数据盘;\n2.数据盘ID参数为空,创建虚拟机时,默认创建空白的数据盘。"
+        },
+        "encryption_info": {
+          "description": "数据盘的磁盘加密信息",
+          "$ref": "#/definitions/encryption_info"
+        }
+      },
+      "description": "云服务器对应数据盘相关配置。每一个数据结构代表一块待创建的数据盘。\n约束:目前新创建的弹性云服务器最多可挂载23块数据盘。"
+    },
+    "encryption_info": {
+      "required": [
+        "cipher",
+        "cmk_id"
+      ],
+      "properties": {
+        "cmk_id": {
+          "type": "string",
+          "description": "CMK ID。"
+        },
+        "cipher": {
+          "type": "string",
+          "description": "加密算法,支持: AES256-XTS,SM4-XTS。"
+        },
+        "dek": {
+          "type": "string",
+          "description": "DEK密文。"
+        }
+      },
+      "description": "加密卷参数信息。"
+    },
+    "extra": {
+      "type": "object",
+      "properties": {
+        "devices": {
+          "type": "array",
+          "description": "设备配置信息",
+          "items": {
+            "$ref": "#/definitions/device"
+          }
+        },
+        "iothread": {
+          "type": "object",
+          "description": "IO性能加速开关配置",
+          "properties": {
+            "enable": {
+              "type": "boolean",
+              "example": true,
+              "description": "默认是false"
+            }
+          }
+        }
+      },
+      "description": "若所创建的虚拟机需要带有cdrom驱动器,则devices中device_type值必须为cdrom。\n例如:\n\t\"extra\" : {\n\t\t\"devices\" : [{\n\t\t\t\t\"device_type\" : \"cdrom\"                                                                         *\n\t\t\t}\n\t\t];若所创建的虚拟机开启IO性能加速开关,则extra中必须有IO性能加速开关参数配置。例如:\"extra\" : { \"iothread\" : { \"enable \" : true  }}"
+    },
+    "ApicomCreateServersV1Resp": {
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "提交任务成功后返回的任务ID,用户可以使用该ID对任务执行情况进行查询。"
+        },
+        "error": {
+          "description": "任务异常时返回的异常信息。",
+          "$ref": "#/definitions/error"
+        }
+      },
+      "description": "This is a auto create Response Object"
+    },
+    "os_scheduler_hints": {
+      "properties": {
+        "group": {
+          "type": "string",
+          "description": "云服务器组ID,UUID格式。"
+        }
+      },
+      "description": "云服务器调度信息。"
+    },
+    "eip": {
+      "required": [
+        "bandwidth",
+        "iptype"
+      ],
+      "properties": {
+        "bandwidth": {
+          "description": "弹性IP地址带宽参数。",
+          "$ref": "#/definitions/bandwidth"
+        },
+        "iptype": {
+          "type": "string",
+          "description": "弹性IP外部网络名称。"
+        }
+      },
+      "description": "配置云服务器自动分配弹性IP时,创建弹性IP的配置参数。"
+    },
+    "nic": {
+      "type": "object",
+      "required": [
+        "subnet_id"
+      ],
+      "properties": {
+        "ip_address": {
+          "type": "string",
+          "description": "待创建云服务器网卡的IP地址,IPv4格式。\n约束:\n1.不填或空字符串,默认在网络(network)对应的子网(subnet)中自动分配一个未使用的IP作网卡的IP地址。\n2.若指定IP地址,该IP地址必须在网络(network)对应的子网的网段内,且未被使用。\n3.若指定IP地址批量发放虚拟机,需要为每个虚拟机指定IP地址,并用“;”隔开,数量必须与虚拟机的发放数量一致。"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "待创建云服务器的网卡信息。需要指定vpcid对应VPC下已创建的网络(network)的ID,UUID格式。"
+        },
+        "nictype": {
+          "type": "string",
+          "description": "网卡类型名称。"
+        },
+        "ipv6_enable": {
+          "type": "boolean",
+          "description": "是否分配IPv6地址,默认为true,表示当前子网已经使能IPv6时,此网卡分配IPv6地址,指定为false时不分配IPv6地址。",
+          "default": true
+        },
+        "ip_address_v6": {
+          "type": "string",
+          "description": "待创建云服务器网卡的IP地址,IPv6格式。\n约束:\n1.不填或空字符串,默认在网络(network)对应的子网(subnet)中自动分配一个未使用的IP作网卡的IP地址。\n2.若指定IP地址,该IP地址必须在网络(network)对应的子网的网段内,且未被使用。\n3.若指定IP地址批量发放虚拟机,需要为每个虚拟机指定IP地址,并用“;”隔开,数量必须与虚拟机的发放数量一致。"
+        },
+        "physical_network": {
+          "type": "string",
+          "description": "物理网络。"
+        },
+        "binding:profile": {
+          "type": "object",
+          "description": "提供用户设置自定义信息。异构计算时,属性external_vlan为接入外部网络的vlan,当采用access方式时设置为0。格式、用法参考网络接口中创建端口_社区兼容接口中binding:profile用法。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "extra_dhcp_opts": {
+          "type": "array",
+          "description": "DHCP的扩展Option,格式、用法参考网络接口中创建端口_社区兼容接口中extra_dhcp_opts对象说明。",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "description": "待创建云服务器的网卡信息。\n约束:\n1.网卡对应的网络(network)必须属于vpcid对应的VPC。\n2.当前单个云服务器支持最多挂载12张网卡。"
+    },
+    "ApicomCreateServersV1Req": {
+      "type": "object",
+      "required": [
+        "server"
+      ],
+      "properties": {
+        "server": {
+          "description": "弹性云服务器信息。",
+          "$ref": "#/definitions/serverForApicom"
+        }
+      },
+      "description": "This is a auto create Body Object"
+    },
+    "error": {
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "任务异常错误信息编码。"
+        },
+        "message": {
+          "type": "string",
+          "description": "任务异常错误信息描述。"
+        }
+      },
+      "description": "提交任务异常是返回的异常信息。"
+    },
+    "bandwidth": {
+      "required": [
+        "sharetype"
+      ],
+      "properties": {
+        "chargemode": {
+          "type": "string",
+          "description": "带宽的计费类型。未传该字段,表示按带宽计费。字段值为空,表示按带宽计费。字段值为“traffic”,表示按流量计费。字段为其它值,会导致创建云服务器失败。说明:如果share_type是WHOLE并且id有值,该参数会忽略。"
+        },
+        "id": {
+          "type": "string",
+          "description": "带宽ID,创建WHOLE类型带宽的弹性IP时可以指定之前的共享带宽创建。取值范围:WHOLE类型的带宽ID。说明:当创建WHOLE类型的带宽时,该字段必选。"
+        },
+        "sharetype": {
+          "type": "string",
+          "description": "带宽的共享类型。共享类型枚举:PER,表示独享。WHOLE,表示共享。"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "带宽(Mbit/s),取值范围为[1,300]。说明:如果share_type是PER,该参数必选项;如果share_type是WHOLE并且id有值,该参数会忽略。"
+        }
+      },
+      "description": "弹性IP地址带宽参数。"
+    },
+    "extendparamForVolume": {
+      "properties": {
+        "resourceSpecCode": {
+          "type": "string",
+          "description": "磁盘产品资源规格编码,如SATA,SAS和SSD。\n说明:废弃字段。"
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "磁盘产品资源类型。\n说明:废弃字段。"
+        },
+        "snapshotId": {
+          "type": "string",
+          "description": "整机镜像中自带的原始数据盘ID,用于指定整机镜像自带的数据盘信息。 snapshotId的值即为整机镜像中自带的原始数据盘所对应的快照ID或原始数据盘ID。其中,快照ID的获取方法:登录管理控制台,打开\"云硬盘 > 快照\"页面,根据原始数据盘的磁盘名称找到对应的快照ID。 说明 使用整机镜像创建云服务器的场景下,该字段才有效。 不指定snapshotId时,使用整机镜像创建的云服务器,磁盘属性按默认值处理。磁盘默认属性:普通I/O、VBD、非共享盘。 如需更改创建的云服务器磁盘属性(如磁盘大小、磁盘类型等),字段data_volumes中需要包含该数据盘的信息,且extendparam字段必须指定正确的snapshotId字段,否则磁盘属性按默认值处理。 root_volume或者新创建数据盘(非整机镜像自带的原始数据盘)对应的data_volumes,extendparam字段里无需添加该字段,且非整机镜像场景下也无需在请求体里携带该字段。"
+        }
+      },
+      "description": "磁盘的产品信息。"
+    },
+    "publicip": {
+      "properties": {
+        "eip": {
+          "description": "配置云服务器自动分配弹性IP时,创建弹性IP的配置参数。",
+          "$ref": "#/definitions/eip"
+        },
+        "id": {
+          "type": "string",
+          "description": "为待创建云服务器分配已有弹性IP时,分配的弹性IP的ID,UUID格式。 约束:只能分配状态(status)为DOWN的弹性IP。"
+        }
+      },
+      "description": "配置云服务器的弹性IP信息,弹性IP有三种配置方式。\n不使用(无该字段)。\n自动分配,需要指定新创建弹性IP的信息。\n使用已有,需要指定已创建弹性IP的信息。"
+    },
+    "extendparmForVm": {
+      "properties": {
+        "postfix": {
+          "type": "string",
+          "description": "虚拟机名称的后缀,默认为空。取值范围[0001-9999],限制:1、该值与参数count值之和不能大于9999;2、该值长度与虚拟机名称长度之和不能超过参数name的最大长度限制。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "虚拟机所在的企业项目id,默认为0。"
+        },
+        "image_boot": {
+          "type": "boolean",
+          "description": "创建本地盘虚拟机,值设置为true。"
+        }
+      },
+      "description": "创建云服务器附加信息。"
+    },
+    "tags_action": {
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "键。\n不能为空。\n对于同一资源键值唯一。\n标签的键必须唯一且输入不能为空。\n长度不超过255个字符。",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[^<>\\=\\,\\/\\|\\*\\\\\\x00-\\x1f]*$"
+        },
+        "value": {
+          "type": "string",
+          "description": "值。\n长度不超过255个字符。",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[^<>\\=\\,\\/\\|\\*\\\\\\x00-\\x1f]*$"
+        }
+      },
+      "description": ""
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

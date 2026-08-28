@@ -1,0 +1,209 @@
+{
+  "name": "GenerateOpsEvaluatorEvaluationSteps",
+  "summary": "智能生成G-Eval评估步骤",
+  "tags": "评估器管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/ops/evaluators/evaluation-steps/generate": {
+      "post": {
+        "tags": [
+          "Evaluator"
+        ],
+        "summary": "智能生成G-Eval评估步骤",
+        "description": "该接口用于根据用户提供的规则描述(criteria),利用大模型自动生成结构化的评估步骤。\n通过自适应的方式降低用户编写评估提示词的门槛,提升评估器配置效率。\n\n**约束限制:**\n- criteria长度必须在1到20000之间。\n- criteria必须包含{{}}格式的变量。\n- 变量需用双大括号包裹。\n\n**典型应用场景:**\n用户在创建自定义评估器时,只需输入自然语言描述的规则描述,系统即可自动生成规范的评估步骤。",
+        "operationId": "GenerateOpsEvaluatorEvaluationSteps",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "GenerateOpsEvaluatorEvaluationStepsRequestBody",
+            "description": "生成结构化的 G-Eval 评估步骤的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GenerateOpsEvaluatorEvaluationStepsRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "生成成功",
+            "examples": {
+              "application/json": {
+                "evaluation_steps": [
+                  "阅读 input,明确用户提出的问题和期望回答范围。",
+                  "阅读 retrieval_context,提取可用于支持回答的关键事实。",
+                  "检查 actual_output 中的核心结论是否能被 retrieval_context 明确支持。"
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/GenerateOpsEvaluatorEvaluationStepsResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "examples": {
+              "application/json": {
+                "error_code": "EVAL.40000001",
+                "error_msg": "criteria 长度必须在 10 到 2000 字符之间"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          },
+          "422": {
+            "description": "模型调用失败",
+            "examples": {
+              "application/json": {
+                "error_code": "EVAL.60000001",
+                "error_msg": "生成评估步骤失败"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-service-plane": "Management-plane",
+        "x-sec-data-level": "L4"
+      }
+    }
+  },
+  "definitions": {
+    "GenerateOpsEvaluatorEvaluationStepsRequestBody": {
+      "type": "object",
+      "required": [
+        "criteria",
+        "model_config"
+      ],
+      "properties": {
+        "criteria": {
+          "type": "string",
+          "example": "评估{{actual_output}}是否准确回答了{{input}},并与{{reference_output}}进行对比",
+          "description": "**参数解释:**\n评估标准描述,用于告知模型需要评估的维度和判断依据。\n\n**约束限制:**\n- 长度必须在1到20000字符之间。\n- 必须包含至少一个用双大括号{{}}包裹的变量。\n\n**取值范围:**\n符合自然语言规范的文本,支持中英文。\n\n**示例取值:**\n\"评估{{actual_output}}是否准确回答了{{input}},并与{{reference_output}}进行对比\"",
+          "minLength": 10,
+          "maxLength": 2000
+        },
+        "model_config": {
+          "type": "object",
+          "description": "**参数解释:**\n用于智能生成评估步骤的大模型配置。\n\n**约束限制:**\nmodel_id必填;max_tokens、temperature、top_p未传时使用默认值。\n\n**取值范围:**\n仅支持系统已接入的大模型。\n\n**默认取值:**\n不涉及。",
+          "properties": {
+            "model_id": {
+              "type": "string",
+              "example": "deepseek-v3.2",
+              "description": "**参数解释:**\n用于生成评估步骤的大模型标识符。\n\n**约束限制:**\n必须是系统支持的模型ID。\n\n**取值范围:**\n1到128个字符,支持英文、数字、点号、下划线(_)、中划线(-)和冒号。\n\n**默认取值:**\n不涉及。",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:-]+$"
+            },
+            "max_tokens": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1000,
+              "description": "**参数解释:**\n模型生成的最大token数量,用于控制输出长度。\n\n**约束限制:**\n必须为正整数。\n\n**取值范围:**\n1到8192。\n\n**默认取值:**\n1000。",
+              "minimum": 1,
+              "maximum": 8192,
+              "default": 1000
+            },
+            "temperature": {
+              "type": "number",
+              "format": "double",
+              "example": 0.1,
+              "description": "**参数解释:**\n温度参数,控制模型输出的随机性和创造性。值越低输出越确定,值越高输出越多样。\n\n**约束限制:**\n必须在0到1之间。\n\n**取值范围:**\n0到1。\n\n**默认取值:**\n0.1。",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.1
+            },
+            "top_p": {
+              "type": "number",
+              "format": "double",
+              "example": 0.3,
+              "description": "**参数解释:**\n核采样参数,控制模型从概率累积分布中采样的范围。\n\n**约束限制:**\n必须在0到1之间。\n\n**取值范围:**\n0到1。\n\n**默认取值:**\n0.3。",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.3
+            }
+          },
+          "required": [
+            "model_id"
+          ]
+        }
+      }
+    },
+    "GenerateOpsEvaluatorEvaluationStepsResponseBody": {
+      "type": "object",
+      "required": [
+        "evaluation_steps"
+      ],
+      "properties": {
+        "evaluation_steps": {
+          "type": "array",
+          "example": [
+            "阅读input,明确用户提出的问题和期望回答范围。",
+            "阅读retrieval_context,提取可用于支持回答的关键事实、数字、限制条件和操作步骤。",
+            "检查actual_output中的核心结论是否能被retrieval_context明确支持。",
+            "检查actual_output是否存在与retrieval_context冲突、无依据扩展、编造信息或过度推断。",
+            "检查actual_output是否遗漏了retrieval_context中对回答正确性有关键影响的信息。",
+            "综合上述检查结果,按照评分定义选择最合适的分数,并给出简洁理由。"
+          ],
+          "description": "**参数解释:**\n生成的评估步骤列表,每个元素是一个独立的评估步骤描述。\n\n**约束限制:**\n列表不为空,最多返回10条评估步骤;每个步骤长度为1到200个字符。\n\n**取值范围:**\n符合评估任务要求的自然语言步骤。\n\n**默认取值:**\n不涉及。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "maxItems": 10,
+          "minItems": 1
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "Agentarts.40000001",
+          "description": "**参数解释:**\n错误码,用于标识请求失败的具体原因。\n\n**约束限制:**\n格式为服务简写加数字编码,例如Agentarts.40000001。\n\n**取值范围:**\n服务简写为2到8位大写字母,数字编码为8位,首位通常为4、6或8。\n\n**默认取值:**\n不涉及。",
+          "minLength": 13,
+          "maxLength": 13,
+          "pattern": "^[A-Z]{2,8}\\.[468][0-9]{7}$"
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "criteria长度必须在1到20000字符之间",
+          "description": "**参数解释:**\n错误描述信息,用于说明请求失败原因。\n\n**约束限制:**\n长度为1到512个字符。\n\n**取值范围:**\n符合自然语言规范的错误描述。\n\n**默认取值:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "example": "550e8400-e29b-41d4-a716-446655440000",
+          "description": "**参数解释:**\n请求追踪ID,用于问题定位和日志检索。\n\n**约束限制:**\n长度为1到128个字符。\n\n**取值范围:**\n系统生成的请求唯一标识。\n\n**默认取值:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

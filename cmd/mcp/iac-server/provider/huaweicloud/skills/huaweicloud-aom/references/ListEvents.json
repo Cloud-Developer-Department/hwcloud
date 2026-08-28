@@ -1,0 +1,545 @@
+{
+  "name": "ListEvents",
+  "summary": "查询事件告警信息",
+  "tags": "告警",
+  "productshort": "AOM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/events": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "https://{endpoint}/v2/{project_id}/events",
+        "x-request-examples-description-1": "查询对应用户{project_id}的事件、告警列表。",
+        "x-request-examples-text-1": {
+          "time_range": "-1.-1.30",
+          "metadata_relation": [
+            {
+              "key": "event_type",
+              "relation": "AND",
+              "value": [
+                "alarm"
+              ]
+            },
+            {
+              "key": "event_severity",
+              "relation": "AND",
+              "value": [
+                "Critical",
+                "Major",
+                "Minor",
+                "Info"
+              ]
+            }
+          ],
+          "search": "",
+          "sort": {
+            "order_by": [
+              "starts_at"
+            ],
+            "order": "desc"
+          }
+        },
+        "x-request-examples-1": {
+          "time_range": "-1.-1.30",
+          "metadata_relation": [
+            {
+              "key": "event_type",
+              "relation": "AND",
+              "value": [
+                "alarm"
+              ]
+            },
+            {
+              "key": "event_severity",
+              "relation": "AND",
+              "value": [
+                "Critical",
+                "Major",
+                "Minor",
+                "Info"
+              ]
+            }
+          ],
+          "search": "",
+          "sort": {
+            "order_by": [
+              "starts_at"
+            ],
+            "order": "desc"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-is-devspore": "true",
+        "tags": [
+          "告警"
+        ],
+        "operationId": "ListEvents",
+        "summary": "查询事件告警信息",
+        "description": "该接口用于查询对应用户的事件、告警。",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的projectid,一般为32位字符串。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "指定类型为application/json。",
+            "type": "string",
+            "enum": [
+              "application/json"
+            ]
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "enum": [
+              "history_alert",
+              "active_alert"
+            ],
+            "description": "查询类型。type=active_alert代表查询活动告警,type=history_alert代表查询历史告警。不传或者传其他值则返回指定查询条件的所有信息。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ListEventsRequestBody",
+            "description": "查询事件或者告警列表请求参数。",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EventQueryParam2"
+            }
+          },
+          {
+            "name": "Enterprise-Project-Id",
+            "in": "header",
+            "required": false,
+            "description": "企业项目id。\n- 查询单个企业项目下实例,填写企业项目id。\n- 查询所有企业项目下实例,填写“all_granted_eps”。",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "不填默认值为1000",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "required": false,
+            "description": "分页标记,初始为0,后续值为返回体中的next_marker",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK 请求响应成功。",
+            "schema": {
+              "$ref": "#/definitions/ListEventResponse"
+            },
+            "examples": {
+              "application/json": {
+                "events": [
+                  {
+                    "annotations": {
+                      "alarm_fix_suggestion_zh_cn": "修复建议",
+                      "alarm_probableCause_zh_cn": "可能原因",
+                      "message": "告警详情"
+                    },
+                    "arrives_at": 16377362908000,
+                    "ends_at": 0,
+                    "enterprise_project_id": "0",
+                    "event_sn": "1283514476372426755",
+                    "id": "6775161208461480000",
+                    "metadata": {
+                      "event_name": "test",
+                      "event_severity": "Major",
+                      "event_type": "alarm",
+                      "resource_id": "ecs123",
+                      "resource_provider": "ecs",
+                      "resource_type": "vm"
+                    },
+                    "policy": {},
+                    "starts_at": 16377362908000,
+                    "timeout": 60000
+                  }
+                ],
+                "page_info": {
+                  "current_count": 1,
+                  "next_marker": "",
+                  "previous_marker": "0"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest 非法请求。建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.08032002",
+                "error_message": "The request body is illegal",
+                "error_type": "SC_BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "401": {
+            "description": "Unauthorized  在客户端提供认证信息后,返回该状态码,表明服务端指出客户端所提供的认证信息不正确或非法。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.0403",
+                "error_message": "auth failed.",
+                "error_type": "AUTH_FAILED",
+                "trace_id": null
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "403": {
+            "description": "Forbidden 请求被拒绝访问。返回该状态码,表明请求能够到达服务端,且服务端能够理解用户请求,但是拒绝做更多的事情,因为该请求被设置为拒绝访问,建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.0403",
+                "error_message": "auth failed.",
+                "error_type": "AUTH_FAILED",
+                "trace_id": null
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "500": {
+            "description": "InternalServerError 表明服务端能被请求访问到,但是不能理解用户的请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "APM.00000500",
+                "error_message": "Internal Server Error",
+                "trace_id": null
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          },
+          "503": {
+            "description": "ServiceUnavailable 被请求的服务无效。建议直接修改该请求,不要重试该请求。",
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.0503",
+                "error_message": "SC_NOT_IMPLEMENTED",
+                "error_type": "SC_NOT_IMPLEMENTED"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ResultInfo2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListEventModel": {
+      "description": "事件或者告警元数据。",
+      "properties": {
+        "starts_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "事件或者告警产生的时间,CST毫秒级时间戳。"
+        },
+        "ends_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "事件或者告警清除的时间,CST毫秒级时间戳,为0时表示未删除。"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int64",
+          "description": "告警自动清除时间。毫秒数,例如一分钟则填写为60000。默认清除时间为3天,对应数字为 4320 * 1000(即:3天 * 24小时 * 60分钟 * 1000毫秒)。"
+        },
+        "metadata": {
+          "description": "事件或者告警的详细信息,为键值对形式。必须字段为:\n\n- event_name:事件或者告警名称,类型为String;\n\n- event_severity:事件级别枚举值。类型为String,四种类型 \"Critical\", \"Major\", \"Minor\",\n\"Info\";\n\n- event_type:事件类别枚举值。类型为String,event为告警事件,alarm为普通告警;\n\n- resource_provider:事件对应云服务名称。类型为String;\n\n- resource_type:事件对应资源类型。类型为String;\n\n- resource_id:事件对应资源信息。类型为String。",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "annotations": {
+          "description": "事件或者告警附加字段,可以为空。",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "attach_rule": {
+          "description": "事件或者告警预留字段,为空。",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "id": {
+          "type": "string",
+          "description": "事件或者告警id,系统会自动生成,上报无须填写该字段。"
+        },
+        "event_sn": {
+          "type": "string",
+          "description": "告警流水号。"
+        },
+        "arrives_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "事件到达系统时间,CST毫秒级时间戳。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "事件或告警所属企业项目id。"
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          },
+          "description": "开放告警策略"
+        }
+      },
+      "example": {
+        "starts_at": 1579420868000,
+        "ends_at": 1579420868000,
+        "timeout": 60000,
+        "resource_group_id": "5680587ab6*******755c543c1f",
+        "metadata": {
+          "event_name": "test",
+          "event_severity": "Major",
+          "event_type": "alarm",
+          "resource_provider": "ecs",
+          "resource_type": "vm",
+          "resource_id": "ecs123"
+        },
+        "annotations": {
+          "alarm_probableCause_zh_cn": "可能原因",
+          "alarm_fix_suggestion_zh_cn": "修复建议"
+        },
+        "attach_rule": {}
+      },
+      "type": "object"
+    },
+    "PageInfo": {
+      "type": "object",
+      "required": [
+        "current_count",
+        "previous_marker",
+        "next_marker"
+      ],
+      "properties": {
+        "current_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "当前页事件、告警总数"
+        },
+        "previous_marker": {
+          "type": "string",
+          "description": "前一个marker"
+        },
+        "next_marker": {
+          "type": "string",
+          "description": "下一个marker"
+        }
+      }
+    },
+    "RelationModel": {
+      "description": "查询条件。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "指定查询字段的key,对应metadata里面的key 。当metadata_relation参数不为空时 key参数必填。"
+        },
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "查询条件中指定key的值。"
+        },
+        "relation": {
+          "type": "string",
+          "description": "该条件与其他条件的组合方式。 \n- AND:必须满足所有条件。\n-  OR:可以满足其中一个条件。\n-  NOT:必须不满足所有条件。",
+          "enum": [
+            "AND",
+            "OR",
+            "NOT"
+          ]
+        }
+      },
+      "type": "object",
+      "required": [
+        "key"
+      ]
+    },
+    "EventQueryParam2": {
+      "description": "查询事件或者告警信息 。",
+      "properties": {
+        "time_range": {
+          "type": "string",
+          "description": "查询时间范围,主要用于解决客户端时间和服务端时间不一致情况下,查询最近N分钟的数据。另可用于精确查询某一段时间的数据。\n\n例如:\n\n- -1.-1.60(表示最近60分钟),不管当前客户端是什么时间,都以服务端时间为准查询最近60分钟。\n\n- 1650852000000.1650852300000.5(表示GMT+8 2022-04-25 10:00:00至2022-04-25\n10:05:00指定的5分钟)\n\n格式如下:\n\nstartTimeInMillis.endTimeInMillis.durationInMinutes\n\n参数解释:\n\n- startTimeInMillis: 查询的开始时间,格式为UTC毫秒,如果指定为-1,服务端将按(endTimeInMillis - durationInMinutes * 60 * 1000)计算开始时间。例如-1.1650852300000.5,则相当于1650852000000.1650852300000.5。\n- endTimeInMillis: 查询的结束时间,格式为UTC毫秒,如果指定为-1,服务端将按(startTimeInMillis + durationInMinutes * 60 * 1000)计算结束时间。如果计算出的结束时间大于当前系统时间,则使用当前系统时间。例如1650852000000.-1.5,则相当于1650852000000.1650852300000.5。\n- durationInMinutes:查询时间的跨度分钟数。 取值范围大于0并且大于等于(endTimeInMillis - startTimeInMillis) / (60 * 1000) - 1。当开始时间与结束时间都设置为-1时,系统会将结束时间设置为当前时间UTC毫秒值,并按(endTimeInMillis - durationInMinutes * 60 * 1000)计算开始时间。如:-1.-1.60(表示最近60分钟)。\n\n约束与限制:\n\n单次请求中,查询时长与周期需要满足以下条件: durationInMinutes * 60 / period <= 1440。"
+        },
+        "step": {
+          "type": "integer",
+          "format": "int64",
+          "description": "统计步长。毫秒数,例如一分钟则填写为60000。"
+        },
+        "search": {
+          "type": "string",
+          "description": "模糊查询匹配字段,可以为空。如果值不为空,可以模糊匹配。metadata字段为必选字段。"
+        },
+        "sort": {
+          "description": "返回列表的排序方式,可以为空。",
+          "properties": {
+            "order_by": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "排序字段列表。会根据列表中定义顺序对返回列表最排序。当sort参数不为空时,order_by参数必填。"
+            },
+            "order": {
+              "type": "string",
+              "description": "排序方式枚举值。asc代表正序,desc代表倒序。",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          "required": [
+            "order_by"
+          ]
+        },
+        "metadata_relation": {
+          "description": "查询条件组合,可以为空。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RelationModel"
+          }
+        }
+      },
+      "example": {
+        "time_range": "-1.-1.5",
+        "step": 60000,
+        "metadata_relation": [
+          {
+            "key": "event_name",
+            "relation": "AND",
+            "value": [
+              "test1",
+              "test2"
+            ]
+          },
+          {
+            "key": "event_severity",
+            "relation": "AND",
+            "value": [
+              "test1",
+              "test2"
+            ]
+          },
+          {
+            "key": "expert_advice_url",
+            "relation": "NOT",
+            "value": [
+              "test1",
+              "test2"
+            ]
+          }
+        ],
+        "search": "test",
+        "sort": {
+          "order_by": [
+            "starts_at"
+          ],
+          "order": "desc"
+        }
+      },
+      "required": [
+        "time_range"
+      ],
+      "type": "object"
+    },
+    "ResultInfo2": {
+      "description": "调用失败时的返回值。",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败响应信息描述。"
+        },
+        "error_type": {
+          "type": "string",
+          "description": "调用失败类型。"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "请求id"
+        }
+      },
+      "type": "object"
+    },
+    "ListEventResponse": {
+      "description": "查询事件或告警返回体。",
+      "type": "object",
+      "required": [
+        "events",
+        "page_info"
+      ],
+      "properties": {
+        "events": {
+          "description": "事件或者告警详情。",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ListEventModel"
+          }
+        },
+        "page_info": {
+          "description": "分页信息",
+          "$ref": "#/definitions/PageInfo"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "aom.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

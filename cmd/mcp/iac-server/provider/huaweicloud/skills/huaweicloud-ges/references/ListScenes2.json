@@ -1,0 +1,185 @@
+{
+  "name": "ListScenes2",
+  "summary": "查询获取场景应用分析插件",
+  "tags": "GraphPlugins管理API",
+  "productshort": "GES",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v2/{project_id}/graphs/scenes": {
+      "get": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "GET /v2/{project_id}/graphs/scenes?scene_name=xxx&application_name=xxx&graph_id=xxx",
+        "tags": [
+          "GraphPlugins管理API"
+        ],
+        "summary": "查询获取场景应用分析插件",
+        "description": "查询scenes场景下的应用分析能力详情,可以获得对应场景下的application、参数和功能介绍详情。",
+        "operationId": "ListScenes2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "scene_name",
+            "in": "query",
+            "required": false,
+            "description": "场景名称。\n当有且只有scene_name有值时,返回对应scene_name下的所有application详情。\n当有且只有scene_name、application_name有值时,返回与application_name对应的application详情。\n当scene_name、application_name、graph_id均无值时,返回所有SceneApplication",
+            "type": "string"
+          },
+          {
+            "name": "application_name",
+            "in": "query",
+            "required": false,
+            "description": "应用程序名字。\n当有且只有scene_name、application_name有值时,返回与application_name对应的application详情。\n当scene_name、application_name、graph_id均无值时,返回所有SceneApplication。",
+            "type": "string"
+          },
+          {
+            "name": "graph_id",
+            "in": "query",
+            "required": false,
+            "description": "图ID。\n当有且只有graph_id有值时,返回对应图id下所订阅的application详情。\n当scene_name、application_name、graph_id均无值时,返回所有SceneApplication。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/ListScenesResp"
+            },
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "name": "movie_recommendation",
+                    "description": "采用好友感兴趣的电影进行推荐。图谱约束: (user)-[friends]->(user), (user)-[rates]->(movie)",
+                    "params": [
+                      {
+                        "name": "user",
+                        "default_value": "",
+                        "type": "string"
+                      }
+                    ],
+                    "scene": "MovieSocialNetwork_V2"
+                  },
+                  {
+                    "name": "friend_recommendation",
+                    "description": "推荐可能感兴趣的人(同时考虑潜在人之间的关系和电影爱好)。图谱约束: (user)-[friends]->(user),(user)-[rates]->(movie)",
+                    "params": [
+                      {
+                        "name": "user",
+                        "default_value": "",
+                        "type": "string"
+                      }
+                    ],
+                    "scene": "MovieSocialNetwork_V2"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_msg": "请求体或者请求头不合法。",
+                "error_code": "GES.7016"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "type": "object",
+      "description": "错误响应体",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,字段可能为空。执行失败时,用于显示错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "系统提示信息,执行成功时,字段可能为空。执行失败时,用于显示错误信息。"
+        }
+      }
+    },
+    "ListScenesResp": {
+      "type": "object",
+      "description": "ListScenes响应体",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "scene": {
+                "type": "string",
+                "description": "场景名。"
+              },
+              "name": {
+                "type": "string",
+                "description": "application名称。"
+              },
+              "params": {
+                "items": {
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "参数名称。"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "参数类型。取值范围[\"string\",\"int\"],目前仅支持\"string\""
+                    },
+                    "default_value": {
+                      "type": "string",
+                      "description": "取值范围为空,或参数默认值,当为空是表示客户使用时必须传入此参数"
+                    }
+                  }
+                },
+                "description": "参数列表。",
+                "type": "array"
+              },
+              "description": {
+                "type": "string",
+                "description": "场景下应用的描述。"
+              }
+            }
+          },
+          "description": "scene场景分析插件信息。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "项目编号,用于资源隔离。",
+      "type": "string"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string"
+    }
+  },
+  "host": "ges.cn-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,202 @@
+{
+  "name": "ValidateImage",
+  "summary": "校验原始影像文件",
+  "tags": "卫星影像任务管理",
+  "productshort": "KooMap",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/kmp-control/tasks/image": {
+      "post": {
+        "x-request-examples-description-1": "校验原始影像文件。",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v1/kmp-control/tasks/image",
+        "x-request-examples-text-1": {
+          "data_ids": [
+            "142ffd14e65048f39cdcccf5005d649a",
+            "853499857b47411da21c628ba2ece325"
+          ],
+          "production_level": "L2",
+          "task_name": "test",
+          "coordination": "WGS84"
+        },
+        "x-request-examples-1": {
+          "data_ids": [
+            "142ffd14e65048f39cdcccf5005d649a",
+            "853499857b47411da21c628ba2ece325"
+          ],
+          "production_level": "L2",
+          "task_name": "test",
+          "coordination": "WGS84"
+        },
+        "tags": [
+          "卫星影像任务管理"
+        ],
+        "description": "校验原始影像文件是否满足匹配规则(全色与多光谱一一对应或全为多光谱)并返回成果影像名称。如果不满足匹配规则,会以报错方式提示用户。",
+        "operationId": "ValidateImage",
+        "summary": "校验原始影像文件",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-opseverity": "Info",
+        "x-apigateway-request-type": "Public",
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "IAM Token信息,用于租户鉴权,该字段由租户请求IAM的Token接口获得。"
+          },
+          {
+            "name": "dto",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CheckImageDataDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功。",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CheckImageResultDto"
+              }
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "name": "GF1_20160908_E117.3_N38.9_L2",
+                  "data_id": null,
+                  "error_message": null
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "非法请求。",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/CheckImageResultDto"
+              },
+              "type": "array"
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "name": null,
+                  "data_id": "3f7eb40cf46d45fd96a927361c5718f1",
+                  "error_message": "卫星型号不一致"
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorMsg"
+            }
+          }
+        },
+        "x-order": 7
+      }
+    }
+  },
+  "definitions": {
+    "CheckImageDataDto": {
+      "type": "object",
+      "required": [
+        "data_ids",
+        "production_level",
+        "task_name",
+        "coordination"
+      ],
+      "properties": {
+        "data_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]{32}$"
+          },
+          "description": "影像文件ID集合。"
+        },
+        "production_level": {
+          "type": "string",
+          "description": "处理等级,当前支持以下等级: L2、L3、L4、L5。"
+        },
+        "task_name": {
+          "type": "string",
+          "description": "任务名称。",
+          "pattern": "^[\\一-\\龥_a-zA-Z0-9_]{1,50}$"
+        },
+        "coordination": {
+          "type": "string",
+          "description": "坐标系。"
+        }
+      }
+    },
+    "CheckImageResultDto": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "影像文件名。",
+          "minLength": 32,
+          "maxLength": 36,
+          "example": "28f61af50fc9452aa0ed5ea25c3cc3d3"
+        },
+        "data_id": {
+          "type": "string",
+          "description": "影像文件ID。",
+          "example": "56bf8e2767cd4b44b86e16c21f769c66"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "错误提示。",
+          "example": [
+            "aab1b0770a2a4fcbbb6a6f422b1163b7",
+            "add9499ddcca4882bcaf91170d3d5e59"
+          ]
+        }
+      },
+      "type": "object",
+      "description": "在以下API中的被使用:ValidateImage--post:/v1/kmp-control/tasks/image"
+    },
+    "ErrorMsg": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "请求状态码。",
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koomap.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

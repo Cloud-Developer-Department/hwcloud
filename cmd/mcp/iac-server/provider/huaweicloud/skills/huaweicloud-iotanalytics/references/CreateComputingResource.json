@@ -1,0 +1,226 @@
+{
+  "name": "CreateComputingResource",
+  "summary": "创建批计算资源",
+  "tags": "批计算资源管理",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/batch-computing-resources": {
+      "post": {
+        "tags": [
+          "computingResource"
+        ],
+        "summary": "创建批计算资源",
+        "description": "创建批计算资源。",
+        "operationId": "CreateComputingResource",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "pattern": "^\\S+$",
+            "x-maxLength": 65535
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。获取方式请参考获取项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[a-z0-9]{32}$",
+            "x-maxLength": 32,
+            "x-minLength": 32
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "计算资源信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateComputingResourceRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/CreateComputingResourceResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010",
+              "IoTA.04010501"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000001",
+              "IoTA.99000002",
+              "IoTA.99000004",
+              "IoTA.99000005",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009",
+              "IoTA.04010504"
+            ]
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000011",
+              "IoTA.04010506"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "security": [
+          {
+            "iota_auth": [
+              "write:iota",
+              "read:iota"
+            ]
+          }
+        ],
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "CreateComputingResourceRequestBody": {
+      "type": "object",
+      "required": [
+        "computing_resource_name",
+        "cu_count"
+      ],
+      "properties": {
+        "computing_resource_name": {
+          "type": "string",
+          "description": "新建的计算资源名称,名称只能包含数字、英文字母和下划线,但不能是纯数字,且不能以下划线开头。",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^(?!\\d+$)[0-9a-zA-Z]+[_0-9a-zA-Z]*$"
+        },
+        "computing_resource_type": {
+          "type": "string",
+          "description": "计算资源的类型。默认为sql。",
+          "minLength": 3,
+          "maxLength": 16,
+          "pattern": "^[a-zA-z]{3,16}$",
+          "default": "sql"
+        },
+        "description": {
+          "type": "string",
+          "description": "计算资源的描述信息。",
+          "maxLength": 128
+        },
+        "cu_count": {
+          "type": "integer",
+          "description": "与计算资源绑定的最小计算单元个数。设置值当前只支持16,64,256。",
+          "minimum": 16,
+          "maximum": 512
+        },
+        "charging_mode": {
+          "type": "integer",
+          "description": "计算资源的收费模式。只能设置为“1”,表示按照CU时收费。"
+        }
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "CreateComputingResourceResponseBody": {
+      "type": "object",
+      "properties": {
+        "computing_resource_id": {
+          "type": "string",
+          "description": "新增计算资源ID。"
+        },
+        "computing_resource_name": {
+          "type": "string",
+          "description": "新增计算资源名称。"
+        },
+        "computing_resource_type": {
+          "type": "string",
+          "description": "计算资源的类型。目前支持:sql。如果不指定,默认为sql。"
+        },
+        "description": {
+          "type": "string",
+          "description": "计算资源的描述信息。"
+        },
+        "cu_count": {
+          "type": "integer",
+          "description": "与计算资源绑定的最小计算单元个数。设置值当前只支持16,64,256。"
+        },
+        "charging_mode": {
+          "type": "integer",
+          "description": "计算资源的收费模式。只能设置为“1”,表示按照CU时收费。"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建计算资源时间。时间格式为ISO日期时间格式yyyy-MM-dd'T'HH:mm:ss'Z'。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,198 @@
+{
+  "name": "ValidateDeletableReplica",
+  "summary": "校验集群副本是否支持删除",
+  "tags": "生命周期管理",
+  "productshort": "DCS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/deletable-replication": {
+      "get": {
+        "x-api-type": "open-api",
+        "summary": "校验集群副本是否支持删除",
+        "x-open-region-cloud": "hws,hws_hk",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": false,
+        "x-constraint": "仅在删除cluster集群实例副本时获取可选的可用区以及可选的保留节点使用。",
+        "x-name": "校验集群副本是否支持删除",
+        "x-scope": "",
+        "tags": [
+          "生命周期管理"
+        ],
+        "x-request-examples-text-1": "GET https://{dcs_endpoint}/v2/{project_id}/instances/{instance_id}/available-replication",
+        "x-request-examples-1": "GET https://{dcs_endpoint}/v2/{project_id}/instances/{instance_id}/available-replication",
+        "description": "校验集群副本是否支持删除",
+        "operationId": "ValidateDeletableReplica",
+        "parameters": [
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "实例ID"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID。获取方法请参见[获取项目ID](dcs-api-0312045.xml)。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取删除集群副本时可选的可用区以及可选的保留节点。",
+            "schema": {
+              "$ref": "#/definitions/DeletableReplicationResponse"
+            },
+            "examples": {
+              "application/json": {
+                "check_result": true,
+                "available_zone": "9f1c5806706d4c1fb0eb72f0a9b18c77",
+                "replication_list": [
+                  {
+                    "replication_id": "435a6322-0c64-4d0e-8bc2-8adefa2eca26",
+                    "node_id": "8abf6e1e7fd3e695017fd4046bb9006b",
+                    "replication_ip": "192.168.73.139:6379",
+                    "group_id": "cbf8deba-d69f-41b8-8556-83337d32ad40",
+                    "group_name": "group-2",
+                    "available_zone": "9f1c5806706d4c1fb0eb72f0a9b18c77"
+                  },
+                  {
+                    "replication_id": "193683cf-f693-4a6a-950a-20f615ed6c47",
+                    "node_id": "8abf6e1e7fd3e695017fd4046bb8006a",
+                    "replication_ip": "192.168.67.86:6379",
+                    "group_id": "7a153688-d31d-4541-b635-191885c71e93",
+                    "group_name": "group-1",
+                    "available_zone": "9f1c5806706d4c1fb0eb72f0a9b18c77"
+                  },
+                  {
+                    "replication_id": "ae38792f-60b7-4c8c-b1dc-175f2151f85f",
+                    "node_id": "8abf6e1e7fd3e695017fd4046bb40069",
+                    "replication_ip": "192.168.66.157:6379",
+                    "group_id": "4f26a524-1525-4975-82fa-b2291091f9e7",
+                    "group_name": "group-0",
+                    "available_zone": "9f1c5806706d4c1fb0eb72f0a9b18c77"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "非法请求。",
+            "examples": {
+              "application/json": {
+                "error_code": 111400800,
+                "error_msg": "Only native cluster supported."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "内部服务错误。",
+            "examples": {
+              "application/json": {
+                "error_code": 111500024,
+                "error_msg": "Query instance error."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DeletableReplicationResponse": {
+      "description": "获取删除集群副本时可选的可用区以及可选的保留节点的数据结构。",
+      "properties": {
+        "check_result": {
+          "type": "boolean",
+          "description": "是否有可供选择的副本组进行删除。",
+          "example": "true"
+        },
+        "available_zone": {
+          "type": "string",
+          "description": "可选的可用区ID列表",
+          "example": "d539378ec1314c85b76fefa3f7071458,9f1c5806706d4c1fb0eb72f0a9b18c77"
+        },
+        "replication_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReplicationInfo"
+          },
+          "description": "可选的保留节点列表"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "description": "错误响应体",
+      "properties": {
+        "error_msg": {
+          "description": "错误信息",
+          "type": "string",
+          "example": "Invalid capacity parameter in the request.",
+          "maxLength": 1024
+        },
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "example": "DCS.4062",
+          "maxLength": 9
+        },
+        "error_ext_msg": {
+          "description": "扩展错误信息(暂未使用,赋值为null)",
+          "type": "string",
+          "example": null,
+          "maxLength": 1024
+        }
+      }
+    },
+    "ReplicationInfo": {
+      "type": "object",
+      "properties": {
+        "replication_id": {
+          "type": "string",
+          "description": "副本ID",
+          "example": "29d667e5"
+        },
+        "node_id": {
+          "type": "string",
+          "description": "节点ID",
+          "example": "0af675529ee4"
+        },
+        "replication_ip": {
+          "type": "string",
+          "description": "副本IP",
+          "example": "192.168.0.1"
+        },
+        "group_id": {
+          "type": "string",
+          "description": "组ID",
+          "example": "a54d19fa"
+        },
+        "group_name": {
+          "type": "string",
+          "description": "组名称",
+          "example": "test"
+        },
+        "available_zone": {
+          "type": "string",
+          "description": "可用区",
+          "example": "cn-north-7c"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dcs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

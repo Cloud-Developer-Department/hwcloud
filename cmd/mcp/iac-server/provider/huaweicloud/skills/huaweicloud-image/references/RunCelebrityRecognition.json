@@ -1,0 +1,175 @@
+{
+  "name": "RunCelebrityRecognition",
+  "summary": "名人识别",
+  "tags": "名人识别",
+  "productshort": "Image",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v2/{project_id}/image/celebrity-recognition": {
+      "post": {
+        "tags": [
+          "名人识别"
+        ],
+        "summary": "名人识别",
+        "description": "分析并识别图片中包含的政治人物、明星及网红人物,返回人物信息及人脸坐标。",
+        "operationId": "RunCelebrityRecognition",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户的project_id\n\n登陆华为云 -> 用户中心 -> 我的凭证 -> api凭证 即可查看对应区域的项目ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "RunCelebrityRecognitionRequestBody",
+            "in": "body",
+            "description": "名人识别接口请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CelebrityRecognitionReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应结果",
+            "examples": {
+              "application/json": {
+                "result": [
+                  {
+                    "confidence": 0.44977834820747375,
+                    "face_detail": {
+                      "h": 280,
+                      "w": 186,
+                      "x": 163,
+                      "y": 117
+                    },
+                    "label": "xxx"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CelebrityRecognitionResponse"
+            }
+          },
+          "400": {
+            "description": "失败响应结果",
+            "examples": {
+              "application/json": {
+                "error_code": "AIS.0005",
+                "error_msg": "The service does not exist."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-order": 1,
+        "x-request-examples-description-1": "方式一:使用图片的BASE64编码",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/image/celebrity-recognition",
+        "x-request-examples-1": {
+          "image": "/9j/4AAQSkZJRgABAgEASABIAAD/4RFZRXhpZgAATU0AKgAAAAgABwESAAMAAAABAAEAAAEaAAUAAAABAAAAYgEbAA...",
+          "url": "",
+          "threshold": 0.48
+        },
+        "x-request-examples-description-2": "方式二:使用图片的url",
+        "x-request-examples-url-2": "POST https://{endpoint}/v2/{project_id}/image/celebrity-recognition",
+        "x-request-examples-2": {
+          "image": "",
+          "url": "https://BucketName.obs.myhuaweicloud.com/ObjectName",
+          "threshold": 0.48
+        },
+        "x-timeout": "60s",
+        "x-apigateway-request-type": "public"
+      }
+    }
+  },
+  "definitions": {
+    "CelebrityRecognitionReq": {
+      "description": "",
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": "与url二选一\n\n图片文件Base64编码字符串。要求base64编码后大小不超过10M。\n\n政治人物检测人脸部分不小于40*40像素。\n\n支持JPG/PNG/BMP格式。"
+        },
+        "url": {
+          "type": "string",
+          "description": "与image二选一\n\n图片的URL路径,目前支持:\n\n- 公网HTTP/HTTPS URL\n\n- 华为云OBS提供的URL,使用OBS数据需要进行授权。包括对服务授权、临时授权、匿名公开授权。详请参见[配置OBS服务的访问权限](https://support.huaweicloud.com/api-image/image_03_0037.html)。\n\n> - 接口响应时间依赖于图片的下载时间,如果图片下载时间过长,会返回接口调用失败。\n> - 请保证被检测图片所在的存储服务稳定可靠,建议您使用华为云OBS存储。"
+        },
+        "threshold": {
+          "type": "number",
+          "format": "float",
+          "description": "置信度的阈值(0~1),低于此置信数的标签,将不会返回。\n\n默认值:0.9。"
+        }
+      }
+    },
+    "CelebrityRecognitionResultBody": {
+      "description": "",
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "format": "float",
+          "description": "置信度,取值范围 0-1。"
+        },
+        "face_detail": {
+          "type": "object",
+          "description": "名人的面部信息,包括4个值:\n\nh:人脸区域高度\n\nw:人脸区域宽度\n\nx:人脸区域左上角到y轴距离\n\ny:人脸区域左上角到x轴距离"
+        },
+        "label": {
+          "type": "string",
+          "description": "label为对应的名人信息。"
+        }
+      }
+    },
+    "CelebrityRecognitionResponse": {
+      "properties": {
+        "result": {
+          "type": "array",
+          "description": "调用成功时表示调用结果。\n\n调用失败时无此字段。",
+          "items": {
+            "$ref": "#/definitions/CelebrityRecognitionResultBody"
+          }
+        }
+      }
+    },
+    "CommonErrorResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "调用失败时的错误码,具体请参见错误码。\n\n调用成功时无此字段。",
+          "example": "AIS.0005"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败时的错误信息。\n\n调用成功时无此字段。",
+          "example": "The service does not exist."
+        }
+      },
+      "description": ""
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "image.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

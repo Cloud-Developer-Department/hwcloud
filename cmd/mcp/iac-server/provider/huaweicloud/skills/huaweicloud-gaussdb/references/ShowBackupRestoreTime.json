@@ -1,0 +1,169 @@
+{
+  "name": "ShowBackupRestoreTime",
+  "summary": "查询可恢复时间段",
+  "tags": "备份管理",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/restore-time": {
+      "get": {
+        "tags": [
+          "备份管理"
+        ],
+        "operationId": "ShowBackupRestoreTime",
+        "summary": "查询可恢复时间段",
+        "description": "查询实例的可恢复时间段。",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "type": "string",
+            "required": true,
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言。",
+            "required": false,
+            "type": "string",
+            "x-example": "zh-cn"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。\n",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "租户在某一project下的实例ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "所需查询的日志,为yyyy-mm-dd字符串格式,时区为UTC。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "**参数解释**:\n\n所需查询的日期。\n\n**约束限制**:\n\n不涉及。\n\n**取值范围**:\n\nyyyy-mm-dd字符串格式,时区为UTC。\n\n**默认取值**:\n\n不涉及。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "**参数解释**:\n\n所需查询的起始时间戳。\n\n**约束限制**:\n\n- “start_time”有值时,“end_time”必选。\n- “date”有值时,“start_time”失效。\n\n**取值范围**:\n\n格式为UNIX时间戳,单位是毫秒,时区为UTC标准时区。传参时需要将对应时区的时间转为标准时区对应的时间戳,比如,北京时区的时间点需要-8h后再转为时间戳。\n\n**默认取值**:\n\n不涉及。",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "**参数解释**:\n\n所需查询的结束时间戳。\n\n**约束限制**:\n\n- “end_time”有值时,“start_time”必选。\n- “date”有值时,“end_time”失效。\n\n**取值范围**:\n\n格式为UNIX时间戳,单位是毫秒,时区为UTC标准时区。传参时需要将对应时区的时间转为标准时区对应的时间戳,比如,北京时区的时间点需要-8h后再转为时间戳。\n\n**默认取值**:\n\n不涉及。",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "x-request-examples-description-1": "查询实例在2023-01-31的可恢复时间段。",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/096c0fc43e804757b59946b80dc27f8bin07/restore-time?date=2023-01-31",
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/BackupRestoreTimeResponse"
+            },
+            "examples": {
+              "application/json": {
+                "restore_times": [
+                  {
+                    "start_time": 1675149246000,
+                    "end_time": 1675094400000
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/MysqlErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RestoreTimeInfo": {
+      "properties": {
+        "start_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "可恢复时间段的起始时间点,UNIX时间戳格式,单位是毫秒,时区是UTC。"
+        },
+        "end_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "可恢复时间段的结束时间点,UNIX时间戳格式,单位是毫秒,时区是UTC。"
+        }
+      }
+    },
+    "MysqlErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200022"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不存在"
+        }
+      }
+    },
+    "BackupRestoreTimeResponse": {
+      "properties": {
+        "restore_times": {
+          "type": "array",
+          "description": "可恢复时间段列表。",
+          "items": {
+            "$ref": "#/definitions/RestoreTimeInfo"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

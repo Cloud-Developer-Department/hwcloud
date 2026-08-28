@@ -1,0 +1,261 @@
+{
+  "name": "ExportDesignResult",
+  "summary": "获取excel导出结果",
+  "tags": "导入导出接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/design/export-result": {
+      "get": {
+        "summary": "获取excel导出结果",
+        "description": "根据请求导出业务数据(/export-model)时返回的uuid,获取excel导出结果。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "doc-open",
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/design/export-result?uuid=fd653968-864b-45f6-9842-2b125d2dbfb7",
+        "x-request-examples-description-1": "根据/export-model接口返回的uuid(fd653968-864b-45f6-9842-2b125d2dbfb7)查询导出结果,查询中返回的是导出状态,导出结束后返回的是二进制文件。",
+        "tags": [
+          "导入导出接口"
+        ],
+        "operationId": "ExportDesignResult",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "$ref": "#/parameters/contextTypeParam"
+          },
+          {
+            "name": "uuid",
+            "in": "query",
+            "type": "string",
+            "required": true,
+            "description": "请求导出接口时返回的uuid。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success,返回data数据是DsProcessImportResultVO。",
+            "schema": {
+              "$ref": "#/definitions/DsExportResultVO"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/DsResponseVO"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/DsResponseVO"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/DsResponseVO"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DsResponseVO": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "返回的数据信息。"
+        }
+      }
+    },
+    "DsExportResultVO": {
+      "type": "object",
+      "description": "导出返回结果。导出完成后返回二进制文件。",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "导出结果对象。",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "importing",
+                "fail",
+                "success"
+              ],
+              "description": "标识本次导出的唯一值,用于查询导入结果。importing(导出中)、fail(导出失败)、success(导出成功)。\n枚举值:\n  - importing: 导出中\n  - fail: 导出失败\n  - success: 导出成功"
+            },
+            "group": {
+              "$ref": "#/definitions/BatchOperationVO",
+              "description": "分组信息,导出时可忽略。"
+            },
+            "rate": {
+              "type": "string",
+              "description": "当前进度。",
+              "default": 0
+            }
+          }
+        }
+      },
+      "example": {
+        "data": {
+          "status": "importing",
+          "group": null,
+          "rate": "0"
+        }
+      }
+    },
+    "BatchOperationVO": {
+      "type": "object",
+      "description": "批量操作对象,只读。",
+      "readOnly": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "批量审批ID,ID字符串。"
+        },
+        "tenant_id": {
+          "type": "string",
+          "description": "项目ID。"
+        },
+        "group_id": {
+          "type": "string",
+          "description": "组ID,ID字符串。"
+        },
+        "biz_name": {
+          "type": "string",
+          "description": "业务名。"
+        },
+        "biz_id": {
+          "type": "string",
+          "description": "业务ID,ID字符串。"
+        },
+        "operation_status": {
+          "type": "string",
+          "description": "操作结果类型枚举。RUNNING(运行中)、SUCCESS(操作成功)、FAILED(操作失败)。\n枚举值:\n  - RUNNING: 运行中\n  - SUCCESS: 操作成功\n  - FAILED: 操作失败",
+          "enum": [
+            "RUNNING",
+            "SUCCESS",
+            "FAILED"
+          ]
+        },
+        "operation_type": {
+          "type": "string",
+          "description": "类型。"
+        },
+        "biz_info": {
+          "type": "string",
+          "description": "业务详情。"
+        },
+        "create_by": {
+          "type": "string",
+          "description": "创建人。"
+        },
+        "remark": {
+          "type": "string",
+          "description": "remark信息。"
+        },
+        "total": {
+          "type": "integer",
+          "description": "总数。",
+          "default": 0
+        },
+        "success": {
+          "type": "integer",
+          "description": "操作成功个数。",
+          "default": 0
+        },
+        "failed": {
+          "type": "integer",
+          "description": "操作失败个数。",
+          "default": 0
+        },
+        "rate": {
+          "type": "string",
+          "description": "当前进度。",
+          "default": 0
+        },
+        "logs": {
+          "type": "string",
+          "description": "日志。"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BatchOperationVO"
+          },
+          "description": "分组信息。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "contextTypeParam": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "默认值:application/json;charset=UTF-8\n可选,有Body体的情况下必选,没有Body体则无需填写和校验。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

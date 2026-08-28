@@ -1,0 +1,326 @@
+{
+  "name": "ListAttachedDomainsV2",
+  "summary": "获取SSL证书已绑定域名列表",
+  "tags": "SSL证书管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/certificates/{certificate_id}/attached-domains": {
+      "get": {
+        "tags": [
+          "SSL证书管理"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-order": 5,
+        "x-open-region-cloud": "hc,hcso",
+        "x-hybridcloud": true,
+        "operationId": "ListAttachedDomainsV2",
+        "summary": "获取SSL证书已绑定域名列表",
+        "description": "获取SSL证书已绑定域名列表。",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_certificate_id"
+          },
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_offset"
+          },
+          {
+            "$ref": "#/parameters/apic_limit"
+          },
+          {
+            "name": "url_domain",
+            "in": "query",
+            "type": "string",
+            "description": "独立域名",
+            "required": false,
+            "x-example": "apigtest.xxx.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UrlDomainsPage"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "size": 1,
+                "bound_domains": [
+                  {
+                    "id": "b9be707660c5406394f8973e087bae20",
+                    "url_domain": "apigtest.xxx.com",
+                    "status": 3,
+                    "min_ssl_version": "TLSv1.1",
+                    "ssl_id": "a27be832f2e9441c8127fe48e3b5ac67",
+                    "ssl_name": "cert_demo",
+                    "instance_id": "f0fa1789-3b76-433b-a787-9892951c620e",
+                    "api_group_id": "c77f5e81d9cb4424bf704ef2b0ac7600",
+                    "api_group_name": "default"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:dict_name. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BasePage": {
+      "properties": {
+        "size": {
+          "description": "本次返回的列表长度",
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "description": "满足条件的记录数",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "分页基本信息",
+      "required": [
+        "size",
+        "total"
+      ]
+    },
+    "UrlDomainRefInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/UrlDomainBaseInfo"
+        },
+        {
+          "required": [
+            "api_group_id",
+            "api_group_name",
+            "instance_id"
+          ],
+          "type": "object",
+          "properties": {
+            "ssl_id": {
+              "type": "string",
+              "description": "证书ID",
+              "example": "a27be832f2e9441c8127fe48e3b5ac67"
+            },
+            "ssl_name": {
+              "type": "string",
+              "description": "证书名称",
+              "example": "cert_demo"
+            },
+            "api_group_id": {
+              "type": "string",
+              "description": "所属API分组ID",
+              "example": "c77f5e81d9cb4424bf704ef2b0ac7600"
+            },
+            "api_group_name": {
+              "type": "string",
+              "description": "所属API分组名称",
+              "example": "default"
+            },
+            "instance_id": {
+              "type": "string",
+              "description": "所属实例ID",
+              "example": "f0fa1789-3b76-433b-a787-9892951c620e"
+            }
+          }
+        }
+      ],
+      "description": "域名详情及关联的证书、分组信息"
+    },
+    "UrlDomainsPage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasePage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bound_domains": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/UrlDomainRefInfo"
+              },
+              "description": "已绑定域名集合"
+            }
+          }
+        }
+      ]
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    },
+    "UrlDomainBaseInfo": {
+      "required": [
+        "id",
+        "url_domain",
+        "status",
+        "min_ssl_version"
+      ],
+      "properties": {
+        "url_domain": {
+          "description": "自定义域名",
+          "type": "string",
+          "example": "www.example.com"
+        },
+        "id": {
+          "description": "自定义域名的编号",
+          "type": "string",
+          "example": "b9be707660c5406394f8973e087bae20"
+        },
+        "status": {
+          "description": "CNAME解析状态\n- 1: 未解析\n- 2: 解析中\n- 3: 解析成功\n- 4: 解析失败",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "type": "integer",
+          "format": "int32",
+          "example": 3
+        },
+        "min_ssl_version": {
+          "description": "支持的最小SSL版本",
+          "type": "string",
+          "example": "TLSv1.1"
+        },
+        "is_http_redirect_to_https": {
+          "type": "boolean",
+          "description": "是否开启http到https的重定向,false为关闭,true为开启,默认为false",
+          "default": false,
+          "example": true
+        },
+        "verified_client_certificate_enabled": {
+          "description": "是否开启客户端证书校验。只有绑定证书时,该参数才生效。当绑定证书存在trusted_root_ca时,默认开启;当绑定证书不存在trusted_root_ca时,默认关闭。",
+          "type": "boolean",
+          "default": false,
+          "example": false
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_offset": {
+      "name": "offset",
+      "in": "query",
+      "type": "integer",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量小于0时,自动转换为0",
+      "format": "int64",
+      "default": 0,
+      "x-example": 1
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "apic_certificate_id": {
+      "name": "certificate_id",
+      "in": "path",
+      "type": "string",
+      "description": "证书的编号",
+      "required": true,
+      "x-example": "a27be832f2e9441c8127fe48e3b5ac67"
+    },
+    "apic_limit": {
+      "name": "limit",
+      "in": "query",
+      "type": "integer",
+      "description": "每页显示的条目数量",
+      "format": "int32",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 20,
+      "x-example": 10
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

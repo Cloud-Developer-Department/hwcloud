@@ -1,0 +1,167 @@
+{
+  "name": "ListCdnStatistics",
+  "summary": "查询CDN统计信息",
+  "tags": "统计分析",
+  "productshort": "VOD",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v2/{project_id}/asset/cdn-statistics": {
+      "get": {
+        "description": "查询CDN的统计数据,包括流量、峰值带宽、请求总数、请求命中率、流量命中率。查询存在1小时误差。",
+        "summary": "查询CDN统计信息",
+        "operationId": "ListCdnStatistics",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "统计分析"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](vod_04_0211.xml)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "start_time",
+            "minLength": 0,
+            "maxLength": 14,
+            "required": true,
+            "type": "string",
+            "description": "开始时间,格式为yyyymmddhhmmss。\n\n\n- interval为300时,end_time设置为整5分钟时刻点,如:20240601000000。\n\n\n- interval为3600时,end_time设置为整小时时刻点,如:20240601120000。\n\n\n- interval为86400时,end_time设置为东8区零点时刻点,如:20240601000000。\n\n\n- 只能查询最近三个月内的数据,且时间跨度不能超过31天。"
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "minLength": 0,
+            "maxLength": 14,
+            "required": true,
+            "type": "string",
+            "description": "结束时间,格式为yyyymmddhhmmss。\n\n\n- interval为300时,end_time设置为整5分钟时刻点,如:20240601000000。\n\n\n- interval为3600时,end_time设置为整小时时刻点,如:20240601120000。\n\n\n- interval为86400时,end_time设置为东8区零点时刻点,如:20240601000000。\n\n\n- 只能查询最近三个月内的数据,且时间跨度不能超过31天。"
+          },
+          {
+            "in": "query",
+            "name": "stat_type",
+            "minLength": 0,
+            "maxLength": 1000,
+            "required": true,
+            "type": "string",
+            "description": "统计数据类型。\n\n取值如下:\n- bw:CDN峰值带宽\n- flux:CDN流量\n- req_num:请求总数\n- req_hit_rate:请求命中率\n- flux_hit_rate:流量命中率\n- http_code_2xx 状态码汇总2xx\n- http_code_3xx 状态码汇总3xx\n- http_code_4xx 状态码汇总4xx\n- http_code_5xx 状态码汇总5xx\n\n每次只能查询一种统计数据。"
+          },
+          {
+            "in": "query",
+            "name": "domain",
+            "minLength": 0,
+            "maxLength": 5000,
+            "required": true,
+            "type": "string",
+            "description": "域名列表,多个域名以逗号(半角)分隔。\n\n示例:example.test1.com,example.test2.com。\n\nALL表示查询名下全部域名。一次最多查询20个域名。"
+          },
+          {
+            "in": "query",
+            "name": "interval",
+            "minimum": 0,
+            "maximum": 86400,
+            "required": false,
+            "type": "integer",
+            "description": "查询粒度间隔。\n\n取值如下:\n- 300(5分钟):最大查询跨度2天。\n- 3600(1小时):最大查询跨度7天。\n- 86400(1天):最大查询跨度31天,最少跨度为2天。\n\n单位:秒。\n\n若不设置,小于1天 300,大于1天小于7天3600,大于7天86400。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "schema": {
+              "$ref": "#/definitions/ShowCdnStatRsp"
+            }
+          },
+          "400": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "ShowCdnStatRsp": {
+      "type": "object",
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "description": "统计起始时间\n"
+        },
+        "interval": {
+          "type": "integer",
+          "description": "采样时间间隔\n"
+        },
+        "result": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "description": "cdn数据查询结果\n"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

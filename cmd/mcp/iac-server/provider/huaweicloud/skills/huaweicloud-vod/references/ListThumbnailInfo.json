@@ -1,0 +1,241 @@
+{
+  "name": "ListThumbnailInfo",
+  "summary": "查询截图任务结果列表",
+  "tags": "截图管理",
+  "productshort": "VOD",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{project_id}/asset/thumbnails": {
+      "get": {
+        "description": "查询截图任务结果列表\n",
+        "summary": "查询截图任务结果列表",
+        "operationId": "ListThumbnailInfo",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "截图管理"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](vod_04_0211.xml)",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "asset_id",
+            "type": "string",
+            "description": "截图对应媒资id的截图,只支持单个媒资。",
+            "minLength": 0,
+            "maxLength": 1024,
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "task_id",
+            "type": "string",
+            "description": "截图对应的任务id,只支持单个任务查询。",
+            "minLength": 0,
+            "maxLength": 1024,
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "type": "integer",
+            "description": "查询偏移量。取值范围[0,20000],默认值:0。",
+            "minimum": 0,
+            "maximum": 20000,
+            "default": 0,
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "type": "integer",
+            "description": "查询一页返回数。取值范围[1,100],默认值:10。",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10,
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。\n",
+            "schema": {
+              "$ref": "#/definitions/QueryAssetThumbnailRsp"
+            }
+          },
+          "400": {
+            "description": "处理失败返回。\n",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "QueryAssetThumbnailRsp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "description": "截图结果总数\n",
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "thumbnails": {
+          "description": "截图结果列表\n",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/QueryThumbnailInfo"
+          }
+        }
+      }
+    },
+    "QueryThumbnailInfo": {
+      "description": "截图信息。",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "截图任务\n",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "thumbnail_para": {
+          "$ref": "#/definitions/Thumbnail"
+        },
+        "thumbnail_count": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 20480,
+          "description": "视频截图个数。"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "Thumbnail": {
+      "description": "截图参数",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "截图类型。\n\n取值如下:\n- time:每次进行截图的间隔时间。\n- dots: 按照指定的时间点截图。\n- quantity: 按照指定张数,根据视频时长等分视频截图。",
+          "enum": [
+            "time",
+            "dots",
+            "quantity"
+          ]
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "**type**取值为quantity时必填。 按照指定张数,根据视频时长等分视频截图。\n取值范围:[1,10]之间的整数。"
+        },
+        "quantity_time": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "**type**取值为quantity时选填。 按照指定时间间隔取指定张数截图。\n取值范围:[0,2147483647]之间的整数。"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "根据时间间隔采样时的时间间隔值。单位:秒。\n**type**取值为time时。\n默认值:12\n取值范围:[0,100]之间的整数。"
+        },
+        "dots": {
+          "type": "array",
+          "description": "**type**取值为dots时必填。指定时间截图时的时间点数组。",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "cover_position": {
+          "type": "integer",
+          "description": "该值表示指定第几张截图作为封面。\n\n默认值:1。"
+        },
+        "format": {
+          "type": "integer",
+          "description": "截图文件格式。\n\n取值如下:\n- 1:jpg。\n\n默认值:1 。",
+          "default": 1
+        },
+        "aspect_ratio": {
+          "type": "integer",
+          "description": "纵横比,图像缩放方式。\n\n取值如下:\n- 0:自适应(保持原有宽高比)。\n- 1:16:9。\n\n默认值:0。",
+          "default": 0
+        },
+        "max_length": {
+          "type": "integer",
+          "description": "截图最长边的尺寸。\n\n单位:像素。\n\n宽边尺寸按照该尺寸与原始视频像素等比缩放计算。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

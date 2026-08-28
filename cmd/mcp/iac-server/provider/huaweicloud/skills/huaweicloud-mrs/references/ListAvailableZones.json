@@ -1,0 +1,236 @@
+{
+  "name": "ListAvailableZones",
+  "summary": "查询可用区信息",
+  "tags": "可用区",
+  "productshort": "MRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.1/{region_id}/available-zones": {
+      "get": {
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "x-apigateway-ratelimit": "ava_zone_get",
+        "tags": [
+          "AvailableZone"
+        ],
+        "summary": "查询可用区信息",
+        "description": "在创建集群时,需要配置实例所在的可用区ID,可通过该接口查询可用区的ID。",
+        "operationId": "ListAvailableZones",
+        "parameters": [
+          {
+            "name": "region_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "区域id,例如cn-north-4",
+            "maxLength": 255
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "description": "可用区范围",
+            "type": "string",
+            "enum": [
+              "Center",
+              "Edge"
+            ],
+            "x-annotations": "@EnumMatch(fieldName = \"scope\", target = AzScope.class)"
+          }
+        ],
+        "x-imports": [
+          "org.springframework.security.access.prepost.PreAuthorize",
+          "com.huawei.mrs.manager.annotation.EnumMatch",
+          "com.huawei.mrs.api.common.constant.az.AzScope"
+        ],
+        "x-method-annotations": "@PreAuthorize(\"hasIAMRoles('op_fine_grained') || hasRBACRead()\")",
+        "responses": {
+          "200": {
+            "description": "可用区信息",
+            "schema": {
+              "$ref": "#/definitions/AvailableZonesResp"
+            },
+            "examples": {
+              "application/json": {
+                "available_zones": [
+                  {
+                    "id": "cn-north-7a",
+                    "az_code": "cn-north-7a",
+                    "az_name": "可用区1",
+                    "az_id": "8c90c2a4e2594c0782faa6b205afeca7",
+                    "status": "Running",
+                    "region_id": "cn-north-7",
+                    "az_type": "Dedicated",
+                    "az_group_id": "",
+                    "az_tags": {
+                      "mode": null,
+                      "alias": null,
+                      "public_border_group": "center"
+                    }
+                  },
+                  {
+                    "id": "cn-north-7b",
+                    "az_code": "cn-north-7b",
+                    "az_name": "可用区2",
+                    "az_id": "d539378ec1314c85b76fefa3f7071458",
+                    "status": "Running",
+                    "region_id": "cn-north-7",
+                    "az_type": "Dedicated",
+                    "az_tags": {
+                      "mode": null,
+                      "alias": null,
+                      "public_border_group": "center"
+                    }
+                  },
+                  {
+                    "id": "cn-north-7c",
+                    "az_code": "cn-north-7c",
+                    "az_name": "可用区3",
+                    "az_id": "9f1c5806706d4c1fb0eb72f0a9b18c77",
+                    "status": "Running",
+                    "region_id": "cn-north-7",
+                    "az_type": "Dedicated",
+                    "az_tags": {
+                      "mode": null,
+                      "alias": null,
+                      "public_border_group": "center"
+                    }
+                  }
+                ],
+                "default_az_code": "cn-north-7a",
+                "support_physical_az_group": true
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AvailableZoneV2": {
+      "type": "object",
+      "description": "可用区信息",
+      "x-class-annotation": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "可用区编码",
+          "example": "cn-north-4a"
+        },
+        "az_code": {
+          "type": "string",
+          "description": "可用区编码",
+          "example": "cn-north-4a"
+        },
+        "az_name": {
+          "type": "string",
+          "description": "可用区名称",
+          "example": "可用区1"
+        },
+        "az_id": {
+          "type": "string",
+          "description": "可用区id",
+          "example": "effdcbc7d4d64a02aa1fa26b42f56533"
+        },
+        "status": {
+          "type": "string",
+          "description": "可用区状态",
+          "example": "Running"
+        },
+        "region_id": {
+          "type": "string",
+          "description": "区域id",
+          "example": "cn-north-4"
+        },
+        "az_group_id": {
+          "type": "string",
+          "description": "可用区分组id",
+          "example": ""
+        },
+        "az_type": {
+          "type": "string",
+          "description": "当前AZ的类型\nCore 核心\nSatellite 卫星\nDedicated 专属\nVirtual 虚拟\nEdge 边缘\nEdgeCental 中心边缘\nHybrid 混合云",
+          "example": "Dedicated"
+        },
+        "az_tags": {
+          "description": "可用区标签",
+          "$ref": "#/definitions/AvailableTag"
+        },
+        "az_category": {
+          "type": "integer",
+          "format": "int32",
+          "description": "当前可用区的类型,包括:\n- 0: 大云主可用区\n- 21: 本地可用区\n- 41: 边缘可用区",
+          "example": 0
+        },
+        "charge_policy": {
+          "type": "string",
+          "description": "当前可用区的销售策略,包括:\n- charge: 计费\n- notCharge: 非计费",
+          "enum": [
+            "charge",
+            "notCharge"
+          ]
+        }
+      }
+    },
+    "AvailableZonesResp": {
+      "type": "object",
+      "description": "可用区响应",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonAlias",
+      "properties": {
+        "available_zones": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AvailableZoneV2"
+          },
+          "description": "可用区列表",
+          "x-annotations": "@JsonAlias(\"availableZones\")"
+        },
+        "default_az_code": {
+          "type": "string",
+          "description": "默认可用区编码",
+          "example": "cn-north-4a",
+          "x-annotations": "@JsonAlias(\"defaultAzCode\")"
+        },
+        "support_physical_az_group": {
+          "type": "boolean",
+          "description": "支持的物理可用区分组",
+          "example": false,
+          "x-annotations": "@JsonAlias(\"supportPhysicalAzGroup\")"
+        }
+      }
+    },
+    "AvailableTag": {
+      "type": "object",
+      "description": "可用区标签",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "description": "可用区计费模式,分为专属dedicated和共享shard",
+          "example": "dedicated"
+        },
+        "alias": {
+          "type": "string",
+          "description": "az的别名"
+        },
+        "public_border_group": {
+          "type": "string",
+          "description": "所属group。默认为”center”",
+          "example": "center"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mrs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

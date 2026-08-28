@@ -1,0 +1,311 @@
+{
+  "name": "CreateTask",
+  "summary": "新建检查任务",
+  "tags": "任务管理",
+  "productshort": "CodeCheck",
+  "region_id": "sa-brazil-1",
+  "paths": {
+    "/v2/{project_id}/task": {
+      "post": {
+        "tags": [
+          "任务管理"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "summary": "新建检查任务",
+        "description": "新建检查任务但是不执行。",
+        "operationId": "CreateTask",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "minLength": 1,
+            "maxLength": 100000
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "CreateTaskV2RequestBody",
+            "description": "创建仓库的相关信息,check_type只支持source,language支持cpp,java,js,python,php,css,html,go,typescript,csharp",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTaskRequestV2"
+            }
+          }
+        ],
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "10.63.38.190:40115",
+            "description": "",
+            "method": "POST",
+            "path": "/codecheck/v2/{project_id}/task",
+            "scheme": "https",
+            "timeout": 60000
+          },
+          "parameters": [
+            {
+              "description": "逻辑region",
+              "in": "HEADER",
+              "name": "X-AUTH-REGION",
+              "origin": "CONSTANT",
+              "value": "cn-north-7"
+            },
+            {
+              "description": "项目ID",
+              "in": "PATH",
+              "name": "project_id",
+              "origin": "REQUEST",
+              "value": "project_id"
+            }
+          ],
+          "type": "HTTP"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "responses": {
+          "200": {
+            "description": "Request succeeded!",
+            "schema": {
+              "$ref": "#/definitions/TaskIdV2"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": "d161fd0**********cb3c1d6a783e"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "CC.00000000",
+                "error_msg": "网络繁忙,请稍后再试"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "CC.00000003",
+                "error_msg": "认证信息过期"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-name": "新建检查任务",
+        "x-version": "v2",
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/task",
+        "x-request-examples-1": {
+          "check_type": [
+            "source"
+          ],
+          "git_url": "git@code*****************958.git",
+          "git_branch": "master",
+          "language": [
+            "cpp",
+            "js"
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "CC.00000000",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "网络繁忙,请稍后再试",
+          "description": "错误描述"
+        }
+      }
+    },
+    "CreateTaskRequestV2": {
+      "required": [
+        "git_url",
+        "git_branch",
+        "language"
+      ],
+      "properties": {
+        "check_type": {
+          "type": "array",
+          "description": "检查类型,数组格式,默认为source",
+          "items": {
+            "type": "string",
+            "example": "source"
+          }
+        },
+        "git_url": {
+          "type": "string",
+          "description": "仓库地址",
+          "example": "http://github.*******.git"
+        },
+        "git_branch": {
+          "type": "string",
+          "description": "仓库分支",
+          "example": "master"
+        },
+        "language": {
+          "type": "array",
+          "description": "检查语言,数组格式,支持cpp,java,js,python,php,css,html,go,typescript,csharp",
+          "items": {
+            "type": "string",
+            "example": "cpp"
+          }
+        },
+        "rule_sets": {
+          "description": "指定规则集",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RuleSetV2"
+          }
+        },
+        "task_type": {
+          "type": "string",
+          "description": "检查类型,支持full/inc两种类型,full表示全量检查,inc表示mr检查",
+          "example": "full"
+        },
+        "username": {
+          "type": "string",
+          "description": "仓库有权限的用户名",
+          "example": "test"
+        },
+        "access_token": {
+          "type": "string",
+          "description": "仓库有权限的用户token",
+          "example": "testxxxxtest"
+        },
+        "endpoint_id": {
+          "type": "string",
+          "description": "仓库有权限的用户endpointId",
+          "example": "cd9f6b87ffae43f08cc70a24c7fd7482"
+        },
+        "inc_config": {
+          "$ref": "#/definitions/IncConfigV2"
+        },
+        "enable_fossbot": {
+          "type": "boolean",
+          "description": "是否打开fossbot检查,默认不开",
+          "example": true
+        },
+        "resource_pool_id": {
+          "type": "string",
+          "description": "资源池id,可以从资源池管理页面获取",
+          "example": "cd9f6b87ffae43f08cc70a24c7fd7482"
+        }
+      }
+    },
+    "TaskIdV2": {
+      "required": [
+        "task_id"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "检查任务id",
+          "example": "9e16b*********9471ce5d"
+        }
+      }
+    },
+    "RuleSetV2": {
+      "required": [
+        "language"
+      ],
+      "properties": {
+        "ruleset_id": {
+          "type": "string",
+          "description": "规则集id,需要从web界面获取",
+          "example": "4d8b52e071ce4f73bb552d27076f5e1a"
+        },
+        "language": {
+          "type": "string",
+          "description": "检查语言,支持cpp,java,js,python,php,css,html,go,typescript",
+          "example": "cpp"
+        }
+      }
+    },
+    "IncConfigV2": {
+      "description": "增量检查相关的参数",
+      "properties": {
+        "parent_task_id": {
+          "type": "string",
+          "description": "需要关联的父任务ID,流水线创建或MR创建任务需要该参数",
+          "example": "4d8b52e071ce4f73bb552d27076f5e1a"
+        },
+        "git_source_branch": {
+          "type": "string",
+          "description": "增量检查代码源分支",
+          "example": "develop"
+        },
+        "git_target_branch": {
+          "type": "string",
+          "description": "增量检查代码目标分支",
+          "example": "master"
+        },
+        "merge_id": {
+          "type": "string",
+          "description": "MR唯一标示ID",
+          "example": "12321"
+        },
+        "event_type": {
+          "type": "string",
+          "description": "webhook触发事件类型,merge_request/push_request",
+          "example": "merge_request"
+        },
+        "action": {
+          "type": "string",
+          "description": "webhook事件状态,open/close/update",
+          "example": "open"
+        },
+        "title": {
+          "type": "string",
+          "description": "MR标题",
+          "example": "新增测试用例"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "codecheck-ext.sa-brazil-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

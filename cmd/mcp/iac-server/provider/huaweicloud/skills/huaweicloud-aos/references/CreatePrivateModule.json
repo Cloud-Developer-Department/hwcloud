@@ -1,0 +1,277 @@
+{
+  "name": "CreatePrivateModule",
+  "summary": "创建私有模块",
+  "tags": "资源编排-模块管理",
+  "productshort": "AOS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/private-modules": {
+      "post": {
+        "tags": [
+          "Module"
+        ],
+        "summary": "创建私有模块",
+        "description": "创建私有模块(CreatePrivateModule)\n\n创建一个空的私有模块。如果用户给予了module_version与module_uri,则在创建私有模块的同时,在私有模块下创建一个私有模块版本。\n  * 模块允许用户将可复用的代码编辑在一起供模块使用。\n  * 如果同名私有模块在当前账户中已经存在,则会返回失败。\n  * 版本号遵循语义化版本号(Semantic Version),为用户自定义。\n  * 资源编排服务只会对模块进行浅校验,如文件大小、是否可以解压、文件数量等。并不会深度校验,即不会做语法类校验。\n\n以HCL格式的模板为例,模板中引用私有模块的语法如下:\n```\nmodule \"my_hello_word_module\" {\n  source = \"rf://rfs.{region_id}.myhuaweicloud.com/private/{domain_id}/{module_name}?version=={module_version}\"\n}\n```\n\n以JSON格式的模板为例,模板中引用私有模块的语法如下:\n```\n{\n  \"module\": {\n    \"my_hello_word_module\": {\n      \"source\": \"rf://rfs.{region_id}.myhuaweicloud.com/private/{domain_id}/{module_name}?version=={module_version}\"\n    }\n  }\n}\n```\n对应上述两个例子中的模块链接(source字段的内容)可以调用ShowPrivateModuleVersionMetadata返回的module_source字段中获取",
+        "operationId": "CreatePrivateModule",
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一Id,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "in": "body",
+            "name": "CreatePrivateModuleRequestBody",
+            "description": "CreatePrivateModule API的请求Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePrivateModuleRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "examples": {
+              "x-response-examples-1": {
+                "module_id": "fd0e12bc-a1a4-4cac-8cbe-b023c389736b"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreatePrivateModuleResponseBody"
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "1. 用户无权限调用此API\n2. 模块数量达到上限",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "409": {
+            "description": "创建冲突,同名的模块已经存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "false",
+        "x-rfs-internal": "Y",
+        "x-rfs-external": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/private-modules",
+        "x-request-examples-description-1": "创建一个空的私有模块",
+        "x-request-examples-1": {
+          "module_name": "test-limit_vpc_resource-module"
+        },
+        "x-request-examples-url-2": "POST https://{endpoint}/v1/private-modules",
+        "x-request-examples-description-2": "创建一个带有版本的私有模块",
+        "x-request-examples-2": {
+          "module_name": "test-limit_vpc_resource-module",
+          "module_version": "1.0.0",
+          "module_uri": "https://integration-test.obs.{region}.huawei.com/mock_zip_template_for_module_service.zip"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreatePrivateModuleRequestBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateModuleNamePrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateModuleVersionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateModuleDescriptionPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/ModuleURIPrimitiveTypeHolder"
+        },
+        {
+          "$ref": "#/definitions/PrivateModuleVersionDescriptionPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PrivateModuleIdPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "description": "私有模块(private-module)的唯一Id。\n\n此Id由资源编排服务在生成模块的时候生成,为UUID。\n\n由于私有模块名仅在同一时间下唯一,即允许用户先生成一个叫HelloWorld的私有模块,删除,再重新创建一个同名私有模块。\n\n对于团队并行开发,用户可能希望确保,当前我操作的私有模块就是我以为的那个,而不是其他队友删除后创建的同名私有模块。因此,使用Id就可以做到强匹配。\n\n资源编排服务保证每次创建的私有模块所对应的Id都不相同,更新不会影响Id。如果给予的module_id和当前模块的Id不一致,则返回400",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "module_id": "1b15e005-bdbb-4bd7-8f9a-a09b6774b4b3"
+      }
+    },
+    "PrivateModuleNamePrimitiveTypeHolder": {
+      "type": "object",
+      "required": [
+        "module_name"
+      ],
+      "properties": {
+        "module_name": {
+          "type": "string",
+          "description": "私有模块(private-module)的名字。此名字在domain_id+region下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+        }
+      },
+      "example": {
+        "module_name": "私有模块名称-Private_Module_Name"
+      }
+    },
+    "CreatePrivateModuleResponseBody": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateModuleIdPrimitiveTypeHolder"
+        }
+      ]
+    },
+    "PrivateModuleVersionDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "version_description": {
+          "type": "string",
+          "description": "模块版本(module version)的描述。可用于客户识别并管理模块的版本。注意:模块版本为不可更新(immutable),即描述不可更新,如果需要更新,请删除后重建",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "version_description": "My First Hello World Module Version"
+      }
+    },
+    "ModuleURIPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "module_uri": {
+          "type": "string",
+          "description": "模块(module)包的OBS地址。模块允许用户将可复用的代码编辑在一起供模块使用。\n\nOBS地址支持同类型Region之间进行互相访问(Region分为通用Region和专属Region,通用Region指面向公共租户提供通用云服务的Region;专属Region指只承载同一类业务或只面向特定租户提供业务服务的专用Region)\n\n模块包只支持zip压缩包,文件需要以\".zip\"结尾。关于模块包的校验要求如下:\n  * 模块包中不得包含以\".tfvars\"结尾的文件\n  * 模块包解压前后的大小均应控制在1MB以内\n  * 模块包内的文件数量不能超过100个\n  * 模块包内的文件路径不允许以正斜线(/)开头\n  * 模块包内的文件路径分隔符之间不允许为空格、\".\"和\"..\"\n  * 模块包内的文件路径最长为2048\n  * 模块包内的文件名最长为255\n  * 模块包内应至少有一份模板文件(以\".tf\"或\".tf.json\"结尾的文件)\n\n**注意:**\n  * 模块中的内容不支持敏感数据加密,资源编排服务会直接明文使用、log、展示、存储module_uri对应的模块包。",
+          "minLength": 0,
+          "maxLength": 2048,
+          "pattern": "^(http|https)://[\\S]*(\\.zip){1}(\\?[\\S]+)?$",
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "module_uri": "https://your-bucket.{region}.myhuaweicloud.com/my-hello-world-module.zip"
+      }
+    },
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "PrivateModuleDescriptionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "module_description": {
+          "type": "string",
+          "description": "私有模块(private-module)的描述。可用于客户识别被管理的私有模块。如果想要更新私有模块的描述,可以通过UpdatePrivateModuleMetadata API。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "example": {
+        "module_description": "My First Hello World Module"
+      }
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    },
+    "PrivateModuleVersionPrimitiveTypeHolder": {
+      "type": "object",
+      "properties": {
+        "module_version": {
+          "type": "string",
+          "description": "模块的版本号。版本号必须遵循语义化版本号(Semantic Version),为用户自定义",
+          "minLength": 5,
+          "maxLength": 128,
+          "x-isnullable": true
+        }
+      },
+      "example": {
+        "module_version": "3.7.10"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

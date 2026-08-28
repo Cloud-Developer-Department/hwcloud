@@ -1,0 +1,191 @@
+{
+  "name": "ShowSourceInstanceDetail",
+  "summary": "根据时间点或者备份文件查询原实例信息",
+  "tags": "备份管理",
+  "productshort": "GaussDBforopenGauss",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3.1/{project_id}/instance-snapshot": {
+      "get": {
+        "tags": [
+          "备份管理"
+        ],
+        "operationId": "ShowSourceInstanceDetail",
+        "summary": "根据时间点或者备份文件查询原实例信息",
+        "description": "根据时间点或者备份文件查询原实例信息。",
+        "x-constraint": "- (instance_id、restore_time)和backup_id参数互斥,只有一个会生效。\n- 这两组参数必须存在一组\n- 备份ID不为空时,可以不需要实例ID和时间戳。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "false",
+        "x-apigateway-ratelimit": "opengauss_default_policy",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数解释**:\n用户Token。\n通过调用IAM服务[获取用户token](https://support.huaweicloud.com/intl/zh-cn/api-iam/iam_30_0001.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "**参数解释**:\n语言。\n**约束限制**:\n不涉及。\n**取值范围**:\n  - zh-cn\n  - en-us\n\n**默认取值**:\nen-us",
+            "type": "string",
+            "required": false,
+            "x-example": "zh-cn",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "0611f1bd8b00d5d32f17c017f15b599f"
+          },
+          {
+            "name": "instance_id",
+            "in": "query",
+            "description": "原实例ID。\n\n(instance_id 、restore_time为一组)",
+            "required": false,
+            "type": "string",
+            "x-example": "b043c90a9b5a403f960456ff08ec75d6in14"
+          },
+          {
+            "name": "restore_time",
+            "in": "query",
+            "description": "UNIX时间戳格式,单位是毫秒,时区是UTC,某时间点实例的信息。\n\n(instance_id 、restore_time为一组)",
+            "required": false,
+            "type": "string",
+            "x-example": 1665943652000
+          },
+          {
+            "name": "backup_id",
+            "in": "query",
+            "description": "备份ID。\n\n(backup_id为一组)\n\n备份ID不为空时,可以不需要实例ID和时间戳。",
+            "required": false,
+            "type": "string",
+            "x-example": "cc94568cb5a54e4a8ab5dff95e64a5e0br14"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "schema": {
+              "$ref": "#/definitions/QueryHistoricalInstanceInfoResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "cluster_mode": "Ha",
+                "instance_mode": "enterprise",
+                "data_volume_size": "200",
+                "solution": "triset",
+                "node_num": 3,
+                "coordinator_num": 0,
+                "sharding_num": 3,
+                "replica_num": 3,
+                "engine_version": "V2.0-2.2.90"
+              }
+            }
+          },
+          "default": {
+            "description": "系统内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询实例的历史信息",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3.1/0611f1bd8b00d5d32f17c017f15b599f/instance-snapshot?instance_id=b043c90a9b5a403f960456ff08ec75d6in14&backup_id=cc94568cb5a54e4a8ab5dff95e64a5e0br14&restore_time=1665943652000",
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "QueryHistoricalInstanceInfoResponseBody": {
+      "properties": {
+        "cluster_mode": {
+          "type": "string",
+          "description": "实例部署形态。集中式Ha(主备)、分布式Independent(独立部署)。",
+          "enum": [
+            "Ha",
+            "Independent"
+          ],
+          "example": "Ha"
+        },
+        "instance_mode": {
+          "type": "string",
+          "description": "实例模型,企业版enterprise,标准版standard,基础版basic。",
+          "enum": [
+            "basic",
+            "standard",
+            "enterprise"
+          ],
+          "example": "enterprise"
+        },
+        "data_volume_size": {
+          "type": "string",
+          "description": "磁盘大小,单位:GB。"
+        },
+        "solution": {
+          "type": "string",
+          "description": "解决方案模板类型。集中式Ha一般用triset,分布式Independent一般为空或者默认hws。\n\n描述如下:\n\ntriset:高可用(1主2备)\n\nhws:默认。",
+          "enum": [
+            "triset",
+            "hws"
+          ],
+          "example": "triset"
+        },
+        "node_num": {
+          "type": "integer",
+          "description": "节点数量。"
+        },
+        "coordinator_num": {
+          "type": "integer",
+          "description": "协调节点数量。"
+        },
+        "sharding_num": {
+          "type": "integer",
+          "description": "分片数量。"
+        },
+        "replica_num": {
+          "type": "integer",
+          "description": "副本数量。"
+        },
+        "engine_version": {
+          "type": "string",
+          "description": "引擎版本。"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "**参数解释**:\n错误码。\n**取值范围**:\n不涉及。",
+          "type": "string",
+          "example": "DBS.00114000"
+        },
+        "error_msg": {
+          "description": "**参数解释**:\n错误消息。\n**取值范围**:\n不涉及。",
+          "type": "string",
+          "example": "系统内部错误"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

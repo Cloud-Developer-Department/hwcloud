@@ -1,0 +1,221 @@
+{
+  "name": "CreateDeploymentJobs",
+  "summary": "创建部署任务",
+  "tags": "应用管理",
+  "productshort": "DevStar",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/applications/{application_id}/environments/{environment_tag}/deployment-jobs": {
+      "post": {
+        "tags": [
+          "DeployServer"
+        ],
+        "summary": "创建部署任务",
+        "description": "创建部署任务,并触发任务执行,当前只支持函数部署。\n其中,报文中file_id为查询软件版本包接口返回版本包id;\nhandler为在函数部署方式下,入口函数名称,从应用代码中获取,格式为“包名.类名.函数名称”,例如:com.example.demo.APIGTrigger.handler。\n也可以从应用详情接口返回结构template_deployment中直接获取。",
+        "operationId": "CreateDeploymentJobs",
+        "parameters": [
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "语言类型 中文:zh-cn 英文:en-us",
+            "required": false,
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 5,
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ],
+            "x-example": "zh-cn",
+            "x-notgenerate": true
+          },
+          {
+            "name": "application_id",
+            "in": "path",
+            "description": "应用id",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "x-example": "4a4cdff5674c449eb0d7cfe455659047"
+          },
+          {
+            "name": "environment_tag",
+            "in": "path",
+            "description": "环境标识,从 [应用详情接口](https://apiexplorer.developer.huaweicloud.com/apiexplorer/doc?product=DevStar&api=ShowApplication) 返回报文中的环境信息获取。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "x-example": "dev_env"
+          },
+          {
+            "in": "body",
+            "name": "CreateDeploymentJobsRequestBody",
+            "description": "创建部署任务信息",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateDeploymentJobsParams"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "examples": {
+              "application/json": {
+                "job_id": "Asaq1542",
+                "status": 0,
+                "address": "127.0.0.1:8080/index",
+                "deploy_parameters": "xxx",
+                "time": 124,
+                "creator_name": "xxx",
+                "created_time": "2021-06-21T08:20:28.802Z"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DeploymentJob"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "DEVSTAR.2002",
+                "error_msg": "未知错误"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "DEV.00000001",
+                "error_msg": "未识别到用户认证信息"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "DEVSTAR.1034",
+                "error_msg": "没有权限"
+              }
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-request-examples-description-1": "创建部署任务",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/applications/658942cfdfdc46ed911bc7006f1364ef/environments/dev_env/deployment-jobs",
+        "x-request-examples-1": {
+          "function": {
+            "file_id": "658942cfdfdc46ed911bc7006f1364ef",
+            "handler": "index.handler"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CciDeploymentJobsParam": {
+      "properties": {
+        "image": {
+          "type": "string",
+          "example": "swr.cn-north-7.xxx.com/xxx/app:1",
+          "description": "软件包或者镜像地址",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "CreateDeploymentJobsParams": {
+      "properties": {
+        "function": {
+          "description": "函数部署参数",
+          "$ref": "#/definitions/FGSDeploymentJobsParam"
+        },
+        "cci": {
+          "description": "cci部署参数",
+          "$ref": "#/definitions/CciDeploymentJobsParam"
+        }
+      }
+    },
+    "FGSDeploymentJobsParam": {
+      "properties": {
+        "file_id": {
+          "type": "string",
+          "description": "版本包id,使用历史版本包部署时需要",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "handler": {
+          "type": "string",
+          "description": "函数入口",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "DeploymentJob": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "部署任务编号",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "job_id": {
+          "type": "string",
+          "description": "任务ID",
+          "minLength": 8,
+          "maxLength": 8
+        },
+        "status": {
+          "type": "integer",
+          "description": "部署状态,-2:环境准备未就绪 -1 资源准备就绪 0 部署中 1:成功 2:失败",
+          "minimum": -2,
+          "maximum": 2
+        },
+        "address": {
+          "type": "string",
+          "description": "访问地址",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "deploy_parameters": {
+          "type": "string",
+          "description": "部署参数",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "time": {
+          "type": "integer",
+          "description": "部署耗时",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "creator_name": {
+          "type": "string",
+          "description": "创建人",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建时间",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "devstar.cn-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

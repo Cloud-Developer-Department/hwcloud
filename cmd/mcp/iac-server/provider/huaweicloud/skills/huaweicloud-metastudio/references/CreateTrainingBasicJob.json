@@ -1,0 +1,393 @@
+{
+  "name": "CreateTrainingBasicJob",
+  "summary": "创建基础版语音训练任务",
+  "tags": "声音制作任务管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/voice-training-manage/user/basic-jobs": {
+      "post": {
+        "tags": [
+          "TrainingJobManager"
+        ],
+        "summary": "创建基础版语音训练任务",
+        "description": "用户创建语音训练基础版任务,该接口会返回一个obs上传地址,用于上传语音文件。\n\n支持2种方式上传语音文件:\n* 语音文件和文本文件打包成zip上传:语音文件已经切分成20个wav文件,每个语音文件对应一个txt文本文件,所有文件打包成zip文件。语音文件命名规则:0.wav~19.wav;文本文件命名规则:0.txt~19.txt。\n* 语音文件和文本文件逐句上传:每次上传一句语料的语音文件和文本文件,再调用“确认在线录音结果”接口确认语音和文本内容是否一致。确认成功后再上传和确认下一句。\n\n文件上传后,调用“提交语音训练任务”接口,启动审核和训练。",
+        "operationId": "CreateTrainingBasicJob",
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Project-IdHeader"
+          },
+          {
+            "$ref": "#/parameters/X-App-UserId"
+          },
+          {
+            "in": "body",
+            "name": "CreateTrainingBasicJobRequestBody",
+            "description": "创建任务请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTrainingJobReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "examples": {
+              "application/json": {
+                "job_id": "26f06524-4f75-4b3a-a853-b649a21aaf66",
+                "training_data_uploading_url": "https://my-bucket/data.zip",
+                "segment_uploading_url": {
+                  "audio_uploading_url": [
+                    "https://my-bucket/data0.wav"
+                  ],
+                  "txt_uploading_url": [
+                    "https://my-bucket/data0.txt"
+                  ]
+                },
+                "authorization_letter_uploading_url": "https://my-bucket/data"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateTrainingJobRsp"
+            }
+          },
+          "400": {
+            "description": "参数异常。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam,internal-appcode",
+        "x-open-range": "public",
+        "x-methodAnnotations": [
+          "@ResponseMaskRule"
+        ],
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/3f0924078d1b471c884a5383d4dec9fa/voice-training-manage/user/basic-jobs",
+        "x-request-examples-1": {
+          "tag": "ECOMMERCE",
+          "description": "这是一段女声",
+          "sex": "FEMALE",
+          "voice_name": "温柔女声",
+          "language": "CN",
+          "create_type": "PACKAGE"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateTrainingJobReq": {
+      "required": [
+        "voice_name"
+      ],
+      "properties": {
+        "tag": {
+          "$ref": "#/definitions/JobTag"
+        },
+        "description": {
+          "type": "string",
+          "example": "这是一段女声",
+          "description": "一段描述信息,会呈现在资产库中。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "sex": {
+          "type": "string",
+          "example": "FEMALE",
+          "description": "语音性别,是男性声音还是女性声音。\n* FEMALE: 女性\n* MALE: 男性",
+          "enum": [
+            "FEMALE",
+            "MALE"
+          ],
+          "default": "FEMALE"
+        },
+        "voice_name": {
+          "type": "string",
+          "example": "温柔女声",
+          "description": "音色名称。该名称会作为资产库中音色模型资产名称。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "language": {
+          "type": "string",
+          "example": "CN",
+          "description": "训练语言,当前仅支持中文。\n* CN: 中文\n* EN: 英文",
+          "minLength": 1,
+          "maxLength": 64,
+          "default": "CN"
+        },
+        "create_type": {
+          "$ref": "#/definitions/CreateType"
+        },
+        "phone": {
+          "type": "string",
+          "example": "13500001111",
+          "description": "手机号",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "dhtms_job_id": {
+          "type": "string",
+          "example": "abcdefg",
+          "description": "形象制作任务id",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "batch_name": {
+          "type": "string",
+          "example": "123qwe",
+          "description": "批次名称",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "output_language": {
+          "type": "string",
+          "example": "CN",
+          "description": "模型输出语言类型",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "custom_text": {
+          "type": "string",
+          "example": "你好,这是一段试听文本",
+          "description": "自定义试听文本",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "is_ondemand_resource": {
+          "type": "boolean",
+          "example": true,
+          "description": "是否使用按需资源"
+        },
+        "supported_service": {
+          "type": "array",
+          "example": [
+            "VIDEO_2D",
+            "LIVE_2D"
+          ],
+          "description": "支持的业务类型。:\n* VIDEO_2D:分身数字人视频制作\n* LIVE_2D:分身数字人直播\n* CHAT_2D:分身数字人智能交互",
+          "items": {
+            "$ref": "#/definitions/SupportedServiceEnum"
+          },
+          "maxItems": 10,
+          "minItems": 0
+        }
+      },
+      "description": "创建训练任务请求。"
+    },
+    "CreateTrainingJobRsp": {
+      "required": [
+        "job_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "example": "abcdefg",
+          "description": "任务id。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "training_data_uploading_url": {
+          "type": "string",
+          "example": "https://my-bucket/data.zip",
+          "description": "上传训练数据的地址。训练数据需打包成zip文件后,上传至该url。\n\ncreate_type取值为package时设置。\n> 通过该obs地址上传时,需设置content-type为application/zip。",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "segment_uploading_url": {
+          "type": "object",
+          "description": "分句上传任务的上传地址,create_type为segment时设置。",
+          "properties": {
+            "audio_uploading_url": {
+              "type": "array",
+              "description": "音频上传的地址。\n\n通过该obs地址上传时,需设置content-type为audio/wav",
+              "items": {
+                "type": "string",
+                "example": "https://my-bucket/data0.wav",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "maxItems": 4096,
+              "minItems": 1
+            },
+            "txt_uploading_url": {
+              "type": "array",
+              "description": "文本上传的地址。\n\n通过该obs地址上传时需设置content-type为text/plain",
+              "items": {
+                "type": "string",
+                "example": "https://my-bucket/data0.txt",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "maxItems": 4096,
+              "minItems": 1
+            }
+          }
+        },
+        "authorization_letter_uploading_url": {
+          "type": "string",
+          "example": "https://my-bucket/data",
+          "description": "授权书的上传地址。",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "description": "创建训练任务响应。"
+    },
+    "JobTag": {
+      "type": "string",
+      "description": "任务标签。\n* ECOMMERCE: 电商\n* NEWS: 新闻\n* MARKETING: 营销\n* LIVE: 直播\n* EDUCATION: 教培\n* CUSTOMER: 客服\n* STORYTELLING: 故事",
+      "example": "ECOMMERCE",
+      "enum": [
+        "ECOMMERCE",
+        "NEWS",
+        "MARKETING",
+        "LIVE",
+        "EDUCATION",
+        "CUSTOMER",
+        "STORYTELLING"
+      ]
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "CreateType": {
+      "type": "string",
+      "description": "任务创建方式。\n* PACKAGE: 使用一个zip包包含所有数据\n* SEGMENT: 逐句上传数据",
+      "enum": [
+        "PACKAGE",
+        "SEGMENT"
+      ]
+    },
+    "SupportedServiceEnum": {
+      "type": "string",
+      "enum": [
+        "VIDEO_2D",
+        "LIVE_2D",
+        "CHAT_2D"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "X-Project-IdHeader": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-App-UserId": {
+      "name": "X-App-UserId",
+      "in": "header",
+      "description": "第三方用户ID。不允许输入中文。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "abcdefg1234567",
+      "x-apig-registered": false
+    }
+  },
+  "host": "metastudio.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

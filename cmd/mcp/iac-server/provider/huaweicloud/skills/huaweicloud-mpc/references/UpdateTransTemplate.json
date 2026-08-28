@@ -1,0 +1,410 @@
+{
+  "name": "UpdateTransTemplate",
+  "summary": "更新转码模板",
+  "tags": "自定义转码模板接口",
+  "productshort": "MPC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/template/transcodings": {
+      "put": {
+        "x-navigation-title": "自定义转码模板接口",
+        "description": "更新转码模板。",
+        "summary": "更新转码模板",
+        "x-publishpath": "mpc_04_0023",
+        "operationId": "UpdateTransTemplate",
+        "x-open-region-cloud": "hcso,hc,hk,g42",
+        "x-external-api": true,
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-since": "1.0.0",
+        "x-since-memo": "1.0.0 initial",
+        "x-modifier-memo": "版本 | 修改日期 | 修改说明 | 修改者\n------------ | ------------- | ------------- | -------------\n1.0.0 | 2018/1/24 |新增此接口。 | 劳喜昌\n",
+        "tags": [
+          "TranscodeTemplate"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/authorization"
+          },
+          {
+            "$ref": "#/parameters/xProjectId"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](mpc_04_0064.xml)",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "in": "body",
+            "name": "UpdateTransTemplateRequestBody",
+            "description": "更新用户自定义转码配置模板",
+            "schema": {
+              "$ref": "#/definitions/ModifyTransTemplateReq"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "更新转码模板成功。"
+          },
+          "403": {
+            "description": "更新转码模板失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "MPC.10202",
+                "error_msg": "Invalid request parameter."
+              }
+            }
+          }
+        },
+        "x-request-examples-1": "PUT https://{endpoint}/v1/{project_id}/template/transcodings/\n{\n    \"templated_id\":1001,\n    \"template_name\":\"MP4_H.264_1920x1080_6000_HEAAC_PVC\",\n    \"video\":{\n        \"codec\":1,\n        \"bitrate\":6000,\n        \"profile\":3,\n        \"level\":15,\n        \"preset\":3,\n        \"max_iframes_interval\":5,\n        \"bframes_count\":4,\n        \"frame_rate\":1,\n        \"width\":1920,\n        \"height\":1080\n    },\n    \"audio\":{\n        \"codec\":1,\n        \"sample_rate\":4,\n        \"bitrate\":128,\n        \"channels\":2\n    },\n    \"common\":{\n        \"PVC\":1,\n        \"hls_interval\":5,\n        \"dash_interval\":5,\n        \"pack_type\":1\n    }\n}\n",
+        "x-responses-xample": "{\n  \"error_code\": \"MTS.363021009\",\n  \"error_msg\":\"Can not find the transcoding template\"\n}\n"
+      }
+    }
+  },
+  "definitions": {
+    "OutputPolicy": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;",
+      "type": "object",
+      "properties": {
+        "output_policy": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "输出策略。\n\n取值如下:\n- discard\n- transcode\n\n>- 当视频参数中的“output_policy”为\"discard\",且音频参数中的“output_policy”为“transcode”时,表示只输出音频。\n>- 当视频参数中的“output_policy”为\"transcode\",且音频参数中的“output_policy”为“discard”时,表示只输出视频。\n>- 同时为\"discard\"时不合法。\n>- 同时为“transcode”时,表示输出音视频。",
+          "default": "transcode",
+          "enum": [
+            "transcode",
+            "discard",
+            "copy"
+          ]
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "Video": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "allOf": [
+        {
+          "$ref": "#/definitions/OutputPolicy"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "codec": {
+              "x-internal": false,
+              "description": "视频编码格式。\n\n取值如下:\n\n- 1:表示H.264。\n- 2:表示H.265。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "format": "int32",
+              "x-annotations": [
+                "@Range(min = 1, max = 3)"
+              ]
+            },
+            "bitrate": {
+              "x-internal": false,
+              "description": "输出平均码率。\n\n取值范围:0或[40,30000]之间的整数。\n\n单位:kbit/s\n\n若设置为0,则输出平均码率为自适应值。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 30000,
+              "format": "int32"
+            },
+            "profile": {
+              "x-internal": false,
+              "description": "编码档次,建议设为3。\n\n取值如下:\n- 1:VIDEO_PROFILE_H264_BASE\n- 2:VIDEO_PROFILE_H264_MAIN\n- 3:VIDEO_PROFILE_H264_HIGH\n- 4:VIDEO_PROFILE_H265_MAIN",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "format": "int32"
+            },
+            "level": {
+              "x-internal": false,
+              "description": "编码级别。\n\n取值如下:\n- 1:VIDEO_LEVEL_1_0\n- 2:VIDEO_LEVEL_1_1\n- 3:VIDEO_LEVEL_1_2\n- 4:VIDEO_LEVEL_1_3\n- 5:VIDEO_LEVEL_2_0\n- 6:VIDEO_LEVEL_2_1\n- 7:VIDEO_LEVEL_2_2\n- 8:VIDEO_LEVEL_3_0\n- 9:VIDEO_LEVEL_3_1\n- 10:VIDEO_LEVEL_3_2\n- 11:VIDEO_LEVEL_4_0\n- 12:VIDEO_LEVEL_4_1\n- 13:VIDEO_LEVEL_4_2\n- 14:VIDEO_LEVEL_5_0\n- 15:VIDEO_LEVEL_5_1",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 16,
+              "format": "int32",
+              "default": 15
+            },
+            "preset": {
+              "x-internal": false,
+              "description": "编码质量等级。\n\n取值如下:\n- 1:VIDEO_PRESET_SPEED,编码快速档位\n- 3:VIDEO_PRESET_HIGHQUALITY,编码高质量档位\n- 4:VIDEO_PRESET_QUALITY,编码质量档位\n- 5:VIDEO_PRESET_BALANCE,编码平衡档位\n\n默认值1。",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "default": 1,
+              "format": "int32"
+            },
+            "max_iframes_interval": {
+              "x-internal": false,
+              "description": "I帧最大间隔\n\n取值范围:[2,10]。\n\n默认值:5。\n\n单位:秒。",
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 10,
+              "format": "int32",
+              "default": 5
+            },
+            "bframes_count": {
+              "x-internal": false,
+              "description": "最大B帧间隔。\n\n取值范围:\n- H264:[0,7],默认值为4。\n- H265:[0,7],默认值为7。\n\n单位:帧。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8,
+              "format": "int32"
+            },
+            "frame_rate": {
+              "x-internal": false,
+              "description": "帧率。\n\n取值范围:0或[5,60]之间的整数。\n\n单位:帧每秒。\n\n> 若设置的帧率不在取值范围内,则自动调整为0,若设置的帧率高于片源帧率,则自动调整为片源帧率。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "format": "int32"
+            },
+            "width": {
+              "x-internal": false,
+              "description": "视频宽度。\n\n取值范围:\n- H.264:0或[32,4096]间2的倍数。\n- H.265:0或[160,4096]间4的倍数。\n\n单位:像素。\n\n说明:若视频宽度设置为0,则视频宽度值自适应。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096,
+              "format": "int32"
+            },
+            "height": {
+              "x-internal": false,
+              "description": "视频高度。\n- H.264:0或[32,2880]且必须为2的倍数。\n- H.265:0或[96,2880]且必须为4的倍数。\n\n单位:像素。\n\n说明:若视频高度设置为0,则视频高度值自适应。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2880,
+              "format": "int32"
+            },
+            "black_cut": {
+              "x-internal": false,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2,
+              "format": "int32",
+              "description": "黑边剪裁类型。\n\n取值如下:\n- 0:不开启黑边剪裁。\n- 1:开启黑边剪裁,低复杂度算法,针对长视频(>5分钟)。\n- 2:开启黑边剪裁,高复杂度算法,针对短视频(<=5分钟)。"
+            },
+            "stream_name": {
+              "description": "流名称",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          }
+        }
+      ]
+    },
+    "Audio": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "allOf": [
+        {
+          "$ref": "#/definitions/OutputPolicy"
+        },
+        {
+          "type": "object",
+          "required": [
+            "channels"
+          ],
+          "properties": {
+            "codec": {
+              "x-internal": false,
+              "description": "音频编码格式。\n\n取值如下:\n\n- 1:AAC格式。\n- 2:HEAAC1格式 。\n- 3:HEAAC2格式。\n- 4:MP3格式 。",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4,
+              "format": "int32",
+              "default": 1
+            },
+            "sample_rate": {
+              "x-internal": false,
+              "description": "音频采样率。\n\n取值如下:\n\n- 1:AUDIO_SAMPLE_AUTO\n- 2:AUDIO_SAMPLE_22050(22050Hz)\n- 3:AUDIO_SAMPLE_32000(32000Hz)\n- 4:AUDIO_SAMPLE_44100(44100Hz)\n- 5:AUDIO_SAMPLE_48000(48000Hz)\n- 6:AUDIO_SAMPLE_96000(96000Hz)",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6,
+              "format": "int32",
+              "default": 1
+            },
+            "bitrate": {
+              "x-internal": false,
+              "description": "音频码率。\n\n取值范围:0或[8,1000]。\n\n单位:kbit/s。",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "format": "int32"
+            },
+            "channels": {
+              "x-internal": false,
+              "description": "声道数。\n\n取值如下:\n- 1:AUDIO_CHANNELS_1\n- 2:AUDIO_CHANNELS_2\n- 6:AUDIO_CHANNELS_5_1",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6,
+              "format": "int32"
+            }
+          }
+        }
+      ]
+    },
+    "Common": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "pack_type"
+      ],
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "PVC": {
+          "x-internal": false,
+          "description": "是否开启高清低码功能。\n\n取值如下:\n- false:关闭。\n- true:开启。",
+          "type": "boolean",
+          "default": false
+        },
+        "hls_interval": {
+          "x-internal": false,
+          "description": "HLS分片间隔,仅封装类型“pack_type”取值为1或3时,该参数生效。\n\n取值范围:[2,10]。\n\n单位:秒。",
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "format": "int32",
+          "default": 5
+        },
+        "dash_interval": {
+          "x-internal": false,
+          "description": "DASH间隔,仅封装类型“pack_type”取值为2或3时,该参数生效。\n\n取值范围:[2,10]。\n\n单位:秒。",
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "format": "int32",
+          "default": 5
+        },
+        "pack_type": {
+          "x-internal": false,
+          "description": "封装类型。\n\n取值如下:\n- 1:HLS\n- 2:DASH\n- 3:HLS+DASH\n- 4:MP4\n- 5:MP3\n- 6:ADTS\n\n> pack_type设置为5和6时,不能设置视频参数。",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6,
+          "format": "int32"
+        }
+      }
+    },
+    "ModifyTransTemplateReq": {
+      "type": "object",
+      "required": [
+        "template_id",
+        "template_name",
+        "common"
+      ],
+      "properties": {
+        "template_id": {
+          "description": "转码模板ID",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "template_name": {
+          "description": "转码模板名称。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "video": {
+          "description": "视频信息",
+          "$ref": "#/definitions/Video"
+        },
+        "audio": {
+          "description": "音频信息",
+          "$ref": "#/definitions/Audio"
+        },
+        "common": {
+          "description": "通用信息",
+          "$ref": "#/definitions/Common"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xProjectId": {
+      "name": "X-Project_Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "mpc.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

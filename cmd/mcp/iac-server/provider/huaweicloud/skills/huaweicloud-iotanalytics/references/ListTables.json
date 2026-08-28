@@ -1,0 +1,306 @@
+{
+  "name": "ListTables",
+  "summary": "查询离线数据表列表",
+  "tags": "离线数据表管理",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/tables": {
+      "get": {
+        "tags": [
+          "table"
+        ],
+        "summary": "查询离线数据表列表",
+        "description": "查询离线数据表列表。",
+        "operationId": "ListTables",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "pattern": "^\\S+$",
+            "x-maxLength": 65535
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。获取方式请参考获取项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[a-z0-9]{32}$",
+            "x-maxLength": 32,
+            "x-minLength": 32
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "过滤表名称的关键词。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "x-ref-model": "#/definitions/TableQuery"
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "过滤标签的关键字",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "x-ref-model": "#/definitions/TableQuery"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "当前偏移量,默认为0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "x-ref-model": "#/definitions/TableQuery"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的最大作业个数,范围: [1, 100]。默认值:10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "x-ref-model": "#/definitions/TableQuery"
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "description": "指定作业排序字段,默认为created_time(作业创建时间),支持created_time(作业创建时间)、modified_time(作业更新时间) 、job_name(作业名称)三种排序字段。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "x-ref-model": "#/definitions/TableQuery"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "指定作业排序的升降序,默认为desc(降序),支持asc(升序)、desc(降序)两种排序方式。",
+            "required": false,
+            "type": "string",
+            "default": "desc",
+            "maxLength": 4,
+            "x-ref-model": "#/definitions/TableQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ListTablesResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000001",
+              "IoTA.99000002",
+              "IoTA.99000004",
+              "IoTA.99000005",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "security": [
+          {
+            "iota_auth": [
+              "write:iota",
+              "read:iota"
+            ]
+          }
+        ],
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-support-sdk": "Y",
+        "x-open-for-CLOUD": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ListTablesResponseBody": {
+      "type": "object",
+      "properties": {
+        "tables": {
+          "type": "array",
+          "description": "表的信息。",
+          "items": {
+            "$ref": "#/definitions/Table"
+          }
+        },
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "数据表总数。"
+        }
+      }
+    },
+    "Table": {
+      "type": "object",
+      "properties": {
+        "table_id": {
+          "type": "string",
+          "description": "表ID。"
+        },
+        "table_name": {
+          "type": "string",
+          "description": "表名称。"
+        },
+        "table_alias": {
+          "type": "string",
+          "description": "表别名。"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "表创建时间。"
+        },
+        "modified_time": {
+          "type": "string",
+          "description": "表更新时间。"
+        },
+        "data_location": {
+          "type": "string",
+          "description": "数据存储位置,分为IoTA和VIEW"
+        },
+        "data_type": {
+          "type": "string",
+          "description": "数据类型,包括“csv”,“parquet”。"
+        },
+        "data_source": {
+          "type": "string",
+          "description": "数据来源。来源类型有:pipeline, default. 默认为default."
+        },
+        "table_type": {
+          "type": "string",
+          "description": "表类型:IoTA表为MANAGED, View为VIEW"
+        },
+        "description": {
+          "type": "string",
+          "description": "表的描述信息。"
+        },
+        "partition_columns": {
+          "type": "array",
+          "description": "分区字段。只有OBS分区表有该参数,其他表没有该参数。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_store_id": {
+          "type": "string",
+          "description": "仅当数据来源为pipeline时返回。Data Store ID."
+        },
+        "tags": {
+          "type": "string",
+          "description": "标签。"
+        }
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "TableQuery": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "description": "当前偏移量,默认为0。",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页显示的最大作业个数。默认值:10。",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "keyword": {
+          "type": "string",
+          "description": "过滤表名称的关键词。",
+          "maxLength": 64,
+          "pattern": "^[_0-9a-zA-Z]+$"
+        },
+        "tag": {
+          "type": "string",
+          "description": "过滤标签的关键字。",
+          "maxLength": 64
+        },
+        "order_by": {
+          "type": "string",
+          "description": "指定表排序字段,默认为created_time(表创建时间),支持created_time(表创建时间)、modified_time(表更新时间) 、table_name(表名称)三种排序字段。",
+          "maxLength": 64
+        },
+        "order": {
+          "type": "string",
+          "description": "指定作业排序的升降序,默认为desc(降序),支持asc(升序)、desc(降序)两种排序方式。",
+          "maxLength": 4,
+          "pattern": "^asc|desc|ASC|DESC$"
+        }
+      },
+      "description": "数据表查询。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

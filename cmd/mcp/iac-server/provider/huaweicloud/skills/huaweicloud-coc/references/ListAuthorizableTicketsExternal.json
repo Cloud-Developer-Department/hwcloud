@@ -1,0 +1,262 @@
+{
+  "name": "ListAuthorizableTicketsExternal",
+  "summary": "查询COC可授权单列表",
+  "tags": "ListAuthorizableTicketsExternal",
+  "productshort": "COC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/external/list/authorizable-tickets": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-api-mode": "tent-api",
+        "tags": [
+          "ListAuthorizableTicketsExternal"
+        ],
+        "operationId": "ListAuthorizableTicketsExternal",
+        "summary": "查询COC可授权单列表",
+        "description": "查询COC可授权单列表(变更单号、事件单号、warroom和告警)",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-access-level": "ReadOnly",
+        "x-risk-level": "low",
+        "x-sre-api-type": "C",
+        "x-classAnnotation": [
+          "@EnableAuth(type = \"${wushan.integration.common.auth.type}\")",
+          "@ConditionalOnProperty(name = \"server.deploy.mode\", havingValue = \"tent\")"
+        ],
+        "x-methodAnnotations": [
+          "@IamAuthMeta(authLevel = IamAuthLevel.TOKEN, abacAction = \"coc:ticket:listAuthorizable\", opType = BssOpType.CREATE)"
+        ],
+        "x-imports": "com.huawei.globaloperationmgmt.common.apos.AuditLog;com.huawei.globaloperationmgmt.common.enums.GomResourceTypeEnum;com.huawei.clouds.wushan.integration.common.auth.EnableAuth;com.huawei.globaloperationmgmt.common.enums.UserTypeEnum;com.huawei.globaloperationmgmt.common.apos.CoaAuthExtendMeta;com.huawei.clouds.wushan.coa.CoaAuthMeta;org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;com.huawei.globaloperationmgmt.common.auth.InnerApi;com.huawei.clouds.wushan.auth.token.meta.BssOpType;com.huawei.globaloperationmgmt.common.models.BaseResponse;com.huawei.globaloperationmgmt.common.apos.OlderResponseAdaptation;com.huawei.clouds.wushan.auth.token.IamAuthMeta;com.huawei.clouds.wushan.auth.token.IamAuthLevel;com.huawei.clouds.wushan.cts.meta.CtsMeta;com.huawei.globaloperationmgmt.common.apos.CtsExtendMeta;",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ListAuthorizableTicketsExternalRequestBody",
+            "in": "body",
+            "description": "查询参数。",
+            "x-en-description": "Query parameters.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListAuthorizableTicketsReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "代表接口正常,网络正常。具体业务接口是否成功详情请见返回参数的code编码。",
+            "x-en-description": "The list is returned.",
+            "schema": {
+              "$ref": "#/definitions/ListAuthorizableTicketsResp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AuthorizableTicketBody": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "description": "可授权单类型",
+          "default": "CHANGE,INCIDENT,WAR_ROOM,ALARM"
+        },
+        "scope_id": {
+          "type": "string",
+          "description": "scope ID,一般为region id",
+          "minLength": 0,
+          "maxLength": 255,
+          "example": "cn-north-7"
+        },
+        "target_id": {
+          "type": "string",
+          "description": "目标 ID,一般为应用id",
+          "minLength": 0,
+          "maxLength": 255,
+          "example": "app1"
+        }
+      }
+    },
+    "AuthorizeTicketCommonInfo": {
+      "type": "object",
+      "x-imports": "com.huawei.globaloperationmgmt.common.metadata.EnableMetadata;com.fasterxml.jackson.annotation.JsonInclude",
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "properties": {
+        "ticket_id": {
+          "type": "string",
+          "description": "关联单号",
+          "minLength": 1,
+          "maxLength": 100000
+        },
+        "target_id": {
+          "type": "string",
+          "description": "目标 ID,一般为应用id",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "scope_id": {
+          "type": "string",
+          "description": "scope ID,一般为region id",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "title": {
+          "type": "string",
+          "description": "工单名称",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "ticket_type": {
+          "type": "string",
+          "description": "授权单类型,取值:CHANGE/INCIDENT/WAR_ROOM/ALARM",
+          "enum": [
+            "CHANGE",
+            "INCIDENT",
+            "WAR_ROOM",
+            "ALARM"
+          ]
+        },
+        "owner": {
+          "type": "array",
+          "description": "当前责任人",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "minLength": 0,
+            "maxLength": 255,
+            "x-minLenth": 0,
+            "x-maxLength": 255,
+            "type": "string",
+            "example": "user123"
+          }
+        },
+        "level": {
+          "type": "string",
+          "description": "级别",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "status": {
+          "type": "string",
+          "description": "状态,取值:open/close",
+          "enum": [
+            "open",
+            "close"
+          ],
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "begin_time": {
+          "type": "string",
+          "description": "起始时间",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "ListAuthorizableTicketsResp": {
+      "description": "COC可授权单列表",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseResponse"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "description": "可授权单信息",
+              "x-maxLength": 1024,
+              "x-minLength": 0,
+              "maxItems": 1024,
+              "minItems": 0,
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AuthorizeTicketInfo"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ListAuthorizableTicketsReq": {
+      "type": "object",
+      "properties": {
+        "request_params": {
+          "description": "搜索结果",
+          "x-maxLength": 200,
+          "x-minLength": 0,
+          "maxItems": 1024,
+          "minItems": 0,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuthorizableTicketBody"
+          }
+        }
+      }
+    },
+    "BaseResponse": {
+      "type": "object",
+      "description": "--",
+      "required": [
+        "provider_code",
+        "error_code"
+      ],
+      "properties": {
+        "provider_code": {
+          "type": "string",
+          "description": "服务标识",
+          "default": 4,
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "error_code": {
+          "type": "string",
+          "description": "请求响应代码,范围:0000~9999,正常时取值:0",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求响应描述",
+          "minLength": 0,
+          "maxLength": 10240
+        }
+      }
+    },
+    "AuthorizeTicketInfo": {
+      "type": "object",
+      "x-imports": "com.huawei.globaloperationmgmt.common.metadata.EnableMetadata;com.fasterxml.jackson.annotation.JsonInclude",
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/AuthorizeTicketCommonInfo"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "coc.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,222 @@
+{
+  "name": "ListJobs",
+  "summary": "查询作业列表",
+  "tags": "作业管理",
+  "productshort": "Octopus",
+  "region_id": "cn-north-11",
+  "paths": {
+    "/v1.0/{project_id}/data/jobs": {
+      "get": {
+        "x-request-examples-url-1": "https://{endpoint}/v1.0/{project_id}/data/jobs?limit=10&offset=0",
+        "x-request-examples-description-1": "查询作业列表",
+        "tags": [
+          "作业管理"
+        ],
+        "operationId": "ListJobs",
+        "summary": "查询作业列表",
+        "x-iftype": "openapi",
+        "x-support-sdk": "N",
+        "description": "查询作业列表",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目id,获取方法请参见[获取项目ID](octopus-10-0020.xml)",
+            "schema": {
+              "type": "string",
+              "pattern": "[a-z0-9]{32}"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "workspace_id",
+            "description": "工作空间id",
+            "schema": {
+              "default": "0",
+              "type": "string",
+              "pattern": "0$|^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+            },
+            "required": false
+          },
+          {
+            "name": "data_id",
+            "in": "query",
+            "description": "数据ID",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "[\\一-\\龥a-zA-Z0-9-_]{1,64}",
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "作业ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "output_types",
+            "in": "query",
+            "description": "输出类型,类型不超过10个",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "DATA_MARK(数据标记)",
+                  "OPEN_DATA(数据回放)",
+                  "DATA_SET(数据集)",
+                  "REPLAY_SIM(回放仿真)",
+                  "PLOT_DATA(数据图表)",
+                  "DATA_DESENSITIZATION(数据脱敏)"
+                ]
+              }
+            }
+          },
+          {
+            "name": "processor_name",
+            "in": "query",
+            "description": "算子名称",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "[\\一-\\龥a-zA-Z0-9-_]{0,64}",
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "作业状态",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "QUEUING(排队中)",
+                "SUBMIT_FAILED(提交失败)",
+                "RUNNING(运行中)",
+                "RUN_FAILED(运行异常)",
+                "FINISHED(已完成)",
+                "STOPPED(已停止)",
+                "LAUNCHING(启动中)",
+                "UPLOADING(上传中)",
+                "UPLOAD_FAILED(上传失败)"
+              ]
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "最小创建时间,UTC标准时间毫秒时间戳",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1000000000000,
+              "maximum": 2000000000000
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "最大更新时间,UTC标准时间毫秒时间戳",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "maximum": 2000000000000,
+              "minimum": 1000000000000
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "返回个数上限",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 10
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "description": "查询偏移量",
+            "schema": {
+              "format": "int32",
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "description": "排序方式",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CREATE_ASC(创建时间升序)",
+                "CREATE_DESC(创建时间降序)",
+                "UPDATE_ASC(更新时间升序)",
+                "UPDATE_DESC(更新时间降序)"
+              ],
+              "default": "UPDATE_DESC(更新时间降序)"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataJobPayloadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "403": {
+            "description": "权限校验失败"
+          },
+          "500": {
+            "description": "系统内部错误"
+          }
+        }
+      }
+    }
+  },
+  "definitions": null,
+  "version": "3.0.3",
+  "parameters": null,
+  "host": "octopus.cn-north-11.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

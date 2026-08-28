@@ -1,0 +1,273 @@
+{
+  "name": "ListCoreSpaceBuiltinStrategies",
+  "summary": "获取内置记忆策略列表",
+  "tags": "记忆策略管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/core/space-builtin-strategies": {
+      "get": {
+        "tags": [
+          "记忆策略管理"
+        ],
+        "summary": "获取内置记忆策略列表",
+        "description": "返回系统预置的内置记忆策略及其步骤详情,内置策略全局共享。\n内置策略不可修改,用户可根据内置策略创建自定义策略。\n当前包含 4 种内置策略:\n- **Semantic Memory**:语义记忆提取(extraction → consolidation)\n- **User Preference**:用户偏好提取(extraction → consolidation)\n- **Summary**:会话摘要生成(consolidation)\n- **Episodic Memory**:情景记忆提取(extraction → consolidation → reflection)",
+        "operationId": "ListCoreSpaceBuiltinStrategies",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Control-plane",
+        "x-is-registered": "Y",
+        "x-sec-data-level": "L3",
+        "x-apigateway-request-type": "public",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-request-examples-url-1": "/v1/core/space-builtin-strategies?limit=50&offset=0",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "**参数解释:**\n每页返回的最大结果数量(条),用于分页查询。\n**约束限制:**\n不涉及。\n**取值范围:**\n1-100。\n**默认取值:**\n50。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "**参数解释:**\n返回结果偏移量(条),用于分页查询时指定起始位置,从0开始。\n**约束限制:**\n不涉及。\n**取值范围:**\n0-100000。\n**默认取值:**\n0。",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100000,
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取内置策略列表",
+            "schema": {
+              "$ref": "#/definitions/ListCoreSpaceBuiltinStrategiesResponseBody"
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "403": {
+            "description": "权限不足。",
+            "schema": {
+              "$ref": "#/definitions/AuthorizationError"
+            }
+          },
+          "404": {
+            "description": "记忆库未找到",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "429": {
+            "description": "请求频率超限。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CoreSpaceBuiltinMemoryStrategy": {
+      "type": "object",
+      "description": "**参数解释:**\n内置记忆策略配置。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+      "required": [
+        "id",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "description": "**参数解释:**\n策略 ID,唯一标识一个记忆策略。\n**取值范围:**\n不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^[a-zA-Z0-9-]{1,48}$",
+          "description": "**参数解释:**\n策略名称,用于标识和区分不同的记忆策略。\n**取值范围:**\n不涉及。"
+        },
+        "type": {
+          "type": "string",
+          "description": "**参数解释:**\n策略名称,用于标识和区分不同的记忆策略。\n- **semantic**:语义记忆提取(extraction → consolidation)\n- **user_preference**:用户偏好提取(extraction → consolidation)\n- **summary**:会话摘要生成(consolidation)\n- **episodic**:情景记忆提取(extraction → consolidation → reflection)\n**取值范围:**\n不涉及。",
+          "enum": [
+            "semantic",
+            "summary",
+            "user_preference",
+            "episodic"
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "description": "**参数解释:**\n策略步骤列表,按 step_order 顺序执行。\n**取值范围:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceBuiltinMemoryStrategyStep"
+          }
+        }
+      }
+    },
+    "ListCoreSpaceBuiltinStrategiesResponseBody": {
+      "type": "object",
+      "required": [
+        "strategies",
+        "total"
+      ],
+      "properties": {
+        "strategies": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "**参数解释:**\n内置策略列表。\n**取值范围:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceBuiltinMemoryStrategy"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "**参数解释:**\n内置策略总数(个)。\n**取值范围:**\n不涉及。"
+        }
+      }
+    },
+    "CoreSpaceBuiltinMemoryStrategyStep": {
+      "type": "object",
+      "description": "**参数解释:**\n内置记忆策略步骤。\n**约束限制:**\n不涉及。\n**取值范围:**\n不涉及。\n**默认取值:**\n不涉及。",
+      "required": [
+        "step_order",
+        "step_type"
+      ],
+      "properties": {
+        "step_order": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "**参数解释:**\n步骤执行顺序(从 1 开始)。\n**取值范围:**\n不涉及。"
+        },
+        "step_type": {
+          "type": "string",
+          "description": "**参数解释:**\n步骤类型,决定记忆策略中该步骤的执行逻辑。\n**取值范围:**\n- extraction: 提取\n- consolidation: 合并\n- reflection: 反思",
+          "enum": [
+            "extraction",
+            "consolidation",
+            "reflection"
+          ]
+        },
+        "isolation_level": {
+          "type": "string",
+          "enum": [
+            "actor",
+            "session"
+          ],
+          "description": "**参数解释:**\n隔离级别。\n**取值范围:**\n- actor: 按用户隔离记忆\n- session: 按会话隔离\n- null: step_type=extraction时,isolation_level=null"
+        },
+        "instruction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50000,
+          "description": "**参数解释:**\n步骤指令(Prompt 模板)。\n**取值范围:**\n不涉及。"
+        },
+        "output_schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50000,
+          "description": "**参数解释:**\n输出格式模板。\n**取值范围:**\n不涉及。"
+        }
+      }
+    },
+    "AuthorizationError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.XXXXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "**参数解释:**\n编码后的授权失败信息。\n**取值范围:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "details": {
+          "type": "array",
+          "description": "**参数解释:**\n依赖的下游服务错误信息列表,包含导致当前请求失败的下游服务错误详情。\n**取值范围:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceCommonError"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    },
+    "CoreSpaceCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.01XXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,216 @@
+{
+  "name": "ShowDomainKeyChain",
+  "summary": "查询指定域名的Key防盗链配置",
+  "tags": "鉴权管理",
+  "productshort": "Live",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/{project_id}/guard/key-chain": {
+      "get": {
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/{project_id}/guard/key-chain?domain=play.example.huawei.com",
+        "tags": [
+          "鉴权管理"
+        ],
+        "summary": "查询指定域名的Key防盗链配置",
+        "description": "查询指定域名的Key防盗链配置",
+        "operationId": "ShowDomainKeyChain",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": true,
+            "description": "直播域名,包括推流域名和播放域名",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "schema": {
+              "$ref": "#/definitions/KeyChainInfo"
+            },
+            "examples": {
+              "application/json": {
+                "key": "IbBIzklRGCyMEd18oPV9sxAuuwNIzT81",
+                "auth_type": "d_sha256",
+                "timeout": 3600
+              }
+            }
+          },
+          "400": {
+            "description": "参数校验不通过",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            }
+          },
+          "401": {
+            "description": "未授权访问接口",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011003",
+                "error_msg": "Unauthorized access to the interface, please contact the main account administrator to open the interface permissions"
+              }
+            }
+          },
+          "404": {
+            "description": "访问资源不存在,如:域名不存在。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.103011019",
+                "error_msg": "The resource to access is not exists"
+              }
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011005",
+                "error_msg": "Server internal error, please try again later or contact customer service staff to help solve"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "KeyChainInfo": {
+      "type": "object",
+      "required": [
+        "key",
+        "auth_type",
+        "timeout"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "IbBIzklRGCyMEd18oPV9sxAuuwNIzT81",
+          "description": "防盗链Key值,由32个字符组成,支持大写字母、小写字母、数字。不可为纯数字或纯字母。",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "auth_type": {
+          "type": "string",
+          "example": "d_sha256",
+          "description": "计算鉴权串的方式:\n- d_sha256:鉴权方式D,采用HMAC-SHA256算法,建议优先选择此方式;\n- c_aes:鉴权方式C,采用对称加密算法;\n- b_md5:鉴权方式B,采用MD5信息摘要算法;\n- a_md5:鉴权方式A,采用MD5信息摘要算法。\n\n> 鉴权方式ABC存在安全风险,鉴权方式D拥有更高的安全性,建议您优先使用鉴权方式D。",
+          "enum": [
+            "d_sha256",
+            "c_aes",
+            "b_md5",
+            "a_md5"
+          ]
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 3600,
+          "description": "URL鉴权信息的超时时长\n\n取值范围:[60,2592000],即1分钟-30天\n\n单位:秒\n\n鉴权信息中携带的请求时间与直播服务收到请求时的时间的最大差值,用于检查直播推流URL或者直播播放URL是否已过期",
+          "minimum": 60,
+          "maximum": 2592000
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": false,
+      "description": "用户Token,使用Token鉴权方式时必填。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

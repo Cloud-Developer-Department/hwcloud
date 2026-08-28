@@ -1,0 +1,356 @@
+{
+  "name": "CreatePocketDetectionJob",
+  "summary": "创建靶点口袋发现作业",
+  "tags": "靶点口袋发现作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/pocket-detection": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-ut-exclude": true,
+        "x-interface-name": "IPocketDetectionJobController",
+        "tags": [
+          "靶点口袋发现作业管理"
+        ],
+        "summary": "创建靶点口袋发现作业",
+        "description": "创建靶点口袋发现作业",
+        "operationId": "CreatePocketDetectionJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "in": "body",
+            "name": "CreatePocketDetectionJobRequestBody",
+            "description": "CreatePocketDetectionJobRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreatePocketDetectionJobReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "schema": {
+              "$ref": "#/definitions/DrugJobIdRsp"
+            },
+            "x-response-examples-1": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1"
+              }
+            },
+            "x-response-examples-description-1": "创建靶点口袋发现作业成功",
+            "x-response-examples-2": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                "limit_concurrency": 50
+              }
+            },
+            "x-response-examples-description-2": "创建靶点口袋发现作业成功,当前运行作业数已达配额限制,此作业会等待"
+          }
+        },
+        "deprecated": false,
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-jobs/pocket-detection",
+        "x-request-examples-description-1": "创建靶点口袋发现作业,作业名称为demo-job, 受体文件为project:/dir/file,时间步长为0.001ps,最小化步数为20000,预平衡时间为100ps,口袋发现时长为50ns,表面原子离散点数量为30,探针半径1.4A",
+        "x-request-examples-1": {
+          "basic_info": {
+            "name": "demo-job",
+            "labels": [
+              "labelA"
+            ]
+          },
+          "receptor": {
+            "source": "PRIVATE",
+            "url": "project:/dir/file"
+          },
+          "ligand": {
+            "source": "PRIVATE",
+            "url": "project:/dir/file"
+          },
+          "params": {
+            "timestep_size": 0.001,
+            "num_minimization_steps": 20000,
+            "pre_equilibrium_time": 100,
+            "pocket_detection_time": 50,
+            "num_surface_points": 30,
+            "probe_radius": 1.4
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ProbeDrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb|mol2|sdf)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2)$",
+          "description": "文件格式,支持PDB、SDF、MOL2,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "CreateDrugJobBasicInfo": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "description": "创建药物作业基本信息",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "minLength": 5,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9A-Z]+[a-z0-9A-Z-_\\s]+$",
+          "x-pattern-message": "The name format does not match.",
+          "description": "作业的名称,取值范围:[5,64],允许大小写字母、数字、空格、下划线(_)和中划线(-),只能以数字或字母开头"
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "标签,取值范围[0,5],单个标签最大长度32字符,支持中文、字母、数字、空格、下划线和中划线,且不能以空格开头或者结尾。",
+          "items": {
+            "type": "string",
+            "pattern": "^[\\一-\\龥A-Za-z0-9-_]+(\\s+[\\一-\\龥A-z0-9-_]+)*$",
+            "maxLength": 32,
+            "minLength": 1,
+            "x-pattern-message": "The label name format does not match"
+          },
+          "minItems": 0,
+          "maxItems": 5
+        },
+        "upstream_job_info": {
+          "type": "string",
+          "maxLength": 10240,
+          "minLength": 1,
+          "example": "{\"job_id\":\"demo-job-id\",\"job_name\":\"demo-job-name\"}",
+          "description": "**参数解释**:\n上游作业信息。\n**约束限制**:\n不涉及\n**取值范围**:\n长度为[1-10240]个字符。\n**默认取值**:\n不涉及"
+        }
+      }
+    },
+    "ReceptorDrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "pattern": ".*\\.(pdb)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB)$",
+          "description": "文件格式,仅支持PDB,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ]
+        }
+      }
+    },
+    "CreatePocketDetectionJobReq": {
+      "type": "object",
+      "required": [
+        "basic_info",
+        "receptor",
+        "ligand"
+      ],
+      "properties": {
+        "basic_info": {
+          "$ref": "#/definitions/CreateDrugJobBasicInfo",
+          "description": "作业基本信息"
+        },
+        "receptor": {
+          "$ref": "#/definitions/ReceptorDrugFile",
+          "description": "受体文件"
+        },
+        "ligand": {
+          "$ref": "#/definitions/ProbeDrugFile",
+          "description": "探针文件"
+        },
+        "params": {
+          "$ref": "#/definitions/PocketDetectionParamDto",
+          "description": "靶点口袋发现设置参数"
+        }
+      },
+      "description": "创建靶点口袋发现请求体"
+    },
+    "PocketDetectionParamDto": {
+      "type": "object",
+      "description": "靶点口袋发现参数列表",
+      "properties": {
+        "timestep_size": {
+          "type": "number",
+          "format": "double",
+          "description": "时间步长,单位ps",
+          "default": 0.002,
+          "example": 0.002,
+          "minimum": 0.001,
+          "maximum": 0.002
+        },
+        "num_minimization_steps": {
+          "type": "integer",
+          "format": "int32",
+          "description": "最小化步数",
+          "default": 20000,
+          "example": 20000,
+          "minimum": 5000,
+          "maximum": 50000
+        },
+        "pre_equilibrium_time": {
+          "type": "integer",
+          "format": "int32",
+          "description": "预平衡时长,单位ps",
+          "default": 100,
+          "example": 100,
+          "minimum": 20,
+          "maximum": 200
+        },
+        "pocket_detection_time": {
+          "type": "integer",
+          "format": "int32",
+          "description": "口袋发现时长,单位ns",
+          "default": 50,
+          "example": 50,
+          "minimum": 20,
+          "maximum": 50
+        },
+        "num_surface_points": {
+          "type": "integer",
+          "format": "int32",
+          "description": "表面原子离散点数量",
+          "default": 20,
+          "example": 20,
+          "minimum": 10,
+          "maximum": 50
+        },
+        "probe_radius": {
+          "type": "number",
+          "format": "double",
+          "description": "探针半径,单位A",
+          "default": 1.4,
+          "example": 1.4,
+          "minimum": 1.4,
+          "maximum": 5
+        }
+      }
+    },
+    "DrugJobIdRsp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "limit_concurrency": {
+          "type": "integer",
+          "format": "int32",
+          "example": 50,
+          "description": "限制的并发量"
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

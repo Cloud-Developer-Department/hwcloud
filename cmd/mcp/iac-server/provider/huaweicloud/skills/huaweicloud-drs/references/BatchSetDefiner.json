@@ -1,0 +1,209 @@
+{
+  "name": "BatchSetDefiner",
+  "summary": "批量设置definer",
+  "tags": "公共接口管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/jobs/batch-replace-definer": {
+      "post": {
+        "tags": [
+          "公共接口管理"
+        ],
+        "summary": "批量设置definer",
+        "description": "批量设置Definer迁移是否迁移到到该用户下。\n- 选择是:迁移后,所有源数据库对象的Definer都会迁移至该用户下,其他用户需要授权后才具有数据库对象权限。\n- 选择否:迁移后,将保持源数据库对象Definer定义不变,选择此选项,需要配合下一步用户权限迁移功能,将源数据库的用户全部迁移,这样才能保持源数据库的权限体系完全不变。",
+        "operationId": "BatchSetDefiner",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "请求语言类型",
+            "required": false,
+            "type": "string",
+            "default": "en-us",
+            "x-example": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "x-order": 3
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "指定类型为application/json。",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "x-example": "application/json",
+            "x-order": 4
+          },
+          {
+            "in": "body",
+            "name": "requestBody",
+            "description": "批量设置replaceDefiner请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchReplaceDefinerReq"
+            },
+            "x-order": 5
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "results": [
+                  {
+                    "id": "7c685701-bfb5-4bb9-89f1-d0567f5jb502",
+                    "status": "success"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchModifyJobResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-name": "批量设置definer",
+        "x-constraint": "",
+        "x-version": "v3",
+        "x-scope": "Commercial",
+        "x-order": 15,
+        "x-request-examples-description-1": "批量设置灾备definer示例",
+        "x-request-examples-url-1": "https://{endpoint}/v3/054ba152d480d55b2f5dc0069e7ddef0/jobs/batch-replace-definer",
+        "x-request-examples-1": {
+          "jobs": [
+            {
+              "job_id": "7c685701-bfb5-4bb9-89f1-d0567f5jb502",
+              "replace_definer": true
+            }
+          ]
+        },
+        "x-request-examples-text-1": {
+          "jobs": [
+            {
+              "job_id": "7c685701-bfb5-4bb9-89f1-d0567f5jb502",
+              "replace_definer": true
+            }
+          ]
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "BatchSetDefiner"
+      }
+    }
+  },
+  "definitions": {
+    "BatchModifyJobResp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数"
+        },
+        "results": {
+          "type": "array",
+          "description": "批量修改任务返回列表",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/ModifyJobResp"
+          }
+        }
+      },
+      "description": "批量修改任务返回体"
+    },
+    "ReplaceDefinerInfo": {
+      "required": [
+        "job_id",
+        "replace_definer"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务id",
+          "pattern": "[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}"
+        },
+        "replace_definer": {
+          "type": "boolean",
+          "description": "是否使用目标库的用户替换掉definer"
+        }
+      },
+      "description": "设置replaceDefiner信息"
+    },
+    "ModifyJobResp": {
+      "required": [
+        "id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "状态。\n- success 成功\n- failed 失败",
+          "enum": [
+            "success",
+            "failed"
+          ]
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "type": "object"
+    },
+    "BatchReplaceDefinerReq": {
+      "required": [
+        "jobs"
+      ],
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "description": "批量设置replaceDefiner请求列表",
+          "items": {
+            "description": "设置replaceDefiner信息",
+            "$ref": "#/definitions/ReplaceDefinerInfo"
+          }
+        }
+      },
+      "description": "批量设置replaceDefiner请求体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

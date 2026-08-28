@@ -1,0 +1,449 @@
+{
+  "name": "CreateSubscriptionOrder",
+  "summary": "开通或配置安全云脑订阅",
+  "tags": "计量计费管理",
+  "productshort": "SecMaster",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/subscriptions/orders": {
+      "post": {
+        "tags": [
+          "计量计费管理"
+        ],
+        "summary": "开通或配置安全云脑订阅",
+        "description": "安全云脑开通与配置接口",
+        "operationId": "CreateSubscriptionOrder",
+        "consumes": [
+          "application/json;charset=utf-8"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 2097152,
+            "minLength": 1,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "用户当前语言环境 zh-cn or en-us.",
+            "required": true,
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 2,
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户项目ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 32,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "CreateSubscriptionOrderRequestBody",
+            "description": "云脑订阅参数请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrderInfoReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "examples": {
+              "application/json": {
+                "order_id": "CS2510212051NLDL4",
+                "order_status": 1
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/OrderInfoResp"
+            }
+          },
+          "400": {
+            "description": "请求参数异常",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionErrorResp"
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionErrorResp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-surpport-hcs": "Y",
+        "x-surpport-apiexplorer": true,
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Management-plane",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/{projectId}/subscriptions/orders",
+        "x-request-examples-description-1": "开通包周期资源",
+        "x-request-examples-1": {
+          "period_num": 1,
+          "period_type": 2,
+          "is_auto_renew": 1,
+          "scene": "PREPAID",
+          "operate_type": "CREATE",
+          "product_list": [
+            {
+              "resource_type": "xxx.resource.type.secmaster.typical",
+              "resource_spec_code": "secmaster.professional",
+              "resource_size": 3
+            }
+          ],
+          "tag_list": [
+            {
+              "key": "testKey1",
+              "value": "testVal1"
+            }
+          ]
+        },
+        "x-response-examples-1": {
+          "order_id": "CS2510212051NLDL4",
+          "order_status": 1
+        },
+        "x-request-examples-description-2": "开通按需资源",
+        "x-request-examples-2": {
+          "scene": "POSTPAID",
+          "operate_type": "CREATE",
+          "product_list": [
+            {
+              "resource_type": "xxx.resource.type.secmaster.typical",
+              "resource_spec_code": "secmaster.basic",
+              "resource_size": 3
+            }
+          ],
+          "tag_list": [
+            {
+              "key": "testKey2",
+              "value": "testVal2"
+            }
+          ]
+        },
+        "x-response-examples-2": {
+          "order_status": 1
+        }
+      }
+    }
+  },
+  "definitions": {
+    "OrderInfoReq": {
+      "type": "object",
+      "required": [
+        "operate_type",
+        "scene"
+      ],
+      "properties": {
+        "scene": {
+          "type": "string",
+          "example": "PREPAID",
+          "description": "场景描述,执行包年包月(PREPAID)、按需(POSTPAID)开通,或者配置资源(CONFIG)用量,缺省值:PREPAID,大小写不敏感",
+          "minLength": 2,
+          "maxLength": 10,
+          "enum": [
+            "PREPAID",
+            "POSTPAID",
+            "CONFIG"
+          ]
+        },
+        "promotion_info": {
+          "type": "string",
+          "description": "促销折扣信息\nString,JSON格式",
+          "minLength": 2,
+          "maxLength": 2048
+        },
+        "operate_type": {
+          "type": "string",
+          "example": "CREATE",
+          "description": "操作类型,比如创建场景为:CREATE、订单用量预警配置为:ALERT_CONFIG,大小写不敏感",
+          "minLength": 3,
+          "maxLength": 15,
+          "default": "CREATE",
+          "enum": [
+            "CREATE",
+            "ALERT_CONFIG"
+          ]
+        },
+        "tag_list": {
+          "type": "array",
+          "description": "计费标签",
+          "items": {
+            "$ref": "#/definitions/SubscriptionTag"
+          },
+          "maxItems": 20,
+          "minItems": 0
+        },
+        "product_list": {
+          "type": "array",
+          "description": "当scene=PREPAID 或者 POSTPAID时,当前字段必填\n商品列表",
+          "items": {
+            "$ref": "#/definitions/Product"
+          },
+          "maxItems": 20,
+          "minItems": 0
+        },
+        "config": {
+          "description": "配置列表,当scene为CONFIG时必填",
+          "$ref": "#/definitions/OrderConfig"
+        },
+        "period_type": {
+          "type": "integer",
+          "format": "int32",
+          "example": 2,
+          "description": "当scene=PREPAID时需要填写,订阅周期类型:\n2:月;\n3:年;",
+          "minimum": 2,
+          "maximum": 3,
+          "enum": [
+            2,
+            3
+          ]
+        },
+        "period_num": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "订阅周期数,当scene=PREPAID时需要填写该值\n取值大于0;小于等于0会报错。\n当period_type=2时,其可选范围为[1, 9],当period_type=3,其可选范围为[1, 3]",
+          "minimum": 1,
+          "maximum": 9,
+          "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        "is_auto_renew": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "当scene=PREPAID时,当前字段必填,是否自动续订,为空时表示不自动续订;\n1:自动续订\n0:不自动续订(默认)",
+          "minimum": 0,
+          "maximum": 1,
+          "enum": [
+            0,
+            1
+          ]
+        }
+      },
+      "description": "云脑下单接口,包括包周期、按需场景,关联的下单场景"
+    },
+    "SubscriptionTag": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "dept",
+          "description": "键。\n最大长度36个字符。 字符集:A-Z,a-z , 0-9,‘-’,‘_’,UNICODE字符(\\一-\\鿿)",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "value": {
+          "type": "string",
+          "example": "dev",
+          "description": "值。 最大长度43个字符,可以为空字符串。 字符集:A-Z,a-z , 0-9,‘.’,‘-’,‘_’,UNICODE字符(\\一-\\鿿)",
+          "minLength": 0,
+          "maxLength": 43
+        }
+      }
+    },
+    "AlertConfig": {
+      "type": "object",
+      "properties": {
+        "topic_urn": {
+          "type": "string",
+          "example": "urn:smn:demo-region:07b0ce6bc80026fa2f4ac004953d4a7a:csb-subscriptions-create",
+          "description": "关联对应的smn topic;当type=smn时,可以填写当前参数默认为空",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "type": {
+          "type": "string",
+          "example": "SMN",
+          "description": "支持的订单告警类型,SMN为消息协议,MC为消息中心",
+          "minLength": 2,
+          "maxLength": 10,
+          "enum": [
+            "SMN",
+            "MC"
+          ]
+        },
+        "enable": {
+          "type": "boolean",
+          "example": false,
+          "description": "开启或关闭当前告警配置,true为开启,false为关闭"
+        }
+      },
+      "description": "订单配置开关项"
+    },
+    "Product": {
+      "type": "object",
+      "required": [
+        "resource_size",
+        "resource_spec_code",
+        "resource_type"
+      ],
+      "properties": {
+        "resource_type": {
+          "type": "string",
+          "example": "xxx.resource.type.secmaster.typical",
+          "description": "资源类型",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "resource_spec_code": {
+          "type": "string",
+          "example": "secmaster.professional",
+          "description": "资源规格编码",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "resource_size": {
+          "type": "integer",
+          "example": 1,
+          "description": "订阅数量",
+          "minimum": 1,
+          "maximum": 10000
+        }
+      }
+    },
+    "OrderConfig": {
+      "type": "object",
+      "properties": {
+        "threshold_list": {
+          "type": "array",
+          "description": "阈值列表",
+          "items": {
+            "$ref": "#/definitions/UsageThreshold"
+          },
+          "maxItems": 20,
+          "minItems": 0
+        },
+        "alert_config": {
+          "description": "开启或关闭当前告警配置",
+          "$ref": "#/definitions/AlertConfig"
+        }
+      },
+      "description": "订单配置项"
+    },
+    "OrderInfoResp": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "example": "CS2510212051NLDL4",
+          "description": "创建或变更订单ID,只有scene为PREPAID时返回有此数据",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "order_status": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "订单更新状态,1:变更订单成功,5,订单变更失败",
+          "enum": [
+            1,
+            5
+          ]
+        }
+      }
+    },
+    "UsageThreshold": {
+      "type": "object",
+      "required": [
+        "threshold",
+        "unit"
+      ],
+      "properties": {
+        "resource_spec_code": {
+          "type": "string",
+          "example": "siem.collection",
+          "description": "资源类型",
+          "minLength": 2,
+          "maxLength": 128
+        },
+        "source_resource_spec_code": {
+          "type": "string",
+          "example": "csb.professional",
+          "description": "原始资源类型",
+          "minLength": 6,
+          "maxLength": 32
+        },
+        "threshold": {
+          "type": "number",
+          "format": "double",
+          "example": 20.0,
+          "description": "阈值",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "unit": {
+          "type": "string",
+          "example": "GB",
+          "description": "阈值对应的单位,%,MB,GB\n如果%,对应的阈值最大为95",
+          "minLength": 1,
+          "maxLength": 10,
+          "enum": [
+            "%",
+            "MB",
+            "GB"
+          ]
+        },
+        "enable": {
+          "type": "boolean",
+          "description": "开启或关闭当前资源类型的告警设置"
+        }
+      },
+      "description": "用量阈值"
+    },
+    "SubscriptionErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "SecMaster.20040001",
+          "description": "**参数解释**:\n错误码\n**取值范围**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Parameter error.",
+          "description": "**参数解释**:\n错误描述\n**取值范围**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "description": "请求失败错误响应体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "secmaster.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

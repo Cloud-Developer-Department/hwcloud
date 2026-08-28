@@ -1,0 +1,267 @@
+{
+  "name": "ListCloudServiceTopMeters",
+  "summary": "云服务TOP N计量信息查询",
+  "tags": "计量计价",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/metering/v3.0/metrics/cloud-service/topn": {
+      "post": {
+        "summary": "云服务TOP N计量信息查询",
+        "description": "云服务TOP N计量信息查询。",
+        "x-opseverity": "Minor",
+        "x-resource": "计量信息查询",
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > 计量计价”章节。",
+        "tags": [
+          "计量计价"
+        ],
+        "operationId": "ListCloudServiceTopMeters",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-language",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "语言信息。",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ]
+          },
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "当前用户的token。用于鉴权,必须具有mo_bss_adm、vdc_adm、vdc_readonly、vdc_user、op_service角色。"
+          },
+          {
+            "name": "cloudServiceTopRequest",
+            "in": "body",
+            "required": true,
+            "description": "云服务维度TOP N计量查询参数。",
+            "schema": {
+              "$ref": "#/definitions/CloudServiceTopMeterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询云服务TOP N成功。",
+            "schema": {
+              "$ref": "#/definitions/CloudServiceTopStatResponseList"
+            },
+            "examples": {
+              "application/json": {
+                "currency": "AED",
+                "total": 5,
+                "totalCharge": "896858.494431",
+                "resourceTypeTopStatistics": [
+                  {
+                    "resourceType": "hws.resource.type.volume",
+                    "resourceTypeName": "{\"zh_CN\":\"EVS\",\"en_US\":\"EVS\"}",
+                    "charge": "752334.370551"
+                  },
+                  {
+                    "resourceType": "hws.resource.type.vrmevs",
+                    "resourceTypeName": "{\"zh_CN\":\"EVS(VRM)\",\"en_US\":\"EVS(VRM)\"}",
+                    "charge": "69279.044165"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "token鉴权失败"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/metering/v3.0/metrics/cloud-service/topn",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "tenant_id": "46b484ea-c3cb-4faf-b8b5-1b9c00460c2c",
+          "tenant_type": "upperVDC",
+          "local": "zh_CN",
+          "top_n": "10",
+          "start_time": "2018-08-01 00:00:00",
+          "end_time": "2018-08-09 00:00:00",
+          "time_zone": "Asia/Shanghai"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResourceTypeTopStatisticInfo": {
+      "description": "云服务维度计量信息。",
+      "required": [
+        "resourceType",
+        "resourceTypeName",
+        "charge"
+      ],
+      "properties": {
+        "resourceType": {
+          "type": "string",
+          "description": "资源类型。",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "resourceTypeName": {
+          "type": "string",
+          "description": "资源类型名称。",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "charge": {
+          "description": "计量指标汇总的总价。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        }
+      }
+    },
+    "CloudServiceTopStatResponseList": {
+      "description": "云服务维度TOP N计量信息汇总。",
+      "required": [
+        "currency",
+        "total",
+        "resourceTypeStatistics"
+      ],
+      "properties": {
+        "currency": {
+          "description": "币种信息。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "total": {
+          "description": "记录总数。",
+          "type": "integer",
+          "format": "int32",
+          "maximum": 2147483646,
+          "minimum": 0
+        },
+        "totalCharge": {
+          "description": "合计费用。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "resourceTypeTopStatistics": {
+          "description": "云服务维度计量信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceTypeTopStatisticInfo"
+          }
+        }
+      }
+    },
+    "CloudServiceTopMeterRequest": {
+      "description": "云服务维度TOP N计量查询参数。",
+      "required": [
+        "tenant_id",
+        "tenant_type",
+        "local",
+        "start_time",
+        "end_time",
+        "time_zone"
+      ],
+      "properties": {
+        "top_n": {
+          "description": "显示TOP数。默认显示5。",
+          "type": "integer",
+          "format": "int32",
+          "default": 5
+        },
+        "tenant_id": {
+          "description": "VDC ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "tenant_type": {
+          "description": "租户类型。取值为:一级VDCID、已删除一级VDCID、租户ID、已删除租户ID、VDCID、已删除VDCID、资源空间Id、企业项目ID",
+          "type": "string",
+          "enum": [
+            "upperVDC",
+            "delUpperVDC",
+            "resTenant",
+            "delResTenant",
+            "vdcMgmt",
+            "delVdcMgmt",
+            "project",
+            "enterProj"
+          ]
+        },
+        "local": {
+          "description": "界面显示的语言类型。取值为:zh_CN(中文)或en_US(英文)。",
+          "type": "string",
+          "enum": [
+            "zh_CN",
+            "en_US"
+          ]
+        },
+        "start_time": {
+          "description": "开始时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "end_time": {
+          "description": "结束时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "time_zone": {
+          "description": "时区信息。格式:Asia/Shanghai",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "region_id": {
+          "description": "地域ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "region_type": {
+          "description": "地域类型。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "az_id": {
+          "description": "可用分区ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

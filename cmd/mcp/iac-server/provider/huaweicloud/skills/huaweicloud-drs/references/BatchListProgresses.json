@@ -1,0 +1,232 @@
+{
+  "name": "BatchListProgresses",
+  "summary": "批量查询任务进度",
+  "tags": "公共接口管理",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/jobs/batch-progress": {
+      "post": {
+        "tags": [
+          "公共接口管理"
+        ],
+        "summary": "批量查询任务进度",
+        "description": "根据任务ID批量查询全量进度、增量时延信息。",
+        "operationId": "BatchListProgresses",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-order": 1
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "从IAM服务获取的用户Token",
+            "required": true,
+            "type": "string",
+            "x-order": 2
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "请求语言类型",
+            "required": false,
+            "type": "string",
+            "default": "en-us",
+            "x-example": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ],
+            "x-order": 3
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "指定类型为application/json。",
+            "required": true,
+            "type": "string",
+            "default": "application/json",
+            "x-example": "application/json",
+            "x-order": 4
+          },
+          {
+            "in": "body",
+            "name": "requestBody",
+            "description": "批量查询任务进度的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchQueryProgressReq"
+            },
+            "x-order": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "results": [
+                  {
+                    "progress": "100",
+                    "job_id": "8d0e8e36-a618-490d-8a46-8c61ac9jb502",
+                    "incre_trans_delay": "0",
+                    "task_mode": "FULL_INCR_TRANS",
+                    "transfer_status": "INCRE_TRANSFER_STARTED",
+                    "process_time": "1608274919000",
+                    "remaining_time": "0"
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/BatchQueryProgressResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-name": "批量查询任务进度",
+        "x-constraint": "",
+        "x-version": "v3",
+        "x-scope": "Commercial",
+        "x-order": 18,
+        "x-request-examples-description-1": "查询灾备进度示例",
+        "x-request-examples-url-1": "https://{endpoint}/drs/v3/054ba152d480d55b2f5dc0069e7ddef0/jobs/batch-progress",
+        "x-request-examples-1": {
+          "jobs": [
+            "8d0e8e36-a618-490d-8a46-8c61ac9jb502"
+          ]
+        },
+        "x-request-examples-text-1": {
+          "jobs": [
+            "8d0e8e36-a618-490d-8a46-8c61ac9jb502"
+          ]
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-publishpath": "BatchListProgresses"
+      }
+    }
+  },
+  "definitions": {
+    "ProgressInfo": {
+      "properties": {
+        "completed": {
+          "type": "string",
+          "description": "完成进度"
+        },
+        "remaining_time": {
+          "type": "string",
+          "description": "预计剩余时间"
+        }
+      },
+      "description": "迁移进度信息体"
+    },
+    "QueryProgressResp": {
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "任务Id"
+        },
+        "progress": {
+          "type": "string",
+          "description": "迁移百分比"
+        },
+        "incre_trans_delay": {
+          "type": "string",
+          "description": "增量迁移时延。单位:s"
+        },
+        "incre_trans_delay_millis": {
+          "type": "string",
+          "description": "增量迁移时延。单位:ms"
+        },
+        "task_mode": {
+          "type": "string",
+          "description": "迁移模式。\n- FULL_TRANS: 全量\n- INCR_TRANS: 增量\n- FULL_INCR_TRANS: 全量+增量",
+          "enum": [
+            "FULL_TRANS",
+            "FULL_INCR_TRANS",
+            "INCR_TRANS"
+          ]
+        },
+        "transfer_status": {
+          "type": "string",
+          "description": "任务状态\nCREATING:创建中,CREATE_FAILED:创建失败,CONFIGURATION:配置中,WAITING_FOR_START:等待启动中,RELEASE_RESOURCE_COMPLETE:已结束,DELETED:已删除,INCRE_TRANSFER_STARTED:增量迁移中,INCRE_TRANSFER_FAILED:增量迁移失败,FULL_TRANSFER_STARTED:全量迁移中,FULL_TRANSFER_COMPLETE:全量迁移完成,PAUSING:暂停中,FULL_TRANSFER_FAILED:全量迁移失败"
+        },
+        "process_time": {
+          "type": "string",
+          "description": "迁移时间,时间戳"
+        },
+        "remaining_time": {
+          "type": "string",
+          "description": "预计剩余时间"
+        },
+        "progress_map": {
+          "type": "object",
+          "description": "数据,结构,索引迁移进度信息体",
+          "additionalProperties": {
+            "$ref": "#/definitions/ProgressInfo"
+          }
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "description": "获取指定任务迁移进度响应体",
+      "type": "object"
+    },
+    "BatchQueryProgressReq": {
+      "required": [
+        "jobs"
+      ],
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "description": "批量查询进度任务ID请求列表",
+          "items": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "description": "批量查询同步进度的请求体"
+    },
+    "BatchQueryProgressResp": {
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总数"
+        },
+        "results": {
+          "type": "array",
+          "description": "批量查询迁移进度的响应体集合",
+          "items": {
+            "description": "",
+            "$ref": "#/definitions/QueryProgressResp"
+          }
+        }
+      },
+      "description": "批量查询进度响应体"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

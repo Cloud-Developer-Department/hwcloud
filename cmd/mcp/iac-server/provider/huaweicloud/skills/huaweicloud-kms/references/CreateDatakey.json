@@ -1,0 +1,231 @@
+{
+  "name": "CreateDatakey",
+  "summary": "创建数据密钥",
+  "tags": "数据密钥管理",
+  "productshort": "KMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/kms/create-datakey": {
+      "post": {
+        "tags": [
+          "数据密钥管理"
+        ],
+        "summary": "创建数据密钥",
+        "description": "- 功能介绍:创建数据密钥,返回结果包含明文和密文。",
+        "operationId": "CreateDatakey",
+        "produces": [
+          "application/json"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "CreateDatakeyRequestBody",
+            "in": "body",
+            "description": "create_datakey",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateDatakeyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/CreateDataKeyResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f",
+                "plain_text": "8151014275E426C72EE7D44267XXXXX...",
+                "cipher_text": "020098009EEAFCE122CAA5927D2XXX..."
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "认证失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "资源不存在,资源未找到",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "请求未完成。服务器从上游服务器收到一个无效的响应",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "网关超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f",
+          "datakey_length": "512",
+          "additional_authenticated_data": "123aad"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateDataKeyResponseBody": {
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "密钥ID。"
+        },
+        "plain_text": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8192,
+          "description": "DEK明文16进制,两位表示1byte。"
+        },
+        "cipher_text": {
+          "minLength": 8,
+          "maxLength": 8192,
+          "type": "string",
+          "description": "DEK密文16进制,两位表示1byte。"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "error": {
+          "description": "错误信息返回体。",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          }
+        }
+      }
+    },
+    "CreateDatakeyRequestBody": {
+      "required": [
+        "key_id"
+      ],
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "密钥ID,36字节,满足正则匹配“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”。\n例如:0d0466b0-e727-4d9c-b35d-f84bb474a37f。"
+        },
+        "key_spec": {
+          "type": "string",
+          "enum": [
+            "AES_256",
+            "AES_128",
+            "SM4",
+            "HMAC_256",
+            "HMAC_384",
+            "HMAC_512",
+            "HMAC_SM3"
+          ],
+          "description": "指定生成的密钥bit位长度。有效值:AES_256、AES_128、SM4、HMAC_256、HMAC_384、HMAC_512、HMAC_SM3。\n - AES_256:表示256比特的对称密钥。\n - AES_128:表示128比特的对称密钥。\n - SM4:表示SM4密钥。\n - HMAC_256:表示HMAC_256密钥。\n - HMAC_384:表示HMAC_384密钥。\n - HMAC_512:表示HMAC_512密钥。\n - HMAC_SM3:表示HMAC_SM3密钥。   \n 说明:\n datakey_length和key_spec二选一。\n  - 若datakey_length和key_spec都为空,默认生成256bit的密钥。\n  - 若datakey_length和key_spec都指定了值,仅datakey_length生效。"
+        },
+        "datakey_length": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4,
+          "description": "密钥bit位长度。取值为8的倍数,取值范围为8~8192。\n说明:\n datakey_length和key_spec二选一。\n  - 若datakey_length和key_spec都为空,默认生成256bit的密钥。\n  - 若datakey_length和key_spec都指定了值,仅datakey_length生效。"
+        },
+        "additional_authenticated_data": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "身份验证的非敏感额外数据。任意字符串,长度不超过128字节。"
+        },
+        "sequence": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "请求消息序列号,36字节序列号。\n例如:919c82d4-8046-4722-9094-35c3c6524cff"
+        },
+        "pin": {
+          "type": "string",
+          "description": "pin码,用于数据密钥的认证,仅四级密评场景生效"
+        },
+        "pin_type": {
+          "type": "string",
+          "description": "pin码的类型,默认为“CipherText”:\n- PlainText:表示明文pin\n- CipherText:表示密文pin",
+          "default": "CipherText",
+          "enum": [
+            "CipherText",
+            "PlainText"
+          ]
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

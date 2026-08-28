@@ -1,0 +1,280 @@
+{
+  "name": "CreateFederationCert",
+  "summary": "创建联邦网络连接并下载联邦kubeconfig",
+  "tags": "容器舰队",
+  "productshort": "UCS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/clustergroups/{clustergroupid}/cert": {
+      "post": {
+        "tags": [
+          "容器舰队"
+        ],
+        "summary": "创建联邦网络连接并下载联邦kubeconfig",
+        "description": "舰队开通联邦后,调用此接口,创建vpcep终端节点,连接到联邦apiserver,并下载联邦apiserver的kubeconfig",
+        "operationId": "CreateFederationCert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "clustergroupid",
+            "in": "path",
+            "description": "舰队ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "CreateFederationCertRequestBody",
+            "description": "下载kubeconfig请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateFederationCertRequestBody"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "身份认证信息,调用接口的认证方式分为Token和AK/SK两种,如果您使用的Token方式,此参数为必填,请填写Token的值",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "kubeconfig文件",
+            "examples": {
+              "application/json": {
+                "kind": "Config",
+                "apiVersion": "v1",
+                "clusters": [
+                  {
+                    "name": "cluster-demo",
+                    "cluster": {
+                      "server": "https://ip:port",
+                      "certificate-authority-data": ""
+                    }
+                  }
+                ],
+                "users": [
+                  {
+                    "name": "user",
+                    "user": {
+                      "client-certificate-data": "",
+                      "client-key-data": "",
+                      "token": ""
+                    }
+                  }
+                ],
+                "contexts": [
+                  {
+                    "name": "demo",
+                    "context": {
+                      "cluster": "cluster-demo",
+                      "user": "user"
+                    }
+                  }
+                ],
+                "current-context": "demo"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/KubeConfig"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-support-sdk": "Y",
+        "x-is-support-cmc": "Y",
+        "x-request-examples-description-1": "创建联邦网络连接并下载联邦kubeconfig",
+        "x-request-examples-url-1": "POST https://ucs.myhuaweicloud.com/v1/clustergroups/{clustergroupid}/cert",
+        "x-request-examples-1": {
+          "projectID": "08d44be1ef00d22e2f6fc0061f54a2f1",
+          "vpcID": "11c9fe72-5a90-4295-bcfe-774726fb9066",
+          "subnetID": "0de91d89-1e06-4e24-b371-35d5d3d3779b",
+          "duration": 30
+        },
+        "x-request-examples-text-1": {
+          "projectID": "08d44be1ef00d22e2f6fc0061f54a2f1",
+          "vpcID": "11c9fe72-5a90-4295-bcfe-774726fb9066",
+          "subnetID": "0de91d89-1e06-4e24-b371-35d5d3d3779b",
+          "duration": 30
+        },
+        "x-order": 14
+      }
+    }
+  },
+  "definitions": {
+    "AuthInfo": {
+      "type": "object",
+      "properties": {
+        "client-certificate-data": {
+          "type": "string",
+          "description": "客户端证书"
+        },
+        "client-key-data": {
+          "type": "string",
+          "description": "包含来自TLS客户端密钥文件的PEM编码数据"
+        },
+        "token": {
+          "type": "string",
+          "description": "身份验证令牌"
+        }
+      },
+      "description": "用户认证信息"
+    },
+    "Context": {
+      "type": "object",
+      "properties": {
+        "cluster": {
+          "type": "string",
+          "description": "上下文cluster信息"
+        },
+        "user": {
+          "type": "string",
+          "description": "上下文user信息"
+        }
+      },
+      "description": "上下文信息"
+    },
+    "ClusterCert": {
+      "type": "object",
+      "properties": {
+        "server": {
+          "type": "string",
+          "description": "服务器地址"
+        },
+        "certificate-authority-data": {
+          "type": "string",
+          "description": "证书授权数据"
+        },
+        "insecure-skip-tls-verify": {
+          "type": "string",
+          "description": "不校验服务端证书"
+        }
+      }
+    },
+    "NamedContext": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "上下文的名称"
+        },
+        "context": {
+          "description": "上下文信息",
+          "$ref": "#/definitions/Context"
+        }
+      },
+      "description": "上下文"
+    },
+    "KubeConfig": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "API类型,固定值“Config”,该值不可修改"
+        },
+        "apiVersion": {
+          "type": "string",
+          "description": "API版本,固定值“v1”,该值不可修改"
+        },
+        "clusters": {
+          "type": "array",
+          "description": "集群列表",
+          "items": {
+            "$ref": "#/definitions/NamedCluster"
+          }
+        },
+        "users": {
+          "type": "array",
+          "description": "存放了指定用户的一些证书信息和ClientKey信息",
+          "items": {
+            "$ref": "#/definitions/NamedAuthInfo"
+          }
+        },
+        "contexts": {
+          "type": "array",
+          "description": "上下文列表",
+          "items": {
+            "$ref": "#/definitions/NamedContext"
+          }
+        },
+        "current-context": {
+          "type": "string",
+          "description": "当前上下文"
+        }
+      }
+    },
+    "NamedCluster": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "集群名称"
+        },
+        "cluster": {
+          "description": "集群信息",
+          "$ref": "#/definitions/ClusterCert"
+        }
+      },
+      "description": "集群信息"
+    },
+    "CreateFederationCertRequestBody": {
+      "type": "object",
+      "required": [
+        "duration",
+        "projectID",
+        "subnetID",
+        "vpcID"
+      ],
+      "properties": {
+        "projectID": {
+          "type": "string",
+          "description": "项目id"
+        },
+        "vpcID": {
+          "type": "string",
+          "description": "VPC id,必须属于上述项目"
+        },
+        "subnetID": {
+          "type": "string",
+          "description": "子网id,必须属于上述vpc"
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int32",
+          "description": "kubeconfig证书有效期,单位为天",
+          "minimum": 1,
+          "maximum": 1825
+        }
+      },
+      "description": "下载联邦kubeconfig请求体"
+    },
+    "NamedAuthInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "用户名"
+        },
+        "user": {
+          "description": "存放了指定用户的一些证书信息和ClientKey信息",
+          "$ref": "#/definitions/AuthInfo"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ucs.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

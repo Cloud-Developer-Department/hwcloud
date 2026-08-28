@@ -1,0 +1,392 @@
+{
+  "name": "ListBatchJobs",
+  "summary": "查询离线作业列表",
+  "tags": "离线分析作业管理",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/batch/jobs": {
+      "get": {
+        "tags": [
+          "job"
+        ],
+        "summary": "查询离线作业列表",
+        "description": "查询离线作业列表。",
+        "operationId": "ListBatchJobs",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "pattern": "^\\S+$",
+            "x-maxLength": 65535
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。获取方式请参考获取项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[a-z0-9]{32}$",
+            "x-maxLength": 32,
+            "x-minLength": 32
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "当前偏移量,默认为0。",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "x-ref-model": "#/definitions/JobQuery"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每页显示的最大作业个数,范围: [1, 100]。默认值:10。",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "x-ref-model": "#/definitions/JobQuery"
+          },
+          {
+            "name": "has_schedule",
+            "in": "query",
+            "description": "是否定时作业。true:定时作业:false:不是定时作业。为空时:所有作业。",
+            "required": false,
+            "type": "boolean",
+            "x-ref-model": "#/definitions/JobQuery"
+          },
+          {
+            "name": "job_name",
+            "in": "query",
+            "description": "作业名称",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-ref-model": "#/definitions/JobQuery"
+          },
+          {
+            "name": "schedule_status",
+            "in": "query",
+            "description": "调度状态。1:NORMAL, 2:PAUSED, 3:COMPLETE, 4:ERROR, 5:BLOCKED",
+            "required": false,
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 1,
+            "x-ref-model": "#/definitions/JobQuery"
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "description": "指定作业排序字段,默认为created_time(作业创建时间),支持created_time(作业创建时间)、modified_time(作业更新时间) 、job_name(作业名称)三种排序字段。",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "x-ref-model": "#/definitions/JobQuery"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "指定作业排序的升降序,默认为desc(降序),支持asc(升序)、desc(降序)两种排序方式。",
+            "required": false,
+            "type": "string",
+            "default": "desc",
+            "maxLength": 4,
+            "x-ref-model": "#/definitions/JobQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ListJobsResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000001",
+              "IoTA.99000002",
+              "IoTA.99000004",
+              "IoTA.99000005",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999"
+            ]
+          }
+        },
+        "security": [
+          {
+            "iota_auth": [
+              "write:iota",
+              "read:iota"
+            ]
+          }
+        ],
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "JobQuery": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "description": "当前偏移量,默认为0。",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页显示的最大作业个数。默认值:10。",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "has_schedule": {
+          "type": "boolean",
+          "description": "是否定时作业。true:定时作业:false:不是定时作业。为空时:所有作业。"
+        },
+        "job_name": {
+          "type": "string",
+          "description": "作业名称。",
+          "maxLength": 64
+        },
+        "schedule_status": {
+          "type": "string",
+          "description": "调度状态。NORMAL:正常, PAUSED:暂停, COMPLETE:已完成, ERROR:已出错, BLOCKED:已阻塞,WAITING:等待中",
+          "maxLength": 16
+        },
+        "order_by": {
+          "type": "string",
+          "description": "指定作业排序字段,默认为created_time(作业创建时间),支持created_time(作业创建时间)、modified_time(作业更新时间) 、job_name(作业名称)三种排序字段。",
+          "maxLength": 64
+        },
+        "order": {
+          "type": "string",
+          "description": "指定作业排序的升降序,默认为desc(降序),支持asc(升序)、desc(降序)两种排序方式。",
+          "maxLength": 4
+        }
+      },
+      "description": "作业查询。"
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "ListJobsResponseBody": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "定时作业总个数。"
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Job"
+          }
+        }
+      },
+      "description": "列出作业响应。"
+    },
+    "Job": {
+      "type": "object",
+      "required": [
+        "job_name",
+        "job_type"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "仅在响应返回。作业ID。"
+        },
+        "job_name": {
+          "type": "string",
+          "description": "作业名称。只能包含数字、英文字母、中文字母、下划线以及中划线。长度为1~128。",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[一-龥-_a-zA-Z0-9]+$"
+        },
+        "tags": {
+          "type": "string",
+          "description": "标签。只能包含数字、英文字母、中文字符、下划线、中划线、逗号以及斜杠。长度为0~128。",
+          "maxLength": 128,
+          "pattern": "^[一-龥-,/_a-zA-Z0-9]*$"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "仅在响应返回。创建时间。"
+        },
+        "modified_time": {
+          "type": "string",
+          "description": "仅在响应返回。更新时间。"
+        },
+        "job_type": {
+          "type": "string",
+          "description": "作业类型。目前仅支持SqlJob.",
+          "pattern": "^SqlJob$"
+        },
+        "export_path": {
+          "type": "string",
+          "description": "作业查询结果导出到OBS的路径。覆写已存在文件。",
+          "maxLength": 255,
+          "pattern": "^s3a://.+$"
+        },
+        "merge_result_file": {
+          "type": "boolean",
+          "description": "导出文件时是否合并结果文件。true:合并成一个结果文件;false:不合并结果文件。",
+          "default": false
+        },
+        "sql_job": {
+          "$ref": "#/definitions/SqlJob"
+        },
+        "schedule": {
+          "$ref": "#/definitions/Schedule"
+        }
+      },
+      "description": "作业。"
+    },
+    "SqlJob": {
+      "type": "object",
+      "required": [
+        "sql"
+      ],
+      "properties": {
+        "sql": {
+          "type": "string",
+          "description": "作业的SQL。",
+          "minLength": 5,
+          "maxLength": 500000
+        }
+      },
+      "description": "可选。SQL作业。"
+    },
+    "Schedule": {
+      "type": "object",
+      "required": [
+        "computing_resource_id",
+        "cron_expression",
+        "enable",
+        "end_time",
+        "start_time"
+      ],
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "description": "调度开始时间。时间格式为ISO时区日期时间。例如2021-03-03T10:15:30+08:00",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "end_time": {
+          "type": "string",
+          "description": "调度结束时间。时间格式为ISO时区日期时间。例如2021-03-03T10:15:30+08:00",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "cron_expression": {
+          "type": "string",
+          "description": "Cron表达式,格式为<秒> <分> <时> <天> <月> <星期>",
+          "minLength": 11,
+          "maxLength": 128
+        },
+        "computing_resource_id": {
+          "type": "string",
+          "description": "计算资源ID。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "enable": {
+          "type": "boolean",
+          "description": "调度启用状态. true: 调度中;false:停止调度。"
+        },
+        "conf": {
+          "type": "array",
+          "description": "作业运行配置信息。",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 10
+        },
+        "schedule_status": {
+          "type": "string",
+          "description": "仅在查询作业和查询所有作业接口的响应返回。调度状态。1:NORMAL, 2:PAUSED, 3:COMPLETE, 4:ERROR, 5:BLOCKED"
+        },
+        "next_fire_time": {
+          "type": "string",
+          "description": "仅在查询作业和查询所有作业接口的响应返回。上一次调度开始时间。"
+        },
+        "prev_fire_time": {
+          "type": "string",
+          "description": "仅在查询作业和查询所有作业接口的响应返回。下一次调度开始时间。"
+        }
+      },
+      "description": "SQL作业。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

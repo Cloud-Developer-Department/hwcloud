@@ -1,0 +1,333 @@
+{
+  "name": "ScanKv",
+  "summary": "扫描所有kv",
+  "tags": "KV接口",
+  "productshort": "KVS",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/scan-kv": {
+      "post": {
+        "tags": [
+          "KV接口"
+        ],
+        "summary": "扫描所有kv",
+        "operationId": "ScanKv",
+        "description": "指定表,扫描表下所有kv;允许指定过滤条件。",
+        "x-support-sdk": "Y",
+        "consumes": [
+          "application/bson"
+        ],
+        "produces": [
+          "application/bson"
+        ],
+        "parameters": [
+          {
+            "name": "store_name",
+            "in": "query",
+            "description": "仓名,全域唯一,不同租户的仓名不能相同。 \n- 格式:${prefix}-${region-code}-${account-id},其中prefix为自定义前缀,region-code为kvs集群所在的区域代码,account-id为用户的账户id\n- 取值字符限制:[a-z0-9-]+\n- 长度:[16,52]\n> \"-\"不能出现在名字头部或尾部",
+            "type": "string",
+            "x-location-cname": true
+          },
+          {
+            "in": "body",
+            "name": "ScanKvRequestBody",
+            "description": "扫描kv的请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ScanKvRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "表示扫描所有kv请求成功",
+            "schema": {
+              "$ref": "#/definitions/ScanKvResponseBody"
+            },
+            "x-response-examples-description-1": "扫描kv的响应体,返回了满足扫描条件的所有kv",
+            "x-response-examples-tags-1": "hws",
+            "examples": {
+              "application/bson": {
+                "returned_count": 1,
+                "filtered_count": 0,
+                "returned_kv_items": [
+                  {
+                    "kv_doc": {
+                      "owner": "user_2",
+                      "filename": "test_file_2",
+                      "otherKey": "otherValue"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "x-request-examples-description-1": "扫描所有kv,扫描条件为分区键的值为user2",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/scan-kv",
+        "x-request-examples-tags-1": "hws",
+        "x-request-examples-1": {
+          "table_name": "test_table_1",
+          "filter_expression": {
+            "single_field_expr": {
+              "field": "owner",
+              "func": "$eq",
+              "value": {
+                "value": "user_2"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "composed_expression": {
+      "required": [
+        "expressions"
+      ],
+      "type": "object",
+      "properties": {
+        "logic": {
+          "type": "string",
+          "description": "逻辑关系,取值如\"$and\", \"$or\", \"$nor\"。"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/expression"
+          },
+          "description": "多个相同优先级且相同逻辑的单字段或多字段条件。"
+        }
+      }
+    },
+    "returned_kv_item": {
+      "type": "object",
+      "properties": {
+        "kv_doc": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "对kv_doc有效。"
+        }
+      },
+      "description": "kv元素。"
+    },
+    "single_field_expression": {
+      "required": [
+        "field",
+        "func"
+      ],
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "条件字段。"
+        },
+        "func": {
+          "type": "string",
+          "description": "条件函数,取值如\"$gt\", $lt\",\"$gte\", $lte\" \"$eq\", \"$ne\", \"$prefix\", \"$exists\"。"
+        },
+        "value": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "value和value_array二选一。\n- value条件值,适用于除\"$in\", \"$nin\"外的func。\n- 字段名无意义,可以传空,也可以传字段名。\n- $exists值为true/false。\n> $prefix操作只适用于string和binary类型。"
+        },
+        "value_array": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "bson-document"
+          },
+          "description": "\"value\"和\"value_array\"二选一。\n- \"value_array\" 条件值列表, 值用于\"$in\", \"$nin\"。"
+        }
+      }
+    },
+    "ScanKvRequestBody": {
+      "required": [
+        "table_name"
+      ],
+      "type": "object",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "表名,仓内唯一。\n- 长度:[3, 63]\n- 取值字符限制:[a-z0-9_-]+"
+        },
+        "hint_index_name": {
+          "type": "string",
+          "description": "create_table时指定的索引名,默认空表示主索引。\n- 长度:[3, 63]\n- 取值字符限制:[a-z0-9_-]+"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 100,
+          "description": "数据量不超过1MB时,返回的文档个数,最大100个,默认1MB或者100个文档。"
+        },
+        "start_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "起始主键或索引键值。\n- 默认空,表示从头遍历,左闭。\n> 分页返回时,该值使用上次响应返回的cursor_key。"
+        },
+        "end_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "终止主键或索引键值。\n- 默认空,表示直到最后,右开。"
+        },
+        "filter_expression": {
+          "$ref": "#/definitions/condition_expression",
+          "description": "过滤表达式,同condition_expression。\n> - 允许键字段作为条件。\n> - 在满足start_key和endkey的范围内,执行filter逻辑。"
+        },
+        "projection_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "对kv_doc有效,返回指定字段列表,默认全部。"
+        },
+        "sample_segments_count": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "对表进行采样,尽最大努力保证返回的段列表均分整张表。举例:sample_segments_count=4,返回的段列表[MinKey, KV1)、[KV1,KV2)、[KV2,KV3)和[KV3,MaxKey)。用户可以使用scan-kv对这四个分区执行并发扫描,提高遍历效率。\n- 范围: [1, 10000]。默认值:不执行采样。\n- sample_segments_count仅能和table_name、start_key和end_key字段配合使用。Range分区模式下支持全表采样和范围采样;Hash分区模式仅支持全表扫描。\n- 仅支持对Primary key进行采样,不支持本地/全局二级索引。\n- 返回的段列表仅包含主键,不包含键值;且段列表是编码后的数据 ,不可修改。"
+        },
+        "return_count_only": {
+          "type": "boolean",
+          "description": "返回查询条件对应的KV总数.\n- 当KV总数小于limit条件时,返回KV查询结果和KV总数。\n- 当KV总数多于limit条件时,只返回KV总数。"
+        }
+      }
+    },
+    "expression": {
+      "type": "object",
+      "properties": {
+        "single_field_expression": {
+          "$ref": "#/definitions/single_field_expression",
+          "description": "单字段条件。"
+        },
+        "multi_field_expression": {
+          "$ref": "#/definitions/multi_field_expression",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "composed_expression": {
+          "$ref": "#/definitions/composed_expression",
+          "description": "组合条件, 逐层同级的子表达式嵌套。"
+        }
+      }
+    },
+    "multi_field_expression": {
+      "required": [
+        "expressions"
+      ],
+      "type": "object",
+      "properties": {
+        "logic": {
+          "type": "string",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/single_field_expression"
+          },
+          "description": "多个相同逻辑操作的单字段条件。"
+        }
+      }
+    },
+    "single_kv_expression": {
+      "required": [
+        "func"
+      ],
+      "type": "object",
+      "properties": {
+        "func": {
+          "type": "string",
+          "description": "取值:\"is_doc\", \"is_blob\", \"is_exist\", \"not_exist\"。"
+        }
+      }
+    },
+    "returned_segment_item": {
+      "type": "object",
+      "properties": {
+        "segment_min_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "采样段区间起始值。"
+        },
+        "segment_max_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "采样段区间终止值。"
+        }
+      },
+      "description": "采样段的起始终止主键对。"
+    },
+    "ScanKvResponseBody": {
+      "required": [
+        "returned_count",
+        "filtered_count"
+      ],
+      "type": "object",
+      "properties": {
+        "returned_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "返回的文档数量,为0不表示结束。\n> 如果filtered_count超过500仍无匹配,则返回0。"
+        },
+        "filtered_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "被过滤掉的文档数量。"
+        },
+        "cursor_key": {
+          "type": "string",
+          "format": "bson-document",
+          "description": "下次请求时的start_key,该值为空时,表示指定范围或者指定filter条件所有kv已经返回。"
+        },
+        "returned_kv_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/returned_kv_item"
+          },
+          "description": "返回的kv数据。"
+        },
+        "returned_segment_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/returned_segment_item"
+          },
+          "description": "采样段区间列表。"
+        }
+      }
+    },
+    "condition_expression": {
+      "type": "object",
+      "properties": {
+        "single_field_expression": {
+          "$ref": "#/definitions/single_field_expression",
+          "description": "单字段条件。"
+        },
+        "multi_field_expression": {
+          "$ref": "#/definitions/multi_field_expression",
+          "description": "多字段条件,多个相同优先级的单字段条件。"
+        },
+        "composed_expression": {
+          "$ref": "#/definitions/composed_expression",
+          "description": "组合条件, 逐层同级的子表达式嵌套。"
+        },
+        "single_kv_expression": {
+          "$ref": "#/definitions/single_kv_expression",
+          "description": "文档表达式。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kvs.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

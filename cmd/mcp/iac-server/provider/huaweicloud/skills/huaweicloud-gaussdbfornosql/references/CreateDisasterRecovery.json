@@ -1,0 +1,204 @@
+{
+  "name": "CreateDisasterRecovery",
+  "summary": "搭建实例与特定实例的容灾关系",
+  "tags": "容灾管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/disaster-recovery/construction": {
+      "post": {
+        "tags": [
+          "容灾管理"
+        ],
+        "operationId": "CreateDisasterRecovery",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "summary": "搭建实例与特定实例的容灾关系",
+        "description": "搭建实例与特定实例的容灾关系。 该接口需要对搭建容灾关系的两个实例分别各调用一次,2次接口都调用成功才能成功搭建容灾关系。",
+        "x-constraint": "该接口支持GeminiDB Redis数据库实例。\nGeminiDB Redis主备版实例暂不支持该接口。\n搭建容灾实例的VPC CIDR非192网段,非172网段。",
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "ee5589ad2a234b329f80dcfbe4676ad4in12"
+          },
+          {
+            "name": "ConstructDisasterRecoveryBody",
+            "in": "body",
+            "description": "请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConstructDisasterRecoveryBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ConstructDisasterRecoveryResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "58b7579a-efea-3713-887c-4694234cbdc3",
+                "disaster_recovery_id": "81f9b466-d6e0-4325-bc3e-18ba3d0d905f"
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-apigateway-ratelimit": "nosql_default_policy",
+        "x-request-examples-description-1": "搭建实例与特定实例的容灾关系。",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/0549b4a43100d4f32f51c01c2fe4acdb/instances/f90458c41aea4c26a9dcbb5740f2ff76in12/disaster-recovery/construction",
+        "x-request-examples-1": {
+          "operation": "construction",
+          "alias": "视频业务容灾",
+          "instance_role": "master",
+          "password": "******",
+          "disaster_recovery_instance": {
+            "id": "f90458c41aea4c26a9dcbb5740f2ff76in12",
+            "region_code": "cn-north-1",
+            "subnet_cidrs": [
+              "10.7.1.0/24"
+            ],
+            "node_ips": [
+              "10.7.1.10",
+              "10.7.1.77",
+              "10.7.1.226"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ConstructDisasterRecoveryInstance": {
+      "required": [
+        "id",
+        "region_code",
+        "subnet_cidrs",
+        "node_ips"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "容灾实例的ID。"
+        },
+        "region_code": {
+          "type": "string",
+          "description": "容灾实例所在Region的code。"
+        },
+        "subnet_cidrs": {
+          "type": "array",
+          "description": "与当前实例建立容灾关系实例所在子网的CIDR列表。",
+          "items": {
+            "type": "string"
+          }
+        },
+        "node_ips": {
+          "type": "array",
+          "description": "与当前实例建立容灾关系实例的所有节点的IP列表。",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ConstructDisasterRecoveryResponseBody": {
+      "required": [
+        "job_id",
+        "disaster_recovery_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "搭建容灾关系的工作ID。"
+        },
+        "disaster_recovery_id": {
+          "type": "string",
+          "description": "容灾ID。"
+        }
+      }
+    },
+    "ConstructDisasterRecoveryBody": {
+      "required": [
+        "alias",
+        "password",
+        "instance_role",
+        "disaster_recovery_instance"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "容灾ID。\n对容灾角色为主的实例下发搭建容灾接口时不传该参数,接口成功响应后返回生成的容灾ID。\n对容灾角色为备的实例下发建容灾接口时必传该参数,且必须与上述生成的容灾ID保持一致。"
+        },
+        "alias": {
+          "type": "string",
+          "description": "搭建容灾关系的别名。"
+        },
+        "password": {
+          "type": "string",
+          "description": "建立容灾关系所需要的容灾密码,搭建同一容灾关系的两次调用容灾密码必须保持一致。 容灾密码为容灾集群内部数据通信所用,不能用于客户端连接使用。"
+        },
+        "instance_role": {
+          "type": "string",
+          "description": "指定当前实例的容灾角色。取值为master或slave,表示在容灾关系中角色为主或备。"
+        },
+        "disaster_recovery_instance": {
+          "type": "object",
+          "description": "与当前实例建立容灾关系的容灾实例信息。",
+          "$ref": "#/definitions/ConstructDisasterRecoveryInstance"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

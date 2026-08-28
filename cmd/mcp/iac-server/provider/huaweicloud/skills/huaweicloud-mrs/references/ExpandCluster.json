@@ -1,0 +1,151 @@
+{
+  "name": "ExpandCluster",
+  "summary": "扩容集群",
+  "tags": "集群管理接口",
+  "productshort": "MRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/clusters/{cluster_id}/expand": {
+      "post": {
+        "x-name": "扩容集群",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-pdp5-enable": "N",
+        "tags": [
+          "ClusterManagement"
+        ],
+        "summary": "扩容集群",
+        "description": "对MRS集群进行扩容。",
+        "operationId": "ExpandCluster",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z0-9A-Z_-]*$",
+            "description": "项目ID"
+          },
+          {
+            "name": "cluster_id",
+            "in": "path",
+            "required": true,
+            "maxLength": 64,
+            "type": "string",
+            "pattern": "^[a-z0-9A-Z_-]*$",
+            "description": "集群ID"
+          },
+          {
+            "name": "ExpandClusterRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "扩容请求参数",
+            "schema": {
+              "$ref": "#/definitions/ExpandParam"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{\n  \"result\": \"succeeded\"\n}",
+            "schema": {
+              "$ref": "#/definitions/ApiWithOrderIdResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "/v2/ff8080828997cb24018a1b2db3440b80/clusters/f7f45c04-4303-411c-9b71-d2cb730dd162/expand",
+        "x-request-examples-description-1": "在节点组node_group_1上扩容1个节点, 默认跳过引导操作,默认启动组件。",
+        "x-request-examples-text-1": {
+          "node_group_name": "node_group_1",
+          "count": "1"
+        },
+        "x-request-examples-1": {
+          "node_group_name": "node_group_1",
+          "count": "1"
+        },
+        "x-request-examples-url-2": "/v2/ff8080828997cb24018a1b2db3440b80/clusters/f7f45c04-4303-411c-9b71-d2cb730dd162/expand",
+        "x-request-examples-description-2": "在节点组node_group_1上扩容1个节点,  不跳过引导操作, 不启动组件。",
+        "x-request-examples-text-2": {
+          "node_group_name": "node_group_1",
+          "count": "1",
+          "skip_bootstrap_scripts": false,
+          "scale_without_start": true
+        },
+        "x-request-examples-2": {
+          "node_group_name": "node_group_1",
+          "count": "1",
+          "skip_bootstrap_scripts": false,
+          "scale_without_start": true
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiWithOrderIdResponse": {
+      "description": "api接口响应体,涉及包周期资源扩容时包含订单id返回",
+      "type": "object",
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonAlias",
+        "com.fasterxml.jackson.annotation.JsonInclude"
+      ],
+      "x-annotations": "@JsonInclude(JsonInclude.Include.NON_NULL)",
+      "properties": {
+        "result": {
+          "type": "string",
+          "example": "successed",
+          "description": "请求操作结果,succeeded为操作成功,failed为操作失败。非包周期节点组扩容请求下发成功时,会包含该字段且内容为success。"
+        },
+        "order_id": {
+          "type": "string",
+          "description": "订单ID。对包周期节点组进行扩容时,会返回本次扩容产生的订单ID,需要客户到订单支付页面进行自主支付才能真正触发扩容。",
+          "example": "CS2308231XXXXXXXX",
+          "x-annotations": "@JsonAlias(\"orderId\")"
+        }
+      }
+    },
+    "ExpandParam": {
+      "type": "object",
+      "description": "扩容相关参数",
+      "properties": {
+        "node_group_name": {
+          "type": "string",
+          "description": "节点组名称",
+          "example": "node_group_1",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9A-Z_-]*$"
+        },
+        "count": {
+          "type": "integer",
+          "description": "扩容节点数量",
+          "example": 1
+        },
+        "skip_bootstrap_scripts": {
+          "type": "boolean",
+          "description": "扩容时是否在新增节点上跳过执行创建集群时指定的引导操作。未填写时,默认不执行引导操作。",
+          "example": false,
+          "default": true
+        },
+        "scale_without_start": {
+          "type": "boolean",
+          "description": "扩容后是否选择不启动扩容节点上的组件。未填写时,默认启动组件。\n\n- true:扩容后不启动组件。\n- false:扩容后启动组件。",
+          "example": false,
+          "default": false
+        }
+      },
+      "required": [
+        "node_group_name",
+        "count"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mrs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,425 @@
+{
+  "name": "PublishAssetFromObs",
+  "summary": "创建媒资:OBS转存方式",
+  "tags": "媒资上传",
+  "productshort": "VOD",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1.0/{project_id}/asset/reproduction": {
+      "post": {
+        "x-request-examples-description-1": "HLS视频转存示例(ts文件需和m3u8文件在同一目录下)",
+        "x-request-examples-url-2": "POST https://{endpoint}/v1.0/{project_id}/asset/reproduction",
+        "x-request-examples-description-2": "OBS转存示例",
+        "x-request-examples-text-2": {
+          "input": null,
+          "bucket": "bucket",
+          "location": "cn-north-4",
+          "object": "path",
+          "title": "title",
+          "description": "des",
+          "category_id": -1,
+          "tags": "test",
+          "video_type": "MP4",
+          "auto_publish": 1,
+          "template_group_name": "tempName"
+        },
+        "x-request-examples-2": {
+          "input": null,
+          "bucket": "bucket",
+          "location": "cn-north-4",
+          "object": "path",
+          "title": "title",
+          "description": "des",
+          "category_id": -1,
+          "tags": "test",
+          "video_type": "MP4",
+          "auto_publish": 1,
+          "template_group_name": "tempName"
+        },
+        "x-publishpath": "vod_04_0201",
+        "x-request-examples-text-1": {
+          "video_type": "HLS",
+          "title": "tittle",
+          "auto_publish": 1,
+          "input": {
+            "bucket": "bucket_name",
+            "location": "cn-north-4",
+            "object": "test/hls/test_video.m3u8"
+          },
+          "storage_mode": 1,
+          "output_bucket": "bucket_name",
+          "output_path": "test/hls"
+        },
+        "description": "若您在使用点播服务前,已经在OBS桶中存储了音视频文件,您可以使用该接口将存储在OBS桶中的音视频文件转存到点播服务中,使用点播服务的音视频管理功能。调用该接口前,您需要调用[桶授权](https://support.huaweicloud.com/api-vod/vod_04_0199.html)接口,将存储音视频文件的OBS桶授权给点播服务。",
+        "x-constraint": "由于不同区域的云服务不能互连,所以待转存的OBS桶和点播服务必须在同一区域,如“华北-北京四”OBS桶中的音视频只能转存到“华北-北京四”点播服务中。",
+        "summary": "创建媒资:OBS转存方式",
+        "operationId": "PublishAssetFromObs",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "tags": [
+          "媒资上传"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/usermanual-vod/vod_01_0058.html)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "PublishAssetFromObsReq",
+            "description": "从OBS一键发布媒资",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PublishAssetFromObsReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。",
+            "schema": {
+              "$ref": "#/definitions/PublishAssetFromObsRsp"
+            },
+            "examples": {
+              "application/json": {
+                "asset_id": "f488337c31c8e4622f1590735b134c65"
+              }
+            }
+          },
+          "400": {
+            "description": "处理失败返回。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10003",
+                "error_msg": "The specified key does not exist."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v1.0/{project_id}/asset/reproduction",
+        "x-request-examples-1": {
+          "video_type": "HLS",
+          "title": "tittle",
+          "auto_publish": 1,
+          "input": {
+            "bucket": "bucket_name",
+            "location": "cn-north-4",
+            "object": "test/hls/test_video.m3u8"
+          },
+          "storage_mode": 1,
+          "output_bucket": "bucket_name",
+          "output_path": "test/hls"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "VideoTypeRef": {
+      "properties": {
+        "video_type": {
+          "type": "string",
+          "description": "转存的音视频文件类型。\n\n取值如下:\n- 视频文件:MP4、TS、MOV、MXF、MPG、FLV、WMV、AVI、M4V、F4V、MPEG、3GP、ASF、MKV、HLS\n- 音频文件:MP3、OGG、WAV、WMA、APE、FLAC、AAC、AC3、MMF、AMR、M4A、M4R、WV、MP2\n\n若上传格式为音频文件,则不支持转码、添加水印和字幕。\n\n> 当**video_type**选择HLS时,**storage_mode**(存储模式)需选择存储在租户桶,且输出路径设置为和输入路径在同一个目录。",
+          "enum": [
+            "MP4",
+            "TS",
+            "MOV",
+            "MXF",
+            "MPG",
+            "FLV",
+            "WMV",
+            "AVI",
+            "M4V",
+            "F4V",
+            "MPEG",
+            "3GP",
+            "ASF",
+            "MKV",
+            "HLS",
+            "MP3",
+            "OGG",
+            "WAV",
+            "WMA",
+            "APE",
+            "FLAC",
+            "AAC",
+            "AC3",
+            "MMF",
+            "AMR",
+            "M4A",
+            "M4R",
+            "WV",
+            "MP2",
+            "RMVB",
+            "WEBM"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "description": "媒资标题,长度不超过128个字节,UTF-8编码。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "视频描述,长度不超过1024个字节。",
+          "maxLength": 1024
+        },
+        "category_id": {
+          "type": "integer",
+          "description": "媒资分类ID。\n\n您可以调用[创建媒资分类](https://support.huaweicloud.com/api-vod/vod_04_0028.html)接口或在点播控制台的[分类设置](https://support.huaweicloud.com/usermanual-vod/vod010006.html)中创建对应的媒资分类,并获取分类ID。\n\n> 若不设置或者设置为-1,则上传的音视频归类到系统预置的“其它”分类中。"
+        },
+        "tags": {
+          "type": "string",
+          "description": "视频标签。\n\n单个标签不超过16个字节,最多不超过16个标签。\n\n多个用逗号分隔,UTF8编码。"
+        },
+        "auto_publish": {
+          "type": "integer",
+          "description": "是否自动发布。\n\n取值如下:\n- 0:表示不自动发布。\n- 1:表示自动发布。\n\n默认值:1。",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1
+        },
+        "template_group_name": {
+          "type": "string",
+          "description": "转码模板组名称。\n\n若不为空,则使用指定的转码模板对上传的音视频进行转码,您可以在视频点播控制台配置转码模板,具体请参见[转码设置](https://support.huaweicloud.com/usermanual-vod/vod_01_0072.html)。\n\n>\n若同时设置了“**template_group_name**”和“**workflow_name**”字段,则“**template_group_name**”字段生效。",
+          "maxLength": 128
+        },
+        "auto_encrypt": {
+          "type": "integer",
+          "description": "是否自动加密。\n\n取值如下:\n- 0:表示不加密。\n- 1:表示需要加密。\n\n默认值:0。\n\n若设置为需要加密,则必须配置转码模板,且转码的输出格式是HLS。",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0
+        },
+        "auto_preheat": {
+          "type": "integer",
+          "description": "是否自动预热到CDN。\n\n取值如下:\n- 0:表示不自动预热。\n- 1:表示自动预热。\n\n默认值:0。"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/Thumbnail"
+        },
+        "review": {
+          "$ref": "#/definitions/Review"
+        },
+        "workflow_name": {
+          "type": "string",
+          "description": "工作流名称。\n\n若不为空,则使用指定的工作流对上传的音视频进行处理,您可以在视频点播控制台配置工作流,具体请参见[工作流设置](https://support.huaweicloud.com/usermanual-vod/vod010041.html)。"
+        }
+      },
+      "required": [
+        "video_type",
+        "title"
+      ]
+    },
+    "File_addr": {
+      "required": [
+        "bucket",
+        "location",
+        "object"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "OBS的bucket名称。",
+          "type": "string"
+        },
+        "location": {
+          "description": "桶所在的区域名, 如“华北-北京四”的区域名为“cn-north-4”,创建的桶所在区域必须和点播服务所在区域保持一致。",
+          "type": "string"
+        },
+        "object": {
+          "description": "文件的存储路径。",
+          "type": "string"
+        }
+      },
+      "description": "媒资存储参数信息。"
+    },
+    "Thumbnail": {
+      "description": "截图参数",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "截图类型。\n\n取值如下:\n- time:每次进行截图的间隔时间。\n- dots: 按照指定的时间点截图。\n- quantity: 按照指定张数,根据视频时长等分视频截图。",
+          "enum": [
+            "time",
+            "dots",
+            "quantity"
+          ]
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "**type**取值为quantity时必填。 按照指定张数,根据视频时长等分视频截图。\n取值范围:[1,10]之间的整数。"
+        },
+        "quantity_time": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "**type**取值为quantity时选填。 按照指定时间间隔取指定张数截图。\n取值范围:[0,2147483647]之间的整数。"
+        },
+        "time": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "根据时间间隔采样时的时间间隔值。单位:秒。\n**type**取值为time时。\n默认值:12\n取值范围:[0,100]之间的整数。"
+        },
+        "dots": {
+          "type": "array",
+          "description": "**type**取值为dots时必填。指定时间截图时的时间点数组。",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "cover_position": {
+          "type": "integer",
+          "description": "该值表示指定第几张截图作为封面。\n\n默认值:1。"
+        },
+        "format": {
+          "type": "integer",
+          "description": "截图文件格式。\n\n取值如下:\n- 1:jpg。\n\n默认值:1 。",
+          "default": 1
+        },
+        "aspect_ratio": {
+          "type": "integer",
+          "description": "纵横比,图像缩放方式。\n\n取值如下:\n- 0:自适应(保持原有宽高比)。\n- 1:16:9。\n\n默认值:0。",
+          "default": 0
+        },
+        "max_length": {
+          "type": "integer",
+          "description": "截图最长边的尺寸。\n\n单位:像素。\n\n宽边尺寸按照该尺寸与原始视频像素等比缩放计算。"
+        }
+      }
+    },
+    "PublishAssetFromObsRsp": {
+      "type": "object",
+      "properties": {
+        "asset_id": {
+          "description": "媒资ID\n",
+          "type": "string"
+        }
+      }
+    },
+    "PublishAssetFromObsReq": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/VideoTypeRef"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/definitions/File_addr"
+            },
+            "storage_mode": {
+              "type": "integer",
+              "description": "存储模式。\n\n取值如下:\n- 0:表示视频拷贝到点播桶。\n- 1:表示视频存储在租户桶。\n\n默认值:0",
+              "default": 0
+            },
+            "output_bucket": {
+              "type": "string",
+              "description": "输出桶名,“**storage_mode**”为1时必选。"
+            },
+            "output_path": {
+              "type": "string",
+              "description": "输出路径名,“**storage_mode**”为1时必选。"
+            }
+          },
+          "required": [
+            "input"
+          ]
+        }
+      ],
+      "description": ""
+    },
+    "Review": {
+      "description": "媒资审核参数",
+      "properties": {
+        "template_id": {
+          "type": "string",
+          "description": "审核模板ID。您可以在视频点播控制台配置审核模板后获取,具体请参见[审核设置](https://support.huaweicloud.com/usermanual-vod/vod_01_0057.html)。"
+        },
+        "interval": {
+          "type": "integer",
+          "description": "截图检测时间间隔,取值范围为[0,100],该参数在请求参数中忽略。"
+        },
+        "politics": {
+          "type": "integer",
+          "description": "鉴政内容检测置信度,取值范围为[0,100],该参数在请求参数中忽略。 置信度越高,说明审核结果越可信。未开启或设置为0时,表示未进行此项检测。"
+        },
+        "terrorism": {
+          "type": "integer",
+          "description": "鉴恐内容的检测置信度,取值范围为[0,100],该参数在请求参数中忽略。 置信度越高,说明审核结果越可信。未开启或设置为0时,表示未进行此项检测。"
+        },
+        "porn": {
+          "type": "integer",
+          "description": "鉴黄内容的检测置信度,取值范围为[0,100],该参数在请求参数中忽略。 置信度越高,说明审核结果越可信。未开启或设置为0时,表示未进行此项检测。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

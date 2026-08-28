@@ -1,0 +1,324 @@
+{
+  "name": "ListStarRocksDataReplicationConfig",
+  "summary": "查询StarRocks数据同步配置信息",
+  "tags": "HTAP-标准版",
+  "productshort": "GaussDB",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/starrocks/databases/replication/configuration": {
+      "get": {
+        "x-request-examples-url-1": "GET https://{localhost}/v3/{project_id}/instances/{instance_id}/starrocks/databases/replication/configuration?task_name=taskName",
+        "x-request-examples-description-1": "查询任务名为taskName的数据同步配置信息。",
+        "tags": [
+          "HTAP-标准版"
+        ],
+        "operationId": "ListStarRocksDataReplicationConfig",
+        "summary": "查询StarRocks数据同步配置信息",
+        "description": "查询StarRocks数据同步配置信息。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-ratelimit": "gaussdbformysql01",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的project ID。\n\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-taurusdb/taurusdb_10_0004.html)。",
+            "minLength": 2,
+            "maxLength": 1024
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "StarRocks实例ID,严格匹配UUID规则。",
+            "minLength": 2,
+            "maxLength": 1024
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。\n\n通过调用IAM服务[获取用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取。\n\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 1024
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": true,
+            "description": "请求语言类型。默认en-us。\n取值范围:\n- en-us\n- zh-cn",
+            "type": "string"
+          },
+          {
+            "name": "task_name",
+            "in": "query",
+            "required": true,
+            "description": "数据同步任务名。\n字符长度限制3~128位,仅支持英文大小写字母、数字以及下划线_。",
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 128
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/QueryDataReplicationConfigResponseV3"
+            },
+            "examples": {
+              "application/json": {
+                "source_instance_id": "source_instance_id",
+                "target_database_name": "target_database_name",
+                "source_node_id": "source_node_id",
+                "database_info": {
+                  "database_name": "database_name",
+                  "db_config_check_results": [
+                    {
+                      "param_name": "default_isolation_level",
+                      "value": "QUERY_SNAPSHOT",
+                      "check_result": "success"
+                    },
+                    {
+                      "param_name": "enable_snapshots",
+                      "value": "true",
+                      "check_result": "failed"
+                    }
+                  ]
+                },
+                "table_info": [],
+                "table_repl_config": {
+                  "repl_type": "exclude_tables",
+                  "repl_scope": "all",
+                  "tables": []
+                },
+                "new_table_repl_config": {},
+                "is_tables_change": false,
+                "last_error_of_alter_table": ""
+              }
+            }
+          },
+          "400": {
+            "description": "Client error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DBS.200022",
+                "error_msg": "实例不存在"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DbConfigCheckResult": {
+      "type": "object",
+      "description": "库配置校验检查结果。",
+      "properties": {
+        "param_name": {
+          "type": "string",
+          "description": "参数名。",
+          "minLength": 2,
+          "maxLength": 128
+        },
+        "value": {
+          "type": "string",
+          "description": "参数值。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "check_result": {
+          "type": "string",
+          "description": "校验结果。",
+          "minLength": 1,
+          "maxLength": 1024,
+          "enum": [
+            "success",
+            "fail"
+          ]
+        }
+      }
+    },
+    "DataBaseInfo": {
+      "type": "object",
+      "description": "数据库校验信息。",
+      "properties": {
+        "database_name": {
+          "type": "string",
+          "description": "数据库名称。",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "db_config_check_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DbConfigCheckResult"
+          },
+          "description": "数据库配置检查结果。",
+          "minItems": 0,
+          "maxItems": 5000
+        }
+      }
+    },
+    "TableReplConfig": {
+      "type": "object",
+      "description": "表同步配置。",
+      "properties": {
+        "repl_type": {
+          "type": "string",
+          "description": "表同步类型。include_tables:白名单,exclude_tables:黑名单。",
+          "minLength": 2,
+          "maxLength": 15,
+          "enum": [
+            "include_tables",
+            "exclude_tables"
+          ]
+        },
+        "repl_scope": {
+          "type": "string",
+          "description": "表同步范围。all:全量同步,part:部分同步。",
+          "default": "all",
+          "minLength": 3,
+          "maxLength": 5,
+          "enum": [
+            "all",
+            "part"
+          ]
+        },
+        "tables": {
+          "type": "array",
+          "description": "白名单或黑名单的表范围。",
+          "minItems": 0,
+          "maxItems": 5000,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 1024
+          }
+        }
+      }
+    },
+    "QueryDataReplicationConfigResponseV3": {
+      "type": "object",
+      "description": "查询数据同步配置响应体。",
+      "properties": {
+        "source_instance_id": {
+          "type": "string",
+          "description": "TaurusDB实例ID。",
+          "minLength": 2,
+          "maxLength": 1024
+        },
+        "source_node_id": {
+          "type": "string",
+          "description": "TaurusDB节点ID。",
+          "minLength": 2,
+          "maxLength": 1024
+        },
+        "database_info": {
+          "description": "TaurusDB数据库配置信息。",
+          "$ref": "#/definitions/DataBaseInfo"
+        },
+        "table_infos": {
+          "type": "array",
+          "description": "表配置信息。",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/TableConfigCheckResult"
+          }
+        },
+        "table_repl_config": {
+          "description": "表同步配置信息。",
+          "$ref": "#/definitions/TableReplConfig"
+        },
+        "new_table_repl_config": {
+          "description": "更新的表同步配置信息。",
+          "$ref": "#/definitions/TableReplConfig"
+        },
+        "target_database_name": {
+          "type": "string",
+          "description": "目标数据库名。",
+          "minLength": 3,
+          "maxLength": 64
+        },
+        "is_tables_change": {
+          "type": "boolean",
+          "description": "同步任务表是否变化。"
+        },
+        "last_error_of_alter_table": {
+          "type": "string",
+          "description": "最近一次alter table的异常信息。",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.280292"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "example": "数据库用户名非法"
+        }
+      },
+      "type": "object"
+    },
+    "TableConfigCheckResult": {
+      "type": "object",
+      "description": "表配置校验结果。",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "表名。",
+          "minLength": 2,
+          "maxLength": 1024
+        },
+        "table_config": {
+          "type": "string",
+          "description": "表配置项。",
+          "minLength": 2,
+          "maxLength": 1024
+        },
+        "check_result": {
+          "type": "string",
+          "description": "校验结果。",
+          "minLength": 2,
+          "maxLength": 10
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-mysql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,482 @@
+{
+  "name": "ExecuteJob",
+  "summary": "启动作业",
+  "tags": "作业管理",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/jobs": {
+      "post": {
+        "x-interface-name": "IJobController",
+        "tags": [
+          "作业管理"
+        ],
+        "summary": "启动作业",
+        "description": "启动作业",
+        "operationId": "ExecuteJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is illegal"
+          },
+          {
+            "in": "body",
+            "name": "ExecuteJobRequestBody",
+            "description": "jobDto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobDto"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "examples": {
+              "application/json": {
+                "id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                "app_infos": [
+                  {
+                    "app_id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+                    "app_name": "demo-app",
+                    "app_version": "1.0.0",
+                    "app_node_labels": [
+                      "health.node"
+                    ]
+                  }
+                ],
+                "job_info": {
+                  "job_name": "demo-job",
+                  "job_node_labels": [
+                    "health.node"
+                  ]
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JobIdRsp"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-description-1": "启动作业,其中作业的名称为demo-job,作业使用IO加速类型为SFS。",
+        "x-request-examples-url-1": "https://{endpoint}/v1/{project_id}/eihealth-projects/{eihealth_project_id}/jobs",
+        "x-request-examples-1": {
+          "name": "demo-job",
+          "description": "description",
+          "labels": [
+            "labelA",
+            "labelB"
+          ],
+          "priority": 0,
+          "timeout": 1440,
+          "output_dir": "/job",
+          "tool_id": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "tool_type": "workflow",
+          "tasks": [
+            {
+              "task_name": "app1-1",
+              "inputs": [
+                {
+                  "name": "dir-parameter",
+                  "values": [
+                    "/test"
+                  ]
+                }
+              ],
+              "io_acc_type": "SFS",
+              "resources": {
+                "cpu_type": "X86",
+                "cpu": "1C",
+                "memory": "1G",
+                "gpu_type": "GPU",
+                "gpu": 0
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "JobTaskDto": {
+      "required": [
+        "task_name"
+      ],
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "example": "app1-1",
+          "description": "子任务实际名称,取值范围[1,32],只能以大小写字母开头,由大小写字母、数字、中划线(-)、下划线(_)组成,以大小写字符或数字结尾。需要和已有子任务的名称一致。",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z](([-_]*[a-zA-Z0-9])|[a-zA-Z0-9])*$",
+          "x-pattern-message": "The task parameter format does not match."
+        },
+        "inputs": {
+          "type": "array",
+          "description": "任务的输入参数信息",
+          "items": {
+            "$ref": "#/definitions/TaskParameterDto"
+          },
+          "maxItems": 128,
+          "minItems": 0
+        },
+        "outputs": {
+          "type": "array",
+          "description": "**参数解释**:\n任务的输出参数信息。\n**约束限制**:\n最多支持128个参数。\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及",
+          "items": {
+            "$ref": "#/definitions/TaskParameterDto"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "output_dir": {
+          "type": "string",
+          "example": "/job",
+          "description": "**参数解释**:\n子任务结果存储目录,默认为空。\n**约束限制**:\n不涉及\n**取值范围**:\n长度[0,128]。\n**默认取值**:\n不涉及",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "resources": {
+          "$ref": "#/definitions/TaskResourceDto"
+        },
+        "io_acc_type": {
+          "type": "string",
+          "example": "SFS",
+          "description": "子任务使用的IO加速实例类型,不填表示不使用;",
+          "minLength": 0,
+          "maxLength": 128,
+          "pattern": "^$|^(SFS|EVS)$",
+          "x-pattern-message": "The task parameter format does not match."
+        }
+      },
+      "title": "JobTaskDto"
+    },
+    "AppFilterDto": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "应用id"
+        },
+        "app_name": {
+          "type": "string",
+          "example": "demo-app",
+          "description": "应用名称"
+        },
+        "app_version": {
+          "type": "string",
+          "example": "1.0.0",
+          "description": "应用版本"
+        },
+        "app_resource": {
+          "type": "object",
+          "description": "应用资源",
+          "$ref": "#/definitions/TaskResourceDto"
+        },
+        "app_node_labels": {
+          "type": "array",
+          "example": [
+            "health.node"
+          ],
+          "description": "计算节点标签",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "JobDto": {
+      "required": [
+        "name",
+        "tool_id",
+        "tool_type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "demo-job",
+          "description": "作业的名称,取值范围:[1,63],允许大小写字母、数字、以及特殊字符中划线(-)",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-z0-9A-Z-]+$",
+          "x-pattern-message": "The job parameter format does not match."
+        },
+        "description": {
+          "type": "string",
+          "example": "description",
+          "description": "作业的描述,取值范围:输入字符最大长度为255",
+          "maxLength": 255
+        },
+        "labels": {
+          "type": "array",
+          "example": [
+            "labelA",
+            "labelB"
+          ],
+          "description": "作业标签,取值范围[0,5],单个标签最大长度32字符,支持中文、字母、数字、空格、下划线和中划线,且不能以空格开头或者结尾。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "^[\\一-\\龥A-Za-z0-9-_]+(\\s+[\\一-\\龥A-Za-z0-9-_]+)*$",
+            "x-pattern-message": "The label name format does not match."
+          },
+          "maxItems": 5,
+          "minItems": 0
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "作业的优先级,取值范围[0,9],0最低,默认数值0",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1440,
+          "description": "作业执行超时时长,取值范围: [1, 144000],单位:分钟,默认数值1440",
+          "minimum": 1,
+          "maximum": 144000
+        },
+        "output_dir": {
+          "type": "string",
+          "example": "/job",
+          "description": "作业结果存储目录,不指定则在workflow的工作目录下生产job同名子目录,指定则已指定路径为准;输出路径必须以斜杠(/)开头且不能以斜杠(/)结尾,不能包含两个以上相邻的斜杠(/),不能包含以下特殊字符:\\ : ; * ? < \" > | 。其中单个文件夹名称不能以中划线(-)开头,不能以英文句号(.)或斜杠(/)或空格开头或结尾",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "tool_id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业依赖的组件id,组件当前仅支持流程,取值范围[1,135],支持大小写字母和数字。目前支持两种格式,特殊id:{流程名称}::{流程版本}::{源项目名称};正常id:流程id",
+          "minLength": 1,
+          "maxLength": 135,
+          "pattern": "^[^\\一-\\龥]+$",
+          "x-pattern-message": "The job parameter format does not match."
+        },
+        "tool_type": {
+          "type": "string",
+          "example": "workflow",
+          "description": "作业依赖的组件类型,仅支持填写workflow",
+          "pattern": "^(workflow)$",
+          "x-pattern-message": "The job parameter format does not match."
+        },
+        "tasks": {
+          "type": "array",
+          "description": "基于替换规则压扁后,job实际的运行信息",
+          "items": {
+            "$ref": "#/definitions/JobTaskDto"
+          },
+          "maxItems": 64,
+          "minItems": 0
+        },
+        "io_acc_id": {
+          "type": "string",
+          "example": "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+          "description": "作业使用的IO加速实例id,不填表示不使用",
+          "minLength": 0,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]*$",
+          "x-pattern-message": "The job parameter format does not match."
+        },
+        "io_acc_expected_usage": {
+          "type": "integer",
+          "format": "int32",
+          "example": 100,
+          "description": "作业使用的SFS-Turbo实例预期占用存储量,单位G,用于投递作业时评估当前加速实例余量是否充足",
+          "minimum": 0,
+          "maximum": 327680
+        },
+        "node_labels": {
+          "type": "array",
+          "example": [
+            "health.node"
+          ],
+          "description": "节点标签 取值范围[0,1],单个标签最大长度63字符",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^(health\\.)([\\.A-Za-z0-9_-]*[A-Za-z0-9])$",
+            "x-pattern-message": "The computing resource nodeLabel should start with 'health.' and end with letters or digit, can only contain '.','-','_' ."
+          },
+          "maxItems": 1,
+          "minItems": 0
+        }
+      },
+      "title": "JobDto",
+      "description": "创建作业的请求体"
+    },
+    "JobIdRsp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "baabcb56-5bb6-11eb-8a0d-fa163e3ddba1",
+          "description": "作业id"
+        },
+        "max_platform_flavor": {
+          "type": "object",
+          "description": "平台节点最大规格",
+          "$ref": "#/definitions/TaskResourceDto"
+        },
+        "app_infos": {
+          "type": "array",
+          "description": "筛选后的app集合",
+          "items": {
+            "$ref": "#/definitions/AppFilterDto"
+          }
+        },
+        "job_info": {
+          "description": "筛选后的job",
+          "$ref": "#/definitions/JobFilterDto"
+        }
+      },
+      "description": "作业id响应体"
+    },
+    "TaskParameterDto": {
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "dir-parameter",
+          "description": "子任务的参数名称,长度为[1,32],以小写字母开头,允许出现中划线(-)、小写字母和数字,且必须以小写字母或数字结尾。需要和已有应用的参数名称一致。",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$",
+          "x-pattern-message": "The task parameter format does not match."
+        },
+        "source": {
+          "type": "string",
+          "example": "MANUAL",
+          "description": "子任务的参数类型,不填默认为MANUAL",
+          "pattern": "^$|^(MANUAL|DATABASE)$",
+          "x-pattern-message": "The task parameter format does not match."
+        },
+        "values": {
+          "type": "array",
+          "example": [
+            "/test"
+          ],
+          "description": "子任务的参数数值,根据参数类型进行合法性校验",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 2048
+          },
+          "maxItems": 128,
+          "minItems": 0
+        }
+      }
+    },
+    "TaskResourceDto": {
+      "properties": {
+        "cpu": {
+          "type": "string",
+          "example": "1C",
+          "description": "cpu申请使用量,取值范围[0.1-128],单位C,支持一位小数。对于应用,不填默认1C;对于流程和作业,不填默认使用前一级的配置,填值会覆盖更新。覆盖关系:作业->流程->应用",
+          "minLength": 0,
+          "maxLength": 24
+        },
+        "cpu_type": {
+          "type": "string",
+          "example": "X86",
+          "description": "cpu架构类型,不填默认X86",
+          "minLength": 0,
+          "maxLength": 24,
+          "pattern": "^$|^(X86|ARM)$",
+          "x-pattern-message": "The cpu_type format does not match."
+        },
+        "memory": {
+          "type": "string",
+          "example": "1G",
+          "description": "内存申请使用量,取值范围[0.1-3072],单位G,支持一位小数。对于应用,不填默认1G;对于流程和作业,不填默认使用前一级的配置,填值会覆盖更新。覆盖关系:作业->流程->应用",
+          "minLength": 0,
+          "maxLength": 24
+        },
+        "gpu_type": {
+          "type": "string",
+          "example": "GPU",
+          "description": "gpu架构类型,取值范围 ' '|GPU|D910|D310。对于流程和作业,不填默认使用前一级的配置,填值会覆盖更新。覆盖关系:作业->流程->应用",
+          "minLength": 0,
+          "maxLength": 24,
+          "pattern": "^$|^(GPU|D910|D310)$",
+          "x-pattern-message": "The gpu_type format does not match."
+        },
+        "gpu": {
+          "type": "string",
+          "example": "0",
+          "description": "gpu申请使用量,取值范围[0-16],仅支持整数,D910有特殊约束,申请数量需要是0,1,2,4,8。对于应用,不填默认0;对于流程和作业,不填默认使用前一级的配置,填值会覆盖更新。覆盖关系:作业->流程->应用",
+          "minLength": 0,
+          "maxLength": 24
+        }
+      },
+      "description": "应用申请资源"
+    },
+    "JobFilterDto": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string",
+          "example": "demo-job",
+          "description": "作业名称"
+        },
+        "job_node_labels": {
+          "type": "array",
+          "example": [
+            "health.node"
+          ],
+          "description": "计算节点标签",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

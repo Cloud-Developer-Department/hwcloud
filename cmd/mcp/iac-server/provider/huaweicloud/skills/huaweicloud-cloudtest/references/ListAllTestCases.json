@@ -1,0 +1,906 @@
+{
+  "name": "ListAllTestCases",
+  "summary": "查询用例列表",
+  "tags": "自定义测试服务用例管理",
+  "productshort": "Cloudtest",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/GT3KServer/v4/{project_id}/testcases/batch-query": {
+      "post": {
+        "tags": [
+          "自定义测试服务用例管理"
+        ],
+        "summary": "查询用例列表",
+        "operationId": "ListAllTestCases",
+        "description": "查询用例列表",
+        "x-constraint": "",
+        "x-name": "查询用例列表",
+        "x-scope": "",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "TestCasesQueryInfo",
+            "in": "body",
+            "description": "查询用例列表请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TestCasesQueryInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ApiResultListTestCaseListVo"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ApiError"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ApiError"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ApiError"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ApiError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ExecuteInfoVo": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "description": "执行开始时间",
+          "example": "2021-11-06 12:00:00"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "执行开始时间时间戳",
+          "format": "int64",
+          "example": 1660617231016
+        },
+        "duration": {
+          "type": "string",
+          "description": "执行时长",
+          "example": "00:00:10"
+        },
+        "user_id": {
+          "type": "string",
+          "description": "用户ID",
+          "example": "efdb403066474ab08836b9eeaaa23bca"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "用户名称",
+          "example": "测试Tester"
+        },
+        "execute_times": {
+          "type": "integer",
+          "description": "执行次数",
+          "format": "int32",
+          "example": 1
+        }
+      },
+      "description": "执行信息"
+    },
+    "NameAndIdVo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID",
+          "example": "id"
+        },
+        "name": {
+          "type": "string",
+          "description": "名称",
+          "example": "name"
+        }
+      },
+      "description": "服务类型信息"
+    },
+    "QueryCustomFieldsInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "测试用例自定义字段Id",
+          "format": "int32",
+          "example": 1
+        },
+        "values": {
+          "type": "array",
+          "description": "测试用例自定义字段值",
+          "example": [
+            "aa"
+          ],
+          "items": {
+            "type": "string",
+            "description": "测试用例自定义字段值",
+            "example": "[\"aa\"]"
+          }
+        },
+        "field_name": {
+          "type": "string",
+          "description": "自定义字段名,优先取id再取fieldName",
+          "example": "custom_field_10"
+        }
+      },
+      "description": "用例自定义字段信息"
+    },
+    "ResultValueListTestCaseListVo": {
+      "title": "ResultValue",
+      "type": "object",
+      "properties": {
+        "total": {
+          "title": "符合条件的所有记录数",
+          "type": "integer",
+          "description": "起始记录数 大于 实际总条数时, 值为0, 分页请求才有此值",
+          "format": "int32"
+        },
+        "value": {
+          "title": "本次查询的记录结果",
+          "type": "array",
+          "description": "实际的数据类型:单个对象,集合 或 NULL",
+          "items": {
+            "$ref": "#/definitions/TestCaseListVo"
+          }
+        },
+        "reason": {
+          "title": "错误信息",
+          "type": "string",
+          "description": "业务失败的提示内容,对内接口才有此值"
+        },
+        "page_size": {
+          "title": "每页展示条数",
+          "type": "integer",
+          "format": "int32"
+        },
+        "page_no": {
+          "title": "页码",
+          "type": "integer",
+          "format": "int32"
+        },
+        "has_more": {
+          "title": "是否有更多",
+          "type": "boolean"
+        }
+      },
+      "description": "请求的返回的数据对象"
+    },
+    "CustomFieldVo": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "字段类型(单行文本text、多行文本textArea、单选框radio、多选框checkBox、日期date、数字number、单选用户user)",
+          "example": "text"
+        },
+        "value": {
+          "type": "string",
+          "description": "测试用例自定义字段值",
+          "example": "aaa111"
+        },
+        "custom_field_param": {
+          "type": "string",
+          "description": "项目用例自定义字段入参或者返回参数名称",
+          "example": "custom_field_1"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "user类型测试用例自定义字段对应用户名,其它类型字段不返回",
+          "example": "TesterA"
+        }
+      },
+      "description": "自定义字段信息"
+    },
+    "CreateInfoVo": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "description": "创建时间",
+          "example": "2021-11-06 00:00:01"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "创建时间时间戳",
+          "format": "int64",
+          "example": 1660617231016
+        },
+        "user_id": {
+          "type": "string",
+          "description": "用户ID",
+          "example": "efdb403066474ab08836b9eeaaa23bca"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "用户名称",
+          "example": "测试Tester"
+        }
+      },
+      "description": "创建信息"
+    },
+    "LabelVo": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "description": "uri主键",
+          "example": "00nsf4r89kj"
+        },
+        "region": {
+          "type": "string",
+          "description": "逻辑region",
+          "example": "cn-south-1"
+        },
+        "label_name": {
+          "type": "string",
+          "description": "标签名称",
+          "example": "标签1"
+        },
+        "service_type": {
+          "type": "string",
+          "description": "服务类型",
+          "example": "1"
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "所属资源类型(TestCase:用例,Task:测试套)",
+          "example": "TestCase"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "项目ID",
+          "example": "00vsf4r7d5l"
+        }
+      },
+      "description": "标签"
+    },
+    "TestCasesQueryInfo": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string",
+          "description": "关键字查询,用例名或编号",
+          "example": "用例名"
+        },
+        "exeplatforms": {
+          "type": "array",
+          "description": "执行平台",
+          "items": {
+            "type": "string",
+            "description": "执行平台"
+          }
+        },
+        "own": {
+          "type": "boolean",
+          "description": "是否是我的",
+          "example": true
+        },
+        "useOffset": {
+          "type": "boolean"
+        },
+        "version_uri": {
+          "type": "string",
+          "description": "版本URI",
+          "example": "005t8asecn21"
+        },
+        "case_uris": {
+          "type": "array",
+          "description": "用例URI集合",
+          "example": [
+            "001rv9521lf1"
+          ],
+          "items": {
+            "type": "string",
+            "description": "用例URI集合",
+            "example": "[\"001rv9521lf1\"]"
+          }
+        },
+        "owner_ids": {
+          "type": "array",
+          "description": "处理者ID集合",
+          "example": [
+            "efdb403066474ab08836b9eeaaa23bca"
+          ],
+          "items": {
+            "type": "string",
+            "description": "处理者ID集合",
+            "example": "[\"efdb403066474ab08836b9eeaaa23bca\"]"
+          }
+        },
+        "status_codes": {
+          "type": "array",
+          "description": "状态Code集合",
+          "example": [
+            "0",
+            "1"
+          ],
+          "items": {
+            "type": "string",
+            "description": "状态Code集合",
+            "example": "[\"0\",\"1\"]"
+          }
+        },
+        "rank_ids": {
+          "type": "array",
+          "description": "用例等级ID集合",
+          "example": [
+            "1",
+            "2"
+          ],
+          "items": {
+            "type": "string",
+            "description": "用例等级ID集合",
+            "example": "[\"1\",\"2\"]"
+          }
+        },
+        "module_ids": {
+          "type": "array",
+          "description": "模块ID集合",
+          "example": [
+            "-2"
+          ],
+          "items": {
+            "type": "string",
+            "description": "模块ID集合",
+            "example": "[\"-2\"]"
+          }
+        },
+        "issue_id": {
+          "type": "string",
+          "description": "需求编号",
+          "example": "3917852"
+        },
+        "creator_ids": {
+          "type": "array",
+          "description": "创建者ID集合",
+          "example": [
+            "efdb403066474ab08836b9eeaaa23bca"
+          ],
+          "items": {
+            "type": "string",
+            "description": "创建者ID集合",
+            "example": "[\"efdb403066474ab08836b9eeaaa23bca\"]"
+          }
+        },
+        "result_codes": {
+          "type": "array",
+          "description": "结果Code集合",
+          "example": [
+            "0",
+            "1"
+          ],
+          "items": {
+            "type": "string",
+            "description": "结果Code集合",
+            "example": "[\"0\",\"1\"]"
+          }
+        },
+        "iteration_ids": {
+          "type": "array",
+          "description": "归属迭代ID集合",
+          "example": [
+            "2000adec0b854306bf013e84f7b5f9ea"
+          ],
+          "items": {
+            "type": "string",
+            "description": "归属迭代ID集合",
+            "example": "[\"2000adec0b854306bf013e84f7b5f9ea\"]"
+          }
+        },
+        "create_start_time": {
+          "type": "string",
+          "description": "创建开始时间",
+          "example": "2021-11-04 00:00:00"
+        },
+        "create_end_time": {
+          "type": "string",
+          "description": "创建结束时间",
+          "example": "2021-11-04 23:59:59"
+        },
+        "associated_issue": {
+          "type": "boolean",
+          "description": "是否关联需求(null:不限,false:未关联,true:已关联)",
+          "example": true
+        },
+        "associated_defects": {
+          "type": "boolean",
+          "description": "是否关联缺陷(null:不限,false:未关联,true:已关联)",
+          "example": true
+        },
+        "include_sub_issue": {
+          "type": "boolean",
+          "description": "是否查询子需求关联的用例,默认true",
+          "example": false
+        },
+        "include_sub_feature": {
+          "type": "boolean",
+          "description": "是否查询子目录的用例,默认true",
+          "example": false
+        },
+        "label_ids": {
+          "type": "array",
+          "description": "标签ID集合",
+          "example": [
+            "17220c4560ab4e5b913aaa40895183fb"
+          ],
+          "items": {
+            "type": "string",
+            "description": "标签ID集合",
+            "example": "[\"17220c4560ab4e5b913aaa40895183fb\"]"
+          }
+        },
+        "execute_start_time": {
+          "type": "string",
+          "description": "执行开始时间",
+          "example": "2021-11-04 00:00:00"
+        },
+        "execute_end_time": {
+          "type": "string",
+          "description": "执行结束时间",
+          "example": "2021-11-04 23:59:59"
+        },
+        "executor_ids": {
+          "type": "array",
+          "description": "执行者ID集合",
+          "example": [
+            "efdb403066474ab08836b9eeaaa23bca"
+          ],
+          "items": {
+            "type": "string",
+            "description": "执行者ID集合",
+            "example": "[\"efdb403066474ab08836b9eeaaa23bca\"]"
+          }
+        },
+        "test_types": {
+          "type": "array",
+          "description": "类型",
+          "example": [
+            "1"
+          ],
+          "items": {
+            "type": "string",
+            "description": "类型",
+            "example": "[\"1\"]"
+          }
+        },
+        "is_keyword": {
+          "type": "boolean",
+          "description": "是否组合关键字",
+          "example": false
+        },
+        "issue_tree_search": {
+          "type": "boolean",
+          "description": "是否是需求树点击的查询关联用例",
+          "example": false
+        },
+        "service_type": {
+          "type": "integer",
+          "description": "服务类型",
+          "format": "int32",
+          "example": 3
+        },
+        "service_types": {
+          "type": "array",
+          "description": "服务类型集合",
+          "example": [
+            0,
+            1,
+            6
+          ],
+          "items": {
+            "type": "integer",
+            "description": "服务类型集合",
+            "format": "int32"
+          }
+        },
+        "stage_type": {
+          "type": "integer",
+          "description": "阶段过程(2:测试设计,3:测试执行,4:质量报告)",
+          "format": "int32",
+          "example": 2
+        },
+        "feature_uri": {
+          "type": "string",
+          "description": "目录URI",
+          "example": "004s6kfel2q"
+        },
+        "sort_field": {
+          "type": "string",
+          "description": "排序字段",
+          "example": "testCaseNumber"
+        },
+        "sort_type": {
+          "type": "string",
+          "description": "排序方式",
+          "example": "ASC"
+        },
+        "page_no": {
+          "minimum": 1,
+          "type": "integer",
+          "description": "当前页数",
+          "format": "int32",
+          "example": 1
+        },
+        "page_size": {
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer",
+          "description": "每页条数",
+          "format": "int32",
+          "example": 10
+        },
+        "case_type": {
+          "type": "integer",
+          "description": "用例类型",
+          "format": "int32",
+          "example": 0
+        },
+        "custom_field_info": {
+          "type": "array",
+          "description": "用例自定义字段信息",
+          "items": {
+            "$ref": "#/definitions/QueryCustomFieldsInfo"
+          }
+        },
+        "task_uri": {
+          "type": "string",
+          "description": "测试套uri",
+          "example": "taskUri"
+        },
+        "associate_issue_detail": {
+          "type": "boolean",
+          "description": "是否返回需求具体信息(返回需求名称,需求id)",
+          "example": true
+        },
+        "not_assign_task": {
+          "type": "boolean",
+          "description": "该字段为false,则查询全量用例,为true表示查询未分配测试套的用例",
+          "example": true
+        },
+        "test_designs": {
+          "type": "array",
+          "description": "是否来自测试设计(null或者[true, false]:不限,[true]:来自测试设计,[false]:否来自测试设计)",
+          "example": [
+            true
+          ],
+          "items": {
+            "type": "boolean",
+            "description": "是否来自测试设计(null或者[true, false]:不限,[true]:来自测试设计,[false]:否来自测试设计)",
+            "example": false
+          }
+        },
+        "review_status": {
+          "type": "integer",
+          "description": "用例评审状态",
+          "format": "int32"
+        }
+      }
+    },
+    "AssociateDefectInfoVo": {
+      "type": "object",
+      "properties": {
+        "associate": {
+          "type": "boolean",
+          "description": "是否已关联",
+          "example": true
+        },
+        "associate_count": {
+          "type": "integer",
+          "description": "关联缺陷数",
+          "format": "int32",
+          "example": 1
+        }
+      },
+      "description": "关联缺陷信息"
+    },
+    "AssociateIssueInfoVo": {
+      "type": "object",
+      "properties": {
+        "associate": {
+          "type": "boolean",
+          "description": "是否已关联",
+          "example": true
+        },
+        "issue_id": {
+          "type": "string",
+          "description": "需求ID",
+          "example": "4654022505049243648"
+        },
+        "tracker_id": {
+          "type": "string",
+          "description": "需求类型",
+          "example": "1"
+        },
+        "board_id": {
+          "type": "string",
+          "description": "工作项层级ID",
+          "example": "443ef10e6c954b00a24ed6ce6864854a"
+        },
+        "tracker_name": {
+          "type": "string",
+          "description": "需求类型名称",
+          "example": "IR"
+        }
+      },
+      "description": "关联需求信息"
+    },
+    "IntegerIdAndNameVo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "数据库存储数字",
+          "format": "int32",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "页面显示值",
+          "example": "显示值"
+        }
+      },
+      "description": "测试类型信息"
+    },
+    "ApiError": {
+      "title": "失败原因",
+      "type": "object",
+      "properties": {
+        "code": {
+          "title": "错误编码",
+          "type": "string",
+          "description": "业务失败的错误码"
+        },
+        "reason": {
+          "title": "错误信息",
+          "type": "string",
+          "description": "业务失败的提示内容"
+        }
+      },
+      "description": "失败时的error信息"
+    },
+    "ApiResultListTestCaseListVo": {
+      "title": "ApiResult",
+      "type": "object",
+      "properties": {
+        "status": {
+          "title": "本次请求的处理状态",
+          "type": "string",
+          "description": "对外时:success|error; 对内时:ok|failed"
+        },
+        "result": {
+          "$ref": "#/definitions/ResultValueListTestCaseListVo"
+        },
+        "error": {
+          "$ref": "#/definitions/ApiError"
+        },
+        "request_id": {
+          "title": "请求的唯一id",
+          "type": "string",
+          "description": "由接口调用方传入,建议使用UUID保证请求的唯一性。"
+        },
+        "server_address": {
+          "title": "本次请求的受理的服务地址,只对内返回。",
+          "type": "string",
+          "description": "对内接口才有此属性"
+        }
+      },
+      "description": "api 返回的数据格式"
+    },
+    "TestCaseListVo": {
+      "title": "本次查询的记录结果",
+      "type": "object",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "description": "用例URI",
+          "example": "001rv8lk4he"
+        },
+        "name": {
+          "type": "string",
+          "description": "用例名称",
+          "example": "测试用例"
+        },
+        "owner": {
+          "$ref": "#/definitions/NameAndIdVo"
+        },
+        "status": {
+          "$ref": "#/definitions/NameAndIdVo"
+        },
+        "result": {
+          "$ref": "#/definitions/NameAndIdVo"
+        },
+        "module": {
+          "$ref": "#/definitions/NameAndIdVo"
+        },
+        "iteration": {
+          "$ref": "#/definitions/NameAndIdVo"
+        },
+        "exeplatform": {
+          "type": "string",
+          "description": "执行平台,如:apittest,其他三方执行平台",
+          "example": "apittest"
+        },
+        "number": {
+          "type": "string",
+          "description": "用例编号",
+          "example": "10010"
+        },
+        "description": {
+          "type": "string",
+          "description": "用例描述",
+          "example": "用例描述"
+        },
+        "rank_id": {
+          "type": "string",
+          "description": "用例等级",
+          "example": "2"
+        },
+        "feature_uri": {
+          "type": "string",
+          "description": "目录URI",
+          "example": "001rv8u6cts1"
+        },
+        "release_dev": {
+          "type": "string",
+          "description": "版本号",
+          "example": "1.0.1"
+        },
+        "is_keyword": {
+          "type": "boolean",
+          "description": "是否组合关键字",
+          "example": false
+        },
+        "script_url": {
+          "type": "string",
+          "description": "脚本路径",
+          "example": "/script/test.py"
+        },
+        "report_url": {
+          "type": "string",
+          "description": "实时报告地址"
+        },
+        "project_uuid": {
+          "type": "string",
+          "description": "项目ID",
+          "example": "bcfb102f3bef45ab87f0f9ea6fc4f49c"
+        },
+        "service_type": {
+          "$ref": "#/definitions/NameAndIdVo"
+        },
+        "test_type": {
+          "$ref": "#/definitions/IntegerIdAndNameVo"
+        },
+        "create_info": {
+          "$ref": "#/definitions/CreateInfoVo"
+        },
+        "execute_info": {
+          "$ref": "#/definitions/ExecuteInfoVo"
+        },
+        "associate_issue_info": {
+          "$ref": "#/definitions/AssociateIssueInfoVo"
+        },
+        "associate_defect_info": {
+          "$ref": "#/definitions/AssociateDefectInfoVo"
+        },
+        "case_type": {
+          "type": "integer",
+          "description": "用例类型",
+          "format": "int32",
+          "example": 0
+        },
+        "labels": {
+          "type": "array",
+          "description": "用例标签名称列表",
+          "example": [
+            {
+              "uri": "004sobn0n0t2"
+            },
+            {
+              "uri": "004sobn0n0t3"
+            }
+          ],
+          "items": {
+            "$ref": "#/definitions/LabelVo"
+          }
+        },
+        "custom_field_info": {
+          "type": "array",
+          "description": "自定义字段信息",
+          "items": {
+            "$ref": "#/definitions/CustomFieldVo"
+          }
+        },
+        "is_test_design": {
+          "type": "boolean",
+          "description": "是否来自测试设计(null:不限,false:否来自测试设计,true:来自测试设计)",
+          "example": true
+        },
+        "last_modified": {
+          "type": "integer",
+          "description": "最后修改时间(null:不限)",
+          "format": "int64",
+          "example": 1705580778
+        },
+        "review_status": {
+          "type": "integer",
+          "description": "用例评审状态(null:0至127)",
+          "format": "int32",
+          "example": 1
+        }
+      },
+      "description": "实际的数据类型:单个对象,集合 或 NULL"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,固定长度32位字符(字母和数字)。",
+      "required": true,
+      "type": "string",
+      "minLength": 32,
+      "maxLength": 32,
+      "pattern": "^[A-Za-z0-9]{32}$",
+      "x-example": "968ce2c7784f471f8fd2a8d7c8537c84"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "type": "string",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "minLength": 1,
+      "maxLength": 100000,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+    }
+  },
+  "host": "cloudtest-ext.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

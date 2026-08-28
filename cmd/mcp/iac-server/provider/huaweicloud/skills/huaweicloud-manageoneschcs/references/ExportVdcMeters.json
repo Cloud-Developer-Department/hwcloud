@@ -1,0 +1,232 @@
+{
+  "name": "ExportVdcMeters",
+  "summary": "VDC管理员导出VDC计量信息",
+  "tags": "计量计价",
+  "productshort": "ManageOneSCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/metering/v3.0/vdcs/{vdc_id}/meters/export": {
+      "post": {
+        "summary": "VDC管理员导出VDC计量信息",
+        "description": "VDC管理员导出VDC计量信息。",
+        "x-opseverity": "Minor",
+        "x-resource": "VDC管理员计量管理",
+        "x-precautions": "1.错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运营面API参考 > 错误码说明 > 计量计价”章节。",
+        "tags": [
+          "计量计价"
+        ],
+        "operationId": "ExportVdcMeters",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-language",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "语言信息。",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ]
+          },
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "当前用户的token。用于鉴权,必须具有vdc_adm、vdc_readonly、op_service角色。"
+          },
+          {
+            "name": "vdc_id",
+            "in": "path",
+            "description": "VDC ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          {
+            "name": "exportBody",
+            "in": "body",
+            "description": "计量导出结构体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MeterExportBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "导出任务下发成功。",
+            "schema": {
+              "$ref": "#/definitions/MeterExportResponse"
+            },
+            "examples": {
+              "application/json": {
+                "code": "0",
+                "message": "meter export is starting.",
+                "fileName": "--report--meter--VDC_USED_TOTAL_METER_2018-08-21_19-47-03_3BA885BC85A4BFF46C254793FBB966F5_ZH.xlsx"
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "401": {
+            "description": "token鉴权失败"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "POST https://{endpoint}/rest/metering/v3.0/vdcs/{vdc_id}/meters/export",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "regionId": "cn-corp-1",
+          "azId": "az1",
+          "startTime": "2017-03-31 12:00:00",
+          "endTime": "2017-04-12 12:00:00",
+          "resourceIds": [],
+          "atomRange": "list",
+          "flavorRange": "list",
+          "timeZone": "Asia/Shanghai",
+          "specType": "atom",
+          "history": false,
+          "locale": "zh_CN"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MeterExportBody": {
+      "description": "导出对象结构体。",
+      "required": [
+        "history",
+        "startTime",
+        "endTime",
+        "locale",
+        "timeZone"
+      ],
+      "properties": {
+        "history": {
+          "description": "导出的资源类型,取值:true(已删除)、false(使用中)。",
+          "type": "boolean",
+          "enum": [
+            true,
+            false
+          ]
+        },
+        "resourceName": {
+          "description": "资源名称,支持模糊查询。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "resourceIds": {
+          "description": "资源ID,导出选定的几个资源。默认全部导出。租户计量导出详情的时候,需要指定租户ID,且租户数量不能超过50个。",
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          }
+        },
+        "atomRange": {
+          "description": "原子计量导出的范围:list(列表)或all(全部)。",
+          "type": "string",
+          "maxLength": 16,
+          "minLength": 1
+        },
+        "flavorRange": {
+          "description": "规格计量导出的范围:list(列表)或all(全部)。",
+          "type": "string",
+          "maxLength": 16,
+          "minLength": 1
+        },
+        "startTime": {
+          "description": "开始时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string"
+        },
+        "endTime": {
+          "description": "结束时间。时间为本地时间,格式:yyyy-mm-dd hh:mm:ss。",
+          "type": "string"
+        },
+        "locale": {
+          "description": "界面显示的语言类型。取值为:zh_CN(中文)或en_US(英文)。",
+          "type": "string",
+          "maxLength": 8,
+          "minLength": 1
+        },
+        "regionId": {
+          "description": "地域ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "azId": {
+          "description": "可用分区ID。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "timeZone": {
+          "description": "时区信息。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "resourceType": {
+          "description": "资源类型。导出资源计量详情时使用,指定资源类型。",
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        }
+      }
+    },
+    "MeterExportResponse": {
+      "description": "计量导出结构体。",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "description": "返回码,0表示导出任务启动成功。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "message": {
+          "description": "消息信息。",
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "fileName": {
+          "description": "导出文件的名称。",
+          "type": "string",
+          "maxLength": 255,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

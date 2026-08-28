@@ -1,0 +1,216 @@
+{
+  "name": "BatchTagResources",
+  "summary": "批量添加资源标签",
+  "tags": "资源标签管理",
+  "productshort": "SecMaster",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/{resource_type}/{resource_id}/tags/create": {
+      "post": {
+        "tags": [
+          "资源标签管理"
+        ],
+        "summary": "批量添加资源标签",
+        "description": "为指定实例批量添加标签\n标签管理服务需要使用该接口批量管理实例的标签。\n一个资源上最多有20个标签。",
+        "operationId": "BatchTagResources",
+        "parameters": [
+          {
+            "name": "resource_type",
+            "in": "path",
+            "description": "资源类型",
+            "required": true,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          {
+            "name": "resource_id",
+            "in": "path",
+            "description": "资源ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释:**\n项目ID,用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。[获取项目ID](secmaster_03_0014.xml)\n**约束限制:**\n不涉及\n**取值范围:**\n不涉及\n**默认取值:**\n不涉及",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 32,
+            "x-example": "156*******************341da6"
+          },
+          {
+            "name": "Content-type",
+            "in": "header",
+            "description": "**参数解释:**\n内容类型\n- application/json;charset=UTF-8    普通API请求的类型\n\n**约束限制:**\n不涉及\n**取值范围:**\n- application/json;charset=UTF-8\n\n**默认取值:**\n不涉及",
+            "required": true,
+            "type": "string",
+            "default": "application/json;charset=UTF-8",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "body",
+            "name": "BatchTagResourcesRequestBody",
+            "description": "请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AlterResourceTagsInBatchesRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "标签等参数非法",
+            "schema": {
+              "$ref": "#/definitions/WorkspaceErrorResponseBody"
+            }
+          },
+          "401": {
+            "description": "鉴权失败",
+            "schema": {
+              "$ref": "#/definitions/WorkspaceErrorResponseBody"
+            }
+          },
+          "403": {
+            "description": "权限不足",
+            "schema": {
+              "$ref": "#/definitions/WorkspaceErrorResponseBody"
+            }
+          },
+          "404": {
+            "description": "资源未找到",
+            "schema": {
+              "$ref": "#/definitions/WorkspaceErrorResponseBody"
+            }
+          },
+          "500": {
+            "description": "系统异常",
+            "schema": {
+              "$ref": "#/definitions/WorkspaceErrorResponseBody"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-surpport-hcs": "Y",
+        "x-surpport-apiexplorer": true,
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST /v1/{project_id}/{resource_type}/{resource_id}/tags/create",
+        "x-request-examples-description-1": "update tenant tags",
+        "x-request-examples-text-1": {
+          "tags": [
+            {
+              "key": "key1",
+              "value": "value1"
+            },
+            {
+              "key": "key",
+              "value": "value3"
+            }
+          ]
+        },
+        "x-request-examples-url-2": "POST /v1/{project_id}/{resource_type}/{resource_id}/tags/create",
+        "x-request-examples-description-2": "update system tags",
+        "x-request-examples-text-2": {
+          "sys_tags": [
+            {
+              "key": "_sys_enterprise_project_id",
+              "value": "5aa119a8-d25b-45a7-8d1b-88e127885635"
+            }
+          ]
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "AlterResourceTagsInBatchesRequestBody": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "description": "标签列表\n租户权限时该字段必选,op_service权限时和sys_tags二选一",
+          "items": {
+            "$ref": "#/definitions/ResourceTag"
+          },
+          "maxItems": 10,
+          "minItems": 0
+        },
+        "sys_tags": {
+          "type": "array",
+          "description": "系统标签列表\nop_service权限可以访问,和tags二选一。\n目前TMS调用时只包含一个resource_tag结构体 ,key固定为:_sys_enterprise_project_id\nvalue是UUID或0,value为0表示默认企业项目。现在仅支持create操作",
+          "items": {
+            "$ref": "#/definitions/ResourceTag"
+          },
+          "maxItems": 10,
+          "minItems": 0
+        }
+      }
+    },
+    "ResourceTag": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "键。最大长度128个unicode字符。\nkey符合3.1 KEY字符集规范",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "value": {
+          "type": "string",
+          "description": "值。每个值最大长度255个unicode字符。\nvalue符合3.2 VALUE字符集规范。",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      }
+    },
+    "WorkspaceErrorResponseBody": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "SecMaster.20011001",
+          "description": "Error code.",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Parameter error.",
+          "description": "Error description.",
+          "minLength": 0,
+          "maxLength": 1024
+        }
+      },
+      "description": "Error response for failed request."
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "secmaster.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

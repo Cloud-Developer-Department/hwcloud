@@ -1,0 +1,218 @@
+{
+  "name": "ListJobs",
+  "summary": "查询任务列表和详情",
+  "tags": "任务管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/jobs": {
+      "get": {
+        "tags": [
+          "任务管理"
+        ],
+        "x-constraint": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/0549b4a43100d4f32f51c01c2fe4acdb/jobs?id=89a0cde6-9c46-4b89-a92c-573e1083ff23",
+        "x-request-examples-description-1": "URI样例",
+        "operationId": "ListJobs",
+        "summary": "查询任务列表和详情",
+        "description": "查询任务列表和详情,默认查询任务列表。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一region下的project ID。"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。",
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "description": "任务ID。",
+            "type": "string"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "description": "查询开始时间,默认当前时间往前30天,格式为“yyyy-mm-ddThh:mm:ssZ”。\n其中,T指某个时间的开始,Z指时区偏移量",
+            "type": "string"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "description": "查询结束时间,默认当前时间,格式为“yyyy-mm-ddThh:mm:ssZ”,且大于查询开始时间,时间跨度不超过30天。\n其中,T指某个时间的开始,Z指时区偏移量。",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "任务状态: 取值为“Running”为执行中; 取值为“Completed”为完成; 取值为“Failed” 为失败。",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "任务名称。对应取值如下:\n- \"CreateInstance\":创建实例\n- \"RestoreNewInstance\":恢复到新实例\n- \"EnlargeInstance\":扩容实例\n- \"ReduceInstance\":缩容实例\n- \"RestartInstance\":重启实例\n- \"RestartNode\":重启节点\n- \"EnlargeInstanceVolume\":扩容实例磁盘\n- \"ReduceInstanceVolume\":缩容实例磁盘\n- \"ResizeInstance\":规格变更实例\n- \"UpgradeDbVersion\":升级数据库版本\n- \"BindPublicIP\":绑定公网IP\n- \"UnbindPublicIP\":解绑公网IP\n- \"DeleteInstance\":删除实例\n- \"EnlargeInstanceColdVolume\":扩容实例冷存储\n- \"AddInstanceColdVolume\":增加实例冷存储\n- \"ModifySecurityGroup\":修改安全组\n\n- \"ModifyPort\":修改端口\n- \"ConstructDisasterRecovery\":构造容灾关系\n- \"DeConstructDisasterRecovery\":解除容灾关系\n- \"SwitchOverDisasterRecovery\":切换容灾关系\n- \"BuildBiActiveInstance\":构建双活实例\n- \"ReleaseBiActiveInstance\":解除双活实例关系\n- \"BackupInstance\":备份实例"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "索引位置,偏移量。从第一条数据偏移offset条数据后开始查询,默认为0(偏移0条数据,表示从第一条数据开始查询),必须为数字,不能为负数。",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "查询记录数。取值 10 20 50 ,默认为50。",
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/JobListResponse"
+            },
+            "examples": {
+              "application/json": {
+                "total_count": 1,
+                "jobs": [
+                  {
+                    "id": "6f85e061-04dd-42e7-86d6-d3b1e40aac2e",
+                    "name": "CreateCassandra",
+                    "status": "Running",
+                    "start_time": "2023-09-12T06:44:01+0000",
+                    "end_time": "2023-09-12T06:44:03+0000",
+                    "progress": "14%",
+                    "instance": {
+                      "id": "27a045b6bf9e46f691f81366d398cb04in06",
+                      "name": "nosql-12f5"
+                    },
+                    "fail_reason": ""
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "JobInstanceInfo": {
+      "type": "object",
+      "description": "执行任务的实例信息。",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "实例ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "实例名称。"
+        }
+      }
+    },
+    "JobListResponse": {
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobDetail"
+          },
+          "description": "任务列表。"
+        },
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "任务列表总数"
+        }
+      },
+      "required": [
+        "jobs",
+        "total_count"
+      ],
+      "type": "object"
+    },
+    "JobDetail": {
+      "type": "object",
+      "description": "任务信息。",
+      "required": [
+        "id",
+        "name",
+        "status",
+        "start_time",
+        "end_time",
+        "progress",
+        "instance",
+        "fail_reason"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "任务名称。"
+        },
+        "status": {
+          "type": "string",
+          "description": "任务执行状态。\n取值:\nRunning:表示任务正在执行。\nCompleted:表示任务执行成功。\nFailed:表示任务执行失败。\n\n枚举值:\nRunning\nCompleted\nFailed"
+        },
+        "start_time": {
+          "type": "string",
+          "description": "创建时间,格式为“yyyy-mm-ddThh:mm:ssZ”。\n\n其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间,格式为“yyyy-mm-ddThh:mm:ssZ”。\n\n其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。"
+        },
+        "progress": {
+          "type": "string",
+          "description": "任务执行进度。\n> 执行中状态才返回执行进度,例如“60%”,表示任务执行进度为60%,否则返回“”。"
+        },
+        "instance": {
+          "$ref": "#/definitions/JobInstanceInfo",
+          "description": "任务关联的实例信息。"
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "任务执行失败时的错误信息。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

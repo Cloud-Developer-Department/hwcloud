@@ -1,0 +1,524 @@
+{
+  "name": "InstallMultiTasks",
+  "summary": "组合任务初始化",
+  "tags": "任务管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/fdi/instances/{instance_id}/multi-tasks/init": {
+      "post": {
+        "tags": [
+          "任务管理"
+        ],
+        "operationId": "InstallMultiTasks",
+        "summary": "组合任务初始化",
+        "description": "初始化组合任务,分配任务ID,初始化映射等",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/instance_id"
+          },
+          {
+            "in": "body",
+            "name": "InstallMultiTasksRequestBody",
+            "description": "组合任务初始化Body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MultiTaskInitBody"
+            }
+          }
+        ],
+        "x-request-examples-1": {
+          "ext_info": null,
+          "source_datasource_id": "30969b205e8f4392a25fb321112d1753",
+          "target_datasource_id": "30969b205e8f4392a25fb321112d1753",
+          "task_id": null,
+          "auto_mapping": false
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MultiTaskInitElement"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "FDI.3150",
+                "error_msg": "The task list is empty."
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "FDI.3083",
+                "error_msg": "One or more scheduled tasks are not configured with scheduled plans."
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp500"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MultiTaskColumnInfo": {
+      "properties": {
+        "field_name": {
+          "type": "string",
+          "description": "字段名",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "ID"
+        },
+        "field_type": {
+          "type": "string",
+          "description": "字段类型",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "VARCHAR"
+        },
+        "field_length": {
+          "type": "string",
+          "description": "字段长度",
+          "minimum": 0,
+          "maximum": 10000000,
+          "example": "100"
+        }
+      }
+    },
+    "MultiTaskInitBody": {
+      "properties": {
+        "ext_info": {
+          "type": "object",
+          "description": "扩展属性,目前支持server_id,允许为空",
+          "properties": {
+            "server_id": {
+              "type": "string",
+              "description": "Mysql的ServerID",
+              "minLength": 1,
+              "maxLength": 20,
+              "example": 1111
+            }
+          },
+          "example": null
+        },
+        "source_datasource_id": {
+          "type": "string",
+          "description": "源端数据源ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "30969b205e8f4392a25fb321112d1753"
+        },
+        "target_datasource_id": {
+          "type": "string",
+          "description": "目标端数据源ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "30969b205e8f4392a25fb321112d1753"
+        },
+        "task_id": {
+          "type": "string",
+          "description": "任务ID,可以为空,为空时自动分配任务ID",
+          "minLength": 3,
+          "maxLength": 50,
+          "example": null
+        },
+        "auto_mapping": {
+          "type": "boolean",
+          "description": "是否自动建立源端到目标端映射",
+          "example": false
+        }
+      }
+    },
+    "ErrorRsp400": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.3002"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "Invalid parameters."
+        }
+      }
+    },
+    "ErrorRsp500": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.9999"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "Network error."
+        }
+      }
+    },
+    "MultiTaskMappingElement": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "映射唯一ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "15366328208d4d77b76532fe9f4006a6"
+        },
+        "source_table": {
+          "type": "string",
+          "description": "源表名",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "Schema.Table1"
+        },
+        "target_table": {
+          "type": "string",
+          "description": "目标表名",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "Schema.Table2"
+        },
+        "updated_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "上次修改时间",
+          "minimum": 1,
+          "maximum": 9999999999999999999,
+          "example": 456223355566
+        },
+        "mapping_percent": {
+          "type": "integer",
+          "format": "int64",
+          "description": "匹配度",
+          "minimum": 0,
+          "maximum": 100,
+          "example": 100
+        },
+        "status": {
+          "type": "string",
+          "description": "映射状态\n- AUTO (自动映射)\n- MANUAL (手工新增)\n- ADD (自动新增)\n- UPDATE (更新)\n- DELETE (删除)\n- USING (使用中)",
+          "enum": [
+            "AUTO",
+            "MANUAL",
+            "ADD",
+            "UPDATE",
+            "DELETE",
+            "USING"
+          ],
+          "minLength": 1,
+          "maxLength": 10,
+          "example": "ADD"
+        },
+        "source_columns": {
+          "type": "array",
+          "description": "源端字段列表",
+          "minItems": 1,
+          "maxItems": 9999,
+          "items": {
+            "$ref": "#/definitions/MultiTaskColumnInfo"
+          }
+        },
+        "target_columns": {
+          "type": "array",
+          "description": "目标端字段列表",
+          "minItems": 1,
+          "maxItems": 9999,
+          "items": {
+            "$ref": "#/definitions/MultiTaskColumnInfo"
+          }
+        },
+        "mapping": {
+          "type": "array",
+          "description": "字段映射列表",
+          "minItems": 1,
+          "maxItems": 9999,
+          "items": {
+            "$ref": "#/definitions/MappingInfo"
+          }
+        }
+      }
+    },
+    "ErrorRsp404": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "FDI.3081"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "The task does not exist."
+        }
+      }
+    },
+    "MappingInfo": {
+      "properties": {
+        "source_column": {
+          "type": "string",
+          "description": "源端字段",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "ID"
+        },
+        "source_column_type": {
+          "type": "string",
+          "description": "源端字段类型",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "VARCHAR"
+        },
+        "source_column_length": {
+          "type": "string",
+          "description": "源端字段长度",
+          "minimum": 0,
+          "maximum": 10000000,
+          "example": "100"
+        },
+        "target_column": {
+          "type": "string",
+          "description": "目标端字段",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "ID"
+        },
+        "target_column_type": {
+          "type": "string",
+          "description": "目标端字段类型",
+          "minLength": 1,
+          "maxLength": 256,
+          "example": "VARCHAR"
+        },
+        "target_column_length": {
+          "type": "string",
+          "description": "目标端字段长度",
+          "minimum": 0,
+          "maximum": 10000000,
+          "example": "100"
+        }
+      }
+    },
+    "MultiTaskInitElement": {
+      "properties": {
+        "ext_info": {
+          "type": "object",
+          "description": "扩展属性,目前只支持server_id",
+          "properties": {
+            "server_id": {
+              "type": "string",
+              "description": "Mysql的ServerID",
+              "minLength": 1,
+              "maxLength": 20,
+              "example": "1111"
+            }
+          }
+        },
+        "task_id": {
+          "type": "string",
+          "description": "任务ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "15366328208d4d77b76532fe9f4006a6"
+        },
+        "source_datasource_id": {
+          "type": "string",
+          "description": "源端数据源ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "30969b205e8f4392a25fb321112d1753"
+        },
+        "target_datasource_id": {
+          "type": "string",
+          "description": "目标端数据源ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "30969b205e8f4392a25fb321112d1753"
+        },
+        "source_group": {
+          "type": "string",
+          "description": "源端组",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "SOURCE_GROUP1"
+        },
+        "target_group": {
+          "type": "string",
+          "description": "目标端组",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "TARGET_GROUP1"
+        },
+        "source_ds_id": {
+          "type": "string",
+          "description": "源端数据源ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "30969b205e8f4392a25fb321112d1753"
+        },
+        "target_ds_id": {
+          "type": "string",
+          "description": "目标端数据源ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "30969b205e8f4392a25fb321112d1753"
+        },
+        "source_instance_id": {
+          "type": "string",
+          "description": "源端实例ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "d0b9b476-e934-4fb8-a347-2a84fadf6731"
+        },
+        "target_instance_id": {
+          "type": "string",
+          "description": "目标端实例ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "d0b9b476-e934-4fb8-a347-2a84fadf6731"
+        },
+        "source_app_id": {
+          "type": "string",
+          "description": "源端数据源所属集成应用ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "eaaa8ad0-f967-416a-ab73-d995ef656e89"
+        },
+        "target_app_id": {
+          "type": "string",
+          "description": "目标端数据源所属集成应用ID",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "eaaa8ad0-f967-416a-ab73-d995ef656e89"
+        },
+        "source_datasource_name": {
+          "type": "string",
+          "description": "源端数据源的名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "fdi_ds_testmysqlv2"
+        },
+        "target_datasource_name": {
+          "type": "string",
+          "description": "目标端数据源的名称",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "fdi_ds_testmysqlv2"
+        },
+        "source_datasource_type": {
+          "type": "string",
+          "description": "源端数据源的类型",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "ORACLE"
+        },
+        "target_datasource_type": {
+          "type": "string",
+          "description": "目标端数据源的类型",
+          "minLength": 1,
+          "maxLength": 64,
+          "example": "Postgresql"
+        },
+        "mappings": {
+          "type": "array",
+          "description": "映射关系列表,只返回前10条",
+          "minItems": 1,
+          "maxItems": 9999,
+          "items": {
+            "$ref": "#/definitions/MultiTaskMappingElement"
+          }
+        },
+        "mappings_total_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "映射关系总数",
+          "minimum": 0,
+          "maximum": 1000000,
+          "example": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方式请参见《ROMA Connect API参考》的“附录 > 获取项目ID”章节。",
+      "type": "string",
+      "required": true,
+      "maxLength": 32,
+      "minLength": 0
+    },
+    "instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "description": "实例ID",
+      "type": "string",
+      "required": true,
+      "maxLength": 36,
+      "minLength": 0
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

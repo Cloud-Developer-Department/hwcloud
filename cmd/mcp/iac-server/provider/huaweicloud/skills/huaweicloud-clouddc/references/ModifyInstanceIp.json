@@ -1,0 +1,165 @@
+{
+  "name": "ModifyInstanceIp",
+  "summary": "修改实例ip",
+  "tags": "裸机实例管理",
+  "productshort": "CloudDC",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/{project_id}/instances/{id}/ip": {
+      "put": {
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "tags": [
+          "裸机实例管理"
+        ],
+        "summary": "修改实例ip",
+        "description": "用户可选择指定的 iMetal 实例,修改ip。\n\n接口约束:iMetal 实例处于就绪状态(已调测成功)或修改ip失败同时为下电状态。",
+        "operationId": "ModifyInstanceIp",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/InstanceID"
+          },
+          {
+            "name": "ModifyInstanceIpRequestBody",
+            "in": "body",
+            "required": false,
+            "description": "修改实例IP请求",
+            "schema": {
+              "$ref": "#/definitions/ModifyInstanceIpRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "修改ip请求成功"
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "ModifyInstanceIpRequestBody": {
+      "type": "object",
+      "description": "修改服务器ip请求体。",
+      "properties": {
+        "vpc_id": {
+          "type": "string",
+          "description": "创建网卡所属的 VPC ID,可通过 VPC API 查询:https://support.huaweicloud.com/api-vpc/vpc_api01_0003.html。",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "example": "4cba9711-2f53-4300-a52e-2442773acaac"
+        },
+        "nics": {
+          "type": "array",
+          "items": {
+            "required": [
+              "subnet_id"
+            ],
+            "properties": {
+              "subnet_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "description": "创建网卡所属 CloudDCN 子网 ID,可通过 CloudDCN API 查询:https://support.huaweicloud.com/api-vpc/vpc_subnet01_0003.html。",
+                "example": "894f69c6-a1a3-4606-ab33-cc11ff7cd11a"
+              },
+              "ip_address": {
+                "type": "string",
+                "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+                "description": "创建网卡指定静态IP,批量安装时,该参数不生效。不填或空字符串,默认在子网(subnet)中自动分配一个未使用的IP作网卡的IP地址。若指定IP地址,该IP地址必须在子网(subnet)对应的网段内,且未被使用。",
+                "example": "192.168.0.1"
+              }
+            }
+          },
+          "description": "网卡信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "InstanceID": {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "imetal instance id",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-southwest-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

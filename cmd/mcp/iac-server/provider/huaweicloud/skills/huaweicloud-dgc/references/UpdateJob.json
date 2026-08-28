@@ -1,0 +1,618 @@
+{
+  "name": "UpdateJob",
+  "summary": "修改作业",
+  "tags": "作业相关的API",
+  "productshort": "DGC",
+  "region_id": "cn-southwest-2",
+  "paths": {
+    "/v1/{project_id}/jobs/{job_name}": {
+      "put": {
+        "summary": "修改作业",
+        "x-support-sdk": "Y",
+        "tags": [
+          "作业相关的API"
+        ],
+        "operationId": "UpdateJob",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "workspace",
+            "in": "header",
+            "description": "工作空间id",
+            "required": false,
+            "type": "string",
+            "x-notgenerate": true
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "job_name",
+            "in": "path",
+            "description": "作业名称.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "请求body体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobInfo"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "success"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Cron": {
+      "properties": {
+        "startTime": {
+          "type": "string",
+          "description": "调度开始时间,采用ISO 8601时间表示方法,格式为yyyy-MM-dd'T'HH:mm:ssZ,例如2018-10-22T23:59:59+08表示的时间为2018年10月22日23时59分59秒,在正8区,即北京时区"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "调度结束时间,采用ISO 8601时间表示方法,格式为yyyy-MM-dd'T'HH:mm:ssZ,例如2018-10-22T23:59:59+08表示的时间为2018年10月22日23时59分59秒,在正8区,即北京时区。如果结束时间不配置,作业会按照调度周期一直执行下去"
+        },
+        "expression": {
+          "type": "string",
+          "description": "Cron表达式,格式为\"<秒> <分> <时> <天> <月> <星期>\""
+        },
+        "expressionTimeZone": {
+          "type": "string",
+          "description": "Cron表达式对应的时区信息,例如GMT+8"
+        },
+        "dependPrePeriod": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否依赖本作业上一个运行周期任务的执行结果"
+        },
+        "intervalType": {
+          "type": "string",
+          "default": false,
+          "description": "调度间隔类型:\n- minutes:分钟\n- hours:小时\n- days:天\n- weeks: 周\n- months:月\n- seasons: 季\n- years:年"
+        },
+        "dependJobs": {
+          "$ref": "#/definitions/DependJob",
+          "description": "依赖其它作业列表"
+        }
+      },
+      "required": [
+        "startTime",
+        "expression"
+      ]
+    },
+    "Event": {
+      "properties": {
+        "eventType": {
+          "type": "string",
+          "description": "事件类型"
+        },
+        "channel": {
+          "type": "string",
+          "description": "DIS通道名称"
+        },
+        "failPolicy": {
+          "type": "string",
+          "description": "执行失败处理策略"
+        },
+        "concurrent": {
+          "type": "integer",
+          "default": 1,
+          "description": "调度并发数"
+        },
+        "readPolicy": {
+          "type": "string",
+          "default": "LAST",
+          "description": "读取策略,LAST :从上次位置读取,NEW- 从最新位置读取,默认为LAST"
+        }
+      },
+      "required": [
+        "eventType",
+        "channel"
+      ]
+    },
+    "JobApprover": {
+      "properties": {
+        "approverName": {
+          "type": "string",
+          "description": "审批人名称"
+        }
+      },
+      "required": [
+        "approverName"
+      ]
+    },
+    "CronTrigger": {
+      "properties": {
+        "startTime": {
+          "description": "调度开始时间,采用ISO 8601时间表示方法,格式为yyyy-MM-dd'T'HH:mm:ssZ,例如2018-10-22T23:59:59+08表示的时间为2018年10月22日23时59分59秒,在正8区,即北京时区。",
+          "type": "string"
+        },
+        "endTime": {
+          "description": "调度结束时间,采用ISO 8601时间表示方法,格式为yyyy-MM-dd'T'HH:mm:ssZ,例如2018-10-22T23:59:59+08表示的时间为2018年10月22日23时59分59秒,在正8区,即北京时区。如果结束时间不配置,作业会按照调度周期一直执行下去。",
+          "type": "string"
+        },
+        "expression": {
+          "type": "string",
+          "description": "Cron表达式"
+        },
+        "expressionTimeZone": {
+          "type": "string",
+          "description": "时区"
+        },
+        "period": {
+          "description": "用于描述运行的间隔时间,格式为时间+时间单位。需要与expression中的表达式对应",
+          "type": "string"
+        },
+        "dependPrePeriod": {
+          "type": "boolean",
+          "description": "是否依赖本作业上一个运行周期任务的执行结果"
+        },
+        "dependJobs": {
+          "$ref": "#/definitions/DependJob",
+          "description": "依赖其它作业列表"
+        },
+        "concurrent": {
+          "type": "integer",
+          "default": 10,
+          "description": "并发调用数"
+        }
+      },
+      "required": [
+        "startTime",
+        "expression",
+        "period"
+      ]
+    },
+    "DependWorkSpaceJob": {
+      "properties": {
+        "dependOnLastPeriod": {
+          "type": "boolean",
+          "description": "是否依赖最近一个周期",
+          "default": false
+        },
+        "jobName": {
+          "type": "string",
+          "description": "作业名"
+        },
+        "workSpaceId": {
+          "type": "string",
+          "description": "工作空间名ID"
+        },
+        "workSpace": {
+          "type": "string",
+          "description": "工作空间名"
+        },
+        "dependType": {
+          "type": "string",
+          "description": "依赖的规则"
+        },
+        "dependOnLastNPeriodValue": {
+          "type": "integer",
+          "description": "依赖上N个周期"
+        }
+      }
+    },
+    "Schedule": {
+      "properties": {
+        "type": {
+          "description": "调度类型\n- EXECUTE_ONCE: 作业立即运行,只运行一次。\n- CRON: 作业按指定频率周期执行。\n- EVENT:  根据事件触发执行。",
+          "type": "string",
+          "enum": [
+            "EXECUTE_ONCE",
+            "EVENT_TRIGGER",
+            "RUN_ONCE",
+            "CRON",
+            "EVENT",
+            "SCHEDULE"
+          ]
+        },
+        "cron": {
+          "description": "当type为CRON时,配置调度频率、启动时间等信息",
+          "$ref": "#/definitions/Cron"
+        },
+        "event": {
+          "description": "实时作业节点事件触发配置",
+          "$ref": "#/definitions/Event"
+        }
+      }
+    },
+    "Node": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "节点名称,只能包含六种字符:英文字母、数字、中文、中划线、下划线和点号,且长度小于等于128个字符。同一个作业中节点名称不能重复。"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HiveSQL",
+            "SparkSQL",
+            "DWSSQL",
+            "DLISQL",
+            "Shell",
+            "CDMJob",
+            "DISTransferTask",
+            "CSJob",
+            "CloudTableManage",
+            "OBSManager",
+            "RESTAPI",
+            "MachineLearning",
+            "SMN",
+            "MRSSpark",
+            "MapReduce",
+            "DLISpark",
+            "MRSFlink",
+            "MRSFlinkJob",
+            "MRSHetuEngine",
+            "RDS SQL",
+            "DataMigration",
+            "OneclickCDC",
+            "Dummy",
+            "MRSSparkPython"
+          ],
+          "description": "节点的类型"
+        },
+        "location": {
+          "$ref": "#/definitions/Location",
+          "description": "节点在作业画布上的位置"
+        },
+        "preNodeName": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "本本节点依赖的前面的节点名称列表"
+        },
+        "conditions": {
+          "type": "array",
+          "description": "节点执行条件,如果配置此参数,本节点是否执行由condition的字段expression所保存的EL表达式计算结果决定",
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Property"
+          },
+          "description": "节点属性"
+        },
+        "pollingInterval": {
+          "type": "integer",
+          "default": 10,
+          "description": "轮询节点执行结果时间间隔"
+        },
+        "execTimeOutRetry": {
+          "type": "string",
+          "default": "false",
+          "description": "节点是否超时重试"
+        },
+        "maxExecutionTime": {
+          "type": "integer",
+          "default": 60,
+          "description": "节点最大执行时间"
+        },
+        "retryTimes": {
+          "type": "integer",
+          "default": 0,
+          "description": "节点失败重试次数"
+        },
+        "retryInterval": {
+          "type": "integer",
+          "default": 120,
+          "description": "失败重试时间间隔"
+        },
+        "failPolicy": {
+          "type": "string",
+          "description": "作业失败策略",
+          "enum": [
+            "FAIL",
+            "IGNORE",
+            "SUSPEND",
+            "FAIL_CHILD"
+          ]
+        },
+        "eventTrigger": {
+          "$ref": "#/definitions/Event",
+          "description": "实时作业节点事件触发配置"
+        },
+        "cronTrigger": {
+          "$ref": "#/definitions/CronTrigger",
+          "description": "实时作业节点Cron触发配置"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "location",
+        "properties"
+      ]
+    },
+    "Property": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "属性名称"
+        },
+        "value": {
+          "type": "string",
+          "description": "属性值"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ]
+    },
+    "Condition": {
+      "properties": {
+        "preNodeName": {
+          "type": "string",
+          "description": "本节点依赖的前一个节点名称"
+        },
+        "expression": {
+          "type": "string",
+          "description": "EL表达式,如果EL表达式的计算结果为true,则触发执行本节点"
+        }
+      },
+      "required": [
+        "preNodeName",
+        "expression"
+      ]
+    },
+    "JobInfo": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "作业名称"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          },
+          "description": "节点定义"
+        },
+        "schedule": {
+          "$ref": "#/definitions/Schedule",
+          "description": "调度配置"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobParam"
+          },
+          "description": "作业参数定义"
+        },
+        "directory": {
+          "type": "string",
+          "description": "作业在目录树上的路径。创建作业时如果路径目录不存在,会自动创建目录,如/dir/a/,默认在根目录/。"
+        },
+        "cleanOverdueDays": {
+          "type": "integer",
+          "description": "设置作业的最大超时时间。"
+        },
+        "cleanWaitingJob": {
+          "type": "string",
+          "description": "清除等待的作业。"
+        },
+        "emptyRunningJob": {
+          "type": "string",
+          "description": "取值为0和1,1表示空跑,0表示:取消空跑,不设置该参数时,默认为0。"
+        },
+        "processType": {
+          "type": "string",
+          "enum": [
+            "BATCH",
+            "REAL_TIME"
+          ],
+          "description": "作业类型,REAL_TIME: 实时处理,BATCH:批处理"
+        },
+        "singleNodeJobFlag": {
+          "type": "boolean",
+          "description": "是否选择单任务,默认为false"
+        },
+        "singleNodeJobType": {
+          "type": "string",
+          "description": "单任务类型",
+          "enum": [
+            "DliSQL",
+            "DwsSQL",
+            "HiveSQL",
+            "SparkSQL",
+            "RdsSQL",
+            "DorisSQL",
+            "ASSIGNMENT",
+            "BRANCH",
+            "MERGE",
+            "NormalJob",
+            "OneClick",
+            "MrsFlink",
+            "FlinkSQL",
+            "FlinkJar",
+            "DLISpark"
+          ]
+        },
+        "lastUpdateUser": {
+          "type": "string",
+          "description": "作业最后修改人"
+        },
+        "logPath": {
+          "type": "string",
+          "description": "作业运行日志存放的OBS路径。"
+        },
+        "basicConfig": {
+          "$ref": "#/definitions/BasicConfig",
+          "description": "作业的基本信息"
+        },
+        "targetStatus": {
+          "type": "string",
+          "enum": [
+            "SAVED",
+            "SUBMITTED",
+            "PRODUCTION"
+          ],
+          "description": "在开启审批开关后,需要填写该字段。表示创建作业的目标状态,有三种状态:SAVED、SUBMITTED和PRODUCTION,分别表示作业创建后是保存态,提交态,生产态。"
+        },
+        "approvers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobApprover"
+          },
+          "description": "在开启审批开关后,需要填写该字段,表示作业(或脚本)审批人。"
+        }
+      },
+      "required": [
+        "name",
+        "nodes",
+        "schedule",
+        "processType"
+      ]
+    },
+    "Location": {
+      "properties": {
+        "x": {
+          "description": "节点在作业画布上的横轴位置",
+          "type": "string"
+        },
+        "y": {
+          "description": "节点在作业画布上的纵轴位置",
+          "type": "string"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ]
+    },
+    "DependJob": {
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "依赖的作业名称列表,必须依赖已存在的作业."
+        },
+        "dependPeriod": {
+          "type": "string",
+          "description": "依赖周期"
+        },
+        "dependFailPolicy": {
+          "type": "string",
+          "enum": [
+            "FAIL",
+            "IGNORE",
+            "SUSPEND"
+          ],
+          "description": "依赖作业任务执行失败处理策略"
+        },
+        "sameWorkSpaceJobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DependWorkSpaceJob"
+          },
+          "description": "依赖本工作空间的作业名称列表"
+        },
+        "otherWorkSpaceJobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DependWorkSpaceJob"
+          },
+          "description": "依赖其他工作空间的作业名称列表"
+        }
+      },
+      "required": [
+        "jobs"
+      ]
+    },
+    "JobParam": {
+      "properties": {
+        "name": {
+          "description": "参数名称,只能包含英文字母、数字、中划线和下划线。",
+          "type": "string"
+        },
+        "value": {
+          "description": "参数值",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "procedure",
+            "variable"
+          ],
+          "default": "variable",
+          "description": "参数类型"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ]
+    },
+    "BasicConfig": {
+      "properties": {
+        "owner": {
+          "type": "string",
+          "description": "作业责任人"
+        },
+        "agency": {
+          "type": "string",
+          "description": "作业委托的名称"
+        },
+        "isIgnoreWaiting": {
+          "type": "integer",
+          "description": "实例超时是否忽略等待时间, 取值范围为0和1, 0:表示实例超时不忽略等待时间1:表示实例超时忽略等待时间"
+        },
+        "priority": {
+          "type": "integer",
+          "default": 0,
+          "description": "作业优先级"
+        },
+        "executeUser": {
+          "type": "string",
+          "description": "作业执行用户"
+        },
+        "instanceTimeout": {
+          "type": "integer",
+          "description": "实例超时时间"
+        },
+        "customFields": {
+          "type": "object",
+          "description": "用户自定义属性字段"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "作业标签列表"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu-dlf.cn-southwest-2.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

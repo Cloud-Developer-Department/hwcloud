@@ -1,0 +1,196 @@
+{
+  "name": "ReinstallOs",
+  "summary": "批量重新安装OS",
+  "tags": "裸机实例管理",
+  "productshort": "CloudDC",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/v1/{project_id}/instances/reinstall": {
+      "put": {
+        "tags": [
+          "裸机实例管理"
+        ],
+        "summary": "批量重新安装OS",
+        "description": "指定新OS镜像重新安装OS,此接口为异步接口,通过 **ShowInstanceStatus** 查询实例状态,当状态变为 **pending** 表明正在重装中,状态为 **running** 表明完成重装。\n前提条件:Instance state为running",
+        "operationId": "ReinstallOs",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "name": "ReInstallOSRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "重装OS请求",
+            "schema": {
+              "$ref": "#/definitions/ReinstallOSOptions"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "重新安装异步请求成功",
+            "schema": {
+              "$ref": "#/definitions/InstancesResponse"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 5
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "InstanceId": {
+      "type": "string",
+      "description": "**参数解释**:\n实例ID\n**约束限制**:\n不涉及\n**取值范围**:\n不涉及\n**默认取值**:\n不涉及\n",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+    },
+    "Password": {
+      "type": "string",
+      "description": "设置实例的管理员账户初始登录密码,其中,Linux管理员账户为root,Windows管理员账户为Administrator。",
+      "minLength": 8,
+      "maxLength": 26,
+      "pattern": "^$|^(?![A-Za-z]+$)(?![A-Z\\d]+$)(?![A-Z\\W]+$)(?![a-z\\d]+$)(?![a-z\\W]+$)(?![\\d\\W]+$)\\S{8,26}$",
+      "example": "Qwe@123asda"
+    },
+    "InstanceIdArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/InstanceId"
+      },
+      "description": "**参数解释**:\n实例id 列表\n**约束限制**:\n实例id不超过10条\n",
+      "maxItems": 10
+    },
+    "ResourceUuid": {
+      "type": "string",
+      "description": "UUID(Universally Unique Identifier)是一个 128 位的数字,通常以 32 个十六进制数字的形式表示,分为 5 组,用连字符分隔。具体格式如下:\n\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n其中:\n\n每个 x 是一个十六进制数字(0-9 或 a-f)。\n5 组的长度分别是:8 位、4 位、4 位、4 位 和 12 位。\n为了匹配这种格式的 UUID,可以使用以下正则表达式:\n\nregex\n^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+    },
+    "ReinstallOSOptions": {
+      "type": "object",
+      "required": [
+        "password"
+      ],
+      "properties": {
+        "image_id": {
+          "$ref": "#/definitions/ImageId"
+        },
+        "password": {
+          "description": "OS初始登录密码",
+          "$ref": "#/definitions/Password"
+        },
+        "instance_id_set": {
+          "$ref": "#/definitions/InstanceIdArray"
+        }
+      },
+      "description": "重装OS请求参数,不会擦除数据盘"
+    },
+    "InstancesResponse": {
+      "description": "实例批量资源返回信息",
+      "properties": {
+        "instances": {
+          "description": "实例返回信息",
+          "type": "array",
+          "items": {
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/ResourceUuid"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ImageId": {
+      "type": "string",
+      "description": "镜像ID,非必填,不传默认使用当前镜像ID",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "01939592-e8fe-7d9b-9332-4589486377a4"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

@@ -1,0 +1,151 @@
+{
+  "name": "CreateRefreshTasks",
+  "summary": "创建刷新缓存任务",
+  "tags": "刷新预热",
+  "productshort": "CDN",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v1.0/cdn/content/refresh-tasks": {
+      "post": {
+        "deprecated": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "description": "创建刷新缓存任务。",
+        "summary": "创建刷新缓存任务",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "当用户开启企业项目功能时,该参数生效,表示在当前企业项目下添加缓存刷新任务,\"all\"代表所有项目。注意:当使用子帐号调用接口时,该参数必传。\n\n您可以通过调用企业项目管理服务(EPS)的查询企业项目列表接口(ListEnterpriseProject)查询企业项目id。",
+            "type": "string"
+          },
+          {
+            "name": "refresh_task",
+            "in": "body",
+            "description": "type: 刷新类型,其值可为file 或directory,默认为file; urls: 多个URL之间需用逗号分隔,单个url长度限制为4096字符。每个账户每天最多刷新2000个文件和100个目录,单次提交数量不超过1000条。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RefreshTaskRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "refresh_task": "7620242"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RefreshTaskResponse"
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://cdn.myhuaweicloud.com/v1.0/cdn/content/refresh-tasks?enterprise_project_id=0",
+        "x-request-examples-1": {
+          "refresh_task": {
+            "type": "file",
+            "urls": [
+              "https://www.bxxx/1.txt",
+              "http://www.bxxx/2.txt"
+            ]
+          }
+        },
+        "operationId": "CreateRefreshTasks",
+        "tags": [
+          "刷新预热"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "RefreshTaskRequestBody": {
+      "required": [
+        "urls"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "刷新的类型,其值可以为file:文件,或directory:目录,默认为file。",
+          "example": "file",
+          "enum": [
+            "file",
+            "directory"
+          ]
+        },
+        "mode": {
+          "type": "string",
+          "description": "目录刷新方式,all:刷新目录下全部资源;detect_modify_refresh:刷新目录下已变更的资源,默认值为all。",
+          "example": "all",
+          "enum": [
+            "all",
+            "detect_modify_refresh"
+          ]
+        },
+        "zh_url_encode": {
+          "type": "boolean",
+          "description": "是否对url中的中文字符进行编码后刷新,false代表不开启,true代表开启,开启后仅刷新转码后的URL。",
+          "example": false,
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "urls": {
+          "type": "array",
+          "description": "需要刷新的URL必须带有“http://”或“https://”,多个URL用逗号分隔,单个url的长度限制为4096字符,单次最多输入1000个url,如果输入的是目录,支持100个目录刷新。\n\n>   如果您需要刷新的URL中有中文,请同时刷新中文URL和转码后的URL。\n",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "https:www.bxxx/1.txt",
+            "http:www.bxxx/2.txt"
+          ]
+        }
+      }
+    },
+    "RefreshTaskRequest": {
+      "required": [
+        "refresh_task"
+      ],
+      "properties": {
+        "refresh_task": {
+          "description": "缓存刷新设置。",
+          "$ref": "#/definitions/RefreshTaskRequestBody"
+        }
+      }
+    },
+    "RefreshTaskResponse": {
+      "required": [
+        "refresh_task"
+      ],
+      "properties": {
+        "refresh_task": {
+          "description": "任务ID。",
+          "type": "string",
+          "example": "7620242"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cdn.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

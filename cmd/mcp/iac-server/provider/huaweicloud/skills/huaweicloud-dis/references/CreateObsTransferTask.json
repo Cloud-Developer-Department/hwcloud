@@ -1,0 +1,262 @@
+{
+  "name": "CreateObsTransferTask",
+  "summary": "添加OBS转储任务",
+  "tags": "转储任务管理",
+  "productshort": "DIS",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v2/{project_id}/streams/{stream_name}/transfer-tasks": {
+      "post": {
+        "x-publishpath": "dis_02_0410",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "添加OBS转储任务",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v2/{project_id}/streams/{stream_name}/transfer-tasks",
+        "x-request-examples-1": {
+          "destination_type": "OBS",
+          "obs_destination_descriptor": {
+            "task_name": "newtask",
+            "consumer_strategy": "LATEST",
+            "agency_name": "dis_admin_agency",
+            "destination_file_type": "text",
+            "obs_bucket_path": "obsbucket",
+            "file_prefix": "",
+            "partition_format": "yyyy/MM/dd/HH/mm",
+            "record_delimiter": "|",
+            "deliver_time_interval": 30
+          }
+        },
+        "x-request-examples-description-2": "添加OBS转储任务(转储文件格式是parquet)",
+        "x-request-examples-url-2": "POST https://{Endpoint}/v2/{project_id}/streams/{stream_name}/transfer-tasks",
+        "x-request-examples-2": {
+          "destination_type": "OBS",
+          "obs_destination_descriptor": {
+            "task_name": "newtask",
+            "consumer_strategy": "LATEST",
+            "agency_name": "dis_admin_agency",
+            "destination_file_type": "parquet",
+            "obs_bucket_path": "obsbucket",
+            "file_prefix": "",
+            "partition_format": "yyyy/MM/dd/HH/mm",
+            "record_delimiter": "|",
+            "deliver_time_interval": 30
+          }
+        },
+        "x-support-sdk": "Y",
+        "tags": [
+          "转储任务管理"
+        ],
+        "description": "本接口用于添加OBS转储任务。",
+        "operationId": "CreateObsTransferTask",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "添加OBS转储任务",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "stream_name",
+            "in": "path",
+            "x-example": "new-stream",
+            "description": "已创建的通道名称。",
+            "required": true,
+            "type": "string",
+            "maxLength": 60
+          },
+          {
+            "name": "CreateTransferTaskRequestBody",
+            "in": "body",
+            "description": "CreateTransferTaskRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTransferTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "正常返回"
+          }
+        },
+        "security": [
+          {
+            "aksk": []
+          }
+        ],
+        "x-version": "v2"
+      }
+    }
+  },
+  "definitions": {
+    "ProcessingSchema": {
+      "required": [
+        "timestamp_name",
+        "timestamp_type"
+      ],
+      "properties": {
+        "timestamp_name": {
+          "type": "string",
+          "description": "源数据时间戳的属性名称。",
+          "format": "int32"
+        },
+        "timestamp_type": {
+          "type": "string",
+          "description": "源数据时间戳的类型。\n\n- String\n- Timestamp:Long类型的13位时间戳",
+          "format": "int32"
+        },
+        "timestamp_format": {
+          "type": "string",
+          "description": "源数据时间戳的类型为String时必选,用于根据时间戳格式生成OBS的时间目录。",
+          "format": "int32"
+        }
+      },
+      "description": "根据源数据的时间戳和已配置的\"partition_format\"生成对应的转储时间目录。将源数据的时间戳使用“yyyy/MM/dd/HH/mm”格式生成分区字符串,用来定义写到OBS的Object文件所在的目录层次结构。"
+    },
+    "CommonDestinationDescriptor": {
+      "description": "转储任务请求体公共部分。",
+      "required": [
+        "task_name",
+        "agency_name",
+        "deliver_time_interval"
+      ],
+      "properties": {
+        "task_name": {
+          "type": "string",
+          "description": "转储任务的名称。  任务名称由英文字母、数字、中划线和下划线组成。长度为1~64个字符。",
+          "x-example": "new-task"
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "在统一身份认证服务(IAM)中创建委托的名称,DIS需要获取IAM委托信息去访问您指定的资源。创建委托的参数设置如下:\n- 委托类型:云服务\n- 云服务:DIS\n- 持续时间:永久\n- “所属区域”为“全局服务”,“项目”为“对象存储服务”对应的“策略”包含“Tenant Administrator”。\n如果已经创建过委托,可以使用IAM服务提供的查询委托列表接口,获取有效可用的委托名称。\n取值范围:长度不超过64位,且不可配置为空。\n\n如果有在Console控制台使用转储任务,会提示自动创建委托,自动创建的委托名称为:dis_admin_agency",
+          "maxLength": 64,
+          "x-example": "dis_admin_agency"
+        },
+        "deliver_time_interval": {
+          "type": "integer",
+          "default": 300,
+          "description": "根据用户配置的时间,周期性的将数据导入OBS,若某个时间段内无数据,则此时间段不会生成打包文件。\n\n单位:秒",
+          "maximum": 900,
+          "minimum": 30,
+          "format": "int32"
+        },
+        "consumer_strategy": {
+          "type": "string",
+          "default": "LATEST",
+          "description": "偏移量。\n\n- LATEST:最大偏移量,即获取最新的数据。\n- TRIM_HORIZON:最小偏移量,即读取最早的数据。",
+          "enum": [
+            "LATEST",
+            "TRIM_HORIZON"
+          ]
+        }
+      }
+    },
+    "CreateTransferTaskReq": {
+      "required": [
+        "destination_type"
+      ],
+      "properties": {
+        "destination_type": {
+          "type": "string",
+          "example": "OBS",
+          "description": "转储任务类型。\n\n- OBS:转储到OBS\n- MRS:转储到MRS\n- DLI:转储到DLI\n- CLOUDTABLE:转储到CloudTable\n- DWS:转储到DWS",
+          "default": "NOWHERE",
+          "enum": [
+            "OBS"
+          ]
+        },
+        "obs_destination_descriptor": {
+          "$ref": "#/definitions/OBSDestinationDescriptorRequest"
+        }
+      }
+    },
+    "OBSDestinationDescriptorRequest": {
+      "xml": {
+        "name": "OBSDestinationDescriptorRequest"
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonDestinationDescriptor"
+        },
+        {
+          "type": "object",
+          "required": [
+            "obs_bucket_path"
+          ],
+          "properties": {
+            "file_prefix": {
+              "type": "string",
+              "example": "prefix1/prefix2",
+              "description": "在OBS中存储通道文件的自定义目录,多级目录可用“/”进行分隔,不可以“/”开头。\n\n取值范围:英文字母、数字、下划线和斜杠,最大长度为50个字符。\n\n默认配置为空。",
+              "maxLength": 50
+            },
+            "partition_format": {
+              "type": "string",
+              "example": "yyyy/MM/dd",
+              "description": "将转储文件的生成时间使用“yyyy/MM/dd/HH/mm”格式生成分区字符串,用来定义写到OBS的Object文件所在的目录层次结构。\n\n- N/A:置空,不使用日期时间目录。\n- yyyy:年\n- yyyy/MM:年/\n- yyyy/MM/dd:年/月/日\n- yyyy/MM/dd/HH:年/月/日/时\n- yyyy/MM/dd/HH/mm:年/月/日/时/分\n\n例如:2017/11/10/14/49,目录结构就是“2017 > 11 > 10 > 14 > 49”,“2017”表示最外层文件夹。\n\n默认值:空\n\n说明:\n\n数据转储成功后,存储的目录结构为“obs_bucket_path/file_prefix/partition_format”。",
+              "enum": [
+                "yyyy",
+                "yyyy/MM",
+                "yyyy/MM/dd",
+                "yyyy/MM/dd/HH",
+                "yyyy/MM/dd/HH/mm"
+              ]
+            },
+            "obs_bucket_path": {
+              "type": "string",
+              "example": "new-obs-bucket",
+              "description": "存储该通道数据的OBS桶名称。"
+            },
+            "destination_file_type": {
+              "type": "string",
+              "example": "text",
+              "description": "转储文件格式。\n\n- text:转储目标格式为TEXT,缺省值\n- parquet:转储目标格式为Parquet\n- carbon:转储目标格式为Carbon\n\n说明:\n\n“源数据类型”为“JSON”,“转储服务类型”为“OBS”时才可选择“parquet”或“carbon”格式。",
+              "default": "text",
+              "enum": [
+                "text",
+                "parquet",
+                "carbon"
+              ]
+            },
+            "processing_schema": {
+              "$ref": "#/definitions/ProcessingSchema"
+            },
+            "record_delimiter": {
+              "type": "string",
+              "example": "\n",
+              "description": "转储文件的记录分隔符,用于分隔写入转储文件的用户数据。\n\n取值范围:\n\n- 逗号 \",\",默认值\n- 分号 \";\"\n- 竖线 \"|\"\n- 换行符 \"\\n\"",
+              "default": "\\n",
+              "format": "int32"
+            }
+          }
+        }
+      ],
+      "description": "转储目的地为OBS的参数列表。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dis.cn-east-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

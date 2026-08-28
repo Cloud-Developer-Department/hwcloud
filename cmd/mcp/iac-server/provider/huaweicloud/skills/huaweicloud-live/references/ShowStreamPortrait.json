@@ -1,0 +1,264 @@
+{
+  "name": "ShowStreamPortrait",
+  "summary": "查询播放画像信息接口",
+  "tags": "数据统计分析",
+  "productshort": "Live",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v2/{project_id}/stats/stream-portraits": {
+      "get": {
+        "tags": [
+          "DataStatisticsAnalysis"
+        ],
+        "summary": "查询播放画像信息接口",
+        "description": "查询播放画像信息。  最大查询跨度1天,最大查询周期31天。\n不统计协议为HLS的播放时长(play_duration)信息。",
+        "operationId": "ShowStreamPortrait",
+        "deprecated": false,
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-external-api": true,
+        "x-interface-frequency": "HIGH",
+        "x-constraint": "该接口暂只支持查询部署在新版视频直播服务上的域名的相关数据(不包含“华北-北京一”)。此约束条件仅适用于中国站。",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。使用Token鉴权方式时必选。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带的鉴权信息。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+          },
+          {
+            "name": "X-Sdk-Date",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "20191115T033655Z"
+          },
+          {
+            "name": "X-Project-Id",
+            "in": "header",
+            "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。\n",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/api-live/live_03_0023.html)。\n",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "in": "query",
+            "name": "play_domain",
+            "description": "播放域名。\n",
+            "type": "string",
+            "required": true,
+            "x-annotations": [
+              "@NotBlank"
+            ],
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "in": "query",
+            "name": "stream",
+            "description": "流名。\n",
+            "type": "string",
+            "required": false,
+            "minLength": 1,
+            "maxLength": 256
+          },
+          {
+            "in": "query",
+            "name": "time",
+            "description": "统计日期,日期格式按照ISO8601表示法,格式:YYYYMMDD,如20200904。可以查询过去31天的数据(不含当天)。\n",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 64
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。\n",
+            "schema": {
+              "$ref": "#/definitions/QueryStreamPortraitsRsp"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求的唯一标识。"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "stream_portraits": [
+                  {
+                    "time": 20200812,
+                    "flow": 10,
+                    "play_duration": 10,
+                    "request_count": 10,
+                    "user_count": 10,
+                    "peak_user_count": 10,
+                    "peak_bandwidth": 10,
+                    "push_duration": 10
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误。\n",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求的唯一标识。"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Invalid request parameter: play_domain"
+              }
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询播放域名流画像",
+        "x-request-examples-url-1": "GET /v2/{project_id}/stats/stream-portraits?play_domain=example.xxx.com&stream=stream-000&time=20200904\n"
+      }
+    }
+  },
+  "definitions": {
+    "QueryStreamPortraitsRsp": {
+      "type": "object",
+      "properties": {
+        "stream_portraits": {
+          "description": "播放画像信息列表。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/StreamPortrait"
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "StreamPortrait": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "description": "统计日期,日期格式按照ISO8601表示法,格式:YYYYMMDD,如20200904。统计该统计日期00:00-23:59时段的播放画像信息。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "flow": {
+          "type": "integer",
+          "format": "int64",
+          "description": "累计流量,单位为byte。",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "play_duration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "累计播放时长,单位为秒。",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "request_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "累计请求次数。",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "user_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "累计观看人数,根据IP去重。",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "peak_user_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "峰值观看人数,flv/rtmp协议是统计Session会话ID,其它协议统计IP,1分钟的采样数据。",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "peak_bandwidth": {
+          "type": "integer",
+          "format": "int64",
+          "description": "峰值带宽,单位bps,5分钟的采样数据。",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "push_duration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "累计直播(推流)时长,单位为秒。",
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,226 @@
+{
+  "name": "ListMongodbErrorLogs",
+  "summary": "查询GeminiDB(for Mongo)数据库错误日志",
+  "tags": "日志管理",
+  "productshort": "GaussDBforNoSQL",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v3/{project_id}/mongodb/instances/{instance_id}/error-logs": {
+      "post": {
+        "tags": [
+          "日志管理"
+        ],
+        "operationId": "ListMongodbErrorLogs",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "summary": "查询GeminiDB(for Mongo)数据库错误日志",
+        "description": "查询GeminiDB(for Mongo)数据库错误日志信息,支持日志关键字搜索。",
+        "x-constraint": "- 不支持使用 &&、||、AND、OR、NOT、*、?、:、>、<、=、>=、<= 这些关键字来搜索日志。\n- 每页查询最大限制100条,错误日志最多保存30天。",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。",
+            "required": true,
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户在某一region下的project ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "实例ID,可以调用“查询实例列表和详情”接口获取。如果未申请实例,可以调用“创建实例”接口创建。",
+            "required": true,
+            "type": "string",
+            "x-example": "916de02c35fe4abaa3e707ebd916d3f8in10"
+          },
+          {
+            "name": "ListMongodbErrorLogsRequestBody",
+            "in": "body",
+            "description": "请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListMongodbErrorLogsRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/ListMongodbErrorLogsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "error_logs": [
+                  {
+                    "node_name": "test_replica_node_1",
+                    "node_id": "dfe41edcb2a1483c96ddf61cc0cee237no10",
+                    "raw_message": "W TEST [test001] test error log",
+                    "severity": "Warning",
+                    "log_time": "2023-01-09T12:55:39.398+0000",
+                    "line_num": "1595659490239433659"
+                  }
+                ]
+              }
+            }
+          },
+          "default": {
+            "description": "Client or server error.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/619d3e78f61b4be68bc5aa0b59edcf7b/mongodb/instances/916de02c35fe4abaa3e707ebd916d3f8in10/error-logs",
+        "x-request-examples-1": {
+          "start_time": "2023-01-06T10:41:14+0800",
+          "end_time": "2023-01-10T10:41:14+0800",
+          "limit": 100,
+          "line_num": "1595659490239433658",
+          "severity": "Warning",
+          "node_id": "dfe41edcb2a1483c96ddf61cc0cee237no10",
+          "keywords": [
+            "error"
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListMongodbErrorLogsRequestBody": {
+      "required": [
+        "start_time",
+        "end_time",
+        "limit"
+      ],
+      "properties": {
+        "start_time": {
+          "type": "string",
+          "description": "开始时间,格式为“yyyy-mm-ddThh:mm:ssZ”。\n其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。注:开始时间不得早于当前时间30天。"
+        },
+        "end_time": {
+          "type": "string",
+          "description": "结束时间,格式为“yyyy-mm-ddThh:mm:ssZ”。\n其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。注:结束时间不能晚于当前时间。"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "表示每次查询的日志条数,最大限制100条。"
+        },
+        "line_num": {
+          "type": "string",
+          "description": "日志单行序列号,第一次查询时不需要此参数,下一次查询时需要使用,可从上一次查询的返回信息中获取。\n说明:当次查询从line_num的下一条日志开始查询,不包含当前line_num日志。"
+        },
+        "severity": {
+          "type": "string",
+          "description": "日志级别,取空值,表示查询所有日志级别的日志。",
+          "enum": [
+            "Warning",
+            "Error"
+          ]
+        },
+        "node_id": {
+          "type": "string",
+          "description": "节点ID,取空值,表示查询实例下所有允许查询的节点。\n具体取值请参考查询实例列表和详情接口\"ListInstances\"中nodes字段数据结构说明的“id”。"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "根据多个关键字搜索日志全文,表示同时匹配所有关键字。\n- 最多支持10个关键字。\n- 每个关键字最大长度不超过512个字符。"
+        }
+      }
+    },
+    "MongodbErrorLogDetail": {
+      "required": [
+        "node_name",
+        "node_id",
+        "raw_message",
+        "severity",
+        "log_time",
+        "line_num"
+      ],
+      "properties": {
+        "node_name": {
+          "type": "string",
+          "description": "节点名称。",
+          "example": "test_priam_node_1"
+        },
+        "node_id": {
+          "type": "string",
+          "description": "节点ID。",
+          "example": "8b76c35e91eb4c9d82fe25417d750cb5no06"
+        },
+        "raw_message": {
+          "type": "string",
+          "description": "描述信息。",
+          "example": "testDb"
+        },
+        "severity": {
+          "type": "string",
+          "description": "日志级别。",
+          "example": "Warning"
+        },
+        "log_time": {
+          "type": "string",
+          "description": "日志产生时间,UTC时间。\n格式为“yyyy-mm-ddThh:mm:ssZ”。 其中,T指某个时间的开始;Z指时区偏移量,例如北京时间偏移显示为+0800。",
+          "example": "2020-11-15T22:49:38.643000Z"
+        },
+        "line_num": {
+          "type": "string",
+          "description": "日志单行序列号",
+          "example": "1595659490239433658"
+        }
+      },
+      "type": "object"
+    },
+    "ListMongodbErrorLogsResponseBody": {
+      "required": [
+        "error_logs"
+      ],
+      "properties": {
+        "error_logs": {
+          "description": "错误日志具体信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MongodbErrorLogDetail"
+          }
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb-nosql.af-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

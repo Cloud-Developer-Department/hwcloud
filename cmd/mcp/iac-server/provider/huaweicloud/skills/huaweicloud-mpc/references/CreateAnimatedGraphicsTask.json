@@ -1,0 +1,299 @@
+{
+  "name": "CreateAnimatedGraphicsTask",
+  "summary": "新建转动图任务",
+  "tags": "转动图接口",
+  "productshort": "MPC",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v1/{project_id}/animated-graphics": {
+      "post": {
+        "x-navigation-title": "转动图接口",
+        "description": "创建动图任务,用于将完整的视频文件或视频文件中的一部分转换为动态图文件,暂只支持输出GIF文件。\n待转动图的视频文件需要存储在与媒体处理服务同区域的OBS桶中,且该OBS桶已授权。",
+        "summary": "新建转动图任务",
+        "x-publishpath": "mpc_04_0057",
+        "operationId": "CreateAnimatedGraphicsTask",
+        "x-open-region-cloud": "hc,hk,g42",
+        "x-external-api": true,
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-since": "1.0.0",
+        "x-since-memo": "1.0.0 initial",
+        "x-modifier-memo": "版本 | 修改日期 | 修改说明 | 修改者\n------------ | ------------- | ------------- | -------------\n1.0.0 | 2019/06/20 | 新增此接口。 | 欧斯航\n",
+        "tags": [
+          "AnimatedGraphicsTaskManager"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/authorization"
+          },
+          {
+            "$ref": "#/parameters/xProjectId"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "type": "string",
+            "description": "项目ID,获取方法请参考[获取项目ID](mpc_04_0064.xml)",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64
+          },
+          {
+            "in": "body",
+            "name": "CreateAnimatedGraphicsTaskRequestBody",
+            "description": "创建转动图请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateAnimatedGraphicsTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "新建动图任务成功。",
+            "schema": {
+              "$ref": "#/definitions/CommonCreateTaskRsp"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": 100211
+              }
+            }
+          },
+          "400": {
+            "description": "新建动图任务失败。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "MPC.10202",
+                "error_msg": "Invalid request parameter."
+              }
+            }
+          }
+        },
+        "x-request-examples-1": "POST https://{endpoint}/v1/{project_id}/animated-graphics\n  {\n    \"input\": {\n      \"bucket\": \"obs-63bc\",\n      \"location\": \"region1\",\n      \"object\": \"thumb.mp4\"\n    },\n    \"output\": {\n      \"bucket\": \"obs-63bc\",\n      \"location\": \"region1\",\n      \"object\": \"/b\",\n      \"file_name\": \"test_mpc.gif\"\n    },\n    \"output_param\": {\n      \"format\": \"gif\",\n       \"width\": 480,\n       \"height\": 360,\n       \"frame_rate\": 15,\n       \"start\": 100,\n       \"end\": 250\n    }\n  }\n",
+        "x-response-example": "{\n  \"task_id\": 100211\n}\n"
+      }
+    }
+  },
+  "definitions": {
+    "CommonCreateTaskRsp": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "任务ID"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "ObsObjInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "bucket",
+        "location",
+        "object"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "OBS的bucket名称。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "location": {
+          "description": "OBS桶所在的区域,且必须与使用的MPC区域保持一致。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "object": {
+          "description": "OBS对象路径,遵守OSS Object定义。\n\n- 当用于指示input时,需要指定到具体对象。\n- 当用于指示output时, 只需指定到转码结果期望存放的路径。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2147483647,
+          "description": "文件名,仅用于转封装指定输出名称。\n\n- 当指定了此参数时,输出的对象名为object/file_name 。\n- 当不指定此参数时,输出的对象名为object/xxx,其中xxx由MPC指定。"
+        }
+      }
+    },
+    "CreateAnimatedGraphicsTaskReq": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonCreateTaskReq"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "output_param": {
+              "$ref": "#/definitions/AnimatedGraphicsOutputParam",
+              "description": "动图输出参数。"
+            }
+          }
+        }
+      ]
+    },
+    "CommonCreateTaskReq": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "input": {
+          "$ref": "#/definitions/ObsObjInfo",
+          "description": "源文件信息。"
+        },
+        "output": {
+          "$ref": "#/definitions/ObsObjInfo",
+          "description": "输出文件信息。"
+        },
+        "user_data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65535,
+          "description": "用户自定义数据。"
+        }
+      }
+    },
+    "AnimatedGraphicsOutputParam": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "x-imports": "org.hibernate.validator.constraints.*;com.fasterxml.jackson.annotation.JsonInclude;",
+      "type": "object",
+      "required": [
+        "width",
+        "height",
+        "start",
+        "end",
+        "format"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 16,
+          "description": "动图格式,目前仅支持取值 gif",
+          "enum": [
+            "gif"
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 3840,
+          "format": "int32",
+          "description": "输出动图的宽。\n\n取值范围:0,-1或[32,3840]之间2的倍数。\n\n>- 若设置为-1, 则宽根据高来自适应,此时“height”不能取-1或0。\n>- 若设置为0,则取原始视频的宽,此时“height”只能取0。"
+        },
+        "height": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 2160,
+          "format": "int32",
+          "description": "输出动图的高。\n\n取值范围:0,-1或[32,2160]之间2的倍数。\n\n>- 若设置为-1, 则高根据宽来自适应,此时“width”不能取-1或0。\n>- 若设置为0,则取原始视频的高,此时“width”只能取0。"
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "description": "起始时间,单位:毫秒"
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "format": "int32",
+          "description": "结束时间。\n\n单位:毫秒。\n\nend、start差值最多60秒。"
+        },
+        "frame_rate": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 76,
+          "format": "int32",
+          "default": 15,
+          "description": "动图帧率。\n\n取值范围:[1,75]"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xProjectId": {
+      "name": "X-Project_Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息, 与路径参数中的项目ID相同。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "mpc.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

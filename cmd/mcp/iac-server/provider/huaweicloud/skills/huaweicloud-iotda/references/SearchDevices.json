@@ -1,0 +1,333 @@
+{
+  "name": "SearchDevices",
+  "summary": "灵活搜索设备列表",
+  "tags": "设备管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/search/query-devices": {
+      "post": {
+        "tags": [
+          "DeviceManagement"
+        ],
+        "summary": "灵活搜索设备列表",
+        "description": "#### 接口说明\n\n应用服务器使用SQL语句调用该接口,灵活的搜索所需要的设备资源列表\n\n#### 限制\n\n- 仅**标准版实例、企业版实例**支持该接口调用,基础版不支持。\n- 单账号调用该接口的 TPS 限制最大为1/S(每秒1次请求数)\n\n#### 类SQL语法使用说明\n\n类SQL语句有select、from、where(可选)、order by(可选)、limit子句(可选)组成,长度限制为400个字符。子句里的内容大小写敏感,SQL语句的关键字大小写不敏感。\n\n示例:\n\n```\nselect * from device where device_id = 'as********' limit 0,5\n```\n\n##### SELECT子句\n\n```\nselect [field]/[count(*)/count(1)] from device\n```\n\n其中field为需要获取的字段,请参考响应参数字段名称,也可填*,获取所有字段。\n\n如果需要统计搜索的设备个数,请填count(*)或者count(1).\n\n##### FROM子句\n\n```\nfrom device\n```\n\nfrom后为要查询的资源名,当前支持\"device\"\n\n##### WHERE子句(可选)\n\n```\nWHERE [condition1] AND [condition2]\n```\n\n最多支持5个condition,不支持嵌套;支持的检索字段请参见下面的**搜索条件字段说明**和**支持的运算符**章节\n\n连接词支持AND、OR,优先级参考标准SQL语法,默认AND优先级高于OR。\n\n##### LIMIT子句(可选)\n\n```\nlimit [offset,] rows\n```\n\noffset标识搜索的偏移量,rows标识返回搜索结果的最大行数,例如:\n\n- limit n ;示例(select * from device limit 10)\n\n  最大返回n条结果数据\n  \n- limit m,n; 示例(select * from device limit 20,10) \n  搜索偏移量为m,最大返回n条结果数据\n\n###### 限制\n\n offset 最大 500, rows最大50,如果不填写limit子句,默认为limit 10\n\n##### ORDER BY子句(可选)\n\n用于实现自定义排序,当前支持自定义排序的字段为:\"marker\"。\n\n```\norder by marker [asc]/[desc]\n```\n\n子句不填写时默认逻辑为随机排序\n\n#### 搜索条件字段说明\n\n| 字段名      | 类型   | 说明             | 取值范围                                                     |\n| :---------- | :----- | :--------------- | :----------------------------------------------------------- |\n| app_id      | string | 资源空间ID       | 长度不超过36,只允许字母、数字、下划线(_)、连接符(-)的组合。 |\n| device_id   | string | 设备ID           | 长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。 |\n| gateway_id  | string | 网关ID           | 长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。 |\n| product_id  | string | 设备关联的产品ID | 长度不超过36,只允许字母、数字、下划线(_)、连接符(-)的组合。 |\n| device_name | string | 设备名称         | 长度不超过256,只允许中文、字母、数字、以及_?'#().,&%@!-等字符的组合符。 |\n| node_id     | string | 设备标识码       | 长度不超过64,只允许字母、数字、下划线(_)、连接符(-)的组合 |\n| status      | string | 设备的状态       | ONLINE(在线)、OFFLINE(离线)、ABNORMAL(异常)、INACTIVE(未激活)、FROZEN(冻结) |\n| node_type   | string | 设备节点类型     | GATEWAY(直连设备或网关)、ENDPOINT(非直连设备)                |\n| tag_key     | string | 标签键           | 长度不超过64,只允许中文、字母、数字、以及_.-等字符的组合。  |\n| tag_value   | string | 标签值           | 长度不超过128,只允许中文、字母、数字、以及_.-等字符的组合。 |\n| sw_version  | string | 软件版本         | 长度不超过64,只允许字母、数字、下划线(_)、连接符(-)、英文点(.)的组合。 |\n| fw_version  | string | 固件版本         | 长度不超过64,只允许字母、数字、下划线(_)、连接符(-)、英文点(.)的组合。 |\n| group_id    | string | 群组Id           | 长度不超过36,十六进制字符串和连接符(-)的组合              |\n| create_time | string | 设备注册时间     | 格式:yyyy-MM-dd'T'HH:mm:ss.SSS'Z',如:2015-06-06T12:10:10.000Z |\n| marker      | string | 结果记录ID       | 长度为24的十六进制字符串,如ffffffffffffffffffffffff         |\n\n#### 支持的运算符\n\n| 运算符  | 支持的字段                               |\n| ------- | ---------------------------------------- |\n| =       | 所有                                     |\n| !=      | 所有                                     |\n| >       | create_time、marker                      |\n| <       | create_time、marker                      |\n| like    | device_name、node_id、tag_key、tag_value |\n| in      | 除tag_key、tag_value以外字段             |\n| not  in | 除tag_key、tag_value以外字段             |\n\n#### SQL 限制\n\n- like: 只支持前缀匹配,不支持后缀匹配或者通配符匹配。前缀匹配不得少于4个字符,且不能包含任何特殊字符(只允许中文、字母、数字、下划线(_)、连接符(-)). 前缀后必须跟上\"%\"结尾。\n- 不支持除了count(*)/count(1)以外的其他任何函数。\n- 不支持其他SQL用法,如嵌套SQL、union、join、别名(Alias)等用法\n- SQL长度限制为400个字符,单个请求条件最大支持5个。\n- 不支持\"null\"和空字符串等条件值匹配",
+        "operationId": "SearchDevices",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,一般华为云租户无需携带该参数,仅在物理多租场景下从管理面访问API时需要携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "in": "body",
+            "name": "SearchDevicesRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SearchSql"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "devices": [
+                  {
+                    "app_id": "jeQDJQZltU8iKgFFoW060F5SGZka",
+                    "marker": "5c8f3d2d3df1f10d803adbda",
+                    "device_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+                    "node_id": "ABC123456789",
+                    "gateway_id": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+                    "device_name": "dianadevice",
+                    "node_type": "ENDPOINT",
+                    "fw_version": "1.1.0",
+                    "sw_version": "1.1.0",
+                    "device_sdk_version": "1.1.0",
+                    "product_id": "b640f4c203b7910fc3cbd446ed437cbd",
+                    "status": "INACTIVE",
+                    "tags": [
+                      {
+                        "tag_key": "testTagName",
+                        "tag_value": "testTagValue"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SearchDevices"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.000009",
+              "IOTDA.000010",
+              "IOTDA.000011",
+              "IOTDA.014902",
+              "IOTDA.014901",
+              "IOTDA.014900"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "x-Error": [
+              "IOTDA.001000",
+              "IOTDA.001002",
+              "IOTDA.000022"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apig-name": "IoTDA_API",
+        "x-externalAPI": true,
+        "x-interfaceFrequency": "HIGH",
+        "x-iftype": "OpenAPI_new",
+        "x-returnType": "ResponseEntity<SearchDevices>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/search/query-devices",
+        "x-request-examples-1": {
+          "sql": "select * from device"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SearchSql": {
+      "type": "object",
+      "required": [
+        "sql"
+      ],
+      "properties": {
+        "sql": {
+          "type": "string",
+          "example": "select * from device where device_id = '****' limit 10;",
+          "description": "搜索sql语句,具体使用方法见类SQL语法使用说明章节",
+          "minLength": 1,
+          "maxLength": 400,
+          "pattern": "^[一-龥a-zA-Z0-9_?'#()., &%@!*=<>:-]{1,400}$"
+        }
+      },
+      "title": "设备搜索请求结构体",
+      "description": "设备搜索请求结构体。",
+      "x-imports": "com.huawei.m2m.validator.PatternInList"
+    },
+    "ModuleSearchDTO": {
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude"
+      ],
+      "title": "OTA模块结构体",
+      "type": "object",
+      "required": [
+        "module_name",
+        "module_version"
+      ],
+      "description": "OTA模块结构。",
+      "properties": {
+        "module_name": {
+          "type": "string",
+          "description": "模块名称。",
+          "pattern": "^[a-zA-Z0-9_.\\-]{1,64}$",
+          "example": "mcu"
+        },
+        "module_version": {
+          "type": "string",
+          "description": "模块版本号。",
+          "pattern": "^[a-zA-Z0-9_.\\-]{1,64}$",
+          "example": "V1.0"
+        }
+      }
+    },
+    "SearchDevice": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "example": "jeQDJQZltU8iKgFFoW060F5SGZka",
+          "description": "资源空间ID。",
+          "maxLength": 36,
+          "x-isSensitive": true
+        },
+        "app_name": {
+          "type": "string",
+          "example": "testAPP01",
+          "description": "资源空间名称。",
+          "x-isSensitive": true
+        },
+        "device_id": {
+          "type": "string",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "description": "设备ID,用于唯一标识一个设备。在注册设备时直接指定,或者由物联网平台分配获得。由物联网平台分配时,生成规则为\"product_id\" + \"_\" + \"node_id\"拼接而成。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "node_id": {
+          "type": "string",
+          "example": "ABC123456789",
+          "description": "设备标识码,通常使用IMEI、MAC地址或Serial No作为node_id。",
+          "maxLength": 64,
+          "x-isSensitive": true
+        },
+        "gateway_id": {
+          "type": "string",
+          "example": "d4922d8a-6c8e-4396-852c-164aefa6638f",
+          "description": "网关ID,用于标识设备所属的父设备,即父设备的设备ID。当设备是直连设备时,gateway_id与设备的device_id一致。当设备是非直连设备时,gateway_id为设备所关联的父设备的device_id。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "device_name": {
+          "type": "string",
+          "example": "dianadevice",
+          "description": "设备名称。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "node_type": {
+          "type": "string",
+          "example": "ENDPOINT",
+          "description": "设备节点类型。\n- ENDPOINT:非直连设备。\n- GATEWAY:直连设备或网关。\n- UNKNOWN:未知。",
+          "pattern": "(ENDPOINT|GATEWAY|UNKNOWN)",
+          "x-isSensitive": true
+        },
+        "fw_version": {
+          "type": "string",
+          "example": "1.1.0",
+          "description": "设备的固件版本。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "sw_version": {
+          "type": "string",
+          "example": "1.1.0",
+          "description": "设备的软件版本。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "device_sdk_version": {
+          "type": "string",
+          "example": "Tiny SDK_1.0.0",
+          "description": "设备的sdk信息。",
+          "maxLength": 256,
+          "x-isSensitive": true
+        },
+        "product_id": {
+          "type": "string",
+          "example": "b640f4c203b7910fc3cbd446ed437cbd",
+          "description": "设备关联的产品ID,用于唯一标识一个产品模型。",
+          "pattern": "^[a-zA-Z0-9_-]{1,36}$",
+          "x-isSensitive": true
+        },
+        "product_name": {
+          "type": "string",
+          "example": "Thermometer",
+          "description": "设备关联的产品名称。",
+          "pattern": "^[一-龥a-zA-Z0-9_?'#().,&%@!-]{1,64}$",
+          "x-isSensitive": true
+        },
+        "groups": {
+          "type": "object",
+          "description": "设备组列表。",
+          "properties": {},
+          "x-type": "List<GroupSearchDTO>"
+        },
+        "status": {
+          "type": "string",
+          "example": "INACTIVE",
+          "description": "设备的状态。\n- ONLINE:设备在线。\n- OFFLINE:设备离线。\n- ABNORMAL:设备异常。\n- INACTIVE:设备未激活。\n- FROZEN:设备冻结。",
+          "pattern": "(ONLINE|OFFLINE|ABNORMAL|INACTIVE|FROZEN)",
+          "x-isSensitive": true
+        },
+        "tags": {
+          "type": "object",
+          "description": "设备的标签列表。",
+          "properties": {},
+          "x-type": "List<TagSearchDTO>"
+        },
+        "modules": {
+          "type": "array",
+          "description": "设备的OTA模块列表。",
+          "items": {
+            "$ref": "#/definitions/ModuleSearchDTO"
+          }
+        },
+        "marker": {
+          "type": "string",
+          "example": "5c8f3d2d3df1f10d803adbda",
+          "description": "搜索结果记录Id。"
+        }
+      },
+      "title": "设备搜索结果结构体",
+      "description": "设备搜索结果结构体",
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude",
+        "java.util.List"
+      ]
+    },
+    "SearchDevices": {
+      "type": "object",
+      "properties": {
+        "devices": {
+          "type": "array",
+          "description": "搜索设备结果列表。",
+          "items": {
+            "$ref": "#/definitions/SearchDevice"
+          },
+          "x-isSensitive": true
+        },
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "example": 100,
+          "description": "满足查询条件的记录总数(只有条件为select count(*)/count(1)时单独返回)。"
+        }
+      },
+      "title": "设备搜索结果结构体列表",
+      "description": "设备搜索结果结构体",
+      "x-annotations": [
+        "@JsonInclude(JsonInclude.Include.NON_NULL)"
+      ],
+      "x-imports": [
+        "com.fasterxml.jackson.annotation.JsonInclude"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

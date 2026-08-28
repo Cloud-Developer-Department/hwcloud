@@ -1,0 +1,339 @@
+{
+  "name": "ListLivePlatforms",
+  "summary": "查询直播平台列表",
+  "tags": "第三方直播平台管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/live-platforms/platforms": {
+      "get": {
+        "tags": [
+          "LivePlatformManage"
+        ],
+        "summary": "查询直播平台列表",
+        "description": "该接口用于查询直播平台列表。",
+        "operationId": "ListLivePlatforms",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Project-IdHeader"
+          },
+          {
+            "$ref": "#/parameters/OffsetQuery"
+          },
+          {
+            "$ref": "#/parameters/LimitQuery"
+          },
+          {
+            "name": "access_type",
+            "in": "query",
+            "description": "平台对接类型。|\n* MEITUAN_OFFICIAL:对接美团直播平台官方接口\n* MSS_STANDARD:对接MetaStudio定义的标准接口",
+            "required": false,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0,
+            "x-annotations": [
+              "@Size(min = 0, max = 64)"
+            ]
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "examples": {
+              "application/json": {
+                "live_platforms": [
+                  {
+                    "name": "meituan"
+                  }
+                ]
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListLivePlatforms"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServiceError"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam",
+        "x-open-range": "public",
+        "x-feature": "2dlive",
+        "x-request-examples-url-1": "GET https://metastudio.xxxx.myhuaweicloud.com/v1/{project_id}/live-platforms/platforms",
+        "x-order": 2
+      }
+    }
+  },
+  "definitions": {
+    "CustomPlatformAuthConfig": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "密钥Key。调用自定义直播平台时使用。\n使用方式:\n调用接口时,增加两个头域:x-hw-mss-time,x-hw-mss-secret\n* x-hw-mss-time:当前时间戳。Unix时间戳的十六进制结果。1分钟内有效。\n\n\n示例: 66df9308(即2024.09.10 08:30:00)\n* x-hw-mss-secret:鉴权串。hmac_sha256(Key, URI(product_query_url,query参数按照Key的字典序排列)+ x-hw-mss-time)\n\n示例:\nURL  https://api.example.com/v1/products?live_id=111&limit=10&offset=0\n\n\nKey:GCTbw44s6MPLh4GqgDpnfuFHgy25Enly\n\n\nhwTime:66df9308\n\n\nx-hw-mss-secret=hmac_sha256(GCTbw44s6MPLh4GqgDpnfuFHgy25Enly,api.example.com/v1/products?limit=10&live_id=111&offset=066df9308)=5e7fe8869a12a87ea966d9edbc02e38cd4ce62c73b8b05c638f15835e78902d7\n\n\nx-hw-mss-secret: 5e7fe8869a12a87ea966d9edbc02e38cd4ce62c73b8b05c638f15835e78902d7",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      },
+      "description": "自定义直播平台鉴权配置"
+    },
+    "StandardPlatformApiConfig": {
+      "type": "object",
+      "required": [
+        "api_type",
+        "url"
+      ],
+      "properties": {
+        "api_type": {
+          "type": "string",
+          "description": "API类型。\n* PRODUCT_QUERY: 查询商品\n* LIVE_EVENT_CALLBACK: 直播事件回调",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "PRODUCT_QUERY",
+            "LIVE_EVENT_CALLBACK"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "description": "URL。仅支持HTTPS形式URL",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "description": "自定义直播平台回调配置"
+    },
+    "LivePlatformInfo": {
+      "type": "object",
+      "properties": {
+        "platform_id": {
+          "type": "string",
+          "description": "平台ID",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "access_type": {
+          "$ref": "#/definitions/AccessTypeEnum"
+        },
+        "name": {
+          "type": "string",
+          "description": "直播平台名称",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "authorization_info": {
+          "$ref": "#/definitions/PlatformAuthorizationInfo"
+        },
+        "auth_config": {
+          "$ref": "#/definitions/CustomPlatformAuthConfig"
+        },
+        "callback_config": {
+          "type": "array",
+          "description": "自定义直播平台回调配置。同一种类型仅保留一个配置,如果配置多个会随机保存一个。",
+          "items": {
+            "$ref": "#/definitions/StandardPlatformApiConfig"
+          },
+          "maxItems": 10,
+          "minItems": 0
+        }
+      },
+      "description": "直播平台信息"
+    },
+    "PlatformAuthorizationInfo": {
+      "type": "object",
+      "properties": {
+        "authorize_state": {
+          "type": "string",
+          "description": "授权状态。\n* AUTHORIZED: 已授权\n* UNAUTHORIZED: 未授权",
+          "minLength": 1,
+          "maxLength": 32,
+          "enum": [
+            "AUTHORIZED",
+            "UNAUTHORIZED"
+          ]
+        },
+        "authorized_time": {
+          "type": "string",
+          "description": "授权时间",
+          "minLength": 0,
+          "maxLength": 20
+        },
+        "expire_time": {
+          "type": "string",
+          "description": "过期时间",
+          "minLength": 0,
+          "maxLength": 20
+        },
+        "account": {
+          "type": "string",
+          "description": "授权账号信息。\n美团平台对应:opBizCode",
+          "minLength": 0,
+          "maxLength": 20
+        }
+      },
+      "description": "直播平台授权信息"
+    },
+    "AccessTypeEnum": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "description": "平台对接类型。\n* MEITUAN_OFFICIAL:对接美团直播平台官方接口\n* MSS_STANDARD:对接MetaStudio定义的标准接口",
+      "enum": [
+        "MEITUAN_OFFICIAL",
+        "MSS_STANDARD"
+      ]
+    },
+    "ListLivePlatforms": {
+      "type": "object",
+      "properties": {
+        "live_platforms": {
+          "type": "array",
+          "description": "直播平台列表",
+          "items": {
+            "$ref": "#/definitions/LivePlatformInfo"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        }
+      },
+      "description": "直播平台列表"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "X-Project-IdHeader": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "LimitQuery": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页显示的条目数量。",
+      "required": false,
+      "type": "integer",
+      "default": 10,
+      "maximum": 100,
+      "minimum": 1,
+      "format": "uint32"
+    },
+    "OffsetQuery": {
+      "name": "offset",
+      "in": "query",
+      "description": "偏移量,表示从此偏移量开始查询。",
+      "required": false,
+      "type": "integer",
+      "default": 0,
+      "maximum": 2147483647,
+      "minimum": 0,
+      "format": "uint32"
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    }
+  },
+  "host": "metastudio.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

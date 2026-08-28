@@ -1,0 +1,189 @@
+{
+  "name": "StartPausingWorkflowExecutions",
+  "summary": "对暂停中的任务进行操作",
+  "tags": "自动化运维(即将下线)",
+  "productshort": "AOM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/{project_id}/cms/workflow/{workflow_id}/executions/{execution_id}/operation": {
+      "post": {
+        "x-open-region-cloud": "hws",
+        "tags": [
+          "自动化运维(即将下线)"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-request-examples-url-1": "https://{Endpoint}/v1/{project_id}/cms/workflow/{workflow_id}/executions/{execution_id}/operation?action=skip&node_id=xxxxxxx",
+        "x-request-examples-description-1": "可指定参数action为skip来对任务进行跳过操作。\nskip:跳过,restart:重新执行,continue:暂停继续。",
+        "summary": "对暂停中的任务进行操作",
+        "description": "该接口可对任务进行失败重试、失败跳过、暂停继续操作,返回操作结果。(注:接口目前开放的region为:华北-北京四,华东-上海一,华东-上海二,华南-广州)。",
+        "operationId": "StartPausingWorkflowExecutions",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户从IAM申请到的projectid,一般为32位字符串。",
+            "minLength": 32,
+            "maxLength": 32
+          },
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "工作流ID,唯一标识,根据project_id和workflow_name生成。",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "name": "execution_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "工作流执行ID。",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": true,
+            "description": "对当前节点的操作:失败重试,失败跳过,暂停继续。\nrestart可重新执行失败的节点,skip可跳过失败的节点进入下个节点的执行,continue可通过暂停节点进入下一个节点。",
+            "type": "string",
+            "enum": [
+              "restart",
+              "skip",
+              "continue"
+            ],
+            "minLength": 1,
+            "maxLength": 10
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "required": true,
+            "description": "当前节点的id。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40960
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "description": "指定类型为application/json。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求响应成功,任务状态已改变。",
+            "schema": {
+              "$ref": "#/definitions/StatusResult"
+            },
+            "examples": {
+              "application/json": {
+                "result": "success"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized。在客户端提供认证信息后,返回该状态码,表明服务端指出客户端所提供的认证信息不正确或非法。",
+            "schema": {
+              "$ref": "#/definitions/ResultInfo"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.31009004",
+                "error_msg": "auth failed.",
+                "http_code": "401"
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError\n表明服务端能被请求访问到,但是不能理解用户的请求。",
+            "schema": {
+              "$ref": "#/definitions/ResultInfo"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "AOM.31001405",
+                "error_msg": "internal server error.",
+                "http_code": "500"
+              }
+            }
+          }
+        },
+        "x-order": 3
+      }
+    }
+  },
+  "definitions": {
+    "StatusResult": {
+      "type": "object",
+      "description": "对任务进行跳过、重新执行、继续操作的结果响应体。",
+      "properties": {
+        "result": {
+          "type": "object",
+          "description": "结果返回体"
+        }
+      }
+    },
+    "ResultInfo": {
+      "required": [
+        "error_code",
+        "error_msg",
+        "http_code"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "调用失败响应信息描述。",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "http_code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "http返回码",
+          "minimum": 0,
+          "maximum": 999
+        }
+      },
+      "type": "object",
+      "description": "调用失败时的返回值。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "aom.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/v1",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

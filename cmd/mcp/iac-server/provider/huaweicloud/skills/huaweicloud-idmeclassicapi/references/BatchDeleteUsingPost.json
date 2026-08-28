@@ -1,0 +1,198 @@
+{
+  "name": "BatchDeleteUsingPost",
+  "summary": "批量删除实例",
+  "tags": "基础数据服务",
+  "productshort": "iDMEClassicAPI",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/rdm_{identifier}_app/publicservices/api/{modelName}/batchDelete": {
+      "post": {
+        "x-request-examples-url-1": "POST https://dme.cn-north-4.huaweicloud.com/rdm_04219627d6794f37ae26e8aba250415d_app/publicservices/api/PersistableModel/batchDelete",
+        "x-request-examples-text-1": {
+          "applicationId": "04219627d6794f37ae26e8aba250415d",
+          "params": {
+            "ids": [
+              "777",
+              "888"
+            ],
+            "modifier": "test1"
+          }
+        },
+        "x-request-examples-1": {
+          "applicationId": "04219627d6794f37ae26e8aba250415d",
+          "params": {
+            "ids": [
+              "777",
+              "888"
+            ],
+            "modifier": "test1"
+          }
+        },
+        "x-version": "v1",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-constraint": "- 单次请求的ids数组中,最多允许传入1000个实例ID。若超出限制,请求将被直接拒绝。\n- 如果列表中的某些实例已被其他数据实例引用(如作为参考对象),直接删除可能会导致该部分实例删除失败,或触发模型设计时定义的级联删除规则。\n- 如果数据模型启用了生命周期管理,处于特定受保护状态(如“已发布”、“已归档”)的实例禁止删除。此类实例在批量请求中将被跳过或删除失败。\n- 批量删除可能产生“部分成功”的结果。系统会尽力删除列表中的实例,实际成功删除的数量将在响应的data字段中返回,而失败的原因将记录在errors字段中。\n- 建议在请求中传入modifier(更新者账号)参数,以便系统完整记录数据变更的审计日志,满足工业合规要求。",
+        "operationId": "BatchDeleteUsingPost",
+        "x-request-examples-description-1": "**示例:批量删除多个实例(指定操作人)**\n删除PersistableModel模型中ID为777和888的两个数据实例,操作人为test1。",
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/identifier"
+          },
+          {
+            "name": "modelName",
+            "in": "path",
+            "description": "**参数解释:**\n\n数据模型的英文名称。\n\n**约束限制:**\n\n不涉及。\n\n**取值范围:**\n\n以大写字母开头,只能包含字母、数字、“_”,且长度为1-60个字符。\n\n**默认取值:**\n\n不涉及。",
+            "required": true,
+            "type": "string",
+            "x-example": "PersistableModel"
+          },
+          {
+            "in": "body",
+            "name": "paramVO",
+            "required": true,
+            "description": "**参数解释:**\n\n请求参数对象。\n\n**约束限制:**\n\n不涉及。\n\n**取值范围:**\n\n不涉及。\n\n**默认取值:**\n\n不涉及。",
+            "schema": {
+              "$ref": "#/definitions/RDMParamVOPersistObjectIdsModifierDTO"
+            }
+          }
+        ],
+        "tags": [
+          "基础数据服务"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK,表示请求成功。",
+            "examples": {
+              "application/json": {
+                "result": "SUCCESS",
+                "data": [
+                  2
+                ],
+                "errors": []
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DeleteResp"
+            }
+          }
+        },
+        "summary": "批量删除实例",
+        "description": "本接口用于根据数据实例的唯一编码(id)列表,批量删除指定数据模型中的多个数据实例。\n删除操作不可逆,实例删除后将无法恢复。请在调用前务必确认目标实例ID列表,谨慎操作。\n在调用本接口前,请确保目标数据模型已满足实例化条件:\n1. 已在应用设计态完成数据模型(数据实体或关系实体)的创建与发布。具体操作请参见[创建数据实体](https://support.huaweicloud.com/usermanual-idme/idme_usermanual_0007.html)、[创建关系实体](https://support.huaweicloud.com/usermanual-idme/idme_usermanual_0022.html)和[应用发布](https://support.huaweicloud.com/usermanual-idme/idme_usermanual_0085.html)。\n2. 已将对应应用成功部署至运行态。具体操作请参见[部署应用](https://support.huaweicloud.com/consog-idme/idme_consog_0022.html)。",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "x-order": 3
+      }
+    }
+  },
+  "definitions": {
+    "DeleteResp": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/result",
+          "description": "**参数解释:**\n\n请求处理结果状态。\n\n**取值范围:**\n\n- SUCCESS:请求成功。\n- FAIL:请求失败。"
+        },
+        "data": {
+          "type": "array",
+          "description": "**参数解释:**\n\n请求操作影响的数据数量。\n\n**取值范围:**\n\n不涉及。",
+          "example": [
+            1
+          ],
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "errors": {
+          "$ref": "#/definitions/errors",
+          "description": "**参数解释:**\n\n异常信息列表。当result为FAIL时,返回具体的错误描述,包含失败原因及建议处理方式。\n\n**取值范围:**\n\n不涉及。"
+        }
+      }
+    },
+    "PersistObjectIdsModifierDTO": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "description": "**参数解释:**\n\n数据实例ID列表,用于指定待删除的多个实例。\n获取方法请参见[分页查询实例 - ShowFindUsingPost](ShowFindUsingPost.xml)。\n\n**约束限制:**\n\n单次请求不超过1000个。\n\n**取值范围:**\n\n-9223372036854775808到9223372036854775807的整数。\n\n**默认取值:**\n\n不涉及。\n",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "777",
+            "888"
+          ]
+        },
+        "modifier": {
+          "type": "string",
+          "description": "**参数解释:**\n\n更新者账号,用于记录执行删除操作的用户。\n\n**约束限制:**\n\n不涉及。\n\n**取值范围:**\n\n不涉及。\n\n**默认取值:**\n\n不涉及。\n",
+          "example": "test1"
+        }
+      },
+      "required": [
+        "ids"
+      ]
+    },
+    "errors": {
+      "type": "array",
+      "description": "**参数解释:**\n\n异常信息,当请求失败时返回具体的错误描述。\n\n**取值范围:**\n\n不涉及。\n",
+      "example": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "RDMParamVOPersistObjectIdsModifierDTO": {
+      "type": "object",
+      "properties": {
+        "applicationId": {
+          "type": "string",
+          "description": "**参数解释:**\n\n应用ID,用于指定实例所属的应用。\n当URL路径中已能明确应用上下文时,此参数可不传。\n获取方法请参见[获取租户下的应用清单 - ListApps](https://support.huaweicloud.com/api-idme/ListApps.html)。\n\n**约束限制:**\n\n不涉及。\n\n**取值范围:**\n\n- 于2023年06月01日之前创建的应用:由英文字母和数字组成,长度为1-36个字符。\n- 于2023年06月01日之后创建的应用:由英文字母和数字组成,且长度为32个字符。\n\n**默认取值:**\n\n不涉及。",
+          "example": "04219627d6794f37ae26e8aba250415d"
+        },
+        "params": {
+          "description": "**参数解释:**\n\n请求参数对象,包含待失效的实例ID列表及操作人信息。\n\n**约束限制:**\n\n不涉及。\n\n**取值范围:**\n\n不涉及。\n\n**默认取值:**\n\n不涉及。",
+          "$ref": "#/definitions/PersistObjectIdsModifierDTO"
+        }
+      },
+      "required": [
+        "params"
+      ]
+    },
+    "result": {
+      "type": "string",
+      "description": "**参数解释:**\n\n请求结果。\n\n**取值范围:**\n\n- SUCCESS:请求成功。\n- FAIL:请求失败。\n",
+      "example": "SUCCESS"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "identifier": {
+      "name": "identifier",
+      "in": "path",
+      "description": "**参数解释:**\n\n应用的唯一标识。\n\n- 于2023年06月01日之前创建的应用,其唯一标识为该应用的名称。\n- 于2023年06月01日之后创建的应用,其唯一标识为该应用的ID。\n获取方法请参见[获取运行服务清单 - ListEnvs](https://support.huaweicloud.com/api-idme/ListApps.html)。\n\n**约束限制:**\n\n不涉及。\n\n**取值范围:**\n\n- 于2023年06月01日之前创建的应用:由英文字母和数字组成,长度为1-36个字符。\n- 于2023年06月01日之后创建的应用:由英文字母和数字组成,且长度为32个字符。\n\n**默认取值:**\n\n不涉及。\n",
+      "required": true,
+      "type": "string",
+      "x-example": "04219627d6794f37ae26e8aba250415d"
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "**参数解释:**\n\nIAM用户的token。\n\n获取方法请参见[获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)。\n\n**约束限制:**  \n\n不涉及。\n\n**取值范围:**\n\n不涉及。\n\n**默认取值:**  \n\n不涉及。\n",
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+    }
+  },
+  "host": "dme.cn-north-4.huaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

@@ -1,0 +1,340 @@
+{
+  "name": "ExportFullSqlList",
+  "summary": "导出全量单条SQL记录列表",
+  "tags": "全量SQL",
+  "productshort": "GaussDBforopenGauss",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/list-full-sqls/export": {
+      "post": {
+        "tags": [
+          "全量SQL"
+        ],
+        "operationId": "ExportFullSqlList",
+        "summary": "导出全量单条SQL记录列表",
+        "description": "导出GaussDB数据库实例全量SQL日志记录列表,支持增强型条件过滤。 如可对SQL文本(query字段)进行多条件合并查询,可对db_time、cpu_time、data_io_time及execution_time字段进行大于、小于、区间范围等条件的过滤",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-ratelimit": "opengauss_default_policy",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数解释**:\n用户Token。\n通过调用IAM服务[获取用户token](https://support.huaweicloud.com/intl/zh-cn/api-iam/iam_30_0001.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "type": "string",
+            "x-example": "******",
+            "required": true
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "**参数解释**:\n语言。\n**约束限制**:\n不涉及。\n**取值范围**:\n- zh-cn \n- en-us\n\n**默认取值**:\nen-us",
+            "type": "string",
+            "x-example": "en-us",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ],
+            "default": "en-us",
+            "required": false
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "**参数解释**:\n租户在某一Region下的项目ID。\n获取方法请参见[获取项目ID](https://support.huaweicloud.com/api-gaussdb/gaussdb_api_196.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n只能由英文字母、数字组成,且长度为32个字符。\n**默认取值**:\n不涉及。",
+            "type": "string",
+            "required": true,
+            "x-example": "1528a5fecb4449ec9d383630ec58b1d3"
+          },
+          {
+            "in": "path",
+            "name": "instance_id",
+            "description": "**参数解释**:\n实例ID,此参数是用户创建实例的唯一标识。\n**约束限制**:\n不涉及。\n**取值范围**:\n只能由英文字母、数字组成,且长度为32个字符。\n**默认取值**:\n不涉及。",
+            "type": "string",
+            "required": true,
+            "x-example": "9e4e46a450f348e3945872186622cbc2in14"
+          },
+          {
+            "in": "body",
+            "name": "ListEnhanceFullSqlsRequestBody",
+            "description": "**参数解释**:\n查询全量SQL列表请求体。\n**约束限制**:\n不涉及。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListEnhanceFullSqlsRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v3/1528a5fecb4449ec9d383630ec58b1d3/instances/9e4e46a450f348e3945872186622cbc2in14/list-full-sqls/export",
+        "produces": [
+          "application/json"
+        ],
+        "x-request-examples-1": {
+          "begin_time": "2025-01-01T16:01:10+0800",
+          "end_time": "2025-01-20T16:01:10+0800",
+          "offset": 0,
+          "limit": 10,
+          "username": "root",
+          "multi_queries": [
+            {
+              "name": "query",
+              "condition": "AND",
+              "values": [
+                "select",
+                "from table"
+              ],
+              "is_fuzzy": true
+            }
+          ],
+          "compare_conditions": [
+            {
+              "name": "db_time",
+              "min": 1,
+              "max": 10000,
+              "enable_equal": true
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "description": "系统内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponseBody"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MultiQueryConditionOption": {
+      "type": "object",
+      "required": [
+        "name",
+        "condition",
+        "values"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:\n查询字段名称。\n**约束限制**:\n只支持字符串\"query\"。\n**取值范围**:\n由英文字母(大小写)、数字或下划线组成,长度为 1 至 128 个字符。\n**默认取值**:\n不涉及。",
+          "example": "query"
+        },
+        "condition": {
+          "type": "string",
+          "description": "**参数解释**:\n组合条件类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n仅限字符串:\"AND\"、\"OR\"。\n**默认取值**:\n不涉及。",
+          "enum": [
+            "OR",
+            "AND"
+          ],
+          "example": "AND"
+        },
+        "is_fuzzy": {
+          "type": "boolean",
+          "description": "**参数解释**:\n多个过滤检索条件内容集合。\n**约束限制**:\n只支持为true进行模糊查询。\n**取值范围**:\n- true:模糊查询。\n- false:精确匹配。\n\n**默认取值**:\ntrue",
+          "enum": [
+            true,
+            false
+          ],
+          "example": true
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:\n多个过滤检索条件内容集合。由 1 至 5 个字符串组成的列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "example": [
+            "select"
+          ]
+        }
+      }
+    },
+    "ListEnhanceFullSqlsRequestBody": {
+      "description": "查询全量SQL列表请求体",
+      "type": "object",
+      "required": [
+        "begin_time",
+        "end_time"
+      ],
+      "properties": {
+        "node_id": {
+          "description": "**参数解释**:\n节点ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "b470c6297bb24c258e3eccf8dcaaa3f0no14"
+        },
+        "limit": {
+          "description": "**参数解释**:\n最大查询记录数。例如该参数设定为10,则查询结果最多只显示10条记录。\n**约束限制**:\n对于公有云25.5.0.1及以上版本,此参数弃用,请勿传值。通过系统系统参数控制最大返回记录数量,默认为200。\n**取值范围**:\n[1, 1000]\n**默认取值**:\n默认为10。",
+          "type": "integer",
+          "example": 10,
+          "default": 10
+        },
+        "begin_time": {
+          "description": "**参数解释**:\n查询开始时间。\n**约束限制**:\nISO 8601 UTC格式。模式为“yyyy-mm-ddThh:mm:ssZ”。其中,T指某个时间的开始;Z指时区偏移量。\n时区中的+号需要进行URL编码,编码为%2B,时区中的-号无需编码。\n例如:北京时间偏移显示为+0800,begin_time=2024-03-15T17:20:33+0800,传参时编码为begin_time=2024-03-15T17:20:33%2B0800。\n**取值范围**:\n时间区间(begin_time ~ end_time)不能超过30天。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "2025-01-01T16:01:10+0800"
+        },
+        "end_time": {
+          "description": "**参数解释**:\n查询结束时间。\n**约束限制**:\nISO 8601 UTC格式。模式为“yyyy-mm-ddThh:mm:ssZ”。其中,T指某个时间的开始;Z指时区偏移量。\n时区中的+号需要进行URL编码,编码为%2B,时区中的-号无需编码。\n例如:北京时间偏移显示为+0800,end_time=2024-03-16T17:20:33+0800,传参时编码为end_time=2024-03-16T17:20:33%2B0800。\n**取值范围**:\n时间区间(begin_time ~ end_time)不能超过30天。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "2025-01-20T16:01:10+0800"
+        },
+        "query": {
+          "description": "**参数解释**:\nSQL文本。\n**约束限制**:\n不涉及。\n**取值范围**:\n长度1-4096。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "select * from gaussdb"
+        },
+        "sql_id": {
+          "description": "**参数解释**:\n归一化SQL ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "3801186389"
+        },
+        "sql_exec_id": {
+          "description": "**参数解释**:\n唯一SQL ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "1945836514000776938"
+        },
+        "transaction_id": {
+          "description": "**参数解释**:\n事务ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "0"
+        },
+        "trace_id": {
+          "description": "**参数解释**:\n链路ID。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "d3eef567-4be6-424c-860f-75684457bf72"
+        },
+        "db_name": {
+          "description": "**参数解释**:\n数据库名称。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "postgres"
+        },
+        "schema_name": {
+          "description": "**参数解释**:\nschema名称。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "$user.public"
+        },
+        "username": {
+          "description": "**参数解释**:\n用户名称。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "root"
+        },
+        "client_addr": {
+          "description": "**参数解释**:\n客户端地址。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "192.168.0.10"
+        },
+        "client_port": {
+          "description": "**参数解释**:\n客户端端口。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "type": "string",
+          "example": "8890"
+        },
+        "order_by": {
+          "description": "**参数解释**:\n排序字段。\n**约束限制**:\n不涉及。\n**取值范围**:\n- begin_time:起始时间。\n\n**默认取值**:\nbegin_time",
+          "type": "string",
+          "enum": [
+            "begin_time"
+          ],
+          "example": "begin_time"
+        },
+        "is_slow_sql": {
+          "description": "**参数解释**:\n是否为慢SQL。\n**约束限制**:\n不涉及。\n**取值范围**:\n- true:是慢SQL。\n- false:不是慢SQL。\n\n**默认取值**:\n不涉及。",
+          "type": "boolean",
+          "enum": [
+            true,
+            false
+          ],
+          "example": true
+        },
+        "order": {
+          "description": "**参数解释**:\n排序方式,支持升序和降序。\n**约束限制**:\n不涉及。\n**取值范围**:\n- DESC:降序。\n- ASC:升序。\n\n**默认取值**:\nDESC",
+          "type": "string",
+          "enum": [
+            "ASC",
+            "DESC"
+          ],
+          "example": "DESC"
+        },
+        "multi_queries": {
+          "description": "**参数解释**:\n字段汇聚查询条件列表。默认取值为[]。\n**约束限制**:\n不涉及。",
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/MultiQueryConditionOption"
+          }
+        },
+        "compare_conditions": {
+          "description": "**参数解释**:\n组合比较查询条件,可针对某个给定过滤字段,进行区间范围、大小、小于等条件合并查询。默认取值为[]。\n**约束限制**:\n不涉及。",
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/CompareConditionOption"
+          }
+        }
+      }
+    },
+    "CompareConditionOption": {
+      "description": "组合比较查询条件,可针对某个给定过滤字段,进行区间范围、大小、小于等条件合并查询。",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:\n查询字段名称,当前仅支持特定的数值字段。\n**约束限制**:\n不涉及。\n**取值范围**:\n- total_sql_time: 总SQL耗时。\n- sql_time:SQL执行次数。\n\n**默认取值**:\n不涉及。",
+          "example": "query"
+        },
+        "enable_equal": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否使能包含等于,如果为true,则表示包含边界条件(min或max)的取值。\n**约束限制**:\n不涉及。\n**取值范围**:\n- true\n- false\n\n**默认取值**:\n不涉及。",
+          "example": true
+        },
+        "min": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n最小值判断条件对应取值(大于条件)。\n**约束限制**:\n不涉及。\n**取值范围**:\n[0, 2^63-1]\n**默认取值**:\n不涉及。"
+        },
+        "max": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n最大值判断条件对应取值(小于条件)。\n**约束限制**:\n不涉及。\n**取值范围**:\n[0, 2^63-1]\n**默认取值**:\n不涉及。"
+        },
+        "value": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:\n等值判断条件对应取值(等于条件)。value的优先级最高,如果value不为空,则忽略min和max的取值设置;value为空时,才使能min和max的条件过滤。\n**约束限制**:\n不涉及。\n**取值范围**:\n[0, 2^63-1]\n**默认取值**:\n不涉及。"
+        }
+      }
+    },
+    "ErrorResponseBody": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "**参数解释**:\n错误码。\n**取值范围**:\n不涉及。",
+          "type": "string",
+          "example": "DBS.00114000"
+        },
+        "error_msg": {
+          "description": "**参数解释**:\n错误消息。\n**取值范围**:\n不涉及。",
+          "type": "string",
+          "example": "系统内部错误"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

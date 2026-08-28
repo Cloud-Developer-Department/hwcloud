@@ -1,0 +1,182 @@
+{
+  "name": "ResetSimCard",
+  "summary": "SIM卡单卡复机",
+  "tags": "SIM卡管理",
+  "productshort": "GSL",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/sim-cards/{sim_card_id}/reset": {
+      "post": {
+        "tags": [
+          "SimCards"
+        ],
+        "summary": "SIM卡单卡复机",
+        "description": "创建复机申请,返回业务受理单号。1~2个工作日完成复机操作。注:由于运营商侧业务限制,建议您同一张SIM卡不要同时执行多种不同业务的操作。",
+        "operationId": "ResetSimCard",
+        "parameters": [
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "name": "sim_card_id",
+            "in": "path",
+            "description": "SIM卡标识,如果SIM卡标识传0则表示需要根据iccid处理。可通过[查询SIM卡列表接口](https://support.huaweicloud.com/api-ocgsl/gsl_07_0008.html)获取",
+            "required": true,
+            "type": "integer",
+            "minimum": 0,
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "resetSimCardRequestBody",
+            "description": "请求体",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DownUpTimeForSimCardReq"
+            },
+            "x-annotations": "@Valid @RequestBody(required = false)",
+            "x-only-custom-annotation": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json-1": {
+                "work_order_id": 1000001
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/StopResumeRsp"
+            }
+          },
+          "400": {
+            "description": "Parameter Invalid",
+            "examples": {
+              "application/json-1": {
+                "error_code": "GSL.00010004",
+                "error_msg": "参数异常"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "GSL.00010004",
+              "GSL.00011001"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json-1": {
+                "error_code": "GSL.00016010",
+                "error_msg": "您操作的卡仍有未完成的停机受理单,请勿重复操作。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "GSL.00016009",
+              "GSL.00016013",
+              "GSL.00016016",
+              "GSL.00016019"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json-1": {
+                "error_code": "GSL.00010003",
+                "error_msg": "系统繁忙,请稍后重试。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiResponse"
+            },
+            "x-Error": [
+              "GSL.00010003"
+            ]
+          }
+        },
+        "x-iftype": "OpenAPI_new",
+        "x-returnType": "ResponseEntity<StopResumeRsp>",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "DownUpTimeForSimCardReq": {
+      "type": "object",
+      "properties": {
+        "down_up_switch": {
+          "type": "integer",
+          "format": "int32",
+          "example": 1,
+          "description": "启用停用开关",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "iccid": {
+          "type": "string",
+          "example": "89860622330010641805",
+          "description": "iccid,传入的sim_card_id为0,则根据iccid进行处理",
+          "minLength": 19,
+          "maxLength": 20
+        }
+      },
+      "example": {
+        "down_up_switch": 2,
+        "iccid": "89860622330010641805"
+      },
+      "x-java-class": "com.huawei.m2m.cmp.global.simcard.rest.api.dto.request.DownUpTimeForSimCardReq"
+    },
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      },
+      "x-serialVersionUID": "4654150370649286615",
+      "x-ref-external": "com.huawei.m2m.cmp.base.api.ApiResponse"
+    },
+    "StopResumeRsp": {
+      "type": "object",
+      "properties": {
+        "work_order_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "业务受理单号"
+        }
+      },
+      "x-annotations": "@JsonInclude(value=JsonInclude.Include.NON_NULL)",
+      "x-imports": "com.fasterxml.jackson.annotation.JsonInclude;",
+      "x-java-class": "com.huawei.m2m.cmp.global.simcard.rest.api.dto.response.StopResumeRsp"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。通过调用IAM服务 [获取IAM用户Token](https://support.huaweicloud.com/api-iam/iam_30_0001.html)接口获取,接口返回的响应消息头中“X-Subject-Token”就是需要获取的用户Token。简要的获取方法样例请参见 [Token认证](https://support.huaweicloud.com/api-ocgsl/gsl_07_0004.html)。",
+      "required": true,
+      "type": "string",
+      "x-nGenerated": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+    }
+  },
+  "host": "gsl.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

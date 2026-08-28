@@ -1,0 +1,230 @@
+{
+  "name": "ShowServerStatus",
+  "summary": "服务器概览",
+  "tags": "物理服务器诊断",
+  "productshort": "CloudDC",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v1/{project_id}/physicalservers/status": {
+      "get": {
+        "tags": [
+          "物理服务器诊断"
+        ],
+        "summary": "服务器概览",
+        "description": "该 API 用于查询服务器概览、服务器开机状态和服务器运行状态",
+        "operationId": "ShowServerStatus",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "$ref": "#/parameters/AuthToken"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ServerStatusResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求参数错误,请求失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "请求未鉴权",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "请求过载",
+            "schema": {
+              "type": "string",
+              "example": "too many requests"
+            }
+          },
+          "500": {
+            "description": "服务端内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "ServerState": {
+      "type": "object",
+      "description": "服务器运行状态对象",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "数量"
+        },
+        "dc_stats": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "数据中心名称对应数量映射"
+        }
+      },
+      "required": [
+        "count",
+        "dc_stats"
+      ]
+    },
+    "ServerStatus": {
+      "type": "object",
+      "description": "服务器运行状态响应对象",
+      "properties": {
+        "total": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行状态所有对象"
+        },
+        "ok": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行OK状态所有对象"
+        },
+        "warning": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行Warning状态所有对象"
+        },
+        "unknown": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行Unknown状态所有对象"
+        },
+        "critical": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行Critical状态所有对象"
+        },
+        "health": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行Health状态所有对象"
+        },
+        "unHealth": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行UnHealth状态所有对象"
+        },
+        "isolation": {
+          "$ref": "#/definitions/ServerState",
+          "description": "服务器运行Isolation状态所有对象"
+        }
+      },
+      "required": [
+        "total",
+        "ok",
+        "warning",
+        "critical",
+        "health",
+        "unHealth",
+        "isolation"
+      ]
+    },
+    "Error": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36,
+          "example": "iMetal.00004000"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512,
+          "example": "error message"
+        }
+      },
+      "type": "object"
+    },
+    "ServerStatusResponseBody": {
+      "type": "object",
+      "description": "服务器概况响应体",
+      "properties": {
+        "server_status": {
+          "$ref": "#/definitions/ServerStatus"
+        },
+        "server_power_status": {
+          "$ref": "#/definitions/ServerPowerStatus"
+        },
+        "server_manage_state": {
+          "$ref": "#/definitions/ServerManageState"
+        }
+      },
+      "required": [
+        "server_status",
+        "server_power_status",
+        "server_manage_state"
+      ]
+    },
+    "ServerPowerStatus": {
+      "type": "object",
+      "description": "服务器电源状态对象",
+      "properties": {
+        "on": {
+          "type": "integer",
+          "format": "int32",
+          "description": "开机状态的数量"
+        },
+        "off": {
+          "type": "integer",
+          "format": "int32",
+          "description": "关机状态的数量"
+        },
+        "unknown": {
+          "type": "integer",
+          "format": "int32",
+          "description": "未知状态的数量"
+        }
+      },
+      "required": [
+        "on",
+        "off"
+      ]
+    },
+    "ServerManageState": {
+      "type": "object",
+      "description": "**参数解释**:\n服务器的生命周期状态及对应的数量\n**约束限制**:\n格式为key: value\nstate(生命周期状态): count(当前生命周期状态的服务器数量)\n"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "in": "path",
+      "required": true,
+      "description": "project id",
+      "type": "string"
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "required": true,
+      "description": "租户账号的iam token。",
+      "type": "string"
+    }
+  },
+  "host": "clouddc.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

@@ -1,0 +1,345 @@
+{
+  "name": "ListCoreSpaceByTags",
+  "summary": "根据标签查询记忆库列表",
+  "tags": "记忆库标签管理",
+  "productshort": "AgentArts",
+  "region_id": "cn-east-4",
+  "paths": {
+    "/v1/memory-space/resource-instances/filter": {
+      "post": {
+        "operationId": "ListCoreSpaceByTags",
+        "summary": "根据标签查询记忆库列表",
+        "description": "该接口用于根据标签过滤条件查询智能体记忆库的资源列表。\n**适用场景:**\n根据标签条件查找对应的智能体记忆库资源。",
+        "tags": [
+          "记忆库标签管理"
+        ],
+        "x-support-sdk": "N",
+        "x-api-type": "open-api",
+        "x-api-service-plane": "Control-plane",
+        "x-is-registered": "Y",
+        "x-sec-data-level": "L2",
+        "x-apigateway-request-type": "public",
+        "x-api-framework": "RestfulAPI",
+        "x-api-user": "IAM普通租户",
+        "x-api-position": "管理面",
+        "x-request-examples-description-1": "根据标签精确查询",
+        "x-request-examples-url-1": "/v1/memory-space/resource-instances/filter",
+        "x-request-examples-1": {
+          "tags": [
+            {
+              "key": "tag",
+              "values": [
+                "tag_value"
+              ]
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/Offset"
+          },
+          {
+            "$ref": "#/parameters/TagLimit"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListCoreSpacesByTagsRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "根据标签查询记忆库列表成功。",
+            "schema": {
+              "$ref": "#/definitions/ListCoreSpacesByTagsResponseBody"
+            }
+          },
+          "400": {
+            "description": "请求参数错误。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "403": {
+            "description": "权限不足。",
+            "schema": {
+              "$ref": "#/definitions/AuthorizationError"
+            }
+          },
+          "404": {
+            "description": "记忆库未找到",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "429": {
+            "description": "请求频率超限。",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          },
+          "500": {
+            "description": "内部服务器错误",
+            "schema": {
+              "$ref": "#/definitions/CoreSpaceCommonError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CoreSpaceResourceInstanceForTMS": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "description": "**参数解释:**\n资源实例ID。\n**约束限制:**\n不涉及。\n**取值范围:**\n长度1-64字符。\n**默认取值:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "resource_name": {
+          "type": "string",
+          "description": "**参数解释:**\n资源实例名称。\n**约束限制:**\n不涉及。\n**取值范围:**\n长度1-128字符。\n**默认取值:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "tags": {
+          "type": "array",
+          "description": "**参数解释:**\n资源实例绑定的标签键值对列表。\n**约束限制:**\n不涉及。\n**取值范围:**\n0-20个。\n**默认取值:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceTagForTMS"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        },
+        "resource_detail": {
+          "type": "string",
+          "description": "**参数解释:**\n资源详细信息。\n**约束限制:**\n不涉及。\n**取值范围:**\n长度0-255字符。\n**默认取值:**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "ListCoreSpacesByTagsRequestBody": {
+      "type": "object",
+      "properties": {
+        "without_any_tag": {
+          "type": "boolean",
+          "description": "**参数解释:**\n不包含任意一个标签,该字段为true时查询所有不带标签的资源,此时忽略 \"tags\"、\"tags_any\"、\"not_tags\"、\"not_tags_any\"字段。\n**约束限制:**\n不涉及。\n**取值范围:**\n- true\n- false\n**默认取值:**\n不涉及。"
+        },
+        "tags": {
+          "description": "**参数解释:**\n包含标签。\n最多包含20个key,每个key下面的value最多20个,每个key对应的value可以为空数组但结构体不能缺失。\n结果返回包含所有标签的资源列表,key之间是与的关系,key-value结构中value是或的关系。\n无tag过滤条件时返回全量数据。\n**约束限制:**\nKey不能重复,同一个key中values不能重复。\n**取值范围:**\n0-20个。\n**默认取值:**\n不涉及。",
+          "minItems": 0,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/CoreSpaceTagValuesForTMS"
+          },
+          "type": "array"
+        },
+        "matches": {
+          "type": "array",
+          "description": "**参数解释:**\n标签键值匹配规则,每个key对应的value可以为空数组但结构体不能缺失。key之间是与的关系,key-value结构中value是或的关系。无matches过滤条件时返回全量数据。\n当matches和tags同时存在时,表示获取同时满足matches和tags的资源。\n**约束限制:**\nKey不能重复,同一个key中values不能重复。\n**取值范围:**\n0-20个。\n**默认取值:**\n不涉及。",
+          "minItems": 0,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/CoreSpaceTagForTMS"
+          }
+        },
+        "tags_any": {
+          "type": "array",
+          "description": "**参数解释:**\n包含任意标签。最多包含20个key,每个key下面的value最多20个,每个key对应的value可以为空数组但结构体不能缺失。\n结果返回包含标签的资源列表,key之间是或的关系,key-value结构中value是或的关系。\n无过滤条件时返回全量数据。\n**约束限制:**\nKey不能重复,同一个key中values不能重复。\n**取值范围:**\n0-20个。\n**默认取值:**\n不涉及。",
+          "minItems": 0,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/CoreSpaceTagValuesForTMS"
+          }
+        },
+        "not_tags": {
+          "type": "array",
+          "description": "**参数解释:**\n不包含标签。\n最多包含20个key,每个key下面的value最多20个,每个key对应的value可以为空数组但结构体不能缺失。\n结果返回不包含标签的资源列表,key之间是与的关系,key-value结构中value是或的关系。\n无过滤条件时返回全量数据。\n**约束限制:**\nKey不能重复,同一个key中values不能重复。\n**取值范围:**\n0-20个。\n**默认取值:**\n不涉及。",
+          "minItems": 0,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/CoreSpaceTagValuesForTMS"
+          }
+        },
+        "not_tags_any": {
+          "type": "array",
+          "description": "**参数解释:**\n不包含任意标签。\n最多包含20个key,每个key下面的value最多20个,每个key对应的value可以为空数组但结构体不能缺失。\n结果返回不包含标签的资源列表,key之间是与的关系,key-value结构中value是或的关系。\n无过滤条件时返回全量数据。\n**约束限制:**\nKey不能重复,同一个key中values不能重复。\n**取值范围:**\n0-20个。\n**默认取值:**\n不涉及。",
+          "minItems": 0,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/CoreSpaceTagValuesForTMS"
+          }
+        }
+      }
+    },
+    "CoreSpaceTagValuesForTMS": {
+      "type": "object",
+      "required": [
+        "key",
+        "values"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释:** \n标签键。\n**约束限制:**\n不涉及。\n**取值范围:** \n长度1-128字符。\n每个值最大长度255个unicode字符。最大长度128个unicode字符。key不能为空。key不能为空或者空字符串,不能为空格。可用 UTF-8 格式表示的字母(包含中文、西班牙语、葡语等)、数字和空格,以及以下字符: _ . : / = + - @。\n**默认取值:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "values": {
+          "type": "array",
+          "description": "**参数解释:** \n标签值。\n**约束限制:**\n不涉及。\n**取值范围:**\n0-20个。\n每个值最大长度255个unicode字符。可用 UTF-8 格式表示的字母(包含中文、西班牙语、葡语等)、数字和空格,以及以下字符: _ . : / = + - @。\n**默认取值:**\n不涉及。",
+          "minItems": 0,
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 255
+          }
+        }
+      }
+    },
+    "AuthorizationError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.XXXXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "**参数解释:**\n编码后的授权失败信息。\n**取值范围:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "details": {
+          "type": "array",
+          "description": "**参数解释:**\n依赖的下游服务错误信息列表,包含导致当前请求失败的下游服务错误详情。\n**取值范围:**\n不涉及。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceCommonError"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        }
+      }
+    },
+    "CoreSpaceTagForTMS": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释:** \n标签键。\n**约束限制:**\n不涉及。\n**取值范围:**\n最大长度128个unicode字符。key不能为空。(搜索时不对此参数做字符集校验),key不能为空或者空字符串,不能为空格。\n**默认取值:**\n不涉及。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释:** \n标签值。\n**约束限制:**\n不涉及。\n**取值范围:**\n每个值最大长度255个unicode字符。\n**默认取值:**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 255
+        }
+      }
+    },
+    "ListCoreSpacesByTagsResponseBody": {
+      "type": "object",
+      "properties": {
+        "total_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释:** \n总记录数。\n**取值范围:**\n1-20。。",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "resources": {
+          "type": "array",
+          "description": "**参数解释:** \n资源实例列表。\n**取值范围:**\n0-20个。",
+          "items": {
+            "$ref": "#/definitions/CoreSpaceResourceInstanceForTMS"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        }
+      }
+    },
+    "CoreSpaceCommonError": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释:**\n错误码,标识错误类型,格式为 AgentArts.01XXXXXX。\n**取值范围:**\n不涉及。",
+          "pattern": "^AgentArts\\.[0-9]{8}$",
+          "minLength": 18,
+          "maxLength": 18
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释:**\n错误信息,描述错误详情,供问题排查使用。\n**取值范围:**\n不涉及。",
+          "pattern": "^[a-zA-Z0-9\\s\\一-\\鿿.,!?;:()'\"\\-\\。\\，\\！\\？\\；\\：\\（\\）]+$",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Offset": {
+      "name": "offset",
+      "in": "query",
+      "description": "**参数解释:**\n返回结果偏移量。\n**约束限制:**\n必须为非负整数。\n**取值范围:**\n0-100000。\n**默认取值:**\n0。",
+      "required": false,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000,
+      "default": 0
+    },
+    "TagLimit": {
+      "name": "limit",
+      "in": "query",
+      "description": "**参数解释:**\n查询记录数。\n**约束限制:**\n必须为正整数。\n**取值范围:**\n1-1000。\n**默认取值:**\n1000。",
+      "required": false,
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000,
+      "default": 1000
+    }
+  },
+  "host": "agentarts.cn-east-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

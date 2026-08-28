@@ -1,0 +1,505 @@
+{
+  "name": "CreateInstance",
+  "summary": "创建堡垒机实例",
+  "tags": "生命周期管理",
+  "productshort": "CBH",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/cbs/instance": {
+      "post": {
+        "x-open-region-cloud": "hws,hws_hk,ctc,cmcc,hcso",
+        "tags": [
+          "生命周期管理"
+        ],
+        "operationId": "CreateInstance",
+        "summary": "创建堡垒机实例",
+        "description": "创建云堡垒机实例。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "in": "body",
+            "name": "CreateInstanceRequestBody",
+            "description": "CreateInstanceBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateInstanceBody"
+            }
+          }
+        ],
+        "x-apigateway-ratelimit": "CBH_Server",
+        "responses": {
+          "200": {
+            "description": "Cbh Create Instance Success",
+            "schema": {
+              "$ref": "#/definitions/CreateInstanceOrderRespon"
+            },
+            "examples": {
+              "application/json": {
+                "order_id": "CS22xxx82xx5AssGxxx"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp401"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp403"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp404"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "IsAutoPay": {
+      "description": "是否自动支付,下单订购后,是否自动从客户的华为云账户中支付,而不需要客户手动去进行支付。\n- 1:是(会自动选择折扣和优惠券进行优惠,然后自动从客户华为云账户中支付),自动支付失败后会生成订单成功(该订单应付金额是优惠后金额)、但订单状态为“待支付”,等待客户手动支付(手动支付时,客户还可以修改系统自动选择的折扣和优惠券)\n- 0:否(需要客户手动去支付,客户可以选择折扣和优惠券。)\n\n默认值为“0”",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2
+    },
+    "ResourceTag": {
+      "required": [
+        "key",
+        "value"
+      ],
+      "description": "标签列表的结构体。",
+      "properties": {
+        "key": {
+          "description": "键。最大长度128个字符。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "pattern": "^((?!_sys_)[\\p{L}\\p{Z}\\p{N}_.:=+\\-@]*)$"
+        },
+        "value": {
+          "description": "值。每个值最大长度255个字符。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255,
+          "pattern": "^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$"
+        }
+      }
+    },
+    "CreateInstanceBody": {
+      "description": "创建堡垒机实例请求参数。",
+      "required": [
+        "specification",
+        "instance_name",
+        "password",
+        "region",
+        "availability_zone",
+        "charging_mode",
+        "network"
+      ],
+      "properties": {
+        "specification": {
+          "description": "待创建云堡垒机规格ID,例如:\n- cbh.basic.50\n- cbh.enhance.50\n\n可参考接口\"查询云堡垒机规格信息\"获取。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "instance_name": {
+          "description": "云堡垒机实例名称,取值范围:\n\n只能由中文字符、英文字母、数字及“_”、“-”组成,且长度为[1-64]个字符。\n\n例如:CBH-6b8e",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "password": {
+          "description": "堡垒机实例前端登录密码。\n\n密码规则:8-32位、不能包含amdin或nidma及其大写形式、必须包含大小写数字特殊字符(!@$%^-_=+[{}]:,./?~#*)四种类型中的三种、不能包含超过2个连续的相同字符(区分大小写)。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "region": {
+          "description": "创建云堡垒机实例所在局点ID。\n\n\n可参考接口\"查询云堡垒机规格信息\"获取",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "availability_zone": {
+          "description": "创建云堡垒机所在的可用分区,需要指定可用分区名称。(主备模式是作为主机可用区)\n\n可参考接口\"获取服务可用区\"获取",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "slave_availability_zone": {
+          "description": "创建云堡垒机备机所在的可用分区,需要指定可用分区名称。(只创建单机时不传此字段)。\n\n可参考接口\"获取服务可用区\"获取",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "charging_mode": {
+          "description": "计费模式。\n- 0 包周期计费。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "period_type": {
+          "description": "订购周期类型。(包周期模式必传)\n- 2:月\n- 3:年",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "period_num": {
+          "description": "订购周期数。(包周期模式必传)\n- period_type=2(周期类型为月),取值范围[1,9]\n- periodType=3(周期类型为年),取值范围[1,10]",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "is_auto_renew": {
+          "description": "是否自动续订。\n- 1,自动续订\n- 0,不自动续订\n\n默认值为“0”",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "is_auto_pay": {
+          "$ref": "#/definitions/IsAutoPay"
+        },
+        "network": {
+          "$ref": "#/definitions/NetworkInfoCreate"
+        },
+        "ipv6_enable": {
+          "description": "云堡垒机实例是否支持IPV6。\n\n默认值为“false”。",
+          "type": "boolean"
+        },
+        "enterprise_project_id": {
+          "description": "企业项目ID。\n\n默认值为“0”。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "attach_disk_size": {
+          "description": "附加磁盘大小。单位TB\n\n> 说明:\n附加磁盘和规格自带磁盘大小合起来不能超过300TB。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300
+        },
+        "tags": {
+          "description": "标签信息。",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 36,
+          "items": {
+            "$ref": "#/definitions/ResourceTag"
+          }
+        }
+      },
+      "example": {
+        "specification": "cbh.basic.50",
+        "instance_name": "CBH-155f",
+        "password": "1xxx6xxxx",
+        "region": "cn-north-4",
+        "availability_zone": "cn-north-4a",
+        "slave_availability_zone": "cn-north-4a",
+        "charging_mode": 0,
+        "period_type": 2,
+        "period_num": 1,
+        "is_auto_renew": 0,
+        "is_auto_pay": 0,
+        "ipv6_enable": false,
+        "enterprise_project_id": "0",
+        "attach_disk_size": 1,
+        "tags": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ],
+        "network": {
+          "vpc_id": "279e8217-xxxx-4d83-xxxx-b8f14d47170b",
+          "subnet_id": "a86217e6-xxxx-4803-xxxx-b57da681xxxx",
+          "private_ip": {
+            "ip": "123.xxx.41.xx",
+            "slave_ip": "123.xxx.41.xx",
+            "floating_ip": "123.xxx.41.xx"
+          },
+          "public_ip": {
+            "id": "cfcab481-xxxx-4e23-xxxx-d6cdd0efxxxx",
+            "public_eip": "123.xxx.41.xx"
+          },
+          "security_groups": [
+            {
+              "id": "1e10bc4f-xxxx-4452-xxxx-8ddb4348xxx"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "SecurityGroup": {
+      "description": "安全组信息。",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "云堡垒机实例安全组ID,字母数字下划线连接符组成。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        }
+      }
+    },
+    "NetworkInfoCreate": {
+      "description": "切换云堡垒机实例vpc所需网络信息。",
+      "required": [
+        "vpc_id",
+        "subnet_id",
+        "public_ip",
+        "security_groups"
+      ],
+      "properties": {
+        "vpc_id": {
+          "description": "待创建云服务器所属虚拟私有云(简称VPC),需要指定已创建VPC的ID,UUID格式。\n\nVPC的ID可以从控制台或者参考《虚拟私有云接口参考》的“查询VPC”章节获取。\n\n例如:03211ecf-xxxx-4306-xxxx-6e939bfxxxxx",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "subnet_id": {
+          "description": "子网ID,字母数字下划线连接符组成。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "public_ip": {
+          "$ref": "#/definitions/PublicIp"
+        },
+        "security_groups": {
+          "description": "安全组信息。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SecurityGroup"
+          },
+          "minItems": 0,
+          "maxItems": 512,
+          "uniqueItems": true
+        },
+        "private_ip": {
+          "$ref": "#/definitions/PrivateIp"
+        }
+      },
+      "example": {
+        "vpcId": "760071b3-34a3-4359-bf18-3af24e77c1cf",
+        "subnetId": "90b6be71-e72a-4d5a-8838-5924bce3c583",
+        "privateIp": {
+          "ip": "192.168.0.3"
+        }
+      }
+    },
+    "PrivateIp": {
+      "description": "云堡垒机实例指定公网IP信息。",
+      "required": [
+        "ip"
+      ],
+      "properties": {
+        "ip": {
+          "description": "私网IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "slave_ip": {
+          "description": "备机私网IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "floating_ip": {
+          "description": "浮动IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      }
+    },
+    "ErrorRsp400": {
+      "description": "请求参数错误。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "请求参数错误。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 400,
+        "description": "请求参数错误。"
+      }
+    },
+    "ErrorRsp401": {
+      "description": "校验TOKEN失败。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "校验TOKEN失败。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 401,
+        "description": "校验TOKEN失败"
+      }
+    },
+    "PublicIp": {
+      "description": "云堡垒机实例弹性公网IP信息。可填写null值",
+      "properties": {
+        "id": {
+          "description": "弹性IP和EIP只能有一个,弹性IP或EIP的ID。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "public_eip": {
+          "description": "弹性IP地址。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      }
+    },
+    "ErrorRsp404": {
+      "description": "没有找到CBH资源。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "没有找到CBH资源。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 404,
+        "description": "没有找到CBH资源"
+      }
+    },
+    "CreateInstanceOrderRespon": {
+      "description": "订单返回对象",
+      "required": [
+        "order_id"
+      ],
+      "properties": {
+        "order_id": {
+          "description": "订单ID。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        }
+      },
+      "example": {
+        "order_id": "CS22xxx82xx5AGxxx"
+      }
+    },
+    "ErrorRsp403": {
+      "description": "租户无权限操作。",
+      "required": [
+        "error_code",
+        "error_description"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "error_description": {
+          "description": "租户无权限操作。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        }
+      },
+      "example": {
+        "error_code": 403,
+        "description": "租户无权限操作"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID。\n\n获取方法详见API参考,附录\"获取项目ID\"",
+      "required": true,
+      "type": "string",
+      "x-example": "80baxxxxxxxxf9ad43xxxxxxxxx",
+      "minLength": 0,
+      "maxLength": 64
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n\n可参考\"IAM获取IAM用户Token\"获取",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIE5gYJKoZIhvcNAQcCoIIE1zCCXXXXXX...",
+      "minLength": 0,
+      "maxLength": 28000
+    }
+  },
+  "host": "cbh.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

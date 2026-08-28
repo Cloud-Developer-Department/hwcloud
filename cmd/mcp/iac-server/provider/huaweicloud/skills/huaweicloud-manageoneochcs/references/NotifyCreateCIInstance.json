@@ -1,0 +1,157 @@
+{
+  "name": "NotifyCreateCIInstance",
+  "summary": "资源实例异步更新或创建",
+  "tags": "资源管理",
+  "productshort": "ManageOneOCHCS",
+  "region_id": "ap-southeast-3",
+  "paths": {
+    "/rest/cmdb/v1/instances/async/{className}": {
+      "put": {
+        "summary": "资源实例异步更新或创建",
+        "description": "资源实例异步更新或创建。\n\n**接口SLA:**\n\n|SLA项|定义|\n|-----|-----|\n|请求成功率| ≥ 99.9%|\n|可用性|Tier1|\n|数据一致性|最终一致,不一致时长<1分钟|\n|吞吐量|10 tps|\n|TP50请求时延|500 ms|\n|TP99.9请求时延|1500 ms|",
+        "x-precautions": "使用前请参考《资源北向模型》,获取系统支持的资源类型、关系类型、资源分类、异步接口资源类型对照表及属性列表。\nHeader中X-Service-Host:必填,与管理系统对接注册接口中注册的IP一致 。调用该接口需要“修改资源实例”权限,归属权限组:运维中心>资源实例管理。\n错误码:当请求不成功时,响应体内的错误码信息请参见“ManageOne 运维面API参考 > 错误码说明 > 资源管理特性”章节。\n",
+        "tags": [
+          "资源管理"
+        ],
+        "operationId": "NotifyCreateCIInstance",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "x-auth-token",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "IAM_OP token、SSO token。"
+          },
+          {
+            "name": "className",
+            "in": "path",
+            "type": "string",
+            "description": "资源类型标示",
+            "required": true
+          },
+          {
+            "name": "notifyDatas",
+            "in": "body",
+            "description": "上报数据的内容",
+            "schema": {
+              "$ref": "#/definitions/NotifyCIInstanceDef"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "该接口为异步接口,200表示资源实例异步更新或插入信息通知ManageOne成功,不代表实例已成功更新或插入ManageOne。"
+          },
+          "400": {
+            "description": "参数错误。"
+          },
+          "403": {
+            "description": "URL鉴权失败。"
+          },
+          "404": {
+            "description": "rest接口未找到。"
+          },
+          "500": {
+            "description": "默认ServiceException异常码,应用内部错误。"
+          },
+          "502": {
+            "description": "网关错误。"
+          },
+          "503": {
+            "description": "服务不可用。"
+          },
+          "504": {
+            "description": "表示时间超时,总线超时时间300s。"
+          },
+          "888": {
+            "description": "服务摘机,不提供服务。"
+          }
+        },
+        "x-support-sdk": "N",
+        "x-request-examples-url-1": "PUT https://{endpoint}/rest/cmdb/v1/instances/async/RACKSERVER",
+        "x-request-examples-description-1": "",
+        "x-request-examples-1": {
+          "timeStamp": 1587978467899,
+          "datas": [
+            {
+              "name": "test",
+              "deviceType": "RACK",
+              "nativeId": "545461122334567"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "NotifyCIInstanceDef": {
+      "required": [
+        "datas"
+      ],
+      "description": "上报的资源实例",
+      "properties": {
+        "reportState": {
+          "type": "string",
+          "description": "本次上报数据的状态。默认为NORMAL;ABABNORMAL表示第三方接入系统生成上报数据时内部发生异常。",
+          "default": "NORMAL",
+          "enum": [
+            "NORMAL",
+            "ABNORMAL"
+          ]
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "异常信息,上报数据ABABNORMAL需要填写异常原因。"
+        },
+        "timeStamp": {
+          "type": "integer",
+          "format": "int64",
+          "description": "上报资源产生时的时间戳,调用资源异步上报接口时必填"
+        },
+        "supportResClass": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "string"
+          },
+          "description": "资源对账时必填,该系统支持的所有资源类型"
+        },
+        "taskId": {
+          "type": "string",
+          "description": "资源对账时必填,任务ID,最大长度128。此ID为对应资源的调度任务ID,通过查询TBL_SCHDLR_TASK_ITEM表获取,且任务状态必须是执行中才能上报成功。"
+        },
+        "totalNum": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": -1,
+          "description": "资源对账时必填,-1 表示本批上报数据未完成"
+        },
+        "datas": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "description": "数据"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "hcs.ap-southeast-3.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

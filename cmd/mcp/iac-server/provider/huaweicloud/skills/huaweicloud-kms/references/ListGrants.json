@@ -1,0 +1,293 @@
+{
+  "name": "ListGrants",
+  "summary": "查询授权列表",
+  "tags": "密钥授权管理",
+  "productshort": "KMS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/kms/list-grants": {
+      "post": {
+        "tags": [
+          "密钥授权管理"
+        ],
+        "summary": "查询授权列表",
+        "description": "- 功能介绍:查询密钥的授权列表。",
+        "operationId": "ListGrants",
+        "produces": [
+          "application/json"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "ListGrantsRequestBody",
+            "in": "body",
+            "description": "list_grants",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListGrantsRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功",
+            "schema": {
+              "$ref": "#/definitions/ListGrantsResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "grants": [
+                  {
+                    "operations": [
+                      "create-datakey",
+                      "describe-key"
+                    ],
+                    "issuing_principal": "8b961fb414344d59825ba0c8c008c815",
+                    "key_id": "737fd52b-36c4-4c91-972e-f6e202de9f6e",
+                    "grant_id": "dd3f03e9229a5e47a41be6c27a630e60d5cbdbad2be89465d63109ad034db7d8",
+                    "grantee_principal": "13gg44z4g2sglzk0egw0u726zoyzvrs8",
+                    "name": "13gg44z4g2sglzk0egw0u726zoyzvrs8",
+                    "creation_date": "1597062260000",
+                    "grantee_principal_type": "user"
+                  }
+                ],
+                "next_marker": "",
+                "total": 1,
+                "truncated": "false"
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数有误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "被请求的页面需要用户名和密码",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "认证失败",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "资源不存在,资源未找到",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "服务内部错误",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "请求未完成。服务器从上游服务器收到一个无效的响应",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "504": {
+            "description": "网关超时",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "key_id": "0d0466b0-e727-4d9c-b35d-f84bb474a37f"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ListGrantsRequestBody": {
+      "required": [
+        "key_id"
+      ],
+      "properties": {
+        "key_id": {
+          "minLength": 36,
+          "maxLength": 36,
+          "type": "string",
+          "description": "密钥ID,36字节,满足正则匹配“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”。\n例如:0d0466b0-e727-4d9c-b35d-f84bb474a37f。"
+        },
+        "limit": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4,
+          "description": "指定查询授权列表返回记录条数,如果查询记录条数小于存在的条数,响应参数“truncated”将返回“true”,表示存在分页。\n取值在授权最大个数范围以内。例如:100"
+        },
+        "marker": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4,
+          "description": "分页查询起始位置标识。\n分页查询收到的响应参数“truncated”为“true”时,可以发送连续的请求获取更多的记录条数,“marker”设置为响应的“next_marker”的值。例如:10。"
+        },
+        "sequence": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 36,
+          "description": "请求消息序列号,36字节序列号。\n例如:919c82d4-8046-4722-9094-35c3c6524cff"
+        }
+      }
+    },
+    "ListGrantsResponseBody": {
+      "properties": {
+        "grants": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "description": "grant列表,详情请参见grants字段数据结构说明。",
+          "items": {
+            "$ref": "#/definitions/Grants"
+          }
+        },
+        "next_marker": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4,
+          "description": "获取下一页所需要传递的marker值。\n当“truncated”为“false”时,“next_marker”为空。"
+        },
+        "truncated": {
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "description": "是否还有下一页:\n - “true”表示还有数据。\n - “false”表示已经是最后一页。"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "grant总条数。"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "error": {
+          "description": "错误信息返回体。",
+          "items": {
+            "$ref": "#/definitions/ErrorDetail"
+          }
+        }
+      }
+    },
+    "Grants": {
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "description": "密钥ID。"
+        },
+        "grant_id": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "description": "授权ID,64字节。"
+        },
+        "grantee_principal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "被授权用户ID,1~64字节,满足正则匹配“^[a-zA-Z0-9]{1,64}$”。\n例如:0d0466b00d0466b00d0466b00d0466b0"
+        },
+        "grantee_principal_type": {
+          "type": "string",
+          "enum": [
+            "user",
+            "domain"
+          ],
+          "description": "授权类型。\n有效值:“user”,“domain”。"
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "description": "授权允许的操作列表。\n有效的值:“create-datakey”,“create-datakey-without-plaintext”,“encrypt-datakey”,“decrypt-datakey”,“describe-key”,“create-grant”,“retire-grant”,“encrypt-data”,“decrypt-data”。\n有效值不能仅为“create-grant”。\n - “create-datakey” 创建数据密钥\n - “create-datakey-without-plaintext” 创建不含明文数据密钥\n - “encrypt-datakey” 加密数据密钥\n - “decrypt-datakey” 解密数据密钥\n - “describe-key” 查询密钥信息\n - “retire-grant” 退役授权\n - “encrypt-data” 加密数据\n - “decrypt-data” 解密数据",
+          "items": {
+            "type": "string"
+          }
+        },
+        "issuing_principal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "创建授权用户ID,1~64字节,满足正则匹配“^[a-zA-Z0-9]{1,64}$”。\n例如:0d0466b00d0466b00d0466b00d0466b0"
+        },
+        "creation_date": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 13,
+          "description": "创建时间,时间戳,即从1970年1月1日至该时间的总秒数。\n例如:1497341531000"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "授权名字,取值1到255字符,满足正则匹配“^[a-zA-Z0-9:/_-]{1,255}$”。"
+        },
+        "retiring_principal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "可退役授权的用户ID,1~64字节,满足正则匹配“^[a-zA-Z0-9]{1,64}$”。\n例如:0d0466b00d0466b00d0466b00d0466b0"
+        }
+      }
+    },
+    "ErrorDetail": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

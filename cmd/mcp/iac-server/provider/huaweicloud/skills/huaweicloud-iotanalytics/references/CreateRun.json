@@ -1,0 +1,252 @@
+{
+  "name": "CreateRun",
+  "summary": "执行离线作业",
+  "tags": "离线分析作业运行管理",
+  "productshort": "IoTAnalytics",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/batch/jobs/{job_id}/runs": {
+      "post": {
+        "tags": [
+          "run"
+        ],
+        "summary": "执行离线作业",
+        "description": "执行离线作业。",
+        "operationId": "CreateRun",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "令牌",
+            "required": true,
+            "type": "string",
+            "maxLength": 65535,
+            "pattern": "^\\S+$",
+            "x-maxLength": 65535
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目编号,用于资源隔离。获取方式请参考获取项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 32,
+            "pattern": "^[a-z0-9]{32}$",
+            "x-maxLength": 32,
+            "x-minLength": 32
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "作业ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "作业信息。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateRunRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/CreateRunResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000010",
+              "IoTA.04010202",
+              "IoTA.04010204",
+              "IoTA.04010205",
+              "IoTA.04010401",
+              "IoTA.04010404",
+              "IoTA.04010405"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000003"
+            ]
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99000001",
+              "IoTA.99000002",
+              "IoTA.99000004",
+              "IoTA.99000005",
+              "IoTA.99000007",
+              "IoTA.99000008",
+              "IoTA.99000009",
+              "IoTA.04010503"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IoTA.04010109",
+              "IoTA.04010505"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorMessage"
+            },
+            "x-Error": [
+              "IoTA.99999999",
+              "IoTA.04010208",
+              "IoTA.04010209"
+            ]
+          }
+        },
+        "security": [
+          {
+            "iota_auth": [
+              "write:iota",
+              "read:iota"
+            ]
+          }
+        ],
+        "x-externalAPI": "YES",
+        "x-iftype": "OpenAPI",
+        "x-open-for-CLOUD": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "CreateRunResponseBody": {
+      "type": "object",
+      "required": [
+        "job_id",
+        "job_type",
+        "run_id"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "作业运行ID。"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "作业ID。"
+        },
+        "job_type": {
+          "type": "string",
+          "description": "作业类型。"
+        },
+        "created_time": {
+          "type": "string",
+          "description": "创建运行时间。"
+        },
+        "sql_job": {
+          "$ref": "#/definitions/SqlJobRunResponseBody"
+        }
+      }
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误编码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误消息"
+        }
+      }
+    },
+    "SqlJobRunResponseBody": {
+      "type": "object",
+      "required": [
+        "sql_type"
+      ],
+      "properties": {
+        "sql_type": {
+          "type": "string",
+          "description": "作业类型。DDL, DCL, IMPORT, EXPORT, QUERY, INSERT."
+        },
+        "schema": {
+          "type": "array",
+          "description": "当语句类型为DDL时,返回其结果的列名称及类型。",
+          "items": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "rows": {
+          "type": "array",
+          "description": "当语句类型为DDL时,直接返回其执行结果。",
+          "items": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "job_mode": {
+          "type": "string",
+          "description": "作业执行模式:async: 异步; sync: 同步。"
+        }
+      },
+      "description": "SQL作业运行响应。"
+    },
+    "CreateRunRequestBody": {
+      "type": "object",
+      "required": [
+        "computing_resource_id"
+      ],
+      "properties": {
+        "computing_resource_id": {
+          "type": "string",
+          "description": "计算资源ID。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "conf": {
+          "type": "array",
+          "description": "作业配置项。",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 10
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iota.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

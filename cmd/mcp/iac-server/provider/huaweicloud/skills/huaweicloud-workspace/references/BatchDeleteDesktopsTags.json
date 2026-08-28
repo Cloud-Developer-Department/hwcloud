@@ -1,0 +1,219 @@
+{
+  "name": "BatchDeleteDesktopsTags",
+  "summary": "批量删除多个桌面标签",
+  "tags": "桌面标签",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/desktops/batch-tags": {
+      "delete": {
+        "tags": [
+          "DesktopTag"
+        ],
+        "summary": "批量删除多个桌面标签",
+        "description": "同时对多个桌面批量添加标签,删除时,如果删除的标签不存在默认处理成功,最大支持100个桌面,每个桌面最大20个标签。",
+        "operationId": "BatchDeleteDesktopsTags",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "body",
+            "name": "BatchDeleteDesktopsTagsRequestBody",
+            "description": "批量添加或删除标签。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchDeleteDesktopsTagsReq"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "正常。"
+          },
+          "400": {
+            "description": "参数错误。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "无权限范围。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "资源不存在。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@WksIamAuthMeta(resourceField = \"desktops.![desktopId]\")",
+          "@IamAuthMeta(authLevel = IamAuthLevel.INSTANCE_LIST, abacAction = \"workspace:desktops:untag\",  needApigwJwtAuthCheck = false, authContextInitializerName = \"workspaceInstanceListAuthContextInitializer\", needRbacCheck = false, needAbacResourceCheck = true)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"batchUpgradeDesktopTags\", traceNameCn = \"批量删除多个桌面标签\")"
+        ],
+        "x-request-examples-text-1": {
+          "desktops": [
+            {
+              "desktop_id": "string",
+              "tags": [
+                {
+                  "key": "string",
+                  "value": ""
+                }
+              ]
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "desktops": [
+            {
+              "desktop_id": "string",
+              "tags": [
+                {
+                  "key": "string",
+                  "value": ""
+                }
+              ]
+            }
+          ]
+        },
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apigateway-request-type": "public",
+        "x-apig-group": "public",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N"
+      }
+    }
+  },
+  "definitions": {
+    "Tag": {
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "标签的键,不能为空,最大长度128个unicode字符。标签的键可以包含任意语种字母、数字、空格和_.:=+-@,但首尾不能含有空格,不能以_sys_开头。",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "value": {
+          "type": "string",
+          "description": "标签的值,最大长度43个unicode字符。标签的值可以包含任意语种字母、数字、空格和_.:=+-@,但首尾不能含有空格。",
+          "minLength": 0,
+          "maxLength": 43,
+          "default": ""
+        }
+      },
+      "description": "标签。"
+    },
+    "DesktopTagsInfo": {
+      "required": [
+        "desktop_id",
+        "tags"
+      ],
+      "properties": {
+        "desktop_id": {
+          "type": "string",
+          "description": "桌面ID。",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "tags": {
+          "type": "array",
+          "description": "携带标签列表。",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "x-maxLength": 20,
+          "x-minLength": 1
+        }
+      },
+      "description": "桌面携带标签数据结构。"
+    },
+    "BatchDeleteDesktopsTagsReq": {
+      "required": [
+        "desktops"
+      ],
+      "properties": {
+        "desktops": {
+          "type": "array",
+          "description": "桌面(桌面携带标签列表)列表。批量操作时非法桌面ID会过滤不做处理。",
+          "items": {
+            "$ref": "#/definitions/DesktopTagsInfo"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "x-maxLength": 100,
+          "x-minLength": 1
+        }
+      },
+      "description": "批量桌面删除标签。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "delete",
+  "uri": null
+}

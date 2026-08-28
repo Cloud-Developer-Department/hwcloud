@@ -1,0 +1,329 @@
+{
+  "name": "ListNotifications",
+  "summary": "获取全部通知",
+  "tags": "BCS联盟",
+  "productshort": "BCS",
+  "region_id": "ap-southeast-2",
+  "paths": {
+    "/v2/{project_id}/notifications": {
+      "get": {
+        "x-secnario": "hws",
+        "x-api-type": "open",
+        "tags": [
+          "BCS联盟"
+        ],
+        "summary": "获取全部通知",
+        "description": "获取全部通知",
+        "operationId": "ListNotifications",
+        "x-order": 3,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "帐号token",
+            "required": true,
+            "type": "string",
+            "maxLength": 32768,
+            "minLength": 1
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "租户从IAM申请到的项目ID,一般为32位字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/ListNotificationsRes"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4006014",
+                "error_msg": "Invalid Parameter quotasType : ecs"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4010401",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4030403",
+                "error_msg": "No permissions to request this method"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.4040404",
+                "error_msg": "Not Found:the url is not found"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "examples": {
+              "application/json": {
+                "error_code": "BCS.5000500",
+                "error_msg": "Internal Server Error"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误"
+    },
+    "ListNotificationsRes": {
+      "properties": {
+        "notifications": {
+          "type": "array",
+          "description": "通知列表",
+          "items": {
+            "$ref": "#/definitions/NotificationList"
+          }
+        }
+      },
+      "description": "获取全部通知返回"
+    },
+    "NotificationList": {
+      "properties": {
+        "channel_name": {
+          "type": "string",
+          "example": "channel",
+          "description": "通道名称"
+        },
+        "status": {
+          "type": "string",
+          "example": "released",
+          "description": "当前状态"
+        },
+        "updated_time": {
+          "type": "string",
+          "example": "2020-06-27T10:55:13+08:00",
+          "description": "更新时间"
+        },
+        "tc3_need": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否开启可信"
+        },
+        "invitor_info": {
+          "$ref": "#/definitions/InvitorInfo",
+          "description": "邀请方信息"
+        },
+        "invitee_info": {
+          "$ref": "#/definitions/InviteeInfo",
+          "description": "被邀请方信息"
+        },
+        "hide": {
+          "type": "integer",
+          "format": "int64",
+          "example": 0,
+          "description": "是否删除"
+        },
+        "invitee_orgs": {
+          "type": "array",
+          "description": "被邀请的组织信息",
+          "items": {
+            "$ref": "#/definitions/OrganizationV2"
+          }
+        },
+        "read_status": {
+          "type": "integer",
+          "format": "int64",
+          "example": 0,
+          "description": "阅读状态值"
+        },
+        "cross_version_upgrade": {
+          "type": "string",
+          "example": "",
+          "description": "跨版本进行升级"
+        }
+      }
+    },
+    "OrganizationV2": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "组织名称"
+        },
+        "name_hash": {
+          "type": "string",
+          "description": "组织hash"
+        },
+        "node_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "组织节点"
+        },
+        "status": {
+          "type": "string",
+          "description": "状态"
+        },
+        "status_detail": {
+          "type": "string",
+          "description": "状态描述"
+        }
+      },
+      "description": "组织信息",
+      "type": "object"
+    },
+    "InviteeInfo": {
+      "properties": {
+        "invitee_id": {
+          "type": "string",
+          "description": "被邀请用户id"
+        },
+        "invitee_name": {
+          "type": "integer",
+          "format": "int64",
+          "description": "被邀请租户名称"
+        },
+        "invitee_bcs_name": {
+          "type": "string",
+          "description": "被邀请的服务实例名称"
+        },
+        "invitee_bcs_id": {
+          "type": "string",
+          "description": "被邀请的服务实例id"
+        },
+        "invitee_project_id": {
+          "type": "string",
+          "description": "被邀请的项目id"
+        }
+      },
+      "description": "被邀请方的信息"
+    },
+    "InvitorInfo": {
+      "properties": {
+        "invitor_id": {
+          "type": "string",
+          "example": "d892e1ee60ce4239b9160ddf0f4431d6",
+          "description": "邀请方用户id"
+        },
+        "invitor_name": {
+          "type": "string",
+          "example": "pass_roma_cwx633509",
+          "description": "邀请方用户名"
+        },
+        "invitor_bcs_id": {
+          "type": "string",
+          "example": "eb1638e3-6272-24e0-5249-2abb7991c269",
+          "description": "邀请方的服务实例id"
+        },
+        "invitor_bcs_name": {
+          "type": "string",
+          "example": "bcs-xn7tr1",
+          "description": "邀请方的服务实例名"
+        },
+        "invitor_consensus": {
+          "type": "string",
+          "example": "SFLIC",
+          "description": "邀请方的共识"
+        },
+        "invitor_project_id": {
+          "type": "string",
+          "description": "邀请方的projectID"
+        },
+        "invitor_cluster_type": {
+          "type": "string",
+          "example": "",
+          "description": "邀请方的集群类型"
+        },
+        "invitor_database_type": {
+          "type": "string",
+          "example": "goleveldb",
+          "description": "邀请方数据库类型"
+        },
+        "invitor_signature_algorithm": {
+          "type": "string",
+          "example": "ECDSA",
+          "description": "邀请方的签名算法"
+        },
+        "invitor_fabric_version": {
+          "type": "string",
+          "example": "3.0.8",
+          "description": "邀请方的fabric版本"
+        },
+        "order_fade_enabled": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否允许共识节点老化"
+        },
+        "order_fade_cache": {
+          "type": "integer",
+          "format": "int64",
+          "example": 0,
+          "description": "共识节点的老化阈值"
+        }
+      },
+      "description": "邀请者的信息"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcs.ap-southeast-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

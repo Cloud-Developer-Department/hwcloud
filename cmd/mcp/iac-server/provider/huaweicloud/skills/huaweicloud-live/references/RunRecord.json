@@ -1,0 +1,157 @@
+{
+  "name": "RunRecord",
+  "summary": "提交录制控制命令",
+  "tags": "录制管理",
+  "productshort": "Live",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/{project_id}/record/control": {
+      "post": {
+        "x-navigation-title": "实时录制管理",
+        "description": "对单条流的实时录制控制接口。",
+        "x-constraint": "在录制规则类型为COMMAND_RECORD的时候有效。 -",
+        "summary": "提交录制控制命令",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,使用Token鉴权方式时必选。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "type": "string",
+            "required": true,
+            "description": "操作行为。\n取值如下:\n- START:对指定流开始录制,必须在直播流已经推送情况下才能正常启动,使用此命令启动录制的直播流如果发生了断流且超出断流时长,就会停止录制,并且重新推流后不会自动启动录制。\n- STOP:对指定流停止录制。",
+            "minLength": 1,
+            "maxLength": 10,
+            "enum": [
+              "START",
+              "STOP"
+            ]
+          },
+          {
+            "name": "RunRecordRequestBody",
+            "in": "body",
+            "description": "录制命令控制参数",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RecordControlInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。格式为:request_id-timestamp-hostname(request_id在服务器端生成UUID,timestamp为当前时间戳,hostname为处理当前接口的服务器名称)"
+              }
+            }
+          },
+          "400": {
+            "description": "操作失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "此字段携带请求ID号,以便任务跟踪。格式为:request_id-timestamp-hostname(request_id在服务器端生成UUID,timestamp为当前时间戳,hostname为处理当前接口的服务器名称)"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/{project_id}/record/control?action=START",
+        "x-request-examples-1": {
+          "publish_domain": "publish.xxx.com",
+          "app": "live",
+          "stream": "mystream"
+        },
+        "operationId": "RunRecord",
+        "tags": [
+          "录制管理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "RecordControlInfo": {
+      "required": [
+        "publish_domain",
+        "app",
+        "stream"
+      ],
+      "properties": {
+        "publish_domain": {
+          "type": "string",
+          "description": "直播推流域名",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "app": {
+          "type": "string",
+          "description": "应用名",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "stream": {
+          "type": "string",
+          "description": "待启动或停止录制的流名",
+          "maxLength": 128,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "live.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

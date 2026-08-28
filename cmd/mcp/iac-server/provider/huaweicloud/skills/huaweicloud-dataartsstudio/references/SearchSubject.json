@@ -1,0 +1,681 @@
+{
+  "name": "SearchSubject",
+  "summary": "查找主题列表",
+  "tags": "主题管理接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/design/subjects": {
+      "get": {
+        "summary": "查找主题列表",
+        "description": "通过名称(支持模糊查询)、创建者、责任人、状态、修改时间分页查找主题。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "doc-open",
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/design/subjects?name=test_&parent_id=-1&status=DRAFT",
+        "x-request-examples-description-1": "查询状态为草稿、名称中包含“test_”的主题列表。",
+        "tags": [
+          "主题管理接口"
+        ],
+        "operationId": "SearchSubject",
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/tokenParam"
+          },
+          {
+            "$ref": "#/parameters/workspaceParam"
+          },
+          {
+            "$ref": "#/parameters/tenantIdParam"
+          },
+          {
+            "$ref": "#/parameters/tenantXIdParam"
+          },
+          {
+            "$ref": "#/parameters/contextTypeParam"
+          },
+          {
+            "$ref": "#/parameters/nameParam"
+          },
+          {
+            "$ref": "#/parameters/createByParam"
+          },
+          {
+            "$ref": "#/parameters/ownerParam"
+          },
+          {
+            "$ref": "#/parameters/bizStatusParam"
+          },
+          {
+            "$ref": "#/parameters/beginTimeParam"
+          },
+          {
+            "$ref": "#/parameters/endTimeParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
+          },
+          {
+            "$ref": "#/parameters/offsetParam"
+          },
+          {
+            "$ref": "#/parameters/parentIdParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success,返回data数据是CatalogVO数组,以及总数。",
+            "schema": {
+              "$ref": "#/definitions/SearchSubjectResult"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RelationType": {
+      "type": "string",
+      "description": "关系类型,只读。\n枚举值:\n  - ONE: 表示每条子(父)逻辑实体数据在父(子)逻辑实体中有且只有一条数据与之对应。\n  - ZERO_OR_ONE: 表示每条子(父)逻辑实体数据在父(子)逻辑实体中最多有一条数据与之对应。\n  - ZERO_OR_N: 表示每条子(父)逻辑实体数据在父(子)逻辑实体中可能有多条数据与之对应。\n  - ONE_OR_N: 表示每条子(父)逻辑实体数据在父(子)逻辑实体中至少有一条数据与之对应。",
+      "readOnly": true,
+      "enum": [
+        "ONE",
+        "ZERO_OR_ONE",
+        "ZERO_OR_N",
+        "ONE_OR_N"
+      ]
+    },
+    "CatalogVO": {
+      "type": "object",
+      "description": "主题目录。",
+      "required": [
+        "name_ch",
+        "level",
+        "data_owner_list"
+      ],
+      "properties": {
+        "name_ch": {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^[^\\\\<>]*$",
+          "description": "中文名称。"
+        },
+        "name_en": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "英文名称。",
+          "pattern": "^[a-zA-Z\\d\\s&\\(\\)_\\-]*$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "描述信息。",
+          "pattern": "^[^\\\\\\\\]*$"
+        },
+        "qualified_name": {
+          "type": "string",
+          "readOnly": true,
+          "description": "对象标识。"
+        },
+        "guid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "guid,自动生成。"
+        },
+        "code": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "编码。",
+          "pattern": "^[a-zA-Z\\d\\s&\\(\\)_\\-]*$"
+        },
+        "alias": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "别名。",
+          "pattern": "^[^\\\\<>]*$"
+        },
+        "status": {
+          "$ref": "#/definitions/BizStatusEnum"
+        },
+        "permission": {
+          "type": "integer",
+          "readOnly": true
+        },
+        "new_biz": {
+          "$ref": "#/definitions/BizVersionManageVO",
+          "readOnly": true
+        },
+        "data_owner": {
+          "type": "string",
+          "description": "数据owner。",
+          "maxLength": 256,
+          "pattern": "^[^\\\\<>]*$"
+        },
+        "data_owner_list": {
+          "type": "string",
+          "description": "数据所有者集合。",
+          "pattern": "^[^\\\\<>]*$"
+        },
+        "data_department": {
+          "type": "string",
+          "description": "数据域。"
+        },
+        "path": {
+          "type": "string",
+          "description": "路径信息。"
+        },
+        "level": {
+          "type": "integer",
+          "description": "层级信息。"
+        },
+        "ordinal": {
+          "type": "integer",
+          "description": "序号。"
+        },
+        "owner": {
+          "type": "string",
+          "description": "责任人",
+          "maxLength": 4000
+        },
+        "parent_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "父目录ID,木有则为根目录,ID字符串。"
+        },
+        "swap_order_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "同层排序,目标节点的ID,ID字符串。"
+        },
+        "id": {
+          "type": "string",
+          "description": "主题ID,ID字符串。"
+        },
+        "qualified_id": {
+          "type": "string",
+          "description": "认证ID,自动生成"
+        },
+        "create_by": {
+          "type": "string",
+          "description": "创建人"
+        },
+        "update_by": {
+          "type": "string",
+          "description": "更新人"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "创建时间"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "更新时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "children_num": {
+          "type": "integer",
+          "description": "拥有子流程的数量,不包括子流程的子流程,前端不传。",
+          "readOnly": true
+        },
+        "children": {
+          "type": "array",
+          "readOnly": true,
+          "description": "下层子目录,只读。",
+          "items": {
+            "$ref": "#/definitions/CatalogVO"
+          },
+          "maxItems": 7
+        },
+        "self_defined_fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SelfDefinedFieldVO"
+          },
+          "maxItems": 10,
+          "description": "属性自定义项。"
+        },
+        "relations": {
+          "type": "array",
+          "description": "关系",
+          "items": {
+            "$ref": "#/definitions/RelationVO"
+          },
+          "maxItems": 100
+        }
+      }
+    },
+    "BizVersionManageVO": {
+      "type": "object",
+      "description": "业务版本管理,只读。",
+      "default": null,
+      "readOnly": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID信息,ID字符串。"
+        },
+        "biz_type": {
+          "$ref": "#/definitions/BizTypeEnum"
+        },
+        "biz_id": {
+          "type": "string",
+          "description": "业务ID,ID字符串。"
+        },
+        "biz_info": {
+          "type": "string",
+          "description": "业务对象信息。"
+        },
+        "status": {
+          "$ref": "#/definitions/BizStatusEnum"
+        },
+        "biz_version": {
+          "type": "integer",
+          "readOnly": true,
+          "description": "业务版本,只读。"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "创建时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "更新时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        }
+      }
+    },
+    "RelationVO": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "编码,ID字符串。"
+        },
+        "source_table_id": {
+          "type": "string",
+          "description": "源表ID,ID字符串。"
+        },
+        "target_table_id": {
+          "type": "string",
+          "description": "目标表ID,ID字符串。"
+        },
+        "name": {
+          "type": "string",
+          "description": "关系名称。"
+        },
+        "source_table_name": {
+          "type": "string",
+          "description": "源表名称。"
+        },
+        "target_table_name": {
+          "type": "string",
+          "description": "目的表名称。"
+        },
+        "role": {
+          "type": "string",
+          "description": "角色。"
+        },
+        "tenant_id": {
+          "type": "string",
+          "description": "租户ID。"
+        },
+        "source_type": {
+          "$ref": "#/definitions/RelationType"
+        },
+        "target_type": {
+          "$ref": "#/definitions/RelationType"
+        },
+        "create_by": {
+          "type": "string",
+          "description": "创建人。"
+        },
+        "update_by": {
+          "type": "string",
+          "description": "更新人。"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "创建时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "更新时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "mappings": {
+          "type": "array",
+          "readOnly": true,
+          "description": "表属性信息,只读。",
+          "items": {
+            "$ref": "#/definitions/RelationMappingVO"
+          },
+          "maxItems": 20
+        }
+      }
+    },
+    "RelationMappingVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "编码,ID字符串。"
+        },
+        "relation_id": {
+          "type": "string",
+          "description": "关系ID,ID字符串。"
+        },
+        "source_field_id": {
+          "type": "string",
+          "description": "源字段ID,ID字符串。"
+        },
+        "target_field_id": {
+          "type": "string",
+          "description": "目标字段ID,ID字符串。"
+        },
+        "source_field_name": {
+          "type": "string",
+          "description": "源表名称。"
+        },
+        "target_field_name": {
+          "type": "string",
+          "description": "目的表名称。"
+        },
+        "create_by": {
+          "type": "string",
+          "description": "创建人。"
+        },
+        "update_by": {
+          "type": "string",
+          "description": "更新人。"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "创建时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "更新时间,只读,格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。"
+        }
+      }
+    },
+    "BizStatusEnum": {
+      "type": "string",
+      "readOnly": true,
+      "description": "实体的发布状态,只读,创建和更新时无需填写。\n枚举值:\n  - DRAFT: 草稿\n  - PUBLISH_DEVELOPING: 发布待审核\n  - PUBLISHED: 已发布\n  - OFFLINE_DEVELOPING: 下线待审核\n  - OFFLINE: 已下线\n  - REJECT: 已驳回",
+      "example": "PUBLISHED",
+      "enum": [
+        "DRAFT",
+        "PUBLISH_DEVELOPING",
+        "PUBLISHED",
+        "OFFLINE_DEVELOPING",
+        "OFFLINE",
+        "REJECT"
+      ]
+    },
+    "BizTypeEnum": {
+      "type": "string",
+      "description": "业务实体类型。\n枚举值:\n - AGGREGATION_LOGIC_TABLE: 汇总表\n - ATOMIC_INDEX: 原子指标\n - ATOMIC_METRIC: 原子指标(新)\n - BIZ_CATALOG: 流程架构目录\n - BIZ_METRIC: 业务指标\n - CODE_TABLE: 码表\n - COMMON_CONDITION: 通用限定\n - COMPOSITE_METRIC: 复合指标(新)\n - COMPOUND_METRIC: 复合指标\n - CONDITION_GROUP: 限定分组\n - DEGENERATE_DIMENSION: 退化维度\n - DERIVATIVE_INDEX: 衍生指标\n - DERIVED_METRIC: 衍生指标(新)\n - DIMENSION: 维度\n - DIMENSION_ATTRIBUTE: 维度属性\n - DIMENSION_HIERARCHIES: 维度层级\n - DIMENSION_LOGIC_TABLE: 维度表\n - DIMENSION_TABLE_ATTRIBUTE: 维度属性\n - DIRECTORY: 目录\n - FACT_ATTRIBUTE: 事实表属性\n - FACT_DIMENSION: 事实表维度\n - FACT_LOGIC_TABLE: 事实表\n - FACT_MEASURE: 事实表度量\n - FUNCTION: 函数\n - INFO_ARCH: 信息架构(批量修改主题使用)\n - MODEL: 模型\n - QUALITY_RULE: 质量规则\n - SECRECY_LEVEL: 密级\n - STANDARD_ELEMENT: 数据标准\n - STANDARD_ELEMENT_TEMPLATE: 数据标准模板\n - SUBJECT: 主题\n - SUMMARY_DIMENSION_ATTRIBUTE: 汇总表维度属性\n - SUMMARY_INDEX: 汇总表指标属性\n - SUMMARY_TIME: 汇总表时间周期属性\n - TABLE_MODEL: 关系模型(逻辑模型/物理模型)\n - TABLE_MODEL_ATTRIBUTE: 关系模型属性(逻辑模型/物理模型)\n - TABLE_MODEL_LOGIC: 逻辑实体\n - TABLE_TYPE: 表类型\n - TAG: 标签\n - TIME_CONDITION: 时间限定",
+      "enum": [
+        "AGGREGATION_LOGIC_TABLE",
+        "ATOMIC_INDEX",
+        "ATOMIC_METRIC",
+        "BIZ_CATALOG",
+        "BIZ_METRIC",
+        "CODE_TABLE",
+        "COMMON_CONDITION",
+        "COMPOSITE_METRIC",
+        "COMPOUND_METRIC",
+        "CONDITION_GROUP",
+        "DEGENERATE_DIMENSION",
+        "DERIVATIVE_INDEX",
+        "DERIVED_METRIC",
+        "DIMENSION",
+        "DIMENSION_ATTRIBUTE",
+        "DIMENSION_HIERARCHIES",
+        "DIMENSION_LOGIC_TABLE",
+        "DIMENSION_TABLE_ATTRIBUTE",
+        "DIRECTORY",
+        "FACT_ATTRIBUTE",
+        "FACT_DIMENSION",
+        "FACT_LOGIC_TABLE",
+        "FACT_MEASURE",
+        "FUNCTION",
+        "INFO_ARCH",
+        "MODEL",
+        "QUALITY_RULE",
+        "SECRECY_LEVEL",
+        "STANDARD_ELEMENT",
+        "STANDARD_ELEMENT_TEMPLATE",
+        "SUBJECT",
+        "SUMMARY_DIMENSION_ATTRIBUTE",
+        "SUMMARY_INDEX",
+        "SUMMARY_TIME",
+        "TABLE_MODEL",
+        "TABLE_MODEL_ATTRIBUTE",
+        "TABLE_MODEL_LOGIC",
+        "TABLE_TYPE",
+        "TAG",
+        "TIME_CONDITION"
+      ],
+      "example": "TABLE_MODE"
+    },
+    "SearchSubjectResult": {
+      "type": "object",
+      "description": "主题分页查询结果。",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "data,统一的返回结果的最外层数据结构。",
+          "properties": {
+            "value": {
+              "type": "object",
+              "description": "value,统一的返回结果的外层数据结构。",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "总量。"
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/CatalogVO"
+                  },
+                  "description": "查询到的审批单对象(CatalogVO)数组。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "SelfDefinedFieldVO": {
+      "type": "object",
+      "description": "表自定义项。",
+      "properties": {
+        "fd_name_ch": {
+          "type": "string",
+          "description": "自定义项中文名。",
+          "maxLength": 200
+        },
+        "fd_name_en": {
+          "type": "string",
+          "description": "自定义项英文名。",
+          "maxLength": 200
+        },
+        "not_null": {
+          "type": "boolean",
+          "description": "是否必填。"
+        },
+        "fd_value": {
+          "type": "string",
+          "description": "属性值。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "tenantIdParam": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "createByParam": {
+      "name": "create_by",
+      "in": "query",
+      "description": "按创建者查询。",
+      "required": false,
+      "type": "string"
+    },
+    "tenantXIdParam": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。\n\n多project场景采用AK/SK认证的接口请求,则该字段必选。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "limitParam": {
+      "name": "limit",
+      "in": "query",
+      "description": "每页查询条数,即查询Y条数据。默认值50,取值范围[1,100]。",
+      "required": false,
+      "type": "integer",
+      "format": "int32",
+      "default": 50,
+      "maximum": 100
+    },
+    "bizStatusParam": {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "type": "string",
+      "description": "业务状态。\n枚举值:\n  - DRAFT: 草稿\n  - PUBLISH_DEVELOPING: 发布待审批\n  - PUBLISHED: 已发布\n  - OFFLINE_DEVELOPING: 下线待审批\n  - OFFLINE: 已下线\n  - REJECT: 已驳回",
+      "enum": [
+        "DRAFT",
+        "PUBLISH_DEVELOPING",
+        "PUBLISHED",
+        "OFFLINE_DEVELOPING",
+        "OFFLINE",
+        "REJECT"
+      ]
+    },
+    "offsetParam": {
+      "name": "offset",
+      "in": "query",
+      "description": "查询起始坐标,即跳过X条数据,仅支持0或limit的整数倍,不满足则向下取整,默认值0。",
+      "required": false,
+      "type": "integer",
+      "format": "int32",
+      "default": 0
+    },
+    "nameParam": {
+      "name": "name",
+      "in": "query",
+      "description": "按名称或编码模糊查询。",
+      "required": false,
+      "type": "string"
+    },
+    "workspaceParam": {
+      "name": "workspace",
+      "in": "header",
+      "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+      "required": true,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "beginTimeParam": {
+      "name": "begin_time",
+      "in": "query",
+      "description": "时间过滤左边界,与end_time一起使用,只支持时间范围过滤,单边过滤无效。格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。",
+      "required": false,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "tokenParam": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "IAM Token,通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)\n使用Token认证时必选。",
+      "required": true,
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 4096
+    },
+    "contextTypeParam": {
+      "name": "Content-Type",
+      "in": "header",
+      "required": false,
+      "description": "默认值:application/json;charset=UTF-8\n可选,有Body体的情况下必选,没有Body体则无需填写和校验。",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "ownerParam": {
+      "name": "owner",
+      "in": "query",
+      "description": "按负责人查询。",
+      "required": false,
+      "type": "string"
+    },
+    "endTimeParam": {
+      "name": "end_time",
+      "in": "query",
+      "description": "时间过滤右边界,与begin_time一起使用只支持时间范围过滤,单边过滤无效。格式遵循RFC3339,精确到秒,UTC时区,即yyyy-mm-ddTHH:MM:SSZ,如1970-01-01T00:00:00Z。",
+      "required": false,
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "parentIdParam": {
+      "name": "parent_id",
+      "in": "query",
+      "description": "父目录ID,根节点没有此ID,空值为所有,-1为根节点下节点。填写String类型替代Long类型。",
+      "required": false,
+      "type": "string"
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

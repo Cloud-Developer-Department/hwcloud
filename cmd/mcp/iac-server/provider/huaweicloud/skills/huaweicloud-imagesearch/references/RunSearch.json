@@ -1,0 +1,510 @@
+{
+  "name": "RunSearch",
+  "summary": "搜索",
+  "tags": "搜索",
+  "productshort": "ImageSearch",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/mms/{service_name}/search": {
+      "post": {
+        "tags": [
+          "搜索"
+        ],
+        "summary": "搜索",
+        "description": "从指定服务实例中进行搜索。",
+        "operationId": "RunSearch",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例所属的项目ID,登陆华为云->用户中心->我的凭证->API凭证,即可查看对应区域的项目ID。",
+            "required": true
+          },
+          {
+            "name": "service_name",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例的名称,用户创建服务实例时指定。",
+            "required": true
+          },
+          {
+            "name": "searchParam",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/SearchParam"
+            },
+            "description": "搜索的请求body参数。",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/SearchResponse"
+            },
+            "description": "搜索的响应body参数。",
+            "examples": {
+              "application/json": {
+                "result": "success",
+                "data": {
+                  "items": [
+                    {
+                      "id": "electronics_01",
+                      "score": 1,
+                      "source": {
+                        "desc": "行摄天地,纵横自然,我心宇宙",
+                        "custom_tags": {
+                          "brand": "HUAWEI"
+                        },
+                        "custom_num_tags": {
+                          "year": 2022
+                        }
+                      }
+                    }
+                  ],
+                  "search_info": {
+                    "total_num": 10,
+                    "return_num": 1,
+                    "search_time": 512
+                  },
+                  "image_info": {
+                    "box": "26,223,771,704",
+                    "category": 11,
+                    "category_name": "electronics",
+                    "objects": [
+                      {
+                        "box": "26,223,771,704",
+                        "category": 11,
+                        "category_name": "electronics"
+                      },
+                      {
+                        "box": "55,66,420,315",
+                        "category": 0,
+                        "category_name": "others"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "BAD REQUEST",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0003",
+                "error_msg": "Invalid parameter: custom_tags"
+              }
+            }
+          },
+          "403": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "FORBIDDEN",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0001",
+                "error_msg": "Request is unauthorized."
+              }
+            }
+          },
+          "500": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "INTERNAL SERVER ERROR",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.1015",
+                "error_msg": "Process INDEX failed."
+              }
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-request-examples-description-1": "搜索商品图像,使用图像BASE64编码",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/mms/{service_name}/search",
+        "x-request-examples-1": {
+          "search_type": "CATEGORY",
+          "image_base64": "/9j/4AAQSkZJRgABAgEASABIAAD/4RFZRXhpZgAATU0AKgAAAAgABwESAAMAAAABAAEAAAEaAAUAAAABAAAAYgEbAA...",
+          "custom_tags": {
+            "brand": [
+              "HUAWEI"
+            ]
+          },
+          "custom_num_tags": {
+            "year": {
+              "from": 2020,
+              "to": 2022
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SearchRestInfo": {
+      "type": "object",
+      "description": "搜索的相关信息。",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "搜索结果列表。",
+          "items": {
+            "$ref": "#/definitions/SearchItem"
+          }
+        },
+        "search_info": {
+          "$ref": "#/definitions/SearchInfo"
+        },
+        "image_info": {
+          "description": "搜索图像的相关信息,不同服务类型返回信息不同,具体可参见服务类型说明。",
+          "properties": {
+            "box": {
+              "type": "string",
+              "description": "用于搜索的主体目标框。"
+            },
+            "category": {
+              "type": "integer",
+              "format": "int32",
+              "description": "用于搜索的主体类目序号。"
+            },
+            "category_name": {
+              "type": "string",
+              "description": "用于搜索的主体类目名称。"
+            },
+            "objects": {
+              "type": "array",
+              "description": "搜索图像中的所有主体列表。",
+              "items": {
+                "properties": {
+                  "box": {
+                    "type": "string",
+                    "description": "主体目标框。"
+                  },
+                  "category": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "主体类目序号。"
+                  },
+                  "category_name": {
+                    "type": "string",
+                    "description": "主体类目名称。"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "请求失败时的错误编码,请求成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求失败时的错误信息,请求成功时无此字段。"
+        }
+      }
+    },
+    "SearchAfterParam": {
+      "type": "object",
+      "description": "最后一个结果的排序信息,用于全量召回场景。\n- 目前仅KEYWORD搜索和条件检查支持全量召回。",
+      "properties": {
+        "score": {
+          "type": "number",
+          "format": "double",
+          "description": "结果的得分。"
+        },
+        "id": {
+          "type": "string",
+          "description": "结果的唯一ID。"
+        }
+      }
+    },
+    "RangeParam": {
+      "type": "object",
+      "description": "数值范围参数结构体。",
+      "properties": {
+        "from": {
+          "type": "number",
+          "description": "数值下界,默认包含该下界。",
+          "format": "double"
+        },
+        "to": {
+          "type": "number",
+          "description": "数值上界,默认包含该上界。",
+          "format": "double"
+        }
+      }
+    },
+    "ItemSource": {
+      "type": "object",
+      "description": "数据的元信息,不同数据包含的字段可能不同。",
+      "properties": {
+        "desc": {
+          "type": "string",
+          "description": "数据描述信息。"
+        },
+        "custom_tags": {
+          "type": "object",
+          "description": "数据自定义字符标签。",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "custom_num_tags": {
+          "type": "object",
+          "description": "数据自定义数值标签。",
+          "additionalProperties": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "keywords": {
+          "type": "array",
+          "description": "数据关键词列表。",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SearchResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "搜索完成返回success。"
+        },
+        "data": {
+          "$ref": "#/definitions/SearchRestInfo"
+        }
+      }
+    },
+    "SearchItem": {
+      "type": "object",
+      "description": "搜索结果参数结构体。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "数据唯一ID。"
+        },
+        "score": {
+          "type": "number",
+          "format": "double",
+          "description": "数据匹配分数。"
+        },
+        "source": {
+          "$ref": "#/definitions/ItemSource"
+        }
+      }
+    },
+    "SearchOptionalParam": {
+      "type": "object",
+      "description": "搜索的可选参数,其中每个参数仅对部分服务类型生效,具体可参见服务类型说明。",
+      "properties": {
+        "do_det": {
+          "type": "boolean",
+          "description": "是否进行目标检测,默认为true。",
+          "default": true
+        },
+        "box": {
+          "type": "string",
+          "description": "目标矩形框坐标,如给定则不进行目标检测,直接使用该box作为目标。格式为“x1,y1,x2,y2”(无空格),x1/y1为目标左上角坐标,x2/y2为目标右下角坐标,具体要求如下:\n- 0 <= x1 < x2 <= width,默认要求x2-x1 >= 15,具体可参考服务类型说明。\n- 0 <= y1 < y2 <= height,默认要求y2-y1 >= 15,具体可参考服务类型说明。"
+        },
+        "do_cls": {
+          "type": "boolean",
+          "description": "是否进行对象分类,默认为true。",
+          "default": true
+        },
+        "category": {
+          "type": "integer",
+          "description": "对象类目,如给定则不进行对象分类,直接使用该category作为类目。具体类目信息可参见对应的服务类型说明。",
+          "format": "int32"
+        },
+        "collapse_key": {
+          "type": "string",
+          "description": "去重标签名,必须为服务实例custom_tags中已存在的key。\n- 如给定则会对该key下相同value的数据进行去重,仅保留得分最高的数据。\n- 针对没有设置该标签的数据,会直接过滤。"
+        },
+        "max_scan_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "扫描节点上限。值越大精度越高,查询速度变慢。默认值为10000。",
+          "minimum": 1000,
+          "maximum": 100000,
+          "default": 10000
+        },
+        "nprobe": {
+          "type": "integer",
+          "format": "int32",
+          "description": "查询考察中心点的数目。值越大精度越高,查询速度变慢。默认值为100。",
+          "minimum": 1,
+          "maximum": 100000,
+          "default": 100
+        },
+        "text_lang": {
+          "type": "string",
+          "description": "文本字符串的语言类型枚举值。",
+          "example": "zh",
+          "enum": [
+            "ar",
+            "de",
+            "ru",
+            "fr",
+            "ko",
+            "pt",
+            "ja",
+            "th",
+            "tr",
+            "es",
+            "en",
+            "vi",
+            "zh",
+            "zhTW"
+          ],
+          "default": "zh"
+        }
+      }
+    },
+    "SearchInfo": {
+      "type": "object",
+      "description": "搜索结果的相关信息。",
+      "properties": {
+        "total_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "搜索结果总数。"
+        },
+        "return_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "返回结果总数。"
+        },
+        "search_time": {
+          "type": "integer",
+          "format": "int32",
+          "description": "搜索过程耗时,单位为毫秒。"
+        },
+        "last_item": {
+          "$ref": "#/definitions/SearchAfterParam",
+          "description": "最后一个搜索结果的排序信息。仅对全量召回生效,非全量召回场景返回null。"
+        }
+      }
+    },
+    "SearchParam": {
+      "type": "object",
+      "required": [
+        "search_type"
+      ],
+      "properties": {
+        "search_type": {
+          "type": "string",
+          "description": "搜索类型,必须为服务实例支持的搜索类型。服务实例的搜索类型列表可在创建服务实例时进行配置。\n> 可以使用枚举名或者枚举值(例如IMAGE/0),枚举值可能会变动,建议使用枚举名。",
+          "enum": [
+            "IMAGE",
+            "KEYWORD",
+            "TEXT",
+            "CATEGORY"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "返回搜索结果的数量,默认为10,取值范围为[1, 1000]。",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 10
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "返回搜索结果的偏移量,即返回序号在[offset, offset+limit]内的搜索结果。默认为0,取值范围为[0, N]。\n- 默认情况下,搜索要求offset+limit <= 1000。\n- 针对支持全量召回的场景,使用全量召回时,要求offset必须为0。",
+          "minimum": 0,
+          "default": 0
+        },
+        "last_item": {
+          "$ref": "#/definitions/SearchAfterParam",
+          "description": "前一次搜索的最后一个搜索结果的排序信息。仅对全量召回场景生效,可将上一次搜索返回结果中的last_item字段直接用于此处。\n- 目前仅有KEYWORD支持全量召回。\n- 使用全量召回时,offset必须为0。"
+        },
+        "min_score": {
+          "type": "number",
+          "format": "double",
+          "description": "返回搜索结果的最小得分,用于对搜索结果进行score过滤,取值范围为[0, 1]。\n- 目前仅对IMAGE/CATEGORY搜索类型生效。",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "custom_tags": {
+          "type": "object",
+          "description": "自定义字符标签,用于对搜索结果进行条件过滤。格式为键值对{key:value}。\n- key: 必须为服务实例custom_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。\n- value: 标签值列表,列表内多个标签值为“或”关系,即满足一个即可。列表长度范围为[1, 32],标签值类型为字符串,字符长度范围为[1, 64]。",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "自定义字符标签值",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "minItems": 1,
+            "maxItems": 32
+          }
+        },
+        "custom_num_tags": {
+          "type": "object",
+          "description": "自定义数值标签,用于对搜索结果进行条件过滤。格式为键值对{key:value}。\n- key: 必须为服务实例custom_num_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。针对没有设置该数值标签的数据,会直接过滤。\n- value: 标签值的取值范围,标签值在给定的取值范围内即视为符合条件。",
+          "additionalProperties": {
+            "$ref": "#/definitions/RangeParam"
+          }
+        },
+        "image_base64": {
+          "type": "string",
+          "description": "图像文件的base64字符串,基于图像搜索时,与image_url二选一。要求如下:\n- 格式:目前仅支持JPEG/JPG/PNG/BMP/WEBP格式的图像。\n- 大小:图像文件大小要求不超过5M。\n- 尺寸:默认情况下,要求图像的最短边大于64px,最长边小于4096px。部分服务类型有特殊要求,可参见服务类型说明。\n- 其他:图片中不能包含旋转信息。"
+        },
+        "image_url": {
+          "type": "string",
+          "description": "图像文件的服务可访问URL,字符长度范围为[1, 4096]。基于图像搜索时,与image_base64二选一。",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "keywords": {
+          "type": "array",
+          "description": "关键词列表,搜索时关键词数量范围为[1, 10],关键词字符长度范围为[1, 64]。使用KEYWORD搜索类型进行搜索时,必须提供该参数。",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "text": {
+          "type": "string",
+          "description": "文本字符串,字符长度范围为[1, 512]。",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "optional_params": {
+          "$ref": "#/definitions/SearchOptionalParam"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mms.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

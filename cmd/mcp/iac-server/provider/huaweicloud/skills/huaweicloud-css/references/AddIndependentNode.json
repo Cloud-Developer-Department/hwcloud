@@ -1,0 +1,154 @@
+{
+  "name": "AddIndependentNode",
+  "summary": "添加独立master、client",
+  "tags": "集群管理接口",
+  "productshort": "CSS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent": {
+      "post": {
+        "x-request-examples-description-1": "添加独立master、client。",
+        "x-request-examples-url-1": "POST /v1.0/6204a5bd270343b5885144cf9c8c158d/clusters/ea244205-d641-45d9-9dcb-ab2236bcd07e/type/ess-client/independent",
+        "x-request-examples-1": {
+          "type": {
+            "flavor_ref": "d9dc06ae-b9c4-4ef4-acd8-953ef4205e27",
+            "node_size": 3,
+            "volume_type": "COMMON"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-publishpath": "",
+        "x-request-examples-url": "POST /v1.0/6204a5bd270343b5885144cf9c8c158d/clusters/ea244205-d641-45d9-9dcb-ab2236bcd07e/type/ess-client/independent",
+        "x-request-examples-text-1": {
+          "type": {
+            "flavor_ref": "d9dc06ae-b9c4-4ef4-acd8-953ef4205e27",
+            "node_size": 3,
+            "volume_type": "COMMON"
+          }
+        },
+        "tags": [
+          "集群管理接口"
+        ],
+        "summary": "添加独立master、client",
+        "description": "由于集群数据面业务的增长或者不确定性,很难在一开始就能够把集群的规模形态想明白,该接口能够在非独立master和client的集群上面独立master、client角色。",
+        "operationId": "AddIndependentNode",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID。获取方法请参见[获取项目ID和名称](css_03_0071.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "6204a5bd270343b5885144cf9c8c158d"
+          },
+          {
+            "in": "path",
+            "name": "cluster_id",
+            "description": "指定需要独立master或client的集群ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "ea244205-d641-45d9-9dcb-ab2236bcd07e"
+          },
+          {
+            "in": "path",
+            "name": "type",
+            "description": "指定待新增独立节点类型。\n- ess-master:Master节点。\n- ess-client:Client节点。",
+            "required": true,
+            "type": "string",
+            "x-example": "ess-master"
+          },
+          {
+            "in": "body",
+            "name": "IndependentReq",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IndependentReq"
+            },
+            "description": "独立master或client请求体。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功。",
+            "schema": {
+              "$ref": "#/definitions/IndependentRsp"
+            },
+            "examples": {
+              "application/json": {
+                "id": "320afa24-ff2a-4f44-8460-6ba95e512ad4"
+              }
+            }
+          },
+          "403": {
+            "description": "请求被拒绝访问。\n\n返回该状态码,表明请求能够到达服务端,且服务端能够理解用户请求,但是拒绝做更多的事情,因为该请求被设置为拒绝访问,建议直接修改该请求,不要重试该请求。"
+          },
+          "500": {
+            "description": "表明服务端能被请求访问到,但是不能理解用户的请求。"
+          }
+        },
+        "x-order": 23
+      }
+    }
+  },
+  "definitions": {
+    "IndependentRsp": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "集群ID。",
+          "example": "ef683016-871e-48bc-bf93-74a29d60d214"
+        }
+      }
+    },
+    "IndependentBodyReq": {
+      "required": [
+        "flavor_ref",
+        "node_size"
+      ],
+      "properties": {
+        "flavor_ref": {
+          "type": "string",
+          "description": "规格id,该参数通过[获取实例规格列表](ListFlavors.xml)接口获取,根据集群版本选择所需要的规格id"
+        },
+        "node_size": {
+          "type": "integer",
+          "description": "要独立节点个数。\n- 如果路径参数type取值为“ess-master”即新增独立master节点,节点个数必须为大于等于三且小于等于10的奇数。\n- 如果路径参数type取值为“ess-client”即新增独立client节点,节点个数要求大于等于1小于等于32。"
+        },
+        "volume_type": {
+          "type": "string",
+          "description": "节点存储类型:取值为ULTRAHIGH,COMMON,HIGH。"
+        },
+        "volume_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n节点存储大小。\n**约束限制**:\n- flavor_ref参数是本地盘规格时,不能设置此参数。\n- 必须为大于0且为4和10的公倍数,单位:GB。\n**取值范围**:\n磁盘规格大小可以通过过[获取实例规格列表](ListFlavors.xml)中diskrange属性获得。\n**默认取值**:\nflavor_ref参数不是本地盘规格时:\n- 新增独立冷数据节点:默认100G与节点规格支持的最小磁盘容量取较大者。\n- 新增独立master或client节点:默认大小为40G,且不可更改。\n\n>新增独立冷数据节点,推荐大于100G。"
+        }
+      }
+    },
+    "IndependentReq": {
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/IndependentBodyReq",
+          "description": "独立master或client请求体参数。"
+        },
+        "is_auto_pay": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否自动支付。下单订购后,是否自动从客户的华为云账户中支付,而不需要客户手动去进行支付。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "css.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

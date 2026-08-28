@@ -1,0 +1,235 @@
+{
+  "name": "ShowWorkflowExecutionForPage",
+  "summary": "分页获取指定函数流执行实例列表",
+  "tags": "函数流",
+  "productshort": "FunctionGraph",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/fgs/workflows/{workflow_id}/executions-history": {
+      "get": {
+        "tags": [
+          "函数流"
+        ],
+        "summary": "分页获取指定函数流执行实例列表",
+        "description": "分页获取指定函数流执行实例列表",
+        "operationId": "ShowWorkflowExecutionForPage",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-example": "c53626012ba84727b938ca8bf03108ef"
+          },
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "description": "函数工作流ID",
+            "required": true,
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "x-example": "48aff955-ea10-4ffd-b426-190bc192dc14"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "minimum": 0,
+            "description": "偏移量,表示从此偏移量开始查询,offset大于等于0",
+            "x-example": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "分页查询,每页查询数据条数,取值范围:1,2,3...100",
+            "x-example": 10
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "type": "string",
+            "description": "查询开始时间,UTC时间,格式:YYYY-MM-DD hh:mm:ss。若起始时间未填写,以终止时间前推3天为起始时间。",
+            "x-example": "2022-10-11 01:00:11"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "type": "string",
+            "description": "查询结束时间,UTC时间,格式:YYYY-MM-DD hh:mm:ss。若终止时间未填写,以起始时间后退3天未终止时间。若均未填写,默认查询最近3天数据。",
+            "x-example": "2022-10-12 01:00:11"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "函数流分页查询返回体",
+            "schema": {
+              "$ref": "#/definitions/ShowWorkflowExecutionForPage"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp400"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp500"
+            }
+          }
+        },
+        "x-request-examples-description-1": "分页查询函数流执行实例列表",
+        "x-request-examples-url-1": "GET /v2/{project_id}/fgs/workflows/{workflow_id}/executions-history",
+        "x-support-sdk": "Y",
+        "x-produc-type": "functiongraph"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorRsp400": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "FGS.3002",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Invalid parameters.",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "example": "Req1",
+          "description": "请求ID",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    },
+    "ErrorRsp500": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "FGS.3002",
+          "description": "错误码",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "Internal Error.",
+          "description": "错误描述",
+          "minLength": 2,
+          "maxLength": 512
+        },
+        "request_id": {
+          "type": "string",
+          "example": "Req1",
+          "description": "请求ID",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "description": "失败时返回的错误对象"
+    },
+    "ShowWorkflowExecutionForPage": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "example": 0,
+          "description": "返回所有满足条件的对象个数",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32",
+          "example": 0,
+          "description": "返回对象的大小",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "executions": {
+          "items": {
+            "$ref": "#/definitions/FlowExecutionBriefV2"
+          },
+          "type": "array",
+          "description": "函数流返回体信息"
+        }
+      }
+    },
+    "FlowExecutionBriefV2": {
+      "properties": {
+        "workflow_id": {
+          "type": "string",
+          "description": "函数流ID"
+        },
+        "execution_id": {
+          "type": "string",
+          "description": "函数流执行ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "函数流执行状态",
+          "enum": [
+            "success",
+            "fail",
+            "running",
+            "timeout",
+            "cancel",
+            "scheduled",
+            "recovered",
+            "retrying",
+            "stopping"
+          ]
+        },
+        "begin_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "开始时间(格式为yyyy-MM-dd'T'HH:mm:ss'Z',UTC时间)。"
+        },
+        "end_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "结束时间(格式为yyyy-MM-dd'T'HH:mm:ss'Z',UTC时间)。"
+        },
+        "last_update_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "结束时间(格式为yyyy-MM-dd'T'HH:mm:ss'Z',UTC时间)。"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "workflow_urn": {
+          "type": "string",
+          "description": "函数流执行urn"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "functiongraph.ae-ad-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

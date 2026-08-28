@@ -1,0 +1,318 @@
+{
+  "name": "ListSecurityMemberTablePermission",
+  "summary": "查询用户表权限清单",
+  "tags": "权限管理接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/security/member-permission/{user_id}": {
+      "get": {
+        "x-support-sdk": "Y",
+        "tags": [
+          "权限管理接口"
+        ],
+        "summary": "查询用户表权限清单",
+        "x-is-registered": "Y",
+        "description": "查询用户表权限清单",
+        "operationId": "ListSecurityMemberTablePermission",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "IAM用户id",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          {
+            "name": "feature",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "权限清单场景类型,PERMISSION_LIST",
+            "enum": [
+              "PERMISSION_LIST"
+            ]
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "name": "datasource_type",
+            "type": "string",
+            "required": false,
+            "in": "query",
+            "enum": [
+              "HIVE",
+              "DWS",
+              "DLI"
+            ],
+            "description": "数据源类型,hive,dws"
+          },
+          {
+            "name": "cluster_name",
+            "in": "query",
+            "required": false,
+            "description": "集群名称",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          {
+            "name": "database_name",
+            "in": "query",
+            "required": false,
+            "description": "数据库名称",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          {
+            "name": "schema_name",
+            "in": "query",
+            "required": false,
+            "description": "schema名称",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          {
+            "name": "table_name",
+            "in": "query",
+            "required": false,
+            "description": "表名称",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          {
+            "name": "fuzzy_table_name",
+            "in": "query",
+            "required": false,
+            "description": "表名(模糊匹配)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          {
+            "name": "workspace_ids",
+            "in": "query",
+            "required": false,
+            "description": "工作空间id列表",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          {
+            "$ref": "#/parameters/workspace"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "$ref": "#/definitions/UserPermissionDetailListDTO"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "member_permission_list": [
+                  {
+                    "database_name": "dls",
+                    "datasource_type": "HIVE",
+                    "schema_name": null,
+                    "table_name": "dls_hive_samples_101",
+                    "column_name": "test_column",
+                    "cluster_name": "mrs_cluster",
+                    "permission_actions": "SELECT",
+                    "permission_set_id": null,
+                    "permission_source": "权限审批",
+                    "url": null
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UserPermissionDetailListDTO": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "权限总数",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "member_permission_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MemberPermission"
+          },
+          "description": "成员权限列表(包含权限集的和权限审批)",
+          "minItems": 0,
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "total",
+        "member_permission_list"
+      ]
+    },
+    "MemberPermission": {
+      "type": "object",
+      "description": "用户权限详情",
+      "required": [
+        "permission_set_id",
+        "permission_source",
+        "permission_actions",
+        "datasource_type",
+        "cluster_name",
+        "database_name",
+        "table_name"
+      ],
+      "properties": {
+        "permission_set_id": {
+          "type": "string",
+          "description": "权限集ID",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "permission_source": {
+          "type": "string",
+          "description": "权限来源:1、权限集名称。2、权限审批",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "permission_actions": {
+          "type": "string",
+          "description": "权限类别,ALL,SELECT,UPDATE,CREATE,DROP,ALTER,INDEX,LOCK,READ,WRITE",
+          "enum": [
+            "ALL",
+            "SELECT",
+            "UPDATE",
+            "CREATE",
+            "DROP",
+            "ALTER",
+            "INDEX",
+            "LOCK",
+            "READ",
+            "WRITE"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "description": "Hive数据源,指定url权限的策略信息",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "datasource_type": {
+          "type": "string",
+          "description": "数据源类型",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "cluster_name": {
+          "type": "string",
+          "description": "集群名",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "database_name": {
+          "type": "string",
+          "description": "数据库名",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "schema_name": {
+          "type": "string",
+          "description": "schema名",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "table_name": {
+          "type": "string",
+          "description": "表名",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "column_name": {
+          "type": "string",
+          "description": "列名",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "project_id": {
+      "name": "project_id",
+      "in": "path",
+      "description": "project id",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "X-Auth-Token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "token",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10240
+    },
+    "workspace": {
+      "name": "workspace",
+      "in": "header",
+      "description": "DataArts Studio工作空间ID",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "offset": {
+      "name": "offset",
+      "in": "query",
+      "description": "offset",
+      "required": false,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 99999
+    },
+    "limit": {
+      "name": "limit",
+      "in": "query",
+      "description": "limit",
+      "required": false,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    }
+  },
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

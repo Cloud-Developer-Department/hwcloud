@@ -1,0 +1,231 @@
+{
+  "name": "RunDeleteData",
+  "summary": "删除数据",
+  "tags": "删除数据",
+  "productshort": "ImageSearch",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/mms/{service_name}/data/delete": {
+      "post": {
+        "tags": [
+          "删除数据"
+        ],
+        "summary": "删除数据",
+        "description": "删除指定服务实例中的对应数据,支持指定ID删除和条件删除。",
+        "operationId": "RunDeleteData",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例所属的项目ID,登陆华为云->用户中心->我的凭证->API凭证,即可查看对应区域的项目ID。",
+            "required": true
+          },
+          {
+            "name": "service_name",
+            "in": "path",
+            "type": "string",
+            "description": "服务实例的名称,用户创建服务实例时指定。",
+            "required": true
+          },
+          {
+            "name": "deleteParam",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/DeleteParam"
+            },
+            "description": "删除数据的请求body参数。",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/DeleteDataResponse"
+            },
+            "description": "删除数据的响应body参数。",
+            "examples": {
+              "application/json": {
+                "result": "success"
+              }
+            }
+          },
+          "400": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "BAD REQUEST",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0003",
+                "error_msg": "Invalid parameter: item_id"
+              }
+            }
+          },
+          "403": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "FORBIDDEN",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.0001",
+                "error_msg": "Request is unauthorized."
+              }
+            }
+          },
+          "500": {
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "description": "INTERNAL SERVER ERROR",
+            "examples": {
+              "application/json": {
+                "error_code": "MMS.1015",
+                "error_msg": "Process INDEX failed."
+              }
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-request-examples-description-1": "删除数据",
+        "x-request-examples-url-1": "POST https://{endpoint}/v2/{project_id}/mms/{service_name}/data/delete",
+        "x-request-examples-1": {
+          "item_id": "electronics_01"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DeleteDataResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "删除数据完成返回success。"
+        },
+        "data": {
+          "$ref": "#/definitions/DeleteRestInfo",
+          "description": "删除数据的相关信息,仅在条件删除时存在该字段。"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "请求失败时的错误编码,请求成功时无此字段。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "请求失败时的错误信息,请求成功时无此字段。"
+        }
+      }
+    },
+    "RangeParam": {
+      "type": "object",
+      "description": "数值范围参数结构体。",
+      "properties": {
+        "from": {
+          "type": "number",
+          "description": "数值下界,默认包含该下界。",
+          "format": "double"
+        },
+        "to": {
+          "type": "number",
+          "description": "数值上界,默认包含该上界。",
+          "format": "double"
+        }
+      }
+    },
+    "DeleteRestInfo": {
+      "type": "object",
+      "description": "删除数据的相关信息。",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "删除数据列表。",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "数据唯一ID。"
+              }
+            }
+          }
+        },
+        "delete_info": {
+          "$ref": "#/definitions/DeleteInfo"
+        }
+      }
+    },
+    "DeleteInfo": {
+      "type": "object",
+      "description": "删除结果的相关信息。",
+      "properties": {
+        "total_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "符合条件的结果总数。"
+        },
+        "delete_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "本次删除的结果总数,目前一次请求最多删除100条结果。"
+        }
+      }
+    },
+    "DeleteParam": {
+      "type": "object",
+      "properties": {
+        "force": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否幂等删除数据,默认为false。仅对指定ID删除生效。\n- false: 数据不存在时返回错误信息。\n- true: 数据不存在时返回成功,用于幂等删除场景。"
+        },
+        "item_id": {
+          "type": "string",
+          "description": "数据的服务实例级唯一标识,字符长度范围为[1, 256]。\n- item_id/custom_tags/custom_num_tags中必须给定至少一个参数,以支持对服务实例中的数据进行指定ID删除或条件删除。\n- 如给定item_id参数,则进行指定ID删除,否则进行条件删除。",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "custom_tags": {
+          "type": "object",
+          "description": "自定义字符标签,用于对服务实例中的数据进行条件删除。格式为键值对{key:value}。\n- key: 必须为服务实例custom_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。\n- value: 标签值列表,列表内多个标签值为“或”关系,即满足一个即可。列表长度范围为[1, 32],标签值类型为字符串,字符长度范围为[1, 64]。",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "自定义字符标签值",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "minItems": 1,
+            "maxItems": 32
+          }
+        },
+        "custom_num_tags": {
+          "type": "object",
+          "description": "自定义数值标签,用于对服务实例中的数据进行custom_num_tags条件删除。格式为键值对{key:value}。\n- key: 必须为服务实例custom_num_tags中已存在的key,可在创建服务实例时进行配置,或在更新服务实例时进行新增。针对没有设置该数值标签的数据,会直接过滤。\n- value: 标签值的取值范围,标签值在给定的取值范围内即视为符合条件。",
+          "additionalProperties": {
+            "$ref": "#/definitions/RangeParam"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "mms.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

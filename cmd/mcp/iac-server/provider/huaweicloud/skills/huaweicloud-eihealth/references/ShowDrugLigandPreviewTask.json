@@ -1,0 +1,225 @@
+{
+  "name": "ShowDrugLigandPreviewTask",
+  "summary": "查询配体文件预览任务",
+  "tags": "IDrugCommonController",
+  "productshort": "eiHealth",
+  "region_id": "cn-east-3",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/ligand/preview/{task_id}": {
+      "get": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "ShowDrugLigandPreviewTask",
+        "tags": [
+          "IDrugCommonController"
+        ],
+        "summary": "查询配体文件预览任务",
+        "description": "查询配体文件预览任务",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "string",
+            "description": "任务ID,通过创建任务接口取得。",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "task_id is invalid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询配体文件预览任务成功响应",
+            "schema": {
+              "$ref": "#/definitions/LigandPreviewTaskRsp"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LigandPreviewInfoDto": {
+      "type": "object",
+      "description": "配体预览信息,若成功则除reason字段均有,若失败也有可能存在formula和smiles字段",
+      "required": [
+        "index",
+        "name",
+        "success"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 999,
+          "description": "配体索引(从0起编号)"
+        },
+        "name": {
+          "type": "string",
+          "description": "配体名称,若无名称则自动命名,格式为UNK+索引(从1起编号)",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "UNK1"
+        },
+        "success": {
+          "type": "boolean",
+          "description": "解析是否成功"
+        },
+        "smiles": {
+          "type": "string",
+          "description": "分子SMILES表达式",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "CC"
+        },
+        "formula": {
+          "type": "string",
+          "description": "配体分子的化学式",
+          "minLength": 1,
+          "maxLength": 128,
+          "example": "C6H6"
+        },
+        "is_3d": {
+          "type": "boolean",
+          "description": "标识原始数据是否为3D"
+        },
+        "structure": {
+          "$ref": "#/definitions/LigandStructureDto"
+        },
+        "reason": {
+          "type": "string",
+          "description": "解析失败的理由",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "invalid SMILES"
+        }
+      }
+    },
+    "LigandStructureDto": {
+      "type": "object",
+      "description": "配体3D结构",
+      "required": [
+        "format",
+        "data"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "description": "配体格式,即文件后缀名",
+          "minLength": 1,
+          "maxLength": 5,
+          "example": "MOL2"
+        },
+        "compressed": {
+          "type": "boolean",
+          "description": "是否压缩",
+          "default": false
+        },
+        "data": {
+          "type": "string",
+          "description": "结构数据,如压缩则需要解码、解压处理(ASCII Encode -> Base64 Decode -> GZip Inflate -> UTF-8 Decode)以得到原始字符串;如未压缩则为原始字符串",
+          "minLength": 0,
+          "maxLength": 10000000
+        }
+      }
+    },
+    "LigandPreviewTaskRsp": {
+      "type": "object",
+      "description": "配体预览任务响应体,仅在任务完成时包含result字段",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "example": "FINISHED",
+          "description": "任务状态"
+        },
+        "result": {
+          "$ref": "#/definitions/LigandPreviewTaskResultDto"
+        }
+      },
+      "example": {
+        "status": "running"
+      }
+    },
+    "LigandPreviewTaskResultDto": {
+      "type": "object",
+      "description": "配体预览任务结果",
+      "required": [
+        "count",
+        "ligands",
+        "has_more"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1000000,
+          "description": "已知的配体数量"
+        },
+        "ligands": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "description": "预览配体信息列表",
+          "items": {
+            "$ref": "#/definitions/LigandPreviewInfoDto"
+          }
+        },
+        "has_more": {
+          "type": "boolean",
+          "description": "文件中是否还有更多配体没有处理;即当前数量是否表示整个文件的配体数量,若该值为false则表该配体文件含有count数量个配体;若该值为true则表示改配体文件含有大于count数量个配体(即count不完全统计);例如:count=100且has_more=true,则前端可显示该配体文件含有\"100+个\"小分子"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-east-3.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

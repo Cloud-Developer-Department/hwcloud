@@ -1,0 +1,223 @@
+{
+  "name": "UpdateWorkSpaceUserOrGroup",
+  "summary": "编辑工作空间用户或用户组",
+  "tags": "工作空间用户管理接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/{workspace_id}/users/{user_id}": {
+      "put": {
+        "x-is-registered": "Y",
+        "tags": [
+          "工作空间用户管理接口"
+        ],
+        "x-support-sdk": "Y",
+        "summary": "编辑工作空间用户或用户组",
+        "description": "编辑工作空间用户或用户组",
+        "operationId": "UpdateWorkSpaceUserOrGroup",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "IAM Token",
+            "required": true,
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目id",
+            "pattern": "^[a-z0-9]{32}$"
+          },
+          {
+            "name": "workspace_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "工作空间id",
+            "pattern": "^[a-z0-9]{32}$"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "用户id",
+            "pattern": "^[a-z0-9]{32}$"
+          },
+          {
+            "name": "updateUserParams",
+            "in": "body",
+            "required": true,
+            "description": "编辑用户信息body",
+            "schema": {
+              "$ref": "#/definitions/ApigWorkspaceUserDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success,修改工作空间用户成功"
+          },
+          "400": {
+            "$ref": "#/definitions/DayuException"
+          },
+          "500": {
+            "$ref": "#/definitions/DayuException"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Group": {
+      "type": "object",
+      "description": "IAM用户组信息",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "用户组id",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "用户组名",
+          "maxLength": 128,
+          "minLength": 1
+        }
+      }
+    },
+    "DayuException": {
+      "type": "object",
+      "description": "dayu异常返回体",
+      "properties": {
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息",
+          "maxLength": 1024,
+          "minLength": 1
+        },
+        "error_code": {
+          "type": "string",
+          "description": "dayu异常码",
+          "maxLength": 1024,
+          "minLength": 1
+        }
+      }
+    },
+    "ApigWorkspaceUserDto": {
+      "type": "object",
+      "description": "获取DataArtsStudio工作空间角色信息",
+      "required": [
+        "roles_ids",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "integer",
+          "description": "用户类型,0:添加用户;1:添加用户组",
+          "maximum": 1,
+          "minimum": 0
+        },
+        "user_ids": {
+          "type": "array",
+          "description": "用户列表信息",
+          "items": {
+            "$ref": "#/definitions/ApigIamUserDto"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        },
+        "groups": {
+          "type": "array",
+          "description": "用户组列表信息",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        },
+        "roles_ids": {
+          "type": "array",
+          "description": "空间角色列表",
+          "items": {
+            "$ref": "#/definitions/ApigRole"
+          },
+          "maxItems": 100,
+          "minItems": 0
+        }
+      },
+      "example": {
+        "user_ids": [
+          {
+            "user_id": "2d032145d82546b5b83cd7a6fd7d0afc",
+            "user_name": "ei_dayu_n30011721",
+            "domain_id": "0833a5736980d53b0f22c0102ffcbfc0",
+            "domain_name": "ei_dayu_y00321344_01",
+            "is_domain_owner": "false"
+          }
+        ],
+        "roles_ids": [
+          {
+            "role_id": "r00003"
+          }
+        ],
+        "type": 0
+      }
+    },
+    "ApigIamUserDto": {
+      "type": "object",
+      "description": "IAM用户信息",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "用户id",
+          "pattern": "^[a-z0-9]{32}$"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "用户名",
+          "pattern": "^[A-Za-z0-9_\\-]{1,255}$"
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "租户id",
+          "pattern": "^[a-z0-9]{32}$"
+        },
+        "domain_name": {
+          "type": "string",
+          "description": "租户名",
+          "pattern": "^[A-Za-z0-9_\\-]{1,255}$"
+        },
+        "is_domain_owner": {
+          "type": "boolean",
+          "description": "是否是空间拥有者"
+        }
+      }
+    },
+    "ApigRole": {
+      "type": "object",
+      "description": "IAM用户组信息",
+      "properties": {
+        "role_id": {
+          "type": "string",
+          "description": "角色id,r00001:管理员;r00002:开发者;r00003:运维者;r00004:访客",
+          "maxLength": 128,
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

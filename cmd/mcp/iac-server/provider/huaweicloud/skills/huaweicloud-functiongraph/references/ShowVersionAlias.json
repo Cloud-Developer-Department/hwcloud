@@ -1,0 +1,249 @@
+{
+  "name": "ShowVersionAlias",
+  "summary": "获取函数版本的指定别名信息",
+  "tags": "函数版本别名",
+  "productshort": "FunctionGraph",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/fgs/functions/{function_urn}/aliases/{alias_name}": {
+      "get": {
+        "tags": [
+          "函数版本别名"
+        ],
+        "summary": "获取函数版本的指定别名信息",
+        "description": "获取函数指定的版本别名信息。",
+        "operationId": "ShowVersionAlias",
+        "parameters": [
+          {
+            "$ref": "#/parameters/project_id"
+          },
+          {
+            "$ref": "#/parameters/function_urn"
+          },
+          {
+            "name": "alias_name",
+            "in": "path",
+            "description": "要查询的别名名称。",
+            "required": true,
+            "type": "string",
+            "x-order": 3
+          },
+          {
+            "$ref": "#/parameters/X-Auth-Token"
+          },
+          {
+            "$ref": "#/parameters/Content-Type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "name": "dev",
+                "version": "latest",
+                "description": "my dev version",
+                "last_modified": "2019-10-31T11:37:58+08:00",
+                "alias_urn": "urn:fss:xxxxxxxxxx: 7aad83af3e8d42e99ac194e8419e2c9b:function:default:test:!dev",
+                "additional_version_weights": {
+                  "v1": 10
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ShowVersionAliasResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized 鉴权失败。",
+            "examples": {
+              "application/json": {
+                "error_code": "FSS.1053",
+                "error_msg": "Not found the function alias"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "403": {
+            "description": "Forbidden 没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "404": {
+            "description": "Not Found 找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error 服务内部错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            }
+          }
+        },
+        "x-request-examples-description-1": "查询指定函数的版本别名信息。",
+        "x-request-examples-url-1": "GET https://{Endpoint}/v2/{project_id}/fgs/functions/{function_urn}/aliases/{name}",
+        "x-support-sdk": "Y",
+        "x-produc-type": "functiongraph"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误信息"
+        }
+      }
+    },
+    "ShowVersionAliasResponseBody": {
+      "required": [
+        "alias_urn",
+        "last_modified",
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "要获取的别名名称。"
+        },
+        "version": {
+          "type": "string",
+          "description": "别名对应的版本名称。"
+        },
+        "description": {
+          "type": "string",
+          "description": "别名描述信息。"
+        },
+        "last_modified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "别名最后修改时间。"
+        },
+        "alias_urn": {
+          "type": "string",
+          "description": "版本别名唯一标识。"
+        },
+        "additional_version_weights": {
+          "type": "object",
+          "description": "百分比灰度配置信息",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "additional_version_strategy": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/VersionStrategy"
+          },
+          "description": "指定规则灰度策略信息"
+        }
+      },
+      "description": "版本别名结构"
+    },
+    "VersionStrategy": {
+      "properties": {
+        "rules": {
+          "type": "array",
+          "description": "规则列表",
+          "items": {
+            "$ref": "#/definitions/VersionStrategyRules"
+          }
+        },
+        "combine_type": {
+          "type": "string",
+          "description": "所有规则聚合方式。and:所有规则都满足,or:满足其中一个",
+          "example": "and",
+          "enum": [
+            "and",
+            "or"
+          ]
+        }
+      },
+      "description": "灰度策略信息"
+    },
+    "VersionStrategyRules": {
+      "properties": {
+        "rule_type": {
+          "type": "string",
+          "description": "参数类型。",
+          "example": "header",
+          "enum": [
+            "header",
+            "cookie"
+          ]
+        },
+        "param": {
+          "type": "string",
+          "description": "规则参数名, 只支持大小写字母,数字,下划线,中划线。",
+          "example": "xxx"
+        },
+        "op": {
+          "type": "string",
+          "description": "规则匹配操作符,目前仅需支持 = 或者in。",
+          "example": "in",
+          "enum": [
+            "in",
+            "="
+          ]
+        },
+        "value": {
+          "type": "string",
+          "description": "规则值,如果op为in,则为逗号分隔的多值字符串",
+          "example": "xxx,xxx"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Content-Type": {
+      "in": "header",
+      "name": "Content-Type",
+      "type": "string",
+      "required": true,
+      "x-example": "application/json",
+      "default": "application/json",
+      "description": "消息体的类型(格式)"
+    },
+    "project_id": {
+      "in": "path",
+      "name": "project_id",
+      "required": true,
+      "type": "string",
+      "x-example": "46b6f338fc3445b8846c71dfb1fbd9e8",
+      "description": "租户项目 ID,获取方式请参见[获取项目ID](functiongraph_06_0260.xml)。"
+    },
+    "function_urn": {
+      "in": "path",
+      "name": "function_urn",
+      "required": true,
+      "type": "string",
+      "x-example": "urn:fss:{region}:46b6f338fc3445b8846c71dfb1fbxxxx:function:csharp:test2-0:latest",
+      "description": "函数的URN,详细解释见FunctionGraph函数模型的描述。"
+    },
+    "X-Auth-Token": {
+      "in": "header",
+      "name": "X-Auth-Token",
+      "required": true,
+      "type": "string",
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。"
+    }
+  },
+  "host": "functiongraph.ae-ad-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

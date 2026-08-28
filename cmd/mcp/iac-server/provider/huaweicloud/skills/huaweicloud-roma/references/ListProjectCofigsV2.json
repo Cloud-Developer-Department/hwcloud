@@ -1,0 +1,344 @@
+{
+  "name": "ListProjectCofigsV2",
+  "summary": "查询某个实例的租户配置列表",
+  "tags": "配置管理",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/project/configs": {
+      "get": {
+        "summary": "查询某个实例的租户配置列表",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "x-order": 5,
+        "description": "查询某个实例的租户配置列表,用户可以通过此接口查看各类型资源配置及使用情况。",
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "配置管理"
+        ],
+        "operationId": "ListProjectCofigsV2",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "$ref": "#/parameters/apic_offset"
+          },
+          {
+            "$ref": "#/parameters/apic_limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/ConfigPage"
+            },
+            "examples": {
+              "application/json": {
+                "total": 43,
+                "size": 2,
+                "configs": [
+                  {
+                    "config_id": "9",
+                    "config_name": "API_VERSION_NUM_LIMIT",
+                    "config_value": "10",
+                    "config_time": "2019-02-12T19:42:19.914989Z",
+                    "remark": "xxx",
+                    "used": 0
+                  },
+                  {
+                    "config_id": "8",
+                    "config_name": "APIGROUP_DOMAIN_NUM_LIMIT",
+                    "config_value": "5",
+                    "config_time": "2019-02-12T19:42:19.914989Z",
+                    "remark": "xxx",
+                    "used": 0
+                  }
+                ]
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.2012",
+                "error_msg": "Invalid parameter value,parameterName:instance_id. Please refer to the support documentation"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3030",
+                "error_msg": "The instance does not exist;id:f0fa1789-3b76-433b-a787-9892951c620e"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Config": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ConfigOutline"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "used": {
+              "description": "该实例对应配额已使用数量",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      ]
+    },
+    "BasePage": {
+      "properties": {
+        "size": {
+          "description": "本次返回的列表长度",
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "description": "满足条件的记录数",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "分页基本信息",
+      "required": [
+        "size",
+        "total"
+      ]
+    },
+    "ConfigPage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasePage"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "configs": {
+              "description": "配额列表",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Config"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ConfigOutline": {
+      "properties": {
+        "config_id": {
+          "description": "配额编号",
+          "type": "string"
+        },
+        "config_name": {
+          "description": "配额名称",
+          "type": "string",
+          "enum": [
+            "API_NUM_LIMIT",
+            "APP_NUM_LIMIT",
+            "APIGROUP_NUM_LIMIT",
+            "ENVIRONMENT_NUM_LIMIT",
+            "VARIABLE_NUM_LIMIT",
+            "SIGN_NUM_LIMIT",
+            "THROTTLE_NUM_LIMIT",
+            "APIGROUP_DOMAIN_NUM_LIMIT",
+            "API_VERSION_NUM_LIMIT",
+            "VPC_NUM_LIMIT",
+            "VPC_INSTANCE_NUM_LIMIT",
+            "API_PARAM_NUM_LIMIT",
+            "API_USER_CALL_LIMIT",
+            "ACL_NUM_LIMIT",
+            "APP_THROTTLE_LIMIT",
+            "USER_THROTTLE_LIMIT",
+            "API_NUM_LIMIT_PER_GROUP",
+            "API_POLICY_NUM_LIMIT",
+            "API_CONDITION_NUM_LIMIT",
+            "SL_DOMAIN_CALL_LIMIT",
+            "ELB_SWITCH",
+            "AUTHORIZER_NUM_LIMIT",
+            "AUTHORIZER_IDENTITY_NUM_LIMIT",
+            "APP_CODE_NUM_LIMIT",
+            "REGION_MANAGER_WHITELIST_SERVICES",
+            "API_SWAGGER_NUM_LIMIT",
+            "API_TAG_NUM_LIMIT",
+            "LTS_SWITCH",
+            "APP_KEY_SECRET_SWITCH",
+            "RESPONSE_NUM_LIMIT",
+            "CONFIG_NUM_LIMIT_PER_APP",
+            "BACKEND_TOKEN_ALLOW_SWITCH",
+            "APP_TOKEN_SWITCH",
+            "API_DESIGNER_SWITCH",
+            "APP_API_KEY_SWITCH",
+            "APP_BASIC_SWITCH",
+            "APP_JWT_SWITCH",
+            "APP_ROUTE_SWITCH",
+            "PUBLIC_KEY_SWITCH",
+            "APP_SECRET_SWITCH",
+            "CASCADE_SWITCH",
+            "IS_INIT_API_PATH_HASH",
+            "APP_QUOTA_NUM_LIMIT",
+            "IS_INIT_API_VERSION",
+            "PLUGIN_NUM_LIMIT",
+            "APICLIENT_FIRST_USE_X_HW_ID_SWITCH",
+            "API_TASK_NUM_LIMIT",
+            "SET_HEADERS_NUM_LIMIT_PER_PLUGIN",
+            "API_TASK_SWITCH",
+            "THROTTLE_LOCAL_SWITCH",
+            "LUA_SCRIPT_SWITCH",
+            "SM_DICT_NUM_LIMIT",
+            "BM_VPC_INSTANCE_GROUP_NUM_LIMIT"
+          ]
+        },
+        "config_value": {
+          "description": "配额值\n\n当前实例所在租户该配额对应的数量",
+          "type": "string"
+        },
+        "config_time": {
+          "description": "配额创建时间",
+          "type": "string",
+          "format": "date-time"
+        },
+        "remark": {
+          "description": "配额描述:\n  - API_NUM_LIMIT:租户可以创建的API个数限制\n  - APP_NUM_LIMIT:租户可以创建的APP个数限制\n  - APIGROUP_NUM_LIMIT:租户可以创建的API分组个数限制\n  - ENVIRONMENT_NUM_LIMIT:租户可以创建的环境个数限制\n  - VARIABLE_NUM_LIMIT:每个API分组上可以创建的环境变量个数限制\n  - SIGN_NUM_LIMIT:租户可以创建的签名密钥个数限制\n  - THROTTLE_NUM_LIMIT:租户可以创建的流控策略个数限制\n  - APIGROUP_DOMAIN_NUM_LIMIT:每个API分组上可以绑定的自定义域名个数限制\n  - API_VERSION_NUM_LIMIT:每个API可以保留的发布版本个数限制\n  - VPC_NUM_LIMIT:租户可以创建的VPC通道个数限制\n  - VPC_INSTANCE_NUM_LIMIT:每个VPC通道上可以绑定的弹性云服务器个数限制\n  - API_PARAM_NUM_LIMIT:每个API可以设置的参数个数限制\n  - API_USER_CALL_LIMIT:每个租户的API单位时间内的请求默认限制\n  - ACL_NUM_LIMIT:每个租户可以创建的ACL策略个数限制\n  - APP_THROTTLE_LIMIT:特殊应用流控策略个数限制\n  - USER_THROTTLE_LIMIT:特殊用户流控策略个数限制\n  - API_NUM_LIMIT_PER_GROUP:租户每个API分组可以创建的API数量限制\n  - API_POLICY_NUM_LIMIT:每个API可以设置的策略后端个数限制\n  - API_CONDITION_NUM_LIMIT:每个API策略后端可以设置的条件个数限制\n  - SL_DOMAIN_CALL_LIMIT:每个二级域名单位时间内的请求默认限制\n  - ELB_SWITCH:是否启用ELB通道\n  - AUTHORIZER_NUM_LIMIT:租户可创建的自定义认证个数限制\n  - AUTHORIZER_IDENTITY_NUM_LIMIT:每个自定义认证可以设置的身份来源个数限制\n  - APP_CODE_NUM_LIMIT:每个APP可以创建的APP code数量限制\n  - REGION_MANAGER_WHITELIST_SERVICES:不校验region manager服务白名单列表,暂不支持\n  - API_SWAGGER_NUM_LIMIT:单个API分组可以绑定的swagger文档数量限制\n  - API_TAG_NUM_LIMIT:每个API可以设置的标签个数限制\n  - LTS_SWITCH:是启用LTS上报\n  - APP_KEY_SECRET_SWITCH:是否打开APP支持自定义KEY和SECRET的开关,1:开启;2:关闭\n  - RESPONSE_NUM_LIMIT:分组自定义响应个数限制\n  - CONFIG_NUM_LIMIT_PER_APP:每个APP可以设置的配置项个数限制\n  - BACKEND_TOKEN_ALLOW_SWITCH:是否支持普通租户透传后端token,1:开启;2:关闭\n  - APP_TOKEN_SWITCH:是否启用APPTOKEN\n  - API_DESIGNER_SWITCH:是否启用api设计器,1:开启;2:关闭\n  - APP_API_KEY_SWITCH:是否启用APP_API_KEY认证方式\n  - APP_BASIC_SWITCH:是否启用APP_BASIC认证方式\n  - APP_JWT_SWITCH:是否启用APP_JWT认证方式\n  - APP_ROUTE_SWITCH:是否启用APP路由\n  - PUBLIC_KEY_SWITCH:是否启用PUBLIK_KEY后端认证方式\n  - APP_SECRET_SWITCH:是否启用APP_SECRET认证方式\n  - CASCADE_SWITCH:是否启用级联网关\n  - IS_INIT_API_PATH_HASH:是否执行过API PATH HASH刷新\n  - APP_QUOTA_NUM_LIMIT:租户可以创建的客户端配额个数\n  - IS_INIT_API_VERSION:是否执行过API VERSION CANONICAL PATH刷新\n  - PLUGIN_NUM_LIMIT:租户可以创建的插件个数\n  - APICLIENT_FIRST_USE_X_HW_ID_SWITCH:ApiClient是否优先使用x-hw-id校验权限\n  - API_TASK_NUM_LIMIT:租户可以创建的API定时任务个数限制\n  - THROTTLE_LOCAL_SWITCH:是否启用本地流控模式\n  - API_TASK_SWITCH:租户是否支持定时任务\n  - SET_HEADERS_NUM_LIMIT_PER_PLUGIN:租户可以通过插件创建的HTTP头个数限制\n  - LUA_SCRIPT_SWITCH:租户是否允许使用lua_script插件\n  - LUA_SCRIPT_NUM_LIMIT:每个实例可以创建的lua_script类型插件个数限制\n  - SM_DICT_NUM_LIMIT:每个实例可以创建的数据字典个数限制\n  - BM_VPC_INSTANCE_GROUP_NUM_LIMIT:每个实例可以创建的VPC通道后端服务器组个数限制",
+          "type": "string"
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_offset": {
+      "name": "offset",
+      "in": "query",
+      "type": "integer",
+      "description": "偏移量,表示从此偏移量开始查询,偏移量小于0时,自动转换为0",
+      "format": "int64",
+      "default": 0,
+      "x-example": 1
+    },
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    },
+    "apic_limit": {
+      "name": "limit",
+      "in": "query",
+      "type": "integer",
+      "description": "每页显示的条目数量",
+      "format": "int32",
+      "minimum": 1,
+      "maximum": 500,
+      "default": 20,
+      "x-example": 10
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

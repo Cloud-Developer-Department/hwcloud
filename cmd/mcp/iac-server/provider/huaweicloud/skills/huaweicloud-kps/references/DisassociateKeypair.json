@@ -1,0 +1,210 @@
+{
+  "name": "DisassociateKeypair",
+  "summary": "解绑SSH密钥对",
+  "tags": "密钥对任务管理",
+  "productshort": "KPS",
+  "region_id": "cn-south-1",
+  "paths": {
+    "/v3/{project_id}/keypairs/disassociate": {
+      "post": {
+        "tags": [
+          "密钥对任务管理"
+        ],
+        "operationId": "DisassociateKeypair",
+        "summary": "解绑SSH密钥对",
+        "description": "给指定的虚拟机解除绑定SSH密钥对并恢复SSH密码登录。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 64,
+            "required": true,
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "name": "DisassociateKeypairRequestBody",
+            "in": "body",
+            "description": "解绑密钥对消息体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DisassociateKeypairRequestBody"
+            }
+          }
+        ],
+        "x-request-examples-1": {
+          "server": {
+            "id": "d76baba7-ef09-40a2-87ff-3eafec0696e7",
+            "auth": {
+              "type": "keypair",
+              "key": "-----BEGINRSAPRIVATEKEY-----\nM..."
+            }
+          }
+        },
+        "x-request-examples-2": {
+          "server": {
+            "id": "x76baba7-ef09-40a2-87ff-3eafec0696e7"
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/TaskResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "task_id": "aee8d2fe-5484-4753-9177-5a38dc15546c"
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "KPS.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "x-order": 1
+      }
+    }
+  },
+  "definitions": {
+    "TaskResponseBody": {
+      "description": "任务响应。",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "任务下发成功返回的ID。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "server_id": {
+          "type": "string",
+          "description": "绑定的虚拟机id。",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "description": "任务下发的状态。SUCCESS或FAILED。",
+          "enum": [
+            "SUCCESS",
+            "FAILED"
+          ]
+        },
+        "error_code": {
+          "type": "string",
+          "description": "任务下发失败返回的错误码。",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "任务下发失败返回的错误信息。",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "Auth": {
+      "description": "可选字段,鉴权认证类型。替换时需要该参数,重置时不需要该参数。",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "取值为枚举类型。password或keypair。",
+          "enum": [
+            "password",
+            "keypair"
+          ]
+        },
+        "key": {
+          "type": "string",
+          "description": "- type为枚举值password时,key表示密码;\n- type为枚举值keypair时,key表示私钥;",
+          "minLength": 0,
+          "maxLength": 65535
+        }
+      }
+    },
+    "DisassociateKeypairRequestBody": {
+      "required": [
+        "server"
+      ],
+      "description": "解绑密钥对描述消息体",
+      "properties": {
+        "server": {
+          "$ref": "#/definitions/DisassociateEcsServerInfo"
+        }
+      }
+    },
+    "DisassociateEcsServerInfo": {
+      "required": [
+        "id"
+      ],
+      "description": "需要绑定密钥对的虚拟机信息。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "需要绑定(替换或重置)SSH密钥对的虚拟机id",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "auth": {
+          "$ref": "#/definitions/Auth"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "kms.cn-south-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

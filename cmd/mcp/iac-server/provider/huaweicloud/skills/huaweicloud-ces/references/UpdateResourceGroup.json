@@ -1,0 +1,408 @@
+{
+  "name": "UpdateResourceGroup",
+  "summary": "修改资源分组",
+  "tags": "资源分组",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/resource-groups/{group_id}": {
+      "put": {
+        "tags": [
+          "资源分组"
+        ],
+        "summary": "修改资源分组",
+        "description": "修改资源分组",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-version": "v2",
+        "x-order": 3,
+        "operationId": "UpdateResourceGroup",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "type": "string",
+            "required": true,
+            "description": "租户Token",
+            "minLength": 1,
+            "maxLength": 16384
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "**参数解释**\n资源分组ID。\n**约束限制**\n不涉及。\n**取值范围**\n以\"rg\"开头,后跟22位由字母或数字组成的字符串。\n**默认取值**\n不涉及。",
+            "required": true,
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 24
+          },
+          {
+            "name": "UpdateResourceGroupRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "资源分组修改请求体",
+            "schema": {
+              "$ref": "#/definitions/PutResourceGroupReq"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "参数校验失败",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "403": {
+            "description": "认证鉴权失败",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "404": {
+            "description": "资源不存在",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "500": {
+            "description": "系统内部错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          }
+        },
+        "x-request-examples-description-1": "修改名称为rg_test的资源分组。",
+        "x-request-examples-1": {
+          "group_name": "rg_test",
+          "tags": [
+            {
+              "key": "key1",
+              "value": "value1"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResourceGroupTagRelation": {
+      "type": "object",
+      "description": "**参数解释**\n标签的匹配规则\n**约束限制**\n不涉及",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/definitions/TMSKey"
+        },
+        "operator": {
+          "type": "string",
+          "description": "**参数解释**\ntag操作符,含义是标签key与value的关系\n**约束限制**\n不涉及\n**取值范围**\n- include: 表示包含\n- prefix: 表示前缀\n- suffix: 表示后缀\n- notInclude: 表示不包含\n- equal: 表示相等,当operator为equal,value为空字符串时表示为全部\n- all: 表示全部\n**默认取值**\n不涉及",
+          "enum": [
+            "include",
+            "prefix",
+            "suffix",
+            "notInclude",
+            "equal",
+            "all"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/TMSValue"
+        }
+      }
+    },
+    "TMSKey": {
+      "type": "string",
+      "description": "**参数解释**\nTMS标签键规范\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,128]个字符\n**默认取值**\n不涉及",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^((?!\\s)(?!_sys_)[\\p{L}\\p{Z}\\p{N}_.:=+\\-@]*)(?<!\\s)$"
+    },
+    "CombRelation": {
+      "required": [
+        "logical_operator",
+        "conditions"
+      ],
+      "description": "**参数解释**\n组合匹配参数。\n**约束限制**\n不涉及。",
+      "properties": {
+        "logical_operator": {
+          "type": "string",
+          "description": "**参数解释**\n逻辑运算符。\n**约束限制**\n不涉及。\n**取值范围**\n- ALL: 所有条件匹配成功。\n- ANY: 任意条件匹配成功。\n**默认取值**\n不涉及。",
+          "enum": [
+            "ALL",
+            "ANY"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "description": "**参数解释**\n组合匹配资源分组的匹配条件。\n**约束限制**\n不超过50个条件。",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        }
+      }
+    },
+    "EnterpriseProjectIdAndTags": {
+      "type": "object",
+      "description": "**参数解释**\n企业项目Id或标签信息\n**约束限制**\n不涉及",
+      "properties": {
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "**参数解释**\n企业项目ID\n**约束限制**\n不涉及\n**取值范围**\n由字母、数字、_和-组成,长度为[1,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^([a-z]|[A-Z]|[0-9]|_|-)+$"
+        },
+        "tag": {
+          "$ref": "#/definitions/ResourceGroupTagRelation"
+        }
+      }
+    },
+    "GoAPIErrorResponseV2": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "ces.0001",
+          "description": "请求异常内部业务状态码",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "the request format is invalid",
+          "description": "请求异常信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "request_id": {
+          "type": "string",
+          "example": "txnEntry-DESKTOP-4LPFH08.txnId-466541d0-f1a6-429b-b747-98d4991671c1.ts-1637909316688.c-95",
+          "description": "请求ID",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "ResourceNameItem": {
+      "description": "资源名称",
+      "required": [
+        "operator"
+      ],
+      "properties": {
+        "resource_name": {
+          "type": "string",
+          "description": "**参数解释**\n资源名称条件值\n**约束限制**\n不涉及\n**取值范围**\n长度[0,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "operator": {
+          "type": "string",
+          "description": "**参数解释**\n实例操作符,含义是真实资源的名称与资源名称条件值的运算关系。\n**约束限制**\n不涉及\n**取值范围**\n- include: 表示包含\n- prefix: 表示前缀\n- suffix: 表示后缀\n- notInclude: 表示不包含\n- equal: 表示相等\n- all: 表示全部\n**默认取值**\n不涉及",
+          "enum": [
+            "include",
+            "prefix",
+            "suffix",
+            "notInclude",
+            "equal",
+            "all"
+          ]
+        },
+        "resource_name_is_ignore_case": {
+          "type": "boolean",
+          "description": "**参数解释**\n资源名称忽略大小写\n**约束限制**\n不涉及\n**取值范围**\n- true: 名称忽略大小写\n- false: 名称不忽略大小写\n**默认取值**\nfalse"
+        }
+      }
+    },
+    "PutResourceGroupReq": {
+      "type": "object",
+      "description": "**参数解释**\n资源分组修改请求体",
+      "required": [
+        "group_name"
+      ],
+      "properties": {
+        "group_name": {
+          "type": "string",
+          "description": "**参数解释**\n资源分组名称。\n**约束限制**\n不涉及。\n**取值范围**\n包含字母、数字、_、-或汉字,长度为[1,128]个字符。\n**默认取值**\n不涉及。",
+          "example": "test",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^([一-鿿]|[a-z]|[A-Z]|[0-9]|_|-){1,128}$"
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "description": "**参数解释**\n标签动态匹配时的关联标签。\n**约束限制**\ntype为TAG时必传,不超过50个标签。",
+          "items": {
+            "$ref": "#/definitions/ResourceGroupTagRelation"
+          }
+        },
+        "enterprise_project_id_and_tags": {
+          "type": "array",
+          "description": "**参数解释**\n资源匹配规则为组合匹配时传入的参数,已废弃。\n**约束限制**\ntype为COMB时传入,不超过50个条件。",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/EnterpriseProjectIdAndTags"
+          }
+        },
+        "extend_relation_ids": {
+          "type": "array",
+          "description": "**参数解释**\n匹配企业项目时关联的企业项目ID。\n**约束限制**\ntype为EPS时必传,不超过50个企业项目。",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/ExtendRelationId"
+          }
+        },
+        "instances": {
+          "type": "array",
+          "description": "**参数解释**\n实例名称匹配参数。\n**约束限制**\ntype为NAME时必传,不超过50个实例。",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/Instance"
+          }
+        },
+        "product_names": {
+          "type": "string",
+          "description": "**参数解释**\n资源层级为云产品时的云产品名称\n**约束限制**\n不涉及。\n**取值范围**\n一般由\"服务命名空间,服务首层维度名称\"组成,如\"SYS.ECS,instance_id\"。多个云产品则用“;”隔开,如\"SERVICE.BMS,instance_id;SYS.ECS,instance_id\"。不超过10240个字符。\n**默认取值**\n不涉及。",
+          "minLength": 0,
+          "maxLength": 10240
+        },
+        "comb_relation": {
+          "$ref": "#/definitions/CombRelation"
+        }
+      }
+    },
+    "ExtendRelationId": {
+      "type": "string",
+      "description": "**参数解释**\n关联企业项目ID。\n**约束限制**\n不涉及。\n**取值范围**\n只能包含字母、数字、和-,长度为36个字符;或者为0,代表默认企业项目\n**默认取值**\n不涉及。",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^([a-z]|[A-Z]|[0-9]|_|-)+$"
+    },
+    "Condition": {
+      "type": "object",
+      "description": "**参数解释**\n匹配条件\n**约束限制**\n不涉及",
+      "properties": {
+        "enterprise_project_id": {
+          "description": "**参数解释**\n企业项目ID\n**约束限制**\n不涉及\n**取值范围**\n由数字、字母和-组成,或者为0(默认企业项目ID)\n**默认取值**\n不涉及",
+          "type": "string",
+          "pattern": "^((([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12})|0)$"
+        },
+        "instance_name": {
+          "$ref": "#/definitions/CombResourceName"
+        },
+        "tag": {
+          "$ref": "#/definitions/ResourceGroupTagRelation"
+        }
+      }
+    },
+    "TMSValue": {
+      "type": "string",
+      "description": "**参数解释**\nTMS标签值规范\n**约束限制**\n不涉及\n**取值范围**\n长度为[0,255]个字符\n**默认取值**\n不涉及",
+      "minLength": 0,
+      "maxLength": 255,
+      "pattern": "^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$"
+    },
+    "CombResourceName": {
+      "description": "资源名称匹配规则",
+      "required": [
+        "operator"
+      ],
+      "properties": {
+        "resource_name": {
+          "type": "string",
+          "description": "**参数解释**\n资源名称条件值\n**约束限制**\n不涉及\n**取值范围**\n长度[1,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operator": {
+          "type": "string",
+          "description": "**参数解释**\n实例操作符,含义是真实资源的名称与资源名称条件值的运算关系。\n**约束限制**\n不涉及\n**取值范围**\n- include: 表示包含\n- prefix: 表示前缀\n- suffix: 表示后缀\n- notInclude: 表示不包含\n- equal: 表示相等\n**默认取值**\n不涉及",
+          "enum": [
+            "include",
+            "prefix",
+            "suffix",
+            "notInclude",
+            "equal"
+          ]
+        },
+        "resource_name_is_ignore_case": {
+          "type": "boolean",
+          "description": "**参数解释**\n资源名称忽略大小写\n**约束限制**\n不涉及\n**取值范围**\n- true: 名称忽略大小写\n- false: 名称不忽略大小写\n**默认取值**\nfalse"
+        }
+      }
+    },
+    "Instance": {
+      "type": "object",
+      "description": "**参数解释**\n资源名称匹配参数\n**约束限制**\n不涉及",
+      "required": [
+        "product_name",
+        "logical_operator",
+        "instance_names"
+      ],
+      "properties": {
+        "product_name": {
+          "type": "string",
+          "description": "**参数解释**\n云产品名称\n**约束限制**\n不涉及\n**取值范围**\n长度为[0,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "logical_operator": {
+          "type": "string",
+          "description": "**参数解释**\n逻辑运算符\n**约束限制**\n不涉及\n**取值范围**\n- ALL: 所有条件匹配成功\n- ANY: 任意条件匹配成功\n**默认取值**\n不涉及",
+          "enum": [
+            "ALL",
+            "ANY"
+          ]
+        },
+        "instance_names": {
+          "type": "array",
+          "description": "**参数解释**\n资源名称匹配参数数组\n**约束限制**\n不超过10个名称",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/ResourceNameItem"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符串的长度必须在 1 到 64个字符之间。\n**默认取值**:\n不涉及。",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "put",
+  "uri": null
+}

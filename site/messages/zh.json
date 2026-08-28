@@ -1,0 +1,1000 @@
+{
+  "nav": {
+    "docs": "文档",
+    "github": "GitHub",
+    "changelog": "更新日志"
+  },
+  "localeSwitch": {
+    "en": "EN",
+    "zh": "中文",
+    "label": "切换语言"
+  },
+  "landing": {
+    "tagline": "可插拔的 Go 多智能体 AI 框架",
+    "subtitle": "每个组件都是接口——Model、Memory、Tools、Guards、Approver、Hooks、Observer——由 7-stage 运行时组装。三种多智能体模式（子智能体委派、transfer_to 团队交接、DAG 编排），ACP v1、分层治理、WASM 插件、IM 渠道（飞书/微信/企微）。Agent 是纯配置；运行时才是执行体。",
+    "cta": {
+      "github": "在 GitHub 查看",
+      "start": "开始使用"
+    },
+    "mentalModel": "Agent 是纯配置。kernel.Runtime 是 7-stage 主循环，通过依赖注入串联独立顶层包。多智能体有三种形态：SubAgent（同步 as-tool 委派）、Team（transfer_to_* 控制权交接）、Orchestrate（LLM 规划 DAG、并行执行）。IM 渠道是进程级守护——agent 逻辑不变，渠道只是另一种传输。",
+    "heroStack": [
+      "Go 1.26",
+      "ACP v1",
+      "WASM",
+      "wazero"
+    ],
+    "terminal": {
+      "title": "hwcloud — zsh",
+      "lines": [
+        {
+          "type": "cmd",
+          "text": "hwcloud serve --acp"
+        },
+        {
+          "type": "ok",
+          "text": "ACP v1 服务就绪（stdio，VSCode/Zed）"
+        },
+        {
+          "type": "cmd",
+          "text": "hwcloud run \"介绍一下你自己\""
+        },
+        {
+          "type": "out",
+          "text": "→ 我是 hwcloud，一个可插拔的多智能体框架..."
+        },
+        {
+          "type": "ok",
+          "text": "完成（1 轮，312 token）"
+        },
+        {
+          "type": "cmd",
+          "text": "hwcloud serve --channel feishu"
+        },
+        {
+          "type": "out",
+          "text": "二维码 → 扫码创建机器人"
+        },
+        {
+          "type": "ok",
+          "text": "飞书已连接（WebSocket，卡片流式）"
+        },
+        {
+          "type": "comment",
+          "text": "# 也可：--channel wechat（长轮询）/ wecom（流式）"
+        }
+      ]
+    },
+    "featuresTitle": "核心特性",
+    "features": {
+      "pluggable": {
+        "title": "全可插拔接口",
+        "desc": "Model、Memory、Tools、Guards、Approver、Hooks、Observer——每个组件都是经 Deps 注入的接口。Agent 只持有配置；运行时负责串联。"
+      },
+      "multiagent": {
+        "title": "三种多智能体模式",
+        "desc": "SubAgent（同步 as-tool 委派）、Team（transfer_to_* 控制权交接，带环检测）、Orchestrate（LLM 规划 DAG、并行批执行、auto-replan）。可组合——一个 agent 可同时在 Team 和 Plan 步骤里。"
+      },
+      "acp": {
+        "title": "ACP v1 + IM 渠道",
+        "desc": "ACP v1 over stdio（VSCode/Zed/opencode）。另有三种 IM 传输：飞书（WebSocket 卡片、流式、审批按钮）、微信（ilinkai 长轮询、一次性回复）、企微（原生流式）。进程级守护。"
+      },
+      "runtime": {
+        "title": "7-stage 运行时",
+        "desc": "guard.in → memory.fetch → prompt.build → model.call → guard.out → tool.execute → memory.append。每个阶段发出 observe 事件；policy + execution 合并在 tool.execute 内。"
+      },
+      "governance": {
+        "title": "分层治理",
+        "desc": "rules → safety → approval memory → human。首匹配规则、只读自动放行、多 key 全命中记忆、fail-closed 人工层。Plan 模式移除执行工具，安全探索。"
+      },
+      "plugins": {
+        "title": "WASM 插件 + 沙箱",
+        "desc": "6 种插件类型 + cron 定时任务，28 个 host 导出，wazero 运行时，Rust PDK。OS 原生沙箱（Linux bwrap / macOS Seatbelt）约束 shell、文件、网络。"
+      }
+    },
+    "archTeaserTitle": "架构一览",
+    "archTeaserDesc": "Agent 是纯配置；kernel.Runtime 是跑 7-stage 循环的薄编排层。真正的子系统——context、execution、governance、session、provider、eventbus——是独立顶层包，以接口注入，而非 kernel 的子目录。",
+    "archReadMore": "阅读完整架构 →",
+    "arch": {
+      "app": {
+        "title": "Application",
+        "sub": "rest · acp · cmd/cli",
+        "note": "组装 Agent 配置 + Deps"
+      },
+      "new": "New(*agent.Agent, Deps)",
+      "runtime": {
+        "title": "kernel.Runtime",
+        "sub": "7-stage 主循环",
+        "note": "薄编排层"
+      },
+      "loopLabel": "主循环（observer.go 阶段）",
+      "stages": [
+        "guard.in",
+        "memory.fetch",
+        "prompt.build",
+        "model.call",
+        "guard.out",
+        "tool.execute",
+        "memory.append"
+      ],
+      "deps": "Deps 依赖注入——独立顶层包",
+      "pkg": {
+        "context": "context/ — AgentContext + 知识",
+        "execution": "execution/ — 工具任务、重试、流",
+        "governance": "governance/ — rules→safety→memory→human",
+        "session": "session/ — 存储 + 压缩",
+        "provider": "provider/ — skill | resource",
+        "eventbus": "eventbus/ — 审计事件"
+      },
+      "pluggable": "全部接口注入",
+      "iface": {
+        "title": "Model · Tools · MCP",
+        "sub": "可插拔",
+        "note": "按 Agent 配置替换"
+      },
+      "transport": "ACP · REST · CLI · IM 渠道",
+      "out": {
+        "title": "传输层",
+        "sub": "stdio · HTTP · WebSocket",
+        "note": "ACP v1 / REST+SSE / 飞书 / 微信 / 企微"
+      },
+      "deliver": "执行 · 守卫 · 审批 → 流式 + 持久化"
+    },
+    "quickstartTitle": "快速开始",
+    "prereq": "前置条件：Go 1.26+。",
+    "buildTitle": "CLI",
+    "configTitle": "配置",
+    "firstRunTitle": "首次运行",
+    "firstRun": [
+      "构建 CLI：go build -o hwcloud ./cmd/cli/",
+      "创建 ~/.hwcloud/settings.json，配置 provider（api_key + models）。",
+      "可选：在 ~/.hwcloud/profile/ 放 AGENTS.md（工作规则）和 SOUL.md（人设）。",
+      "运行 ./hwcloud serve --acp（ACP 客户端，VSCode/Zed）或 --port 8080（REST + SSE）。",
+      "开关能力：--guard on、--approver on、--sandbox（OS 级沙箱）。",
+      "把 .wasm 文件放进 ~/.hwcloud/plugins/——按类型自动加载。"
+    ],
+    "iacCard": {
+      "title": "IAC MCP Server",
+      "desc": "通过 MCP 协议在 AI 对话中部署云基础设施 — 规划、规格、估价、部署、销毁，全程自然语言。"
+    },
+    "tuiTitle": "TUI",
+    "tuiDesc": "想要终端界面而不是裸 CLI？hwcloud 还自带一个 Rust ratatui TUI 客户端（ACP over stdio）——构建后可指向任意 ACP 后端。"
+  },
+  "docs": {
+    "sidebarTitle": "hwcloud",
+    "sidebarVersion": "文档",
+    "groupOverview": "概览",
+    "groupReference": "参考",
+    "architecture": "架构",
+    "concepts": "核心概念",
+    "iac-server": "IAC MCP Server",
+    "plugins": "插件",
+    "changelog": "更新日志",
+    "arch": {
+      "title": "架构",
+      "intro": "Agent 是纯配置；kernel.Runtime 是跑 7-stage 主循环的薄编排层。真正的子系统是经 Deps 串联的独立顶层包——不是 kernel 的内部模块。",
+      "layersTitle": "分层",
+      "layers": [
+        {
+          "title": "Agent 是纯配置",
+          "desc": "agent.Agent 只含字段：SystemPrompts、Model、Prompt、InGuard、OutGuard、MaxTurns、MaxWorkingTokens、MaxCompressedTokens、SubAgents。无执行方法。New(*agent.Agent, Deps) 分离配置与运行时。",
+          "chips": [
+            "纯配置",
+            "DI",
+            "无执行"
+          ],
+          "example": "// agent/agent.go\ntype Agent struct {\n    SystemPrompts []string\n    Model    hwcloud.Model      // 接口\n    Prompt   hwcloud.PromptBuilder\n    InGuard  governance.InputGuard\n    OutGuard governance.OutputGuard\n    SubAgents []SubAgent\n    // ...MaxTurns, token 预算\n}"
+        },
+        {
+          "title": "7-stage 主循环",
+          "desc": "observer.go 声明 7 个 stage 常量。run() 按此顺序发出 observe 事件；policy + execution 合并在 executeTools 内（无独立 stage）。memory.append 在每条提交的消息后触发。",
+          "chips": [
+            "observe",
+            "每条提交",
+            "7-stages"
+          ],
+          "example": "// observer.go\nStageGuardIn  = \"guard.in\"\nStageMemoryFetch = \"memory.fetch\"\nStagePromptBuild = \"prompt.build\"\nStageModelCall   = \"model.call\"\nStageGuardOut    = \"guard.out\"\nStageToolExecute = \"tool.execute\"\nStageMemoryAppend = \"memory.append\""
+        },
+        {
+          "title": "Deps 注入的顶层包",
+          "desc": "context、execution、governance、session、provider、eventbus 是独立包，不是 kernel 的子目录。Runtime 通过 Deps 以接口字段持有它们。kernel 是薄编排者，不是实现。",
+          "chips": [
+            "接口驱动",
+            "可插拔",
+            "薄编排"
+          ],
+          "example": "// kernel/runtime.go\ntype Runtime struct {\n    cfg  *agent.Agent\n    deps Deps\n    execution execution.Runtime   // 注入\n    context   ctxpkg.Runtime      // 注入\n    // SessionStore, Policy, HumanApprover, ...\n}"
+        },
+        {
+          "title": "治理策略链",
+          "desc": "Engine.Evaluate 是一个内联方法：rules（首匹配 glob）→ safety（只读工具自动放行）→ memory（多 key 全命中）→ human（fail-closed）。Shell 命令分解为原子 + 文件访问；全部命中才跳过审批。",
+          "chips": [
+            "分层",
+            "fail-closed",
+            "多key全命中"
+          ],
+          "example": "// governance/policy.go Evaluate()\n1. rules    — 首匹配 Rule 生效（Allow/Deny/Ask）\n2. safety   — 只读工具（read/ls/grep/...）→ Allow\n3. memory   — Recall；多 key 工具需全命中\n4. human    — nil approver → Deny（fail closed）"
+        },
+        {
+          "title": "两层记忆 + 知识层",
+          "desc": "Working：token 驱动裁剪（窗口 70% 或 MaxWorkingTokens）。Compressed：LLM 增量摘要（8 段格式），溢出自动触发或 /compact 手动。SessionStore 消息永不删除。独立的 MemoryProvider 持久化知识（preference/fact/lesson），向量 + 关键词召回——self-evolution，不是消息归档。",
+          "chips": [
+            "token驱动",
+            "LLM摘要",
+            "永不删除",
+            "向量召回"
+          ],
+          "example": "// kernel/prepare.go — working 裁剪\nbudget := workingTokenBudget()  // 窗口 70%\noverflow := scanTokensBottomUp(msgs)\nreturn msgs[overflow:], ci, nil\n\n// ContextUsage() → (summary, working, window)  // 两层"
+        },
+        {
+          "title": "ToolResult 落盘",
+          "desc": "DefaultResultPolicy：当工具结果的 token 数超过模型上下文窗口的 5%，内容写入 /tmp/hwcloud/sess-<id>/artifact-<hex>.txt（长行 32K rune 换行）。上下文内结果替换为指针；置 FileRef + Truncated 标志。",
+          "chips": [
+            "5%阈值",
+            "落盘",
+            "FileRef"
+          ],
+          "example": "// result.go DefaultResultPolicy.Apply()\nthreshold := cw * 5 / 100\nif CountTokens(modelID, content) > threshold {\n    path := filepath.Join(ArtifactRoot(), \"sess-\"+id,\n        \"artifact-\"+randHex(8)+\".txt\")\n    // 写入换行内容，置 Truncated + FileRef\n}"
+        }
+      ],
+      "stackTitle": "技术栈",
+      "stack": [
+        {
+          "layer": "语言",
+          "stack": "Go 1.26"
+        },
+        {
+          "layer": "运行时",
+          "stack": "kernel.Runtime — 7-stage 主循环，Deps DI"
+        },
+        {
+          "layer": "协议",
+          "stack": "ACP v1 (JSON-RPC 2.0), MCP"
+        },
+        {
+          "layer": "插件",
+          "stack": "wazero WASM, Rust PDK (hwcloud-pdk)"
+        },
+        {
+          "layer": "存储",
+          "stack": "SQLite + FTS5, 文件存储"
+        },
+        {
+          "layer": "沙箱",
+          "stack": "Linux bwrap, macOS Seatbelt"
+        },
+        {
+          "layer": "分词器",
+          "stack": "tiktoken（模型感知，大文本采样估算）"
+        },
+        {
+          "layer": "嵌入",
+          "stack": "BGE（离线 ONNX Runtime），OpenAI 兼容 API"
+        }
+      ]
+    },
+    "concept": {
+      "title": "核心概念",
+      "intro": "hwcloud 的词汇表——Agent 是纯配置；运行时是执行体；一切可插拔的皆为接口。",
+      "groups": [
+        {
+          "group": "配置",
+          "items": [
+            {
+              "name": "Agent",
+              "desc": "纯配置：系统提示词、模型、守卫、子智能体、token 预算。无执行方法。通过 New(*agent.Agent, Deps) 组装进 Runtime。",
+              "chips": [
+                "纯配置",
+                "无执行"
+              ],
+              "example": "agent := agent.New(\n    agent.WithModel(model),\n    agent.WithSystemPrompts(\"你是...\"),\n    agent.WithSubAgents(...),\n)\nrt := kernel.New(agent, deps)"
+            },
+            {
+              "name": "SubAgent",
+              "desc": "注册为普通工具（以 agent 名命名，如 \"researcher\"）的子智能体。父智能体通过工具调用委派子任务；子智能体跑完整 agent 循环，隔离记忆（无 SessionStore）、过滤工具、继承守卫，返回 FinalOutput。同步——父阻塞等子完成。不是 transfer_to_*。",
+              "chips": [
+                "as-tool",
+                "同步",
+                "隔离记忆"
+              ],
+              "example": "// kernel/as_tool.go\n// sa.Name → 工具名（如 \"researcher\"）\n// 父调用 researcher(task) → 阻塞\n// 子：自己的 prompt，无 SessionStore\n// 返回 FinalOutput 字符串"
+            },
+            {
+              "name": "AGENTS.md / SOUL.md",
+              "desc": "静态 context profile。AGENTS.md = 工作规则；SOUL.md = 人设与限制。用户级（~/.hwcloud/profile/）+ 项目级（$(pwd)/）解析；项目覆盖用户。",
+              "chips": [
+                "静态",
+                "profile",
+                "覆盖"
+              ],
+              "example": "~/.hwcloud/profile/AGENTS.md   # 用户规则\n./AGENTS.md                      # 项目规则（优先）"
+            }
+          ]
+        },
+        {
+          "group": "多智能体",
+          "items": [
+            {
+              "name": "SubAgent（as-tool）",
+              "desc": "单智能体委派：父 agent 把子 agent 注册为普通工具，调用它处理子任务。子 agent 跑完整 agent 循环，隔离记忆（无 SessionStore）、过滤工具、继承守卫，返回输出。同步——父阻塞等子完成。工具名是 agent 名，不是 transfer_to_*。",
+              "chips": [
+                "委派",
+                "同步",
+                "隔离"
+              ],
+              "example": "// kernel/as_tool.go + subagent.go\n// 父调用 researcher(task) → 阻塞\n// 子：自己的 prompt，无 SessionStore\n// 返回 FinalOutput → 工具结果"
+            },
+            {
+              "name": "Team（transfer_to_*）",
+              "desc": "控制权交接：agent 顺序链式运行，一次一个。当 agent 调用 transfer_to_X（EndTurn 工具），控制权转给 agent X——原 agent 的轮次结束。每 agent 有私有记忆（工具调用/结果）+ 共享团队记忆。环检测：ping-pong（A-B-A-B）和频率（≥3 次）。transfer_to_* 是 Team 专属——不是 SubAgent，不是 Orchestrate。",
+              "chips": [
+                "交接",
+                "EndTurn",
+                "私有+共享记忆",
+                "环检测"
+              ],
+              "example": "// agent/team.go\n// handoffTool: transfer_to_<name>, EndTurn=true\n// teamRunner: 顺序链, maxHandoffs=10\n// REST: POST /api/team/... (rest/team.go)"
+            },
+            {
+              "name": "Orchestrate（DAG）",
+              "desc": "规划再执行：LLM Planner 在执行前一次性把目标分解成 DAG。Executor 用拓扑序 + 并行批（errgroup，最多 8）运行步骤。运行时是确定性的——除失败时 auto-replan（重建受影响子树）和步骤摘要外无 LLM。每步骤独立会话；上游结果以摘要共享。",
+              "chips": [
+                "DAG",
+                "并行",
+                "auto-replan",
+                "确定性运行时"
+              ],
+              "example": "// orchestrate/orchestrate.go + executor.go\n// Planner.Plan() → PlanDef (DAG)\n// executor: Kahn 拓扑排序 + errgroup 批\n// REST: /generate(SSE) /execute /replan"
+            }
+          ]
+        },
+        {
+          "group": "运行时",
+          "items": [
+            {
+              "name": "Runtime",
+              "desc": "执行体。跑 7-stage 循环，持有 Deps 注入的子系统，按会话管理工具/审批器/记忆。由 kernel.New(agent, deps) 创建。",
+              "chips": [
+                "7-stage",
+                "编排者",
+                "Deps"
+              ],
+              "example": "// kernel/runtime.go\nrt := kernel.New(agent, deps)\nrt.RunStream(ctx, session, ...)"
+            },
+            {
+              "name": "AgentContext",
+              "desc": "每个 turn 0 由 context.Runtime.Build() 装配：系统提示词 + 召回知识 + working 记忆 + 压缩摘要。后续 turn 用新消息更新。",
+              "chips": [
+                "每turn",
+                "知识召回"
+              ],
+              "example": "// context/provider.go\nac := rt.context.Build(session)\n// system + skills + memory + working + summary"
+            },
+            {
+              "name": "Session",
+              "desc": "三种模式：auto（工具立即执行）、manual（每个非只读工具需审批）、plan（执行前 plan_create/plan_update）。会话状态在 SessionStore。",
+              "chips": [
+                "auto",
+                "manual",
+                "plan"
+              ],
+              "example": "./hwcloud serve --acp\n# 模式经 /mode 或 session/set_mode 设置\n# settings.json 的 default_mode"
+            }
+          ]
+        },
+        {
+          "group": "治理",
+          "items": [
+            {
+              "name": "Policy",
+              "desc": "分层引擎：rules → safety → memory → human。rules = 首匹配 glob；safety = 只读自动放行；memory = 多 key 全命中；human = fail-closed。",
+              "chips": [
+                "分层",
+                "Evaluate"
+              ],
+              "example": "// governance/policy.go\nd, err := engine.Evaluate(ctx, call, def, session)\n// Allow | Deny | Ask(→human)"
+            },
+            {
+              "name": "ApprovalMemory",
+              "desc": "两个实现：SessionApprovalMemory（进程内）和 PersistentApprovalMemory（存储后端，跨重启）。Remember/Recall 按工具 + 参数为 key；shell 用多 key（原子 + 文件）。",
+              "chips": [
+                "session",
+                "persistent",
+                "多key"
+              ],
+              "example": "// governance/memory.go + persistent_memory.go\ntype ApprovalMemory interface {\n    Remember(ctx, sessionID, key, Decision) error\n    Recall(ctx, sessionID, key) (Decision, bool)\n}"
+            },
+            {
+              "name": "Decision",
+              "desc": "策略裁决：Allow、Deny（带原因）、或 Ask（路由到人工）。携带 ModifiedArgs，使人工可以编辑参数后批准。",
+              "chips": [
+                "Allow",
+                "Deny",
+                "Ask",
+                "ModifiedArgs"
+              ],
+              "example": "type Decision struct {\n    Action       ApprovalAction  // allow|deny|ask\n    Reason       string\n    ModifiedArgs json.RawMessage\n}"
+            }
+          ]
+        },
+        {
+          "group": "记忆与知识",
+          "items": [
+            {
+              "name": "Working memory",
+              "desc": "最近消息窗口，按 token 数裁剪。预算 = MaxWorkingTokens 或模型上下文窗口的 70%。溢出从底部裁。",
+              "chips": [
+                "token驱动",
+                "70%窗口"
+              ],
+              "example": "// kernel/prepare.go\nbudget := workingTokenBudget()\nreturn msgs[overflow:], ci, nil"
+            },
+            {
+              "name": "Compressed memory",
+              "desc": "LLM 生成的增量摘要，8 段格式（Claude Code 格式）。working 溢出时自动触发，或 /compact 手动。受 MaxCompressedTokens 约束。",
+              "chips": [
+                "LLM摘要",
+                "8段",
+                "/compact"
+              ],
+              "example": "// summarizer/llm.go\nsummary, err := compressor.Summarize(ctx, msgs)\n// 作为压缩段注入 prompt"
+            },
+            {
+              "name": "MemoryProvider",
+              "desc": "独立的持久知识层——不是消息归档。存储 preference/fact/lesson 条目，向量 + 关键词召回。LLM 抽取器把完成的 run 转为知识（self-evolution）。可插拔：SQLite（向量）或 OpenViking（远程）。",
+              "chips": [
+                "preference",
+                "fact",
+                "lesson",
+                "向量",
+                "self-evolution"
+              ],
+              "example": "// context/provider.go\ntype MemoryProvider interface {\n    Search(ctx, query) ([]Knowledge, error)\n    Remember(ctx, Knowledge) error\n}\n// kinds: preference | fact | lesson"
+            }
+          ]
+        },
+        {
+          "group": "扩展",
+          "items": [
+            {
+              "name": "WASM Plugin",
+              "desc": "6 种类型：agent:tools、agent:observers（agent 侧）；cli:settings、cli:commands、cli:observers、cli:http（CLI 侧）。任一可声明 cron 定时任务。wazero 运行时，Rust PDK，28 个 host 导出。",
+              "chips": [
+                "wasm",
+                "6类型",
+                "cron",
+                "wazero"
+              ],
+              "example": "// settings.json\n{ \"plugins\": [\"~/.hwcloud/plugins\"] }\n// 扫描 *.wasm，按 metadata 类型加载"
+            },
+            {
+              "name": "MCP",
+              "desc": "Model Context Protocol 客户端——把外部工具（浏览器、IaC 等）导入智能体的工具集。每次工具调用渲染为普通工具结果。",
+              "chips": [
+                "外部工具",
+                "stdio/http"
+              ],
+              "example": "// settings.json\n\"mcp_servers\": {\n  \"browser\": { \"command\": \"npx\",\n    \"args\": [\"-y\",\"@anthropic/mcp-server-browser-tools\"] }\n}"
+            },
+            {
+              "name": "Hook / Observer",
+              "desc": "RunHooks：start/end 回调共享不透明状态（OTEL span 嵌套，slog 记录时长）。Observer：7 个阶段每个的 enter/leave——可中止 run。",
+              "chips": [
+                "RunHooks",
+                "Observer",
+                "7-stages"
+              ],
+              "example": "// observer.go\nrt.observe(ctx, StageModelCall, \"enter\",\n    map[string]any{\"model\": req.Model}, time.Time{}, nil)"
+            },
+            {
+              "name": "IM 渠道",
+              "desc": "三种平台，统一 channel.Channel 接口。飞书：WebSocket + Schema 2.0 交互卡片（折叠面板、工具调用卡片、审批按钮、/mode），patch 流式。微信：ilinkai HTTP 长轮询，纯文本一次性回复（无卡片 API），CDN 媒体。企微：WebSocket + 原生流式（消息原地增长），template_card 审批。进程级守护；--channel 或 POST /connect 启动。",
+              "chips": [
+                "飞书",
+                "微信",
+                "企微",
+                "流式"
+              ],
+              "example": "./hwcloud serve --channel feishu\n# 扫码 → 创建机器人，保存凭据\n# 进程级：前端只触发/观察\n# /clear /mode（飞书）slash 命令"
+            },
+            {
+              "name": "Plan 模式",
+              "desc": "三种会话模式之一（auto/manual/plan）。plan 模式下，执行工具（shell/write/terminal）被移除，只留只读工具 + plan_create/exit_plan_mode。agent 探索并分解，然后退出执行。plan_update（标记步骤状态）在所有模式可用。enter_plan_mode/exit_plan_mode 切换工具集。",
+              "chips": [
+                "只读",
+                "plan_create",
+                "exit_plan_mode",
+                "跨模式"
+              ],
+              "example": "// acp/server.go\nenter_plan_mode → 注入 plan_create+exit\nplan 模式: shell/write 移除, 只读保留\nexit_plan_mode → 恢复先前模式"
+            },
+            {
+              "name": "进程管理器",
+              "desc": "跨轮次持久化的后台 shell 进程。每个进程一个目录（stdout.log/stderr.log/exit.code）；输出写磁盘（非 pipe），父进程退出也存活。model 跨轮次读 /proc-<pid>/stdout.log、检查 exit.code。每会话；会话结束 kill 全部。",
+              "chips": [
+                "跨轮次",
+                "磁盘输出",
+                "每会话"
+              ],
+              "example": "// process/manager.go\nCreate(cmd) → dir/<hex-id>/\nSetPID(pid) → 重命名为 proc-<pid>\nmodel 读 proc-<pid>/stdout.log"
+            },
+            {
+              "name": "沙箱",
+              "desc": "OS 原生约束 shell/文件/网络。Linux：bubblewrap（bwrap）——新 mount namespace，系统路径只读，workspace 可写，--die-with-parent；PID namespace 特意不 unshare（让 model 能 kill 进程）。macOS：sandbox-exec + Seatbelt profile。Windows：未实现（unconfined + 警告）。网络隔离可选（--sandbox + network:isolated）。",
+              "chips": [
+                "bwrap",
+                "seatbelt",
+                "namespace",
+                "fail-open"
+              ],
+              "example": "./hwcloud serve --sandbox --port 8080\n# bwrap: --ro-bind /usr, --bind /workspace\n# --unshare-net（若 network=isolated）\n# bwrap 缺失 → unconfined + 警告"
+            }
+          ]
+        }
+      ]
+    },
+    "plugin": {
+      "title": "WASM 插件",
+      "intro": "插件是 WASM 模块（.wasm）。任何能编译到 WASM 的语言都行——Rust、Go、TypeScript、Zig。宿主（wazero）在沙箱环境加载；Rust SDK（hwcloud-pdk）通过 Plugin trait + export! 宏封装 FFI 契约。ABI 足够简单，任何语言都能直接实现。",
+      "typesTitle": "插件类型",
+      "cronNote": "任何插件类型都能在 metadata 中声明 cron 定时任务——宿主向调度器注册，触发时调用 run_scheduled。见下方 cron 细节。",
+      "cronTitle": "Cron 定时任务",
+      "types": [
+        {
+          "name": "agent:tools",
+          "exports": "execute(ptr,len)",
+          "desc": "给智能体添加自定义工具——可像 shell/read/write 一样调用。工具名/描述/参数来自 metadata()。",
+          "chips": [
+            "agent侧",
+            "execute"
+          ]
+        },
+        {
+          "name": "agent:observers",
+          "exports": "run(ptr,len)",
+          "desc": "挂钩智能体 7-stage run 管道（每阶段 enter/leave）。返回 continue 或 abort。",
+          "chips": [
+            "agent侧",
+            "stage-filter"
+          ]
+        },
+        {
+          "name": "cli:settings",
+          "exports": "init(ptr,len)",
+          "desc": "启动时变换 settings.json——合并环境变量、添加 provider、注入配置。",
+          "chips": [
+            "cli侧",
+            "启动"
+          ]
+        },
+        {
+          "name": "cli:commands",
+          "exports": "commands() + run_<name>",
+          "desc": "向 CLI 注册额外 cobra 子命令。每个叶子命令一个 run_<name> 导出。",
+          "chips": [
+            "cli侧",
+            "cobra"
+          ]
+        },
+        {
+          "name": "cli:observers",
+          "exports": "on_startup/on_shutdown/on_command_*",
+          "desc": "监控 CLI 命令生命周期——启动、关闭、每命令 enter/exit。",
+          "chips": [
+            "cli侧",
+            "生命周期"
+          ]
+        },
+        {
+          "name": "cli:http",
+          "exports": "handle_request(ptr,len)",
+          "desc": "注册自定义 HTTP 路由，服于 /api/plugins/<name>/<path>。输入 HttpRequest，返回 HttpResp。",
+          "chips": [
+            "cli侧",
+            "路由"
+          ]
+        }
+      ],
+      "abiTitle": "ABI 契约",
+      "abiDesc": "每个插件导出 alloc/dealloc/metadata（host↔guest 内存 + 类型发现所需）。每种类型再加自己的入口点导出。host↔guest 通信用 packed (ptr,len) u64——高 32 位是 WASM 内存指针，低 32 位是长度。",
+      "abiExports": "# 所有类型必需\nalloc(size: u32) -> u32            # host→guest 内存\ndealloc(ptr: u32)                  # 释放输入/输出缓冲\nmetadata() -> u64                  # packed PluginMeta JSON\n\n# 按类型入口点（packed JSON 进出）\ninit(ptr, len) -> u64              # cli:settings\ncommands() -> u64                  # cli:commands\non_startup() / on_shutdown()       # cli:observers\non_command_start(ptr, len)         # cli:observers\non_command_end(ptr, len)           # cli:observers\nexecute(ptr, len) -> u64           # agent:tools\nrun(ptr, len) -> u64               # agent:observers\nhandle_request(ptr, len) -> u64    # cli:http\nrun_scheduled(ptr, len) -> u64     # 定时任务（任何类型）",
+      "examplesTitle": "PDK 示例（Rust）",
+      "examples": [
+        {
+          "title": "agent:tools — EchoPlugin",
+          "desc": "智能体可调用的工具。plugin_type/name/description/parameters 来自 trait；execute 收到 args JSON。",
+          "code": "#![no_std]\n#![no_main]\nextern crate alloc;\nuse hwcloud_pdk::prelude::*;\nuse hwcloud_pdk::export::Plugin;\n\nstruct EchoPlugin;\nimpl Plugin for EchoPlugin {\n    fn plugin_type() -> &'static str { \"agent:tools\" }\n    fn name() -> &'static str { \"echo\" }\n    fn description() -> &'static str { \"回显输入消息。\" }\n    fn tool_parameters() -> Option<&'static str> {\n        Some(r#\"{\"type\":\"object\",\"properties\":{\"message\":{\"type\":\"string\"}},\"required\":[\"message\"]}\"#)\n    }\n    fn execute(args: &serde_json::Value) -> Result<String, String> {\n        let msg = args.get(\"message\").and_then(|v| v.as_str()).unwrap_or(\"(empty)\");\n        Ok(format!(\"you said: {}\", msg))\n    }\n}\nhwcloud_pdk::export!(EchoPlugin);"
+        },
+        {
+          "title": "agent:observers — LoggerPlugin",
+          "desc": "挂钩每个阶段。stage_filter (\"*\",\"*\") 表示所有阶段、所有相位；observe_stage 返回 continue 或 abort。",
+          "code": "#![no_std]\n#![no_main]\nextern crate alloc;\nuse hwcloud_pdk::prelude::*;\nuse hwcloud_pdk::export::Plugin;\n\nstruct LoggerPlugin;\nimpl Plugin for LoggerPlugin {\n    fn plugin_type() -> &'static str { \"agent:observers\" }\n    fn name() -> &'static str { \"observer_logger\" }\n    fn stage_filter() -> (&'static str, &'static str) { (\"*\", \"*\") }\n\n    fn observe_stage(event: &StageInput) -> StageOutput {\n        host::log_info(&format!(\"stage={} phase={}\", event.name, event.phase));\n        StageOutput { action: String::from(\"continue\"), reason: String::new() }\n    }\n}\nhwcloud_pdk::export!(LoggerPlugin);"
+        },
+        {
+          "title": "定时任务 — EnvSyncPlugin",
+          "desc": "在 metadata 声明 cron 任务；宿主注册并在触发时调用 run_scheduled_job。用 host::keyring_get + host::env_set。",
+          "code": "#![no_std]\n#![no_main]\nextern crate alloc;\nuse hwcloud_pdk::prelude::*;\nuse hwcloud_pdk::export::Plugin;\n\nstruct EnvSyncPlugin;\nimpl Plugin for EnvSyncPlugin {\n    fn name() -> &'static str { \"envsync\" }\n\n    fn scheduled_jobs() -> Vec<ScheduledJob> {\n        vec![ScheduledJob {\n            id: \"sync-keyring-env\".into(),\n            cron: \"*/5 * * * *\".into(),\n            description: \"同步 keyring 密钥到环境变量\".into(),\n        }]\n    }\n\n    fn run_scheduled_job(job: &ScheduledJobInput) -> Result<String, String> {\n        let secret = host::keyring_get(\"hwcloud\", \"PLUGIN_SECRET\")?;\n        host::env_set(\"HWCLOUD_PLUGIN_SECRET\", &secret)?;\n        Ok(format!(\"job {} 同步 {} 字节\", job.id, secret.len()))\n    }\n}\nhwcloud_pdk::export!(EnvSyncPlugin);"
+        }
+      ],
+      "hostTitle": "Host 导出（28）",
+      "hostDesc": "任何语言可导入。host 模块恰好导出 28 个函数；Rust PDK 声明同样的 28 个 FFI 导入——两侧一致。",
+      "hostGroups": [
+        {
+          "category": "logging",
+          "fns": [
+            {
+              "name": "log_info(msg)",
+              "purpose": "经 host 日志"
+            },
+            {
+              "name": "log_warn(msg)",
+              "purpose": "经 host 警告"
+            },
+            {
+              "name": "log_error(msg)",
+              "purpose": "经 host 报错"
+            }
+          ]
+        },
+        {
+          "category": "time",
+          "fns": [
+            {
+              "name": "utc_now() -> u64",
+              "purpose": "纳秒"
+            }
+          ]
+        },
+        {
+          "category": "keyring",
+          "fns": [
+            {
+              "name": "keyring_get(svc, key)",
+              "purpose": "读密钥"
+            },
+            {
+              "name": "keyring_set(svc, key, val)",
+              "purpose": "写密钥"
+            },
+            {
+              "name": "keyring_delete(svc, key)",
+              "purpose": "删密钥"
+            }
+          ]
+        },
+        {
+          "category": "http",
+          "fns": [
+            {
+              "name": "http_request(method, url, hdrs, body)",
+              "purpose": "出站 HTTP"
+            }
+          ]
+        },
+        {
+          "category": "process + env",
+          "fns": [
+            {
+              "name": "exec_command(...)",
+              "purpose": "子进程"
+            },
+            {
+              "name": "env_get(key)",
+              "purpose": "读环境变量"
+            },
+            {
+              "name": "env_set(key, val)",
+              "purpose": "设环境变量"
+            },
+            {
+              "name": "env_unset(key)",
+              "purpose": "删环境变量"
+            },
+            {
+              "name": "env_list()",
+              "purpose": "完整环境"
+            }
+          ]
+        },
+        {
+          "category": "filesystem",
+          "fns": [
+            {
+              "name": "fs_read(path)",
+              "purpose": "base64 读"
+            },
+            {
+              "name": "fs_write(path, data)",
+              "purpose": "写文件"
+            },
+            {
+              "name": "fs_readdir(path)",
+              "purpose": "列目录"
+            },
+            {
+              "name": "file_md5(path)",
+              "purpose": "文件 MD5"
+            },
+            {
+              "name": "directory_md5(path)",
+              "purpose": "目录聚合 MD5"
+            }
+          ]
+        },
+        {
+          "category": "runtime",
+          "fns": [
+            {
+              "name": "runtime_session_id()",
+              "purpose": "会话 ID"
+            },
+            {
+              "name": "runtime_user_id()",
+              "purpose": "用户 ID"
+            },
+            {
+              "name": "runtime_turn_count()",
+              "purpose": "轮次"
+            },
+            {
+              "name": "runtime_model_id()",
+              "purpose": "模型 ID"
+            },
+            {
+              "name": "runtime_provider()",
+              "purpose": "provider 名"
+            },
+            {
+              "name": "runtime_get_metadata(k)",
+              "purpose": "读 metadata"
+            },
+            {
+              "name": "runtime_set_metadata(k, v)",
+              "purpose": "写 metadata"
+            },
+            {
+              "name": "runtime_setmodel_config(json)",
+              "purpose": "替换模型"
+            },
+            {
+              "name": "runtime_set_system_prompts(json)",
+              "purpose": "覆盖提示词"
+            },
+            {
+              "name": "runtime_set_max_turns(n)",
+              "purpose": "覆盖最大轮次"
+            }
+          ]
+        }
+      ],
+      "cronDetailTitle": "Cron 调度",
+      "cronDetailDesc": "Vixie cron 语义：5 字段（分 时 日 月 周）。当 dom 和 dow 同时受限时，两者取或（13 号 OR 周五）。8 年搜索窗口，让 2/29 任务在非闰年也能存活。从不匹配的表达式在注册时被拒绝。秒级 ticker，30s 任务超时，panic 恢复，内存态（重启后从插件 metadata 重新注册）。",
+      "cronDetailExample": "# 5 字段 Vixie cron\n*/5 * * * *        每 5 分钟\n0 9 * * 1-5       工作日 9 点\n0 0 13 * 5        13 号 OR 周五（或逻辑）\n0 0 29 2 *        2/29（8 年窗口找到下个闰年）\n0 0 30 2 *        被拒绝——永不匹配\n\n# scheduler.go\n- ticker：1 秒\n- 任务超时：30s\n- 无自并发（运行中的任务跳过）\n- 错过的运行丢弃（不补跑）\n- panic recover（插件崩溃 ≠ 宿主崩溃）\n- 内存态：重启后经 Discover() 重新注册"
+    },
+    "iac": {
+      "title": "IAC MCP Server",
+      "intro": "IACMCPServer 使用指南 — 通过 MCP 协议在 AI 对话中部署云基础设施。",
+      "whatTitle": "什么是 IACMCPServer",
+      "whatDesc": "IACMCPServer 是一个通过 MCP 协议暴露云基础设施部署能力的 MCP 服务器。配置在你的 agent 后，你可以在 AI 对话中完成「部署一个系统到云上」的全流程：需求分析 → 资源规划 → 成本估算 → 部署 → 排错 → 销毁。",
+      "flow": [
+        "需求分析",
+        "资源规划",
+        "成本估算",
+        "部署",
+        "排错",
+        "销毁"
+      ],
+      "whatClient": "任何 MCP 客户端（Claude Code、opencode、codearts、Cursor、hwcloud）均可接入。例如 opencode 的 opencode.json：",
+      "opencodeExample": "{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"model\": \"<client LLM, 如 opengw/glm-5.2>\",\n  \"provider\": {\n    \"opengw\": {\n      \"npm\": \"@ai-sdk/openai-compatible\",\n      \"name\": \"opengw\",\n      \"options\": {\n        \"baseURL\": \"<OpenAI-compatible base URL>\",\n        \"apiKey\": \"<client LLM API key>\"\n      },\n      \"models\": {\n        \"glm-5.2\": {\n          \"name\": \"glm-5.2\",\n          \"tool_call\": true\n        }\n      }\n    }\n  },\n  \"mcp\": {\n    \"IACMCPServer\": {\n      \"type\": \"remote\",\n      \"url\": \"http://localhost:9527\",\n      \"enabled\": true,\n      \"timeout\": 120000\n    }\n  }\n}",
+      "paramTitle": "各配置项说明",
+      "paramColDesc": "说明",
+      "paramRows": [
+        {
+          "param": "type",
+          "value": "remote",
+          "desc": "传输方式。local = stdio（本地子进程），remote = Streamable HTTP（远程服务器）。IACMCPServer 是远程服务，固定填 remote。"
+        },
+        {
+          "param": "url",
+          "value": "见下方",
+          "desc": "IACMCPServer 的访问地址 — 根据接入方式变化。"
+        },
+        {
+          "param": "enabled",
+          "value": "true",
+          "desc": "是否启用该 MCP 服务，固定为 true。"
+        },
+        {
+          "param": "timeout",
+          "value": "120000",
+          "desc": "MCP 连接握手超时（毫秒）。长任务场景建议加，避免默认超时太短连不上。"
+        },
+        {
+          "param": "tool_call",
+          "value": "true",
+          "desc": "位于 provider.models.<model> 下，声明模型支持 function calling（工具调用）。仅 opengw provider 接入的模型需要。"
+        }
+      ],
+      "urlInline": "url 取什么值，取决于你从哪里连接：",
+      "urlDevSpace": "agent 在开发者空间内：IACMCPServer 已默认启动并固定监听 9527 端口，url 就是定死的 http://localhost:9527，直接填即可。",
+      "urlLocal": "agent 在你本地电脑：本地电脑访问不到开发者空间的 localhost，需要通过 DevBridge 开发者隧道把 9527 端口暴露为一个公网可访问的 URL（形如 https://<隧道ID>-9527.cn-north-4-bridge.myhuaweicloud.com），把这个 URL 填进 url 字段即可。",
+      "urlSeeBelow": "两种方式的详细配置步骤见下方「连接 IACMCPServer」。",
+      "capTitle": "它能做什么",
+      "capDesc": "你用自然语言告诉它需求（如「在华为云开一台最小的 ECS，要公网 IP」），它会：",
+      "features": [
+        "提方案 — 分析需求，生成架构方案和 deployment_id。",
+        "定规格 — 查询真实云 API（规格、镜像、可用区），填好具体参数。",
+        "生成 plan — 写 Terraform 配置，执行 terraform init + plan。",
+        "估成本 — 查询 BSS 定价，返回月费估算。",
+        "apply — 执行 terraform apply，创建真实云资源。",
+        "销毁 — 执行 terraform destroy，清理所有资源。"
+      ],
+      "caseTitle": "使用案例：部署一台最小 ECS",
+      "caseDesc": "以下是在 AI 对话中通过 IACMCPServer 部署一台 ECS 的完整过程。你只需要用自然语言逐步下达指令，IACMCPServer 会在背后自动调用云 API、写 Terraform、执行部署：",
+      "stepLabel": "第",
+      "youLabel": "你",
+      "serverReturns": "IACMCPServer 返回：",
+      "outLabel": "输出",
+      "steps": [
+        {
+          "title": "提方案",
+          "prompt": "在华为云 cn-east-3 开一台最小的 ECS，系统盘 40G，要公网 IP，系统用 OpenEuler。",
+          "result": "✅ 方案已生成，deployment_id: d-013\n   - 1 × ECS（最小规格）\n   - 系统盘 40G\n   - 公网 EIP\n   - OS: OpenEuler"
+        },
+        {
+          "title": "定规格",
+          "prompt": "定规格。",
+          "result": "✅ 规格已确定\n   - 规格: s7.small.1（1C1G）\n   - 镜像: OpenEuler 22.03\n   - 可用区: cn-east-3a"
+        },
+        {
+          "title": "生成 plan",
+          "prompt": "生成 terraform plan。",
+          "result": "✅ Plan 已生成\n   - 将创建 5 个资源: VPC + 子网 + 安全组 + EIP + ECS\n   - 预计变更: 5 added, 0 changed, 0 destroyed"
+        },
+        {
+          "title": "估成本",
+          "prompt": "估一下成本。",
+          "result": "✅ 成本估算完成\n   - 预计月费: 92.74 CNY/月"
+        },
+        {
+          "title": "apply",
+          "prompt": "apply，把资源建出来。",
+          "result": "✅ 部署完成\n   - VPC: vpc-xxxx\n   - 子网: subnet-xxxx\n   - 安全组: sg-xxxx\n   - EIP: 121.xxx.xxx.xxx\n   - ECS: ecs-xxxx（s7.small.1, OpenEuler 22.03）"
+        },
+        {
+          "title": "销毁",
+          "prompt": "销毁这个部署。",
+          "result": "✅ 部署 d-013 已销毁，所有资源已删除"
+        }
+      ],
+      "costWarnTitle": "成本估算为强制步骤",
+      "costWarnBody": "没估过成本，apply 会被拒绝 — 这是强制步骤，防止意外产生费用。",
+      "connectTitle": "连接 IACMCPServer",
+      "devSpaceTitle": "在开发者空间中直接使用",
+      "devSpaceDesc": "在开发者空间（作业环境）中，IACMCPServer 已默认启动并监听 9527 端口。同一环境下的 AI Agent 无需任何隧道或额外配置，直接指向本地端口即可连接。",
+      "devSpaceOpencode": "以 opencode 为例，在 opencode.json 中配置。opencode 通过 opengw provider 接入模型时，还需在 provider 段为模型声明 tool_call: true，否则工具调用会失效：",
+      "devSpaceExample": "{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"model\": \"<client LLM, 如 opengw/glm-5.2>\",\n  \"provider\": {\n    \"opengw\": {\n      \"npm\": \"@ai-sdk/openai-compatible\",\n      \"name\": \"opengw\",\n      \"options\": {\n        \"baseURL\": \"<OpenAI-compatible base URL>\",\n        \"apiKey\": \"<client LLM API key>\"\n      },\n      \"models\": {\n        \"glm-5.2\": {\n          \"name\": \"glm-5.2\",\n          \"tool_call\": true\n        }\n      }\n    }\n  },\n  \"mcp\": {\n    \"IACMCPServer\": {\n      \"type\": \"remote\",\n      \"url\": \"http://localhost:9527\",\n      \"enabled\": true,\n      \"timeout\": 120000\n    }\n  }\n}",
+      "fieldTitle": "关键字段说明",
+      "fieldColField": "字段",
+      "fieldColLoc": "位置",
+      "fieldColEffect": "作用",
+      "fieldColMiss": "不加的后果",
+      "fieldRows": [
+        {
+          "field": "tool_call: true",
+          "loc": "provider.models.<model>",
+          "effect": "声明该模型支持 function calling（工具调用）。",
+          "miss": "opencode 不把工具定义发给模型，或工具调用响应不被解析，LLM 输出乱码。"
+        },
+        {
+          "field": "timeout: 120000",
+          "loc": "mcp.<server>",
+          "effect": "MCP 连接握手超时（毫秒）。",
+          "miss": "默认超时太短，可能连不上。"
+        }
+      ],
+      "toolCallNoteTitle": "tool_call 适用范围",
+      "toolCallNoteBody": "tool_call 只对通过 @ai-sdk/openai-compatible 接入的模型需要（opengw provider）。内置 provider（如 codearts 的 huaweicloud-maas）自带工具调用支持，不需要。所有通过 opengw 接入的模型（deepseek、glm 等）都应加。",
+      "devSpaceWarnTitle": "适用范围",
+      "devSpaceWarnBody": "此方式仅限开发者空间内部使用。如果需要从外部设备（你的本地电脑、其他机器）连接开发者空间中的 IACMCPServer，则需要通过 DevBridge 开发者隧道暴露端口，见下方教程。",
+      "bridgeTitle": "通过 DevBridge 暴露给外部设备",
+      "bridgeDesc": "通过华为云 DevBridge 开发者隧道，将作业环境中的 IACMCPServer（9527 端口）安全暴露为公网可访问的 URL，供外部 AI 工具远程连接。",
+      "tunnelTitle": "在作业环境中创建隧道",
+      "tunnelStep1": "启动 DevBridge 环境 — 进入开发空间，找到 devbridge 环境，点击 部署 → 启动。",
+      "tunnelStep2": "打开 WebUI — 环境启动后，点击 WebUI 进入 DevBridge 管理界面。",
+      "tunnelStep3": "创建隧道 — 在 WebUI 中点击 创建隧道，填写隧道名称、描述、过期时间等信息。",
+      "tunnelStep4": "添加端口配置：",
+      "tunnelColConfig": "配置项",
+      "tunnelColValue": "值",
+      "tunnelRowPortLabel": "端口号",
+      "tunnelRowPortValue": "9527",
+      "tunnelRowProtoLabel": "协议",
+      "tunnelRowProtoValue": "http",
+      "tunnelRowAnonLabel": "匿名可访问",
+      "tunnelRowAnonValue": "按需选择",
+      "anonWarnTitle": "安全警告",
+      "anonWarnBody": "匿名可访问会让任何拿到 URL 的人都能访问你的 IACMCPServer，请注意个人资产安全。如果 IACMCPServer 涉及敏感操作（如云资源管理），建议关闭匿名访问。",
+      "tunnelStep5": "托管并获取 URL — 配置完成后，点击 托管，系统会生成形如以下的隧道 URL：",
+      "tunnelUrl": "https://<隧道ID>-9527.cn-north-4-bridge.myhuaweicloud.com",
+      "tunnelUrlDesc": "此 URL 即为 IACMCPServer 的公网访问地址。",
+      "modifyNoteTitle": "修改配置须知",
+      "modifyNoteBody": "想要修改端口配置（如切换匿名访问、更改协议等），需要先 取消托管，修改完成后再重新 托管，新配置才会生效。",
+      "aiConfigTitle": "在 AI 工具中配置 MCP 连接",
+      "methodAnonTitle": "方式一：匿名访问（简单快捷）",
+      "methodAnonDesc": "如果隧道配置了匿名可访问，可以直接将隧道 URL 配置给 AI 工具。以 opencode 为例，在项目根目录创建或编辑 opencode.json：",
+      "methodAnonExample": "{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"mcp\": {\n    \"IACMCPServer\": {\n      \"type\": \"remote\",\n      \"url\": \"https://<隧道ID>-9527.cn-north-4-bridge.myhuaweicloud.com\",\n      \"enabled\": true,\n      \"timeout\": 120000\n    }\n  }\n}",
+      "methodAnonNote": "将 <隧道ID> 替换为实际托管后生成的隧道 ID 即可。配置完成后，opencode 即可通过该 URL 远程调用 IACMCPServer 提供的 MCP 工具。",
+      "methodAuthTitle": "方式二：需认证（安全推荐）",
+      "methodAuthDesc": "如果隧道关闭了匿名访问，则需要通过 DevBridge CLI 在本地建立认证连接，将远程隧道映射到本地端口，再由 AI 工具连接本地端口。整体流程：安装 CLI → 获取 AK/SK → 登录认证 → 连接隧道映射到本地端口 → 配置 AI 工具指向本地端口。",
+      "aiInstallHintTitle": "不想手动敲命令？",
+      "aiInstallHintBody": "直接把下面的安装命令复制发送给你的 AI 工具（如 opencode），AI 会帮你自动执行安装，无需手动开终端。",
+      "authStep1Title": "第 1 步：安装 DevBridge CLI",
+      "authStep1Desc": "在本地终端执行以下命令安装 CLI（Linux、macOS、Windows 通用）：",
+      "authStep1Cmd": "curl -fsSL https://res-hd.hc-cdn.cn/sharedata/hdspace/devbridge/install.sh | bash",
+      "authStep1Path": "安装完成后，CLI 位于 ~/.huawei/bin/devbridge。需要将其加入 PATH 环境变量。",
+      "authStep1TempTitle": "临时生效（仅当前终端会话）：",
+      "authStep1Temp": "export PATH=\"$HOME/.huawei/bin:$PATH\"",
+      "authStep1PermTitle": "永久生效（推荐）：",
+      "authStep1PermLinux": "Linux：",
+      "authStep1PermLinuxCmd": "echo 'export PATH=\"$HOME/.huawei/bin:$PATH\"' >> ~/.bashrc\nsource ~/.bashrc",
+      "authStep1PermMac": "macOS：",
+      "authStep1PermMacCmd": "echo 'export PATH=\"$HOME/.huawei/bin:$PATH\"' >> ~/.zshrc\nsource ~/.zshrc",
+      "authStep1PermWin": "Windows（PowerShell）：",
+      "authStep1PermWinCmd": "[Environment]::SetEnvironmentVariable(\"PATH\", \"$env:USERPROFILE\\.huawei\\bin;\" + [Environment]::GetEnvironmentVariable(\"PATH\", \"User\"), \"User\")",
+      "winNoteTitle": "Windows 提示",
+      "winNoteBody": "Windows 执行后需重新打开终端窗口才能生效。",
+      "winCurlTitle": "Windows curl",
+      "winCurlBody": "Windows 10+ 自带 curl，在 Git Bash 或 WSL 终端中执行上述安装命令即可。如果提示找不到 bash，请先安装 Git for Windows（自带 bash）或启用 WSL。",
+      "authStep1Verify": "验证安装：",
+      "authStep1VerifyCmd": "devbridge version",
+      "authStep2Title": "第 2 步：获取华为云 AK/SK",
+      "authStep2Desc": "DevBridge CLI 通过华为云 IAM 身份认证，需要使用 AK（Access Key ID）和 SK（Secret Access Key）登录。",
+      "authStep2PathTitle": "获取路径：",
+      "authStep2Path1": "1. 打开华为云控制台 IAM 页面：https://console.huaweicloud.com/iam/",
+      "authStep2Path2": "2. 将鼠标悬浮在页面右上角的个人资料（头像/用户名）上，在下拉菜单进入 我的凭证 → 访问密钥 页签。",
+      "authStep2Path3": "3. 点击 新增访问密钥，创建后会下载一个 credentials.csv 文件，其中包含 AK（形如 AKxxxxxxxxxxxx）和 SK（一长串字符）。",
+      "skWarnTitle": "SK 只在创建时显示一次",
+      "skWarnBody": "SK 只在创建时显示一次，请妥善保存。如果丢失只能重新创建。AK/SK 是你的云账号身份凭证，切勿泄露或提交到代码仓库。",
+      "authStep3Title": "第 3 步：登录认证",
+      "authStep3Cmd": "devbridge auth login --access-key <你的AK> --secret-key <你的SK>",
+      "authStep3Verify": "验证登录状态：",
+      "authStep3VerifyCmd": "devbridge auth status",
+      "authStep4Title": "第 4 步：连接隧道，映射到本地端口",
+      "authStep4Desc": "使用 devbridge connect 命令连接隧道，将远程服务映射到本地端口：",
+      "authStep4Cmd": "devbridge connect <隧道ID>",
+      "authStep4Desc2": "其中 <隧道ID> 是在 WebUI 创建隧道后生成的 ID（可在 WebUI 隧道详情页查看）。连接成功后，终端会显示类似以下信息：",
+      "authStep4Out": "Connecting to tunnel: <隧道ID>\nLocal port mapping: localhost:9527 → remote tunnel port 9527\nConnection established",
+      "authStep4Note": "此时，远程隧道上的 IACMCPServer 已映射到本地的 localhost:9527。",
+      "connectNoteTitle": "前台长运行命令",
+      "connectNoteBody": "devbridge connect 是前台长运行命令，会占用当前终端。建议在一个独立的终端窗口中运行，保持连接不断开。断开后重新执行 devbridge connect <隧道ID> 即可恢复。",
+      "authStep5Title": "第 5 步：配置 AI 工具连接本地端口",
+      "authStep5Example": "{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"mcp\": {\n    \"IACMCPServer\": {\n      \"type\": \"remote\",\n      \"url\": \"http://localhost:9527\",\n      \"enabled\": true,\n      \"timeout\": 120000\n    }\n  }\n}",
+      "authStep5Note": "配置完成后，opencode 通过 localhost:9527 调用 IACMCPServer，流量经 DevBridge 认证隧道转发到远程作业环境。",
+      "flowDiagramTitle": "方式二完整流程示意图",
+      "flowDiagram": "opencode → localhost:9527 → devbridge connect (认证) → 华为云中继 → 作业环境 IACMCPServer:9527",
+      "notesTitle": "注意事项",
+      "notes": [
+        "隧道过期：默认过期时间 8 小时，最长可设 720 小时。过期后 URL 失效，需重新托管。",
+        "匿名访问风险：匿名开启后，任何知道 URL 的人均可访问你的 IACMCPServer。请确保 IACMCPServer 本身有适当的鉴权机制，或仅在受信范围内分享 URL。",
+        "配置变更流程：修改端口配置 → 取消托管 → 修改 → 重新托管。",
+        "隧道清理：使用完毕后，及时取消托管并删除隧道，避免资源残留。",
+        "仅用于开发：DevBridge 是开发隧道服务，不适用于生产环境。",
+        "CLI 连接保持：方式二中 devbridge connect 需保持终端运行，关闭终端则连接断开。断开后重新执行 devbridge connect <隧道ID> 即可恢复。",
+        "AK/SK 安全：SK 只在创建时显示一次，请妥善保管。切勿将 AK/SK 写入代码仓库或分享给他人。"
+      ]
+    }
+  },
+  "footer": {
+    "builtBy": "由 Cloud-Developer-Department 构建",
+    "license": "MIT 许可证"
+  },
+  "changelog": {
+    "title": "更新日志",
+    "body": "发布与发布说明在 GitHub。",
+    "link": "查看发布 →"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "body": "你找的页面不存在。",
+    "home": "回首页 →"
+  }
+}

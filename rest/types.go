@@ -1,0 +1,111 @@
+// Package rest provides a reusable HTTP REST API for hwcloud agents.
+//
+// Create a Handler and register it on an http.ServeMux:
+//
+//	agent := hwcloud.NewAgent("assistant",
+//	    hwcloud.WithModel(model),
+//	    hwcloud.WithMemory(mem),
+//	)
+//	handler := rest.NewHandler(agent)
+//
+//	mux := http.NewServeMux()
+//	handler.Register(mux)
+//	http.ListenAndServe(":8080", mux)
+//
+// The handler exposes session CRUD, SSE streaming chat, and tool approval.
+// It uses Go 1.22+ pattern routing (method-based paths).
+//
+// Sessions are stored in memory (lost on restart). Message history persists
+// via the agent's configured Memory backend.
+package rest
+
+import (
+	"encoding/json"
+
+	"github.com/Cloud-Developer-Department/hwcloud/session"
+)
+
+// ── Session ──
+
+// SessionDetail is a single session enriched with runtime info.
+type SessionDetail struct {
+	session.SessionInfo
+	ContextWindow int `json:"contextWindow"`
+	MessageCount  int `json:"messageCount"`
+}
+
+// ── Request / Response types ── [satirize]
+
+// CreateSessionRequest is the optional body for POST /sessions.
+type CreateSessionRequest struct {
+	Title    string `json:"title,omitempty"`
+	ModelID  string `json:"modelId,omitempty"`
+	Provider string `json:"provider,omitempty"`
+}
+
+// ChatRequest is the body for POST /sessions/{id}/chat.
+type ChatRequest struct {
+	Message  string `json:"message"`
+	ModelID  string `json:"modelId,omitempty"`
+	Provider string `json:"provider,omitempty"`
+}
+
+// ApproveRequest is the body for POST /sessions/{id}/approve.
+//
+// Action is one of (ACP permission option names): "allow_once" (this
+// call only), "allow_always" (remember for the session), "deny",
+// "edit" (allow with modified args).
+type ApproveRequest struct {
+	Action   string          `json:"action"`
+	Args     json.RawMessage `json:"args,omitempty"` // edited args (action=edit)
+	Feedback string          `json:"feedback,omitempty"`
+}
+
+// ── SSE event ──
+
+// SSEEvent is the JSON payload for a single Server-Sent Event.
+// It is serialised as "data: <json>\n\n".
+type SSEEvent struct {
+	Type string `json:"type"`
+
+	// text_delta, tool_result, retrying, error
+	Text string `json:"text,omitempty"`
+
+	// tool_call, tool_approval
+	ToolCall *SSEToolCall `json:"tool_call,omitempty"`
+
+	// tool_result
+	ToolCallID string `json:"tool_call_id,omitempty"`
+
+	// done
+	FinalOutput   string `json:"final_output,omitempty"`
+	PromptTokens  int    `json:"prompt_tokens,omitempty"`
+	ContextWindow int    `json:"context_window,omitempty"`
+
+	// agent_start, agent_end (team mode)
+	Agent string `json:"agent,omitempty"`
+
+	// handoff (team mode)
+	HandoffTo string `json:"handoff_to,omitempty"`
+
+	// step_start, step_done, step_failed (plan mode)
+	StepID string `json:"step_id,omitempty"`
+
+	// error detail (agent_end, retrying, error)
+	Error string `json:"error,omitempty"`
+
+	// stage (pipeline visualization)
+	Stage json.RawMessage `json:"stage,omitempty"`
+}
+
+// SSEToolCall mirrors an LLM function-call tool invocation.
+type SSEToolCall struct {
+	ID       string              `json:"id"`
+	Function SSEToolCallFunction `json:"function"`
+}
+
+// SSEToolCallFunction holds the tool name and JSON-encoded arguments.
+type SSEToolCallFunction struct {
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"`
+}

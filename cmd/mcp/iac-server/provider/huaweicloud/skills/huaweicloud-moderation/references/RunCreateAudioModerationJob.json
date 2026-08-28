@@ -1,0 +1,215 @@
+{
+  "name": "RunCreateAudioModerationJob",
+  "summary": "创建音频内容审核作业",
+  "tags": "音频内容审核",
+  "productshort": "Moderation",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v3/{project_id}/moderation/audio/jobs": {
+      "post": {
+        "tags": [
+          "音频内容审核"
+        ],
+        "operationId": "RunCreateAudioModerationJob",
+        "summary": "创建音频内容审核作业",
+        "description": "分析并识别用户上传的音频内容是否有敏感内容(如色情、政治等),并将识别结果返回给用户",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "用户的project_id 登陆华为云 -> 用户中心 -> 我的凭证 -> api凭证 即可查看对应区域的项目ID。"
+          },
+          {
+            "in": "body",
+            "name": "RunCreateAudioModerationJobRequestBody",
+            "description": "音频内容审核请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AudioCreateRequest"
+            }
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。 通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应体",
+            "schema": {
+              "$ref": "#/definitions/AudioCreateResponse"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "01661356800_7c0fe871f80543358917e4faebca4a48",
+                "request_id": "07490f57ac5e034c077ab25b5f9e1da5"
+              }
+            }
+          },
+          "400": {
+            "description": "失败响应体",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "AIS.0401",
+                "error_msg": "The input parameter event_type is incorrect."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v3/{project_id}/moderation/audio/jobs",
+        "x-request-examples-text-1": {
+          "data": {
+            "url": "https://xxxxx.wav"
+          },
+          "event_type": "default",
+          "categories": [
+            "porn",
+            "ad"
+          ],
+          "callback": "http://xxxx"
+        },
+        "x-request-examples-1": {
+          "data": {
+            "url": "https://xxxxx.wav"
+          },
+          "event_type": "default",
+          "categories": [
+            "porn",
+            "ad"
+          ],
+          "callback": "http://xxxx"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AudioCreateResponse": {
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "example": "58e7d9c7-3456-4ba1-80df-6f25506bc4df",
+          "description": "本次请求的唯一标识,用于问题排查,建议保存。",
+          "minLength": 2,
+          "maxLength": 64
+        },
+        "job_id": {
+          "type": "string",
+          "description": "作业唯一标识。"
+        }
+      }
+    },
+    "AudioCreateRequest": {
+      "description": "音频内容审核请求体",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/AudioInputBody",
+          "description": "音频数据输入"
+        },
+        "biz_type": {
+          "type": "string",
+          "description": "用户在控制台界面创建的biz_type名称,如果请求参数中传了biz_type则优先使用biz_type;如果用户没传biz_type则event_type和categories必须传。"
+        },
+        "event_type": {
+          "type": "string",
+          "description": "事件类型,可选值如下:\ndefault:默认事件\naudiobook:有声书\neducation:教育音频\ngame:游戏语音房\nlive:秀场直播\necommerce:电商直播\nvoiceroom:交友语音房\nprivate:私密语音聊天",
+          "example": "comment",
+          "enum": [
+            "default",
+            "audiobook",
+            "education",
+            "game",
+            "live",
+            "ecommerce",
+            "voiceroom",
+            "private"
+          ]
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "politics",
+              "porn",
+              "ad",
+              "moan",
+              "abuse"
+            ]
+          },
+          "description": "需要检测的风险类型,列表不能为空。\n风险类型如下:\n- porn:涉黄检测\n- ad:广告检测\n- moan:娇喘检测\n- abuse:辱骂检测"
+        },
+        "callback": {
+          "type": "string",
+          "description": "回调http接口:当该字段非空时,服务将根据该字段回调通知用户审核结果。"
+        },
+        "seed": {
+          "type": "string",
+          "description": "用于回调通知时校验请求由华为云内容安全服务发起,由您自定义。随机字符串,由英文字母、数字、下划线组成,不超过64个字符。\n说明:当seed非空时,headers中将包含X-Auth-Signature字段,字段的值使用HmacSHA256算法生成,待加密字符串由create_time、job_id、request_id、seed按照顺序拼接而成,密钥为seed。"
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    "AudioInputBody": {
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "音频url地址。",
+          "example": "asdfasdfasdf"
+        },
+        "language": {
+          "type": "string",
+          "description": "支持的语言,默认为zh,zh:中文"
+        }
+      },
+      "description": "音频数据的输入",
+      "required": [
+        "url"
+      ]
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "调用失败时的错误码,具体请参见错误码。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "调用失败时的错误信息。\n\n调用成功时无此字段。",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "moderation.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

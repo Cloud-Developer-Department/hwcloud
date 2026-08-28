@@ -1,0 +1,197 @@
+{
+  "name": "CreateDrugLigandPreviewTask",
+  "summary": "创建配体文件预览任务",
+  "tags": "IDrugCommonController",
+  "productshort": "eiHealth",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/eihealth-projects/{eihealth_project_id}/drug-common/ligand/preview": {
+      "post": {
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "operationId": "CreateDrugLigandPreviewTask",
+        "tags": [
+          "IDrugCommonController"
+        ],
+        "summary": "创建配体文件预览任务",
+        "description": "创建配体文件预览任务,支持SMI、SDF、PDB、MOL2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=utf-8"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\nToken认证就是在调用API的时候将Token加到请求消息头,从而通过身份认证,获得操作API的权限,[获取Token](eihealth_33_0010.xml)接口响应消息头中X-Subject-Token的值即为Token。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32768,
+            "x-example": "termToken"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,您可以从[获取项目ID](eihealth_33_0044.xml)中获取。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "project_id is invalid"
+          },
+          {
+            "name": "eihealth_project_id",
+            "in": "path",
+            "description": "平台项目ID,您可以在平台单击所需的项目名称,进入项目设置页面查看。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]*$",
+            "x-pattern-message": "eihealth_project_id is invalid"
+          },
+          {
+            "name": "CreateDrugLigandPreviewTaskRequestBody",
+            "in": "body",
+            "required": true,
+            "description": "创建配体文件预览任务请求体",
+            "schema": {
+              "$ref": "#/definitions/CreateLigandPreviewTaskReq"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "配体预览任务创建成功响应",
+            "schema": {
+              "$ref": "#/definitions/CreateAsyncTaskRsp"
+            },
+            "examples": {
+              "application/json": {
+                "id": "c05ebc2029c24699af2354f67391604c"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateLigandPreviewTaskReq": {
+      "type": "object",
+      "description": "创建配体预览任务请求体",
+      "required": [
+        "ligand_file"
+      ],
+      "properties": {
+        "ligand_file": {
+          "$ref": "#/definitions/DrugFile",
+          "description": "配体文件"
+        },
+        "preview_count": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1000,
+          "default": 100,
+          "description": "预览数量,若分子数量大于预览数量,则超出预览数量部分只做计数"
+        },
+        "count_limit": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 1000000,
+          "default": 1000,
+          "description": "计数上限,若分子数量大于计数上限,则终止计数并在结果中标明计数不完整(has_more=true),计数数量应不小于preview_count"
+        },
+        "generate_3d": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否生成3D构象,默认为true"
+        }
+      },
+      "example": {
+        "ligand_file": {
+          "source": "RAW",
+          "format": "PDB",
+          "data": "MODEL1 XXX..."
+        },
+        "generate_3d": false
+      }
+    },
+    "DrugFile": {
+      "required": [
+        "source"
+      ],
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/DrugFileSource",
+          "example": "RAW"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件URL,当数据源为外部网络数据时为https地址;用户私有数据中心为项目路径、公共数据场景为obs地址",
+          "example": "https://files.rcsb.org/download/1TQN.pdb",
+          "x-ut-exclude-equivalence": [
+            "NULL"
+          ],
+          "pattern": ".*\\.(pdb|mol2|sdf|smi)$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6,
+          "example": "PDB",
+          "pattern": "^(PDB|SDF|MOL2|SMI)$",
+          "description": "文件格式,支持PDB、SDF、MOL2、SMI,仅数据源为RAW时提供"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10000000,
+          "example": "raw_data",
+          "description": "文件原始数据,仅数据源为RAW时提供"
+        }
+      }
+    },
+    "DrugFileSource": {
+      "type": "string",
+      "enum": [
+        "EXTRANET",
+        "PRIVATE",
+        "PUBLIC",
+        "RAW"
+      ],
+      "description": "受体的数据源:外部网络数据(如RCSB在线数据库)、用户私有数据中心、承载租户公共数据(含样例/公共库)"
+    },
+    "CreateAsyncTaskRsp": {
+      "type": "object",
+      "description": "创建异步任务响应体",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "任务ID"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ai4sservice.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

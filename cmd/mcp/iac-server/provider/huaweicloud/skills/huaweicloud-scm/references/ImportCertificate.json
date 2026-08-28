@@ -1,0 +1,210 @@
+{
+  "name": "ImportCertificate",
+  "summary": "导入证书",
+  "tags": "证书生命周期管理",
+  "productshort": "SCM",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v3/scm/certificates/import": {
+      "post": {
+        "tags": [
+          "证书生命周期管理"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "导入证书",
+        "description": "导入证书到CCM服务管理。",
+        "operationId": "ImportCertificate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "body",
+            "name": "ImportCertificateRequestBody",
+            "description": "requestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ImportCertificateRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回。",
+            "schema": {
+              "$ref": "#/definitions/ImportCertificateResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "certificate_id": "scs1600313391074"
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "403": {
+            "description": "禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "404": {
+            "description": "访问页面未找到。"
+          },
+          "500": {
+            "description": "请求未完成,服务器内部异常。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "name": "test_cert",
+          "certificate": "-----BEGIN CERTIFICATE---******----END CERTIFICATE----------BEGIN CERTIFICATE-----**********-----END CERTIFICATE-----",
+          "private_key": "-----BEGIN RSA PRIVATE KEY-----*********-----END RSA PRIVATE KEY-----"
+        },
+        "x-hc": "Y",
+        "x-hk": "Y",
+        "x-open-region-cloud": "hc,hk"
+      }
+    }
+  },
+  "definitions": {
+    "ImportCertificateResponseBody": {
+      "type": "object",
+      "required": [
+        "certificate_id"
+      ],
+      "properties": {
+        "certificate_id": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 16,
+          "description": "证书id。"
+        }
+      },
+      "title": "ImportCertificateResponseBody"
+    },
+    "ImportCertificateRequestBody": {
+      "type": "object",
+      "required": [
+        "name",
+        "certificate",
+        "private_key"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 63,
+          "description": "证书名称。字符长度为3~63位, 请输入英文字符,数字,下划线,中划线,英文句点。"
+        },
+        "certificate": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "证书内容,可包含中间证书及根证书。若certificate_chain字段传入证书链,则该字段只取证书本身。回车换行需要使用转义字符\\n或者\\r\\n替换。"
+        },
+        "certificate_chain": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8192,
+          "description": "证书链,非必填,可通过certificate字段传入。回车换行需要使用转义字符\\n或者\\r\\n替换。"
+        },
+        "private_key": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "证书私钥。\n不能上传带有口令保护的私钥,回车换行需要使用转义字符\\n或者\\r\\n替换。"
+        },
+        "duplicate_check": {
+          "type": "boolean",
+          "description": "是否允许上传相同证书。\n- true:不同意上传相同证书。\n- false:同意上传相同证书。"
+        },
+        "enterprise_project_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "企业多项目ID。用户未开通企业多项目时,不需要输入该字段。 用户开通企业多项目时,查询资源可以输入该字段。 若用户不输入该字段,默认查询租户所有有权限的企业多项目下的资源。 此时“enterprise_project_id”取值为“all”。 若用户输入该字段,取值满足以下任一条件。\n- 取值为“all”\n- 取值为“0”\n- 满足正则匹配:“^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$”",
+          "x-open-region-cloud": "hc"
+        },
+        "enc_certificate": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "可选参数,国密证书的加密证书内容。回车换行需要使用转义字符\\n或者\\r\\n替换。",
+          "x-open-region-cloud": "hc"
+        },
+        "enc_private_key": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096,
+          "description": "可选参数,国密证书的加密私钥。\n不能上传带有口令保护的私钥,回车换行需要使用转义字符\\n或者\\r\\n替换。",
+          "x-open-region-cloud": "hc"
+        }
+      },
+      "title": "ImportCertificateRequestBody"
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息。"
+        }
+      },
+      "title": "Error"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "scm.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

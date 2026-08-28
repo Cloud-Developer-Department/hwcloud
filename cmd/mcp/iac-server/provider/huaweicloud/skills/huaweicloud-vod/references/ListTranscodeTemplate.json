@@ -1,0 +1,490 @@
+{
+  "name": "ListTranscodeTemplate",
+  "summary": "查询转码模板列表",
+  "tags": "转码模板管理",
+  "productshort": "VOD",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v2/{project_id}/asset/template/transcodings": {
+      "get": {
+        "x-action": "vod:transcodeTemplate:list",
+        "description": "查询转码模板列表",
+        "summary": "查询转码模板列表",
+        "operationId": "ListTranscodeTemplate",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-external-api": true,
+        "x-since": "1.0.0",
+        "x-since-memo": "1.0.0 initial",
+        "tags": [
+          "转码模板管理"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/xAuthToken"
+          },
+          {
+            "$ref": "#/parameters/xSdkDate"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](https://support.huaweicloud.com/usermanual-vod/vod_01_0058.html)",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "group_id",
+            "description": "模板id\n",
+            "type": "string",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "is_default",
+            "description": "是否默认\n",
+            "type": "boolean",
+            "default": false,
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "type": "integer",
+            "format": "int32",
+            "required": false,
+            "default": 0,
+            "description": "偏移量。默认为0。指定group_id时该参数无效。<br/>\n"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "type": "integer",
+            "format": "int32",
+            "required": false,
+            "default": 10,
+            "description": "每页记录数。默认为10,范围[1,100]。指定group_id时该参数无效。<br/>\n"
+          },
+          {
+            "in": "query",
+            "name": "query_string",
+            "type": "string",
+            "required": false,
+            "description": "按照模板名和描述模糊查询。指定group_id时该参数无效。<br/>\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "处理成功返回。\n",
+            "schema": {
+              "$ref": "#/definitions/QueryTransTemplateRsp"
+            },
+            "examples": {
+              "application/json": {
+                "template_group_list": [
+                  {
+                    "group_id": "9751249d25f14587b212544d6fd8dcf8",
+                    "name": "non_transcoding_template_group",
+                    "is_default": false,
+                    "type": "non_transcoding_template_group",
+                    "is_auto_encrypt": false,
+                    "quality_info_list": [
+                      {
+                        "video": {
+                          "quality": "UNKNOW",
+                          "width": 0,
+                          "height": 0,
+                          "bitrate": 0,
+                          "frame_rate": 0
+                        },
+                        "audio": null,
+                        "format": "UNKNOW"
+                      }
+                    ],
+                    "watermark_template_ids": null,
+                    "description": null,
+                    "common": {
+                      "pvc": false,
+                      "is_black_cut": false,
+                      "upsample": false,
+                      "adaptation": "NONE",
+                      "video_codec": null,
+                      "audio_codec": "AAC",
+                      "hls_interval": 0
+                    }
+                  }
+                ],
+                "total": 0
+              }
+            }
+          },
+          "403": {
+            "description": "处理失败返回。\n",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "VOD.10053",
+                "error_msg": "The request parameter is illegal, illegal field: {xx}."
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/asset/template/transcodings?group_id={group_id}"
+      }
+    }
+  },
+  "definitions": {
+    "QueryTransTemplateRsp": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "template_group_list": {
+          "type": "array",
+          "description": "模板组信息<br/>\n",
+          "items": {
+            "$ref": "#/definitions/TransTemplateRsp"
+          }
+        },
+        "total": {
+          "description": "总记录条数<br/>\n",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "description": "错误码。\n",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述。\n",
+          "type": "string"
+        }
+      }
+    },
+    "AdditionalManifest": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "manifest_name_modifier",
+        "selected_outputs"
+      ],
+      "properties": {
+        "manifest_name_modifier": {
+          "type": "string",
+          "description": "索引后缀名,后缀名仅支持数字,字母、下划线、中划线。",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "selected_outputs": {
+          "type": "array",
+          "description": "选择流名列表,最多支持9路流。",
+          "minItems": 1,
+          "maxItems": 9,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "TransTemplateRsp": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "properties": {
+        "group_id": {
+          "type": "string",
+          "description": "模板组id<br/>\n"
+        },
+        "name": {
+          "type": "string",
+          "description": "模板组名称<br/>\n"
+        },
+        "is_default": {
+          "type": "boolean",
+          "description": "是否设置成默认转码模板<br/>\n",
+          "default": false
+        },
+        "type": {
+          "type": "string",
+          "description": "模板组类型<br/>\n"
+        },
+        "is_auto_encrypt": {
+          "type": "boolean",
+          "description": "是否开启加密",
+          "default": false
+        },
+        "additional_manifests": {
+          "type": "array",
+          "description": "自定义索引后缀列表。",
+          "items": {
+            "$ref": "#/definitions/AdditionalManifest"
+          }
+        },
+        "quality_info_list": {
+          "type": "array",
+          "description": "画质配置信息列表<br/>\n",
+          "items": {
+            "$ref": "#/definitions/QualityInfoList"
+          }
+        },
+        "watermark_template_ids": {
+          "type": "array",
+          "description": "绑定的水印模板组ID数组<br/>\n",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "模板介绍<br/>\n"
+        },
+        "common": {
+          "description": "高清低码开关,高清低码版本,编码格式多路共同参数<br/>\n",
+          "$ref": "#/definitions/CommonInfo"
+        }
+      }
+    },
+    "QualityInfoList": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "format"
+      ],
+      "properties": {
+        "video": {
+          "$ref": "#/definitions/VideoInfo"
+        },
+        "audio": {
+          "$ref": "#/definitions/AudioInfo"
+        }
+      }
+    },
+    "VideoInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "quality",
+        "bitrate",
+        "frame_rate"
+      ],
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "stream_name": {
+          "type": "string",
+          "description": "流名,流名仅支持数字、字母、下划线、中划线。\n如果流名不填,则点播会按照video_stream_l{index}形式,生成一个流名。\n",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "quality": {
+          "type": "string",
+          "description": "画质<br/>\n4K默认分辨率3840*2160,码率8000kbit/s<br/>\n2K默认分辨率2560*1440,码率7000kbit/s<br/>\nFULL_HD默认分辨率1920*1080,码率3000kbit/s<br/>\nHD默认分辨率1280*720,码率1000kbit/s<br/>\nSD默认分辨率854*480,码率600kbit/s<br/>\nFLUENT默认分辨率480*270,码率300kbit/s<br/>\n",
+          "enum": [
+            "FULL_HD",
+            "HD",
+            "SD",
+            "FLUENT",
+            "2K",
+            "4K",
+            "UNKNOW"
+          ]
+        },
+        "width": {
+          "description": "视频宽度<br/>\n",
+          "type": "integer"
+        },
+        "height": {
+          "description": "视频高度<br/>\n",
+          "type": "integer"
+        },
+        "bitrate": {
+          "description": "码率,单位:kbit/s<br/>\n",
+          "type": "integer"
+        },
+        "frame_rate": {
+          "description": "帧率(默认为0,0代表自适应,单位是帧每秒)<br/>\n",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60
+        }
+      }
+    },
+    "AudioInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "sample_rate",
+        "channels"
+      ],
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "sample_rate": {
+          "description": "音频采样率(有效值范围)<br/>\nAUDIO_SAMPLE_AUTO (default),\nAUDIO_SAMPLE_22050:22050Hz<br/>\nAUDIO_SAMPLE_32000:32000Hz<br/>\nAUDIO_SAMPLE_44100:44100Hz<br/>\nAUDIO_SAMPLE_48000:48000Hz<br/>\nAUDIO_SAMPLE_96000:96000Hz<br/>\n",
+          "type": "string",
+          "enum": [
+            "AUDIO_SAMPLE_AUTO",
+            "AUDIO_SAMPLE_22050",
+            "AUDIO_SAMPLE_32000",
+            "AUDIO_SAMPLE_44100",
+            "AUDIO_SAMPLE_48000",
+            "AUDIO_SAMPLE_96000"
+          ]
+        },
+        "bitrate": {
+          "description": "音频码率(单位:Kbps)<br/>\n",
+          "type": "integer",
+          "format": "int32"
+        },
+        "channels": {
+          "description": "声道数(有效值范围)<br/>\nAUDIO_CHANNELS_1:单声道<br/>\nAUDIO_CHANNELS_2:双声道<br/>\nAUDIO_CHANNELS_5_1:5.1声道<br/>\n",
+          "type": "string",
+          "enum": [
+            "AUDIO_CHANNELS_1",
+            "AUDIO_CHANNELS_2",
+            "AUDIO_CHANNELS_5_1"
+          ]
+        }
+      }
+    },
+    "CommonInfo": {
+      "x-since": "1.0.0",
+      "x-modifier-memo": "add",
+      "type": "object",
+      "required": [
+        "format"
+      ],
+      "x-imports": "org.hibernate.validator.constraints.*;",
+      "properties": {
+        "pvc": {
+          "type": "boolean",
+          "description": "高清低码开关<br/>\n",
+          "default": false
+        },
+        "video_codec": {
+          "description": "视频编码格式<br/>\n",
+          "type": "string",
+          "enum": [
+            "H264",
+            "H265"
+          ]
+        },
+        "audio_codec": {
+          "description": "音频编码格式<br/>\nAAC:AAC格式 (default)<br/>\nHEAAC1:HEAAC1格式<br/>\nHEAAC2:HEAAC2格式<br/>\nMP3:MP3格式<br/>\n",
+          "type": "string",
+          "enum": [
+            "AAC",
+            "HEAAC1",
+            "HEAAC2",
+            "MP3"
+          ]
+        },
+        "is_black_cut": {
+          "description": "黑边剪裁类型<br/>\n",
+          "type": "boolean",
+          "default": false
+        },
+        "format": {
+          "type": "string",
+          "description": "格式<br/>\n",
+          "enum": [
+            "MP4",
+            "HLS",
+            "DASH",
+            "DASH_HLS",
+            "MP3",
+            "ADTS",
+            "UNKNOW"
+          ]
+        },
+        "hls_interval": {
+          "description": "分片时长(默认为5秒)<br/>\n",
+          "type": "integer",
+          "default": 5,
+          "minimum": 2,
+          "maximum": 10
+        },
+        "upsample": {
+          "description": "上采样<br/>\n",
+          "type": "boolean",
+          "default": false
+        },
+        "adaptation": {
+          "description": "SHORT:短边自适应<br/>\nLONG:长边自适应<br/>\nNONE:宽高自适应<br/>\n",
+          "type": "string",
+          "enum": [
+            "SHORT",
+            "LONG",
+            "NONE"
+          ],
+          "default": "NONE"
+        },
+        "preset": {
+          "description": "编码质量等级,取值[0,2] 0表示当前现网方式默认方式,1表示转码效率优先,2表示转码质量优先。<br/>\n",
+          "type": "integer",
+          "format": "int32",
+          "default": 0
+        },
+        "max_iframes_interval": {
+          "description": "I帧最大间隔,取值范围:[2,10]。默认值:5,单位秒。<br/>\n",
+          "type": "integer",
+          "format": "int32"
+        },
+        "hls_audio_separate": {
+          "description": "转码后音频是否独立存储。<br/>\n",
+          "type": "boolean",
+          "default": false
+        },
+        "hls_segment_type": {
+          "description": "分片的封装格式,目前支持TS和FMP4,默认TS格式。\n",
+          "type": "string",
+          "enum": [
+            "TS",
+            "FMP4"
+          ]
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "xSdkDate": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "x-example": "20191115T033655Z"
+    },
+    "xAuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token,使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+      "required": false,
+      "minLength": 0,
+      "maxLength": 16384
+    }
+  },
+  "host": "vod.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

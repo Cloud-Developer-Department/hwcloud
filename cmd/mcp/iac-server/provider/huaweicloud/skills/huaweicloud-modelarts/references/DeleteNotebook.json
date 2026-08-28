@@ -1,0 +1,902 @@
+{
+  "name": "DeleteNotebook",
+  "summary": "删除Notebook实例",
+  "tags": "开发环境管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/notebooks/{id}": {
+      "delete": {
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-is-registered": "Y",
+        "tags": [
+          "Notebook实例管理"
+        ],
+        "summary": "删除Notebook实例",
+        "description": "删除Notebook实例接口用于移除已创建的Notebook实例及其相关资源。该接口适用于以下场景:用户需要清理不再使用的Notebook实例时,可通过此接口删除指定的Notebook实例,包括其容器和所有存储资源。使用该接口的前提条件是用户已登录系统并具有操作目标Notebook实例的权限。调用该接口后,系统将删除指定的Notebook实例及其相关资源。若用户无权限操作指定实例或Notebook实例未停止,接口将返回相应的错误信息。异常情况包括:若指定的Notebook实例不存在,或删除操作失败,接口将返回相应的错误提示。",
+        "operationId": "DeleteNotebook",
+        "x-request-examples-url-1": "DELETE https://{endpoint}/v1/{project_id}/notebooks/{id}",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "**参数解释**:Notebook实例ID。ID格式为通用唯一识别码(Universally Unique Identifier,简称UUID),可通过调用[查询Notebook实例列表接口](https://support.huaweicloud.com/api-modelarts/ListNotebooks.html#section0)获取。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释**:用户项目ID,获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK。",
+            "schema": {
+              "$ref": "#/definitions/NotebookResp"
+            },
+            "examples": {
+              "application/json": {
+                "create_at": 1638841805440,
+                "description": "update",
+                "feature": "DEFAULT",
+                "flavor": "modelarts.vm.cpu.free",
+                "id": "f9937afa-ca78-45b6-bc12-7ecf42553c48",
+                "image": {
+                  "description": "description",
+                  "id": "e1a07296-22a8-4f05-8bc8-e936c8e54090",
+                  "name": "notebook2.0-mul-kernel-cpu-cp36",
+                  "swr_path": "swr.xxxxx.com/atelier/notebook2.0-mul-kernel-cpu-cp36:3.3.2-release_v1",
+                  "tag": "3.3.2-release_v1",
+                  "type": "BUILD_IN"
+                },
+                "lease": {
+                  "create_at": 1638841805439,
+                  "duration": 3600000,
+                  "enable": true,
+                  "update_at": 1638841805439
+                },
+                "name": "notebook_5ee4bf0e",
+                "status": "DELETING",
+                "token": "58ba50c6-e8ff-245c-4840-49e51aa70737",
+                "update_at": 1638842504178,
+                "workspace_id": "0"
+              }
+            }
+          },
+          "204": {
+            "description": "No Content。"
+          },
+          "401": {
+            "description": "Unauthorized。"
+          },
+          "403": {
+            "description": "Forbidden。"
+          }
+        },
+        "x-api-type": "open-api",
+        "x-constraint": "暂无约束。",
+        "x-open-region-cloud": "hc,hk,fcs,fcs-super",
+        "x-publish-doc": "Y",
+        "x-order": 5
+      }
+    }
+  },
+  "definitions": {
+    "JobProgress": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:任务某个步骤的状态。\n**取值范围**:枚举类型,取值如下:\n- WAITING:等待中\n- PROCESSING:处理中\n- FAILED:任务失败\n- COMPLETED:任务完成",
+          "enum": [
+            "COMPLETED",
+            "FAILED",
+            "PROCESSING",
+            "WAITING"
+          ]
+        },
+        "step": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:任务的步骤。\n**取值范围**:枚举类型,取值如下:\n- 1:准备存储\n- 2:准备计算资源\n- 3:配置网络\n- 4:初始化实例"
+        },
+        "description": {
+          "type": "string",
+          "description": "**参数解释**:任务某个步骤的描述。\n**取值范围**:不涉及。"
+        }
+      },
+      "title": "JobProgress",
+      "description": "实例初始化进度。"
+    },
+    "VolumeResponse": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "description": "**参数解释**:notebook返回的扩展存储类型\n**参数约束**:不涉及\n- OBS:对象存储服务\n- OBSFS:并行文件存储\n- EFS:弹性文件服务",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "type": "string",
+          "enum": [
+            "OBS",
+            "OBSFS",
+            "EFS"
+          ]
+        },
+        "mount_path": {
+          "type": "string",
+          "description": "**参数解释**:存储挂载至Notebook实例的目录\n**参数约束**:不涉及",
+          "minLength": 0,
+          "maxLength": 256,
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super"
+        },
+        "url": {
+          "type": "string",
+          "description": "**参数解释**:当category为OBS、OBSFS时,挂载存储源路径。\n**参数约束**:不涉及",
+          "minLength": 0,
+          "maxLength": 256,
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super"
+        },
+        "status": {
+          "description": "**参数解释**:存储状态\n- MOUNTING: 正在挂载中;\n- MOUNTED: 已挂载成功;\n- UNMOUNTING: 正在卸载中;\n- UNMOUNTED: 已卸载完成;\n- MOUNT_FAILED: 挂载失败\n- UNMOUNT_FAILED:卸载失败;\n**参数约束**:不涉及",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "type": "string",
+          "enum": [
+            "MOUNTING",
+            "MOUNTED",
+            "UNMOUNTING",
+            "UNMOUNTED",
+            "MOUNT_FAILED",
+            "UNMOUNT_FAILED"
+          ]
+        },
+        "mount_type": {
+          "description": "**参数解释**:存储挂载类型,枚举类。\n**约束限制**:无限制。\n- STATIC:不支持在实例运行期间挂载以及卸载的存储\n- DYNAMIC:支持在实例运行期间挂载以及卸载的存储",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "type": "string",
+          "enum": [
+            "STATIC",
+            "DYNAMIC"
+          ]
+        }
+      }
+    },
+    "EndpointsRes": {
+      "type": "object",
+      "properties": {
+        "dev_service": {
+          "type": "string",
+          "description": "**参数解释**:访问Notebook的途径。\n**取值范围**:枚举类型,取值如下:\n- NOTEBOOK:可以通过https协议访问Notebook。\n- SSH:可以通过SSH协议远程连接Notebook。"
+        },
+        "service": {
+          "type": "string",
+          "description": "**参数解释**:访问Notebook的途径。\n**取值范围**:枚举类型,取值如下:\n- NOTEBOOK:可以通过https协议访问Notebook。\n- SSH:可以通过SSH协议远程连接Notebook。",
+          "enum": [
+            "NOTEBOOK",
+            "SSH"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "description": "**参数解释**:实例私有IP地址。\n**取值范围**:不涉及。",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "key_pair_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:SSH密钥对名称列表,允许设置多个密钥对实现同时对SSH实例的访问。\n**取值范围**:不涉及。"
+        }
+      },
+      "title": "EndpointsRes",
+      "description": "本地IDE(如PyCharm、VS Code)或SSH客户端,通过SSH远程接入Notebook实例时需要的相关配置。"
+    },
+    "Lease": {
+      "type": "object",
+      "properties": {
+        "create_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:实例创建的时间,UTC毫秒。\n**取值范围**:不涉及。"
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:实例运行时长,以创建时间为起点计算,即“创建时间+duration > 当前时刻”时,系统会自动停止实例。\n**取值范围**:不涉及。"
+        },
+        "enable": {
+          "type": "boolean",
+          "description": "**参数解释**:是否启用自动停止功能。\n**取值范围**:布尔类型:\n- true:启动自动停止功能。\n- false:关闭自动停止功能。"
+        },
+        "type": {
+          "type": "string",
+          "description": "**参数解释**:自动停止类别。\n**取值范围**:枚举类型,取值如下:\n- TIMING:自动停止。\n- IDLE:空闲停止。",
+          "example": "timing",
+          "enum": [
+            "timing",
+            "idle"
+          ]
+        },
+        "update_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:实例最后更新(不包括探活心跳)的时间,UTC毫秒。\n**取值范围**:不涉及。"
+        }
+      },
+      "title": "Lease",
+      "description": "实例自动停止的倒计时信息。"
+    },
+    "UserResponse": {
+      "type": "object",
+      "description": "**参数解释**:用户信息。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:用户ID。\n**取值范围**:不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:用户名。\n**取值范围**:不涉及。"
+        },
+        "domain": {
+          "description": "**参数解释**:domain账号信息。",
+          "$ref": "#/definitions/Domain"
+        }
+      }
+    },
+    "AffinityType": {
+      "type": "object",
+      "properties": {
+        "required_during_scheduling_ignored_during_execution": {
+          "description": "参数描述:\n专属池场景下设置强亲和特性\n参数约束:\nkey、values、operator必填",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AffinityRule"
+          },
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "minItems": 0,
+          "maxItems": 20
+        },
+        "preferred_during_scheduling_ignored_during_execution": {
+          "items": {
+            "$ref": "#/definitions/AffinityRule"
+          },
+          "description": "参数描述:\n专属池场景下设置弱亲和特性\n参数约束:\nkey、values、operator必填,weight选填",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 20
+        }
+      }
+    },
+    "Image": {
+      "type": "object",
+      "properties": {
+        "arch": {
+          "type": "string",
+          "description": "**参数解释**:该镜像所支持处理器架构类型。\n**取值范围**:枚举类型,取值如下:\n- X86_64:x86处理器架构。\n- AARCH64:ARM体系架构。",
+          "enum": [
+            "AARCH64",
+            "X86_64"
+          ],
+          "x-open-region-cloud": "hk,hc,hcso,fcs",
+          "example": "X86_64"
+        },
+        "create_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:镜像创建的时间,UTC毫秒。\n**取值范围**:不涉及。"
+        },
+        "description": {
+          "type": "string",
+          "description": "**参数解释**:该镜像所对应的描述信息。\n**取值范围**:长度限制512个字符。"
+        },
+        "dev_services": {
+          "type": "array",
+          "description": "**参数解释**:镜像支持的服务。\n**取值范围**:枚举类型,取值如下:\n- NOTEBOOK:镜像支持通过https协议访问Notebook。\n- SSH:镜像支持本地IDE通过SSH协议远程连接Notebook。",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "NOTEBOOK",
+              "SSH"
+            ]
+          },
+          "example": [
+            "NOTEBOOK",
+            "SSH"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:待创建Notebook实例的镜像,需要指定镜像ID,ID格式为通用唯一识别码(Universally Unique Identifier,简称UUID)。预置镜像的ID参考[查询支持的镜像列表](ListImage.xml)获取。\n**取值范围**:不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:镜像名称。\n**取值范围**:长度限制512个字符,支持小写字母、数字、中划线、下划线和点。"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "**参数解释**:镜像所属组织,可以在SWR控制台“组织管理”创建和查看。\n**取值范围**:不涉及。"
+        },
+        "origin": {
+          "type": "string",
+          "description": "**参数解释**:指定镜像来源。\n**取值范围**:枚举类型,取值如下:\n- CUSTOMIZE:用户自定义构建镜像。\n- IMAGE_SAVE:Notebook实例保存镜像。",
+          "enum": [
+            "CUSTOMIZE",
+            "IMAGE_SAVE"
+          ]
+        },
+        "resource_categories": {
+          "type": "array",
+          "description": "**参数解释**:镜像支持的规格。枚举类型,取值如下:\n- CPU\n- GPU\n- ASCEND",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "ASCEND",
+              "CPU",
+              "GPU"
+            ]
+          }
+        },
+        "service_type": {
+          "type": "string",
+          "example": "COMMON",
+          "description": "**参数解释**:镜像支持服务类型。\n**取值范围**:枚举类型,取值如下:\n- COMMON:通用镜像。\n- INFERENCE:建议仅在推理部署场景使用。\n- TRAIN:建议仅在训练任务场景使用。\n- DEV:建议仅在开发调测场景使用。\n- UNKNOWN:未明确设置的镜像支持的服务类型。",
+          "enum": [
+            "COMMON",
+            "DEV",
+            "INFERENCE",
+            "TRAIN",
+            "UNKNOWN"
+          ]
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:镜像大小(单位KB)。\n**取值范围**:不涉及。"
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:镜像状态。\n**取值范围**:枚举类型,取值如下:\n- INIT:初始化。\n- CREATING:镜像保存中,此时Notebook不可用。\n- CREATE_FAILED:镜像保存失败。\n- ERROR:错误。\n- DELETED:已删除。\n- ACTIVE:镜像保存成功,保存的镜像可以在SWR控制台查看,同时可以基于保存的镜像创建Notebook实例。",
+          "enum": [
+            "ACTIVE",
+            "CREATE_FAILED",
+            "CREATING",
+            "DELETED",
+            "ERROR",
+            "INIT"
+          ]
+        },
+        "status_message": {
+          "type": "string",
+          "description": "**参数解释**:镜像保存操作过程中,构建信息展示。\n**取值范围**:不涉及。"
+        },
+        "support_res_categories": {
+          "type": "array",
+          "description": "**参数解释**:镜像支持的规格。 枚举类型,取值如下:\n- CPU\n- GPU\n- ASCEND",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "ASCEND",
+              "CPU",
+              "GPU"
+            ]
+          }
+        },
+        "swr_path": {
+          "type": "string",
+          "description": "**参数解释**:SWR镜像地址。\n**取值范围**:不涉及。"
+        },
+        "tag": {
+          "type": "string",
+          "description": "**参数解释**:镜像Tag。\n**取值范围**:不涉及。"
+        },
+        "type": {
+          "type": "string",
+          "description": "**参数解释**:镜像类型。\n**取值范围**:枚举类型,取值如下:\n- BUILD_IN:系统内置镜像。\n- DEDICATED:用户保存的镜像。",
+          "enum": [
+            "BUILD_IN",
+            "DEDICATED"
+          ]
+        },
+        "update_at": {
+          "type": "integer",
+          "format": "int64",
+          "description": "**参数解释**:镜像最后更新的时间,UTC毫秒。\n**取值范围**:不涉及。"
+        },
+        "visibility": {
+          "type": "string",
+          "example": "PRIVATE",
+          "description": "**参数解释**:镜像可见度。\n**取值范围**:枚举类型,取值如下:\n- PRIVATE:私有镜像。\n- PUBLIC:所有用户可以根据image_id来进行只读使用。",
+          "enum": [
+            "HIDDEN",
+            "PRIVATE",
+            "PUBLIC"
+          ]
+        },
+        "workspace_id": {
+          "type": "string",
+          "description": "**参数解释**:工作空间ID。未创建工作空间时默认值为“0”,存在创建并使用的工作空间,以实际取值为准。\n**取值范围**:不涉及。"
+        },
+        "flavor_type": {
+          "type": "string",
+          "description": "**参数解释**:镜像的资源类型。\n**取值范围**:枚举类型,取值如下:\n- ASCEND_SNT9:昇腾910芯片。\n- ASCEND_SNT9B:昇腾910B芯片。\n- ASCEND_SNT3:昇腾310芯片。",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super"
+        },
+        "swr_instance_id": {
+          "type": "string",
+          "description": "参数解释:SWR企业仓库ID。未使用SWR企业仓时该字段为null。\n约束限制:不涉及。\n取值范围:128位UUID。\n默认取值:null。",
+          "minLength": 0,
+          "maxLength": 128,
+          "x-open-region-cloud": "hk,hc,hcso,hcs,fcs"
+        },
+        "show_name": {
+          "type": "string",
+          "description": "**参数解释**:镜像展示名称,仅预置镜像具备该字段。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "show_tag": {
+          "type": "string",
+          "description": "**参数解释**:镜像展示版本号,仅预置镜像具备该字段。",
+          "minLength": 0,
+          "maxLength": 1024
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TmsTagResponse"
+          },
+          "description": "**参数解释**:镜像标签。"
+        }
+      },
+      "title": "Image",
+      "description": "实例镜像信息。"
+    },
+    "RunUserInfo": {
+      "type": "object",
+      "description": "启动用户、启动用户组设置",
+      "properties": {
+        "uid": {
+          "type": "integer",
+          "format": "int32",
+          "description": "容器启动用户的user id"
+        },
+        "gid": {
+          "type": "integer",
+          "format": "int32",
+          "description": "容器启动用户的group id"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "容器启动用户的user name"
+        },
+        "group_name": {
+          "type": "string",
+          "description": "容器启动用户的group name"
+        }
+      }
+    },
+    "AffinityRule": {
+      "type": "object",
+      "description": "**参数解释**:实例的亲和度设置,跟selector字段二选一填写,不可同时存在\n**约束限制**:仅支持CPU或GPU专属池场景下根据专属池节点规格使用。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释**:亲和度描述具体信息。 该标签可以使用系统默认的标签,也可以使用自定义标签。系统默认的节点标签详情请参见[管理节点标签](https://support.huaweicloud.com/usermanual-cce/cce_10_0004.html#cce_10_0004__section74111324152813)。\n**约束限制**:标签是键值对。有效的标签键有两个段:可选的前缀和名称,用斜杠(/)分隔。\n**取值范围**:名称段是必需的,必须小于等于 63 个字符,以字母数字字符([a-z0-9A-Z])开头和结尾, 带有破折号(-),下划线(_),点( .)和之间的字母数字;前缀是可选的。如果指定,前缀必须是 DNS 子域:由点(.)分隔的一系列 DNS 标签,总共不超过 253 个字符, 后跟斜杠(/).请参见[标签和选择算符](https://kubernetes.io/zh-cn/docs/concepts/overview/working-with-objects/labels/)\n**默认取值**:不涉及。",
+          "minLength": 0,
+          "maxLength": 253,
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super"
+        },
+        "operator": {
+          "type": "string",
+          "description": "**参数解释**:操作符\n**约束限制**:不涉及\n**取值范围**:可以设置六种匹配关系(In、NotIn、Exists、DoesNotExist、Gt、Lt)。\n\nIn:亲和/反亲和对象的标签在标签值列表(values字段)中。\nNotIn:亲和/反亲和对象的标签不在标签值列表(values字段)中。\nExists:亲和/反亲和对象存在指定标签名。\nDoesNotExist:亲和/反亲和对象不存在指定标签名。\nGt:调度节点的标签值大于列表值 (字符串比较)。\nLt:调度节点的标签值小于列表值 (字符串比较)。\n**默认取值**:不涉及。",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super"
+        },
+        "values": {
+          "type": "array",
+          "description": "参数解释:设置节点亲和性时,填写节点标签对应的标签值\n约束限制:必须为 63 个字符或更少(可以为空),除非标签值为空,必须以字母数字字符([a-z0-9A-Z])开头和结尾,包含破折号(-)、下划线(_)、点(.)和字母或数字\n请参见[标签和选择算符](https://kubernetes.io/zh-cn/docs/concepts/overview/working-with-objects/labels/)",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 63
+          },
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "minItems": 0,
+          "maxItems": 20
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32",
+          "description": "设置弱亲和节点的权重值,该值的取值应为0-100之间,强亲和该值为NULL,弱亲和该值可选",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "NotebookCustomSpecRep": {
+      "type": "object",
+      "description": "**参数描述**:CPU、GPU专属池下,用户指定自定义规格的响应体信息",
+      "properties": {
+        "gpu": {
+          "type": "number",
+          "format": "float",
+          "description": "**参数描述**:实例申请的GPU卡数。\n**取值范围**:不涉及。",
+          "minimum": 0.0,
+          "exclusiveMaximum": true,
+          "x-open-region-cloud": "hk,hc,hcso,fcs"
+        },
+        "gpu_type": {
+          "type": "string",
+          "description": "**参数描述**:实例申请的GPU加速卡类型。\n**取值范围**:不涉及。",
+          "minLength": 0,
+          "maxLength": 128,
+          "x-open-region-cloud": "hk,hc,hcso,fcs"
+        },
+        "cpu": {
+          "type": "number",
+          "format": "float",
+          "description": "**参数描述**:实例申请的CPU核数大小。\n**取值范围**:整数部分最多10位,小数部分最多2位,且数值不得小于0.4。",
+          "minimum": 0.01,
+          "exclusiveMaximum": true,
+          "x-open-region-cloud": "hk,hc,hcso,fcs"
+        },
+        "memory": {
+          "type": "number",
+          "format": "float",
+          "description": "**参数描述**:实例申请的内存大小。\n**取值范围**:必须是整数,整数部分最多10位,且数值不得小于513。",
+          "minimum": 1.0,
+          "exclusiveMaximum": true,
+          "x-open-region-cloud": "hk,hc,hcso,fcs"
+        },
+        "arch": {
+          "type": "string",
+          "description": "**参数描述**:实例申请的CPU架构。\n**取值范围**:枚举类型,取值如下:\n\n- X86_64:x86架构\n- AARCH64:ARM架构",
+          "enum": [
+            "AARCH64",
+            "X86_64"
+          ],
+          "x-open-region-cloud": "hk,hc,hcso,fcs"
+        },
+        "category": {
+          "type": "string",
+          "description": "**参数描述**:实例申请的规格类型。\n**取值范围**:枚举类型,取值如下:\n\n- CPU:CPU规格。\n- GPU:GPU规格。",
+          "enum": [
+            "CPU",
+            "GPU"
+          ],
+          "x-open-region-cloud": "hk,hc,hcso,fcs"
+        },
+        "resource_flavor": {
+          "type": "string",
+          "description": "**参数解释**:实例选择的目标资源池节点实例规格。\n**取值范围**:不涉及。"
+        }
+      },
+      "required": [
+        "cpu",
+        "memory",
+        "arch",
+        "category"
+      ]
+    },
+    "TmsTagResponse": {
+      "type": "object",
+      "description": "**参数解释**:TMS的标签结构体。",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释**:TMS标签的key。\n**取值范围**:不涉及。"
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释**:TMS标签的value。\n**取值范围**:不涉及。"
+        }
+      }
+    },
+    "Pool": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:专属资源池ID。\n**取值范围**:不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:专属资源池名称。\n**取值范围**:不涉及。"
+        }
+      },
+      "title": "Pool"
+    },
+    "UserVpcResponse": {
+      "type": "object",
+      "description": "**参数解释**:用户VPC配置。",
+      "properties": {
+        "vpc_id": {
+          "type": "string",
+          "description": "**参数解释**:虚拟私有网络(VPC)ID。\n**取值范围**:不涉及。"
+        },
+        "subnet_id": {
+          "type": "string",
+          "description": "**参数解释**:子网ID。\n**取值范围**:不涉及。"
+        },
+        "security_group_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:安全组ID列表。\n**取值范围**:不涉及。"
+        },
+        "connect_cidrs": {
+          "type": "string",
+          "description": "**参数解释**:连接的CIDR地址列表。\n**取值范围**:不涉及。"
+        },
+        "port_id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:网卡ID。\n**取值范围**:不涉及。"
+        },
+        "port_ip": {
+          "type": "string",
+          "description": "**参数解释**:网卡ip。\n**取值范围**:不涉及。"
+        }
+      }
+    },
+    "NotebookResp": {
+      "type": "object",
+      "properties": {
+        "action_progress": {
+          "type": "array",
+          "description": "**参数解释**:实例初始化进度。",
+          "items": {
+            "$ref": "#/definitions/JobProgress"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "**参数解释**:实例描述。\n**取值范围**:不涉及。"
+        },
+        "endpoints": {
+          "type": "array",
+          "description": "**参数解释**:本地IDE(如PyCharm、VS Code)或SSH客户端,通过SSH远程接入Notebook实例时需要的相关配置。",
+          "items": {
+            "$ref": "#/definitions/EndpointsRes"
+          }
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "**参数解释**:实例失败原因。\n**取值范围**:不涉及。"
+        },
+        "flavor": {
+          "type": "string",
+          "description": "**参数解释**:实例规格,\n1.当用户选择系统规格时,返回值为系统规格码;\n2.当用户创建实例时选择了自定义规格,则此字段会固定返回\"custom.flavor.spec.code\"。\n**取值范围**:不涉及。"
+        },
+        "custom_spec": {
+          "description": "**参数解释**:实例自定义规格详情,仅CPU/GPU专属池,用户自定义规格时返回。\n**取值范围**:不涉及",
+          "$ref": "#/definitions/NotebookCustomSpecRep"
+        },
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:实例ID。\n**取值范围**:不涉及。"
+        },
+        "image": {
+          "description": "**参数解释**:实例镜像信息。",
+          "$ref": "#/definitions/Image"
+        },
+        "lease": {
+          "description": "**参数解释**:实例自动停止的倒计时信息。",
+          "$ref": "#/definitions/Lease"
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:实例名称。\n**取值范围**:不涉及。"
+        },
+        "pool": {
+          "description": "**参数解释**:专属池的基本信息,在专属池中创建的实例会返回该字段。",
+          "$ref": "#/definitions/Pool"
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:实例状态。\n**取值范围**:枚举类型,取值如下:\n- INIT:初始化\n- CREATING:创建中\n- STARTING:启动中\n- STOPPING:停止中\n- DELETING:删除中\n- RUNNING:运行中\n- STOPPED:已停止\n- SNAPSHOTTING:快照中(保存镜像时的状态)\n- CREATE_FAILED:创建失败\n- START_FAILED:启动失败\n- DELETE_FAILED:删除失败\n- ERROR:错误\n- DELETED:已删除\n- FROZEN:冻结",
+          "enum": [
+            "CREATE_FAILED",
+            "CREATING",
+            "DELETED",
+            "DELETE_FAILED",
+            "DELETING",
+            "ERROR",
+            "FROZEN",
+            "INIT",
+            "RUNNING",
+            "SNAPSHOTTING",
+            "STARTING",
+            "START_FAILED",
+            "STOPPED",
+            "STOPPING"
+          ]
+        },
+        "token": {
+          "type": "string",
+          "description": "**参数解释**:Notebook鉴权使用的token信息。\n**取值范围**:不涉及。"
+        },
+        "url": {
+          "type": "string",
+          "description": "**参数解释**:实例访问的URL。\n**取值范围**:不涉及。"
+        },
+        "volume": {
+          "description": "**参数解释**:实例存储信息。",
+          "$ref": "#/definitions/VolumeRes"
+        },
+        "workspace_id": {
+          "type": "string",
+          "description": "**参数解释**:工作空间ID。未创建工作空间时默认值为“0”,存在创建并使用的工作空间,以实际取值为准。\n**取值范围**:不涉及。"
+        },
+        "feature": {
+          "type": "string",
+          "description": "**参数解释**:实例类别。\n**取值范围**:枚举类型,取值如下:\n- DEFAULT:CodeLab免费规格实例,每个用户最多只能创建一个。\n- NOTEBOOK:计费规格实例。"
+        },
+        "billing_items": {
+          "type": "array",
+          "description": "**参数解释**:计费资源类型。枚举类型,取值如下:\n- STORAGE:存储资源计费。\n- COMPUTE:计算资源计费。\n- ALL:所有计费类型。",
+          "items": {
+            "enum": [
+              "STORAGE",
+              "COMPUTE",
+              "ALL"
+            ],
+            "type": "string"
+          }
+        },
+        "user": {
+          "description": "**参数解释**:账号信息。",
+          "$ref": "#/definitions/UserResponse"
+        },
+        "affinity": {
+          "description": "**参数解释**:亲和度信息",
+          "$ref": "#/definitions/AffinityType",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super"
+        },
+        "run_user": {
+          "description": "**参数解释**:启动用户、启动用户组信息",
+          "$ref": "#/definitions/RunUserInfo"
+        },
+        "data_volumes": {
+          "items": {
+            "$ref": "#/definitions/VolumeResponse"
+          },
+          "description": "**参数解释**:扩展存储信息",
+          "x-open-region-cloud": "hk,hc,fcs,fcs-super",
+          "type": "array"
+        },
+        "ip": {
+          "type": "string",
+          "description": "**参数解释**:实例所在节点ip。\n**取值范围**:不涉及。"
+        },
+        "user_vpc": {
+          "description": "**参数解释**:用户VPC配置信息。",
+          "$ref": "#/definitions/UserVpcResponse"
+        },
+        "user_id": {
+          "type": "string",
+          "description": "**参数解释**:用户ID。\n**取值范围**:不涉及。"
+        },
+        "is_need_credentials": {
+          "type": "boolean",
+          "description": "**参数解释**:是否需要默认创建用户secret,默认为true。\n**取值范围**:不涉及。"
+        },
+        "jupyter_version": {
+          "type": "string",
+          "description": "**参数解释**:jupyter version版本号。\n**取值范围**:不涉及。"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TmsTagResponse"
+          },
+          "description": "**参数解释**:实例标签。"
+        }
+      },
+      "title": "NotebookResp"
+    },
+    "VolumeRes": {
+      "type": "object",
+      "properties": {
+        "capacity": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:存储容量。\n**取值范围**:EVS默认5G,EFS默认50G,最大限制4096G。",
+          "x-maximum": 4096
+        },
+        "category": {
+          "type": "string",
+          "description": "**参数解释**:支持的存储类型。不同存储类型的差异,详见[开发环境中如何选择存储](https://support.huaweicloud.com/usermanual-standard-modelarts/devtool-modelarts_0004.html#section6)。\n**取值范围**:枚举类型,取值如下:\n- SFS:弹性文件服务\n- EVS:云硬盘\n- OBS:对象存储服务\n- OBSFS:并行文件系统\n- EFS:弹性文件服务(SFS Turbo)"
+        },
+        "mount_path": {
+          "type": "string",
+          "example": "Volume mount path in notebook, default /home/ma-user/work/",
+          "description": "**参数解释**:存储挂载至Notebook实例的目录,当前固定在/home/ma-user/work/下。\n**取值范围**:不涉及。",
+          "x-minLength": 0,
+          "x-maxLength": 256
+        },
+        "ownership": {
+          "type": "string",
+          "description": "**参数解释**:资源所属。\n**取值范围**:枚举类型,取值如下:\n- MANAGED:托管,即资源在服务上。\n- DEDICATED:非托管,即资源在用户账号上,只有在category为EFS时支持。"
+        },
+        "status": {
+          "type": "string",
+          "description": "**参数解释**:EVS扩容状态,扩容时的状态为RESIZING,此时实例可以正常使用。\n**取值范围**:不涉及。",
+          "enum": [
+            "DELETED",
+            "DELETE_FAILED",
+            "DELETING",
+            "IN_USE",
+            "MOUNTED",
+            "MOUNTING",
+            "MOUNT_FAILED",
+            "RESIZING",
+            "UNMOUNTED",
+            "UNMOUNTING",
+            "UNMOUNT_FAILED"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:EFS专属存储盘ID或OBS存储ID,只有作为扩展存储时返回。\n**取值范围**:不涉及。"
+        },
+        "read_only": {
+          "type": "boolean",
+          "description": "**参数解释**:扩展存储挂载目录是否只读。\n**取值范围**:不涉及。"
+        },
+        "dew_secret_name": {
+          "type": "string",
+          "description": "**参数解释**:DEW存储的用户AKSK凭据名称。\n**取值范围**:不涉及。"
+        },
+        "evs_sku_code": {
+          "type": "string",
+          "description": "**参数解释**:规格包含的evs时,evs存储的sku编码。\n**取值范围**:不涉及。"
+        },
+        "uri": {
+          "type": "string",
+          "description": "**参数解释**:只有当category为EFS或OBS或OBSFS时,挂载存储源路径。\n**取值范围**:不涉及。"
+        },
+        "mount_type": {
+          "type": "string",
+          "description": "**参数解释**:存储挂载类型。\n**取值范围**:枚举类型,取值如下:\n\n- STATIC:不支持在实例运行期间挂载以及卸载的存储\n- DYNAMIC:支持在实例运行期间挂载以及卸载的存储"
+        }
+      },
+      "title": "VolumeRes",
+      "description": "**参数解释**:实例存储信息。"
+    },
+    "Domain": {
+      "type": "object",
+      "description": "**参数解释**:Domain账号信息。",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "**参数解释**:账号ID。\n**取值范围**:不涉及。"
+        },
+        "name": {
+          "type": "string",
+          "description": "**参数解释**:账号名。\n**取值范围**:不涉及。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "delete",
+  "uri": null
+}

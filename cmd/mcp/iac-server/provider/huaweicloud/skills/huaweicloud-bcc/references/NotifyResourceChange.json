@@ -1,0 +1,303 @@
+{
+  "name": "NotifyResourceChange",
+  "summary": "资源变化通知",
+  "tags": "资源管理",
+  "productshort": "BCC",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{domain_id}/resources/notify": {
+      "put": {
+        "tags": [
+          "资源管理"
+        ],
+        "operationId": "NotifyResourceChange",
+        "summary": "资源变化通知",
+        "description": "资源变化通知,当资源的属性变动时,可能会改变资源归属的等级,进而可能导致合规结果的变化",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-method-annotations": [
+          "@CtsMeta(resourceType = \"Resources\", traceName = \"NotifyResourceChange\", operationId = \"NotifyResourceChange\", isReadOnly=false)"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domain_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户ID",
+            "maxLength": 36,
+            "minLength": 1
+          },
+          {
+            "name": "NotifyResourceChangeRequestBody",
+            "in": "body",
+            "required": false,
+            "description": "资源对象信息",
+            "schema": {
+              "$ref": "#/definitions/ResourceNotifyBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "无返回"
+          },
+          "400": {
+            "description": "请求错误",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "401": {
+            "description": "未提供认证信息或认证信息错误。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "403": {
+            "description": "请求页面被禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "404": {
+            "description": "未找到资源。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "408": {
+            "description": "请求超出了服务器的等待时间。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "429": {
+            "description": "当前请求过多。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "500": {
+            "description": "请求未完成,服务异常。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          },
+          "503": {
+            "description": "系统暂时不可用,请求受限。",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-iam-auth-meta-anno": {
+          "abacAction": "bcc::notifyResource",
+          "authLevel": "NO_INSTANCE",
+          "needResourceTagCheck": false,
+          "needApigwJwtAuthCheck": false,
+          "needAbacCheck": true,
+          "needAbacResourceCheck": false,
+          "supportAllGrantedEps": false,
+          "needRbacCheck": false,
+          "needCbcCheck": false,
+          "model": "v5",
+          "authContextInitializerName": "iamAuthCreateContextInitializer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ResourceNotifyEntity": {
+      "type": "object",
+      "description": "资源变化通知格式",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "资源名称",
+          "example": "auto_rep_from_9eec19a3-8484-4ac2-ba9c-ba89e869552e",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "region_id": {
+          "type": "string",
+          "description": "区域ID",
+          "example": "cn-southwest-242",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "project_id": {
+          "type": "string",
+          "description": "Openstack中的项目ID",
+          "example": "1d9c62d1534b4f7394e4a0a363560826",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "ep_id": {
+          "type": "string",
+          "description": "企业项目ID",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "created": {
+          "type": "string",
+          "description": "资源创建时间",
+          "example": "2025-05-19T06:17:26Z",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "updated": {
+          "type": "string",
+          "description": "资源更新时间",
+          "example": "2025-05-19T06:21:34Z",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "provisioning_state": {
+          "type": "string",
+          "description": "资源操作状态",
+          "example": "Succeeded",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "example": "{\"a\":\"b\"} 标签元素不允许超过1000",
+            "minLength": 0,
+            "maxLength": 65536
+          },
+          "description": "资源标签",
+          "maxProperties": 1000,
+          "example": [
+            {
+              "a": "b"
+            }
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          },
+          "description": "资源详细属性",
+          "maxProperties": 1000,
+          "example": {
+            "auto_trigger": true
+          }
+        }
+      }
+    },
+    "ResourceNotifyBody": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "domain_id",
+        "resource_id",
+        "resource_type",
+        "event_type"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "description": "事件ID",
+          "example": "969a5362af532440fd9be802a0dd06aa",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "capture_time": {
+          "type": "string",
+          "description": "捕获时间",
+          "example": "2025-05-19T06:21:37.812Z",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "domain_id": {
+          "type": "string",
+          "description": "账户ID",
+          "example": "3e11d1ca792a47f2b1367fe4xxxxxxxx",
+          "minLength": 0,
+          "maxLength": 36
+        },
+        "resource_id": {
+          "type": "string",
+          "description": "资源ID",
+          "example": "2f2a1910-32a6-45b6-9f34-61a7779f8558",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "resource_type": {
+          "type": "string",
+          "description": "资源类型",
+          "example": "cbr.backup",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "event_type": {
+          "type": "string",
+          "description": "事件类型:CREATE-创建,UPDATE-更新,DELETE-删除",
+          "enum": [
+            "CREATE",
+            "UPDATE",
+            "DELETE"
+          ],
+          "example": "CREATE"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "检验码",
+          "example": "7f7b5f71d16d9b17c5c0233a3164a590e19356a9cfb1f861a1bf8bcdbfe0a8c1",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "sync_type": {
+          "type": "string",
+          "example": "DELTA",
+          "description": "同步类型",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "resource": {
+          "description": "资源信息",
+          "$ref": "#/definitions/ResourceNotifyEntity"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "bcc.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}

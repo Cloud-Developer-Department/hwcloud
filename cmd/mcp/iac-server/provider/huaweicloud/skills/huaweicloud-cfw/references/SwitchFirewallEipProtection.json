@@ -1,0 +1,166 @@
+{
+  "name": "SwitchFirewallEipProtection",
+  "summary": "一键逃生/一键恢复开关",
+  "tags": "EIP管理",
+  "productshort": "CFW",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/eip/protect/all/{fw_instance_id}/operation": {
+      "post": {
+        "tags": [
+          "Eip Management"
+        ],
+        "summary": "一键逃生/一键恢复开关",
+        "description": "一键逃生/一键恢复开关",
+        "operationId": "SwitchFirewallEipProtection",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数解释**:\n项目ID,用于明确项目归属,配置后可通过该ID查询项目下资产,可以从调API处获取,也可以从控制台获取。[项目ID获取方式](cfw_02_0015.xml)\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 0
+          },
+          {
+            "name": "fw_instance_id",
+            "in": "path",
+            "description": "**参数解释**:\n防火墙ID,用户创建防火墙实例后产生的唯一ID,配置后可区分不同防火墙,可通过[防火墙ID获取方式](cfw_02_0028.xml)获取\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+            "required": true,
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+          },
+          {
+            "in": "body",
+            "name": "SwitchFirewallEipProtectionRequestBody",
+            "description": "一键逃生/一键恢复请求体",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EipBypassDto"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "protection_status": 1,
+                  "id": "175572ed-67e8-4837-9776-e2e07080ea45",
+                  "object_id": "af30c598-b185-4b3e-9271-3d1393acd43e"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/SwitchFirewallEipProtectionResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-method-annotations": [
+          "@IamAuthMeta(rbac = {RoleConst.TE_ADMIN, RoleConst.OP_SERVICE, RoleConst.TE_ADMIN_RESTRICTED, RoleConst.TE_ADMIN_SUSPENDED}, needRbacCheck = false, needCbcCheck = false, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthAction(iam3Action = IamV3Action.UPGRADE_CFW, iam5Action = CommonConstant.IAM5_UPGRADE_FIREWALL_INSTANCE)",
+          "@IamAuthMetaV5(needCbcCheck = false, needAbacResourceCheck = true, authContextInitializerName =\"FirewallInitializer\")",
+          "@IamAuthParam(instanceId = \"fw_instance_id\")"
+        ],
+        "x-request-examples-url-1": "https://{Endpoint}/v1/eefb11b22d5944f2aa067954516df1cf/eip/protect/all/175572ed-67e8-4837-9776-e2e07080ea45/operation",
+        "x-request-examples-description-1": "一键关闭EIP防护",
+        "x-request-examples-text-1": {
+          "bypass_operation": 1
+        },
+        "x-request-examples-1": {
+          "bypass_operation": 1
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "SwitchFirewallEipProtectionResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "一键逃生/一键恢复返回数据",
+          "properties": {
+            "protection_status": {
+              "type": "integer",
+              "description": "**参数解释**:\n防火墙防护状态,0: 正常状态, 1: bypass进行中, 2: bypass成功, 3: bypass失败, 4: 恢复中, 5: 恢复失败\n**取值范围**:\n不涉及",
+              "readOnly": true
+            },
+            "id": {
+              "type": "string",
+              "description": "**参数解释**:\n防火墙ID,用户创建防火墙实例后产生的唯一ID,配置后可区分不同防火墙,可通过[防火墙ID获取方式](cfw_02_0028.xml)获取\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+              "readOnly": true
+            },
+            "object_id": {
+              "type": "string",
+              "description": "**参数解释**:\n防护对象ID,是创建云防火墙后用于区分互联网边界防护和VPC边界防护的标志id,可通过调用[查询防火墙实例接口](ListFirewallDetail.xml)获得,通过返回值中的data.records.protect_objects.object_id(.表示各对象之间层级的区分)获得,注意type为0的为互联网边界防护对象id,type为1的为VPC边界防护对象id。\n**约束限制**:\n不涉及\n**取值范围**:\n32位UUID\n**默认取值**:\n不涉及",
+              "readOnly": true
+            }
+          }
+        },
+        "fail_reason": {
+          "type": "string",
+          "description": "一键逃生失败原因",
+          "readOnly": true
+        }
+      },
+      "title": "SwitchFirewallEipProtectionResp"
+    },
+    "EipBypassDto": {
+      "type": "object",
+      "required": [
+        "bypass_operation"
+      ],
+      "properties": {
+        "bypass_operation": {
+          "type": "integer",
+          "format": "int32",
+          "description": "防护操作类型,1表示一键关闭防护,0表示一键恢复防护",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "title": "EipBypassDto"
+    },
+    "ErrorRsp": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:\n错误码\n**取值范围**:\n不涉及",
+          "readOnly": true
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:\n错误描述\n**取值范围**:\n不涉及",
+          "readOnly": true
+        }
+      },
+      "description": "**参数解释**:\n失败时返回的错误信息\n**取值范围**:\n不涉及"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cfw.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

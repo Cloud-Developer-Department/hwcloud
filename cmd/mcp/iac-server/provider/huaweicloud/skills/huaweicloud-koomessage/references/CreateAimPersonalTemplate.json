@@ -1,0 +1,468 @@
+{
+  "name": "CreateAimPersonalTemplate",
+  "summary": "创建个人模板",
+  "tags": "智能信息模板",
+  "productshort": "KooMessage",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/aim/templates": {
+      "post": {
+        "tags": [
+          "AIMTemplate"
+        ],
+        "summary": "创建个人模板",
+        "description": "用于用户创建个人模板。\n\n> 请求中所有字符串不允许携带“<”、“>”、“\\&amp;amp;”或多个空格。\n> 模板内容需加“拒收请回复R”。\n",
+        "operationId": "CreateAimPersonalTemplate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "CreateAimPersonalTemplateRequestBody",
+            "description": "创建个人模板请求体。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateAimPersonalTemplateRequestBody"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "请求体参数类型,该字段必须设置为:application/json。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "返回信息。",
+            "examples": {
+              "application/json": {
+                "status": "200",
+                "message": "success",
+                "data": {
+                  "tpl_id": "600000001"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/CreateAimPersonalTemplateRsp"
+            }
+          },
+          "400": {
+            "description": "非法参数。",
+            "schema": {
+              "$ref": "#/definitions/TemplateErrorMsg"
+            }
+          },
+          "500": {
+            "description": "内部错误。",
+            "schema": {
+              "$ref": "#/definitions/TemplateErrorMsg"
+            }
+          }
+        },
+        "x-opseverity": "Info",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "Public"
+      }
+    }
+  },
+  "definitions": {
+    "AimPersonalTemplatePage": {
+      "required": [
+        "contents",
+        "page_order"
+      ],
+      "properties": {
+        "page_order": {
+          "type": "integer",
+          "description": "分页显示,指示当前展示第几页,从1开始,最大支持10页。"
+        },
+        "contents": {
+          "type": "array",
+          "description": "该page下的协议内容。",
+          "items": {
+            "$ref": "#/definitions/AimPersonalTemplateContent"
+          }
+        }
+      }
+    },
+    "AimPersonalTemplateContent": {
+      "required": [
+        "position_number",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "模板资源类型。\n- text:表示文本\n- image:表示图片\n- video:表示视频\n- button:表示按钮\n- followPub:表示华为服务号,暂不支持\n\n> 图片轮播类模板最多可以放5张图片,即card_id为CarouselSquareImage、CarouselImageSixteenToNine、CarouselVerticalImage时,type为image的资源最多有5个。\n",
+          "minLength": 1,
+          "maxLength": 18
+        },
+        "content": {
+          "type": "string",
+          "description": "资源类型为Text或Button时,为必填。文本长度限制请按智能短信模板版式格式标准。\n\n> 智能信息模板标准版式要求可登录KooMessage控制台,在创建智能信息模板中查看。\n",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "content_child": {
+          "type": "string",
+          "description": "子内容。非必填,文本长度限制请参考智能信息模板标准版式要求。\n\n> 智能信息模板标准版式要求可登录KooMessage控制台,在创建智能信息模板中查看。\n"
+        },
+        "src_type": {
+          "type": "integer",
+          "description": "src类型。资源类型为Image或Video时,该项为必填项。\n- 1:指资源ID \n- 2:指资源地址\n\n> src_type为2,即资源地址时,src或cover内容必须是存储在客户侧服务器上的资源地址。\n",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "src": {
+          "type": "string",
+          "description": "资源来源,资源类型为Image或Video时,为必填,通过设置视频模板封面图接口设置视频封面。\n> - 如上src_type为1,即资源ID时,参数填入上传模板素材接口中返回的aim_resource_id,如:691996319597764608 > - 如上src_type为2,即资源地址时,参数填写资源完整的URL,最大长度不超过1000个字符\n\n"
+        },
+        "cover": {
+          "type": "string",
+          "description": "视频封面。\n> 资源类型为Video时,为必填。\n> - 如上src_type为1,即资源ID时,参数填入上传模板素材接口中返回的aim_resource_id,如:691996319597764608\n> - 如上src_type为2,即资源地址时,参数填写资源完整的URL,最大长度不超过1000个字符\n",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "is_text_title": {
+          "type": "string",
+          "description": "是否为文本标题。\n\n- true:是\n- false:不是\n\n> 不填默认为false。\n",
+          "minLength": 0,
+          "maxLength": 10
+        },
+        "action_type": {
+          "type": "string",
+          "description": "功能类型。\n\n- OPEN_URL:表示跳转H5\n- OPEN_QUICK:表示跳转快应用\n- OPEN_APP:表示跳转APP\n- DIAL_PHONE:表示拉起拨号盘\n- OPEN_SMS:表示新建短信息\n- OPEN_EMAIL:表示打开邮箱\n- OPEN_SCHEDULE:表示新建日程\n- OPEN_MAP:表示位置定位\n- OPEN_BROWSER:表示打开浏览器\n- OPEN_POPUP:表示弹窗\n- COPY_PARAMETER:表示复制\n- VIEW_PIC:表示打开大图\n\n> - type为Image和Button时为必填项,必须绑定事件\n> - type为其他类型时则不必填\n> - OPPO厂商点击事件类型只支持打开浏览器、打开快应用、打开APP、跳转H5\n> - VIVO厂商点击事件类型不支持打开邮箱、打开地图\n> - MEIZU厂商点击事件类型不支持打开大图\n> - 横滑类1、横滑类2版式的图片不支持绑定事件,默认与按钮事件一致\n> - 三星厂商点击事件类型不支持新建日程、打开大图\n\n"
+        },
+        "position_number": {
+          "type": "integer",
+          "description": "卡片组件的位置序号。\n> 资源在卡片上相对的位置序号,按照优先从左到右,再从上到下的编排原则,统一编号。\n"
+        },
+        "visible": {
+          "type": "integer",
+          "description": "组件是否可见。\n- 0:隐藏(某些组件可设置隐藏)\n- 1:可见\n\n> 目前仅针对电商多商品(Ecommerce)、多卡券(CardVouchers)、增强机票类(PlaneTrip)这三种版式起效。\n"
+        },
+        "currency_display": {
+          "type": "integer",
+          "description": "是否显示货币符号。\n\n- 0:隐藏 \n- 1:可见\n\n> 当模板为电商类时是否显示¥符号,默认可见。\n"
+        },
+        "oppo_background": {
+          "type": "string",
+          "description": "OPPO红包背景。\n\n> - 当src_type为1时,即资源ID时,参数填入上传模板素材接口中返回的aim_resource_id,如:691996319597764608\n> - 当src_type为2时,即资源地址时,参数填写资源完整的URL,最大长度不超过1000个字符\n>- 当模板为红包类,即card_id为RedPacket时用于指定OPPO厂商红包背景图,具体使用可参考创建红包类模板请求示例\n",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "vivo_background": {
+          "type": "string",
+          "description": "VIVO红包背景。\n\n> - 当src_type为1时,即资源ID时,参数填入上传模板素材接口中返回的aim_resource_id,如:691996319597764608\n> - 当src_type为2时,即资源地址时,参数填写资源完整的URL,最大长度不超过1000个字符\n",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "ratio": {
+          "type": "string",
+          "description": "表示短视频模板视频和封面的宽高比。即card_id为ShortVideo时,此项有值。\n- threeToFour: 宽高比为3:4\n- oneToOne: 宽高比为1:1\n"
+        },
+        "action": {
+          "$ref": "#/definitions/AimPersonalTemplateContentAction"
+        },
+        "button_type": {
+          "type": "string",
+          "description": "当模板为电商领券类竖版,即card_id为EcommerceCouponVertical时用于指定按钮类型,具体使用可参考创建电商领券类竖版模板请求示例。\n- static:静态按钮\n- dynamic:动态按钮\n"
+        }
+      },
+      "description": "模板协议内容数据结构。"
+    },
+    "AimPersonalTemplateContentAction": {
+      "required": [
+        "target"
+      ],
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "此字段根据action_type对应不同的含义,具体对应如下。\n\n- action_type=OPEN_URL:表示H5访问地址。必须为HTTPS,支持含动态参数。字符长度为1-1000。示例:https://XXXXX/${param1}\n- action_type=OPEN_QUICK:表示快应用deeplink地址。支持含动态参数,字符长度为1-1000。示例:hap://app/xxx/${param1}\n- action_type=OPEN_APP:表示APP的deeplink地址。支持含动态参数,字符长度为1-1000。示例:weixin://\n- action_type=DIAL_PHONE:表示电话号码。不能超过20个字符。示例:18600000000\n- action_type=OPEN_SMS:表示电话号码。不能超过20个字符。示例:18600000000\n- action_type=OPEN_EMAIL:表示邮箱地址。不能超过100个字符。示例:1046520406@qq.com\n- action_type=OPEN_SCHEDULE:表示日程标题。不能超过100个字符。示例:日常需求评审\n- action_type=OPEN_MAP:表示位置名。不能超过100个字符。示例:龙泰利科技大厦\n- action_type=OPEN_BROWSER:表示网址。支持HTTPS或HTTP,支持含动态参数,不能超过1000个字符。示例:https://XXXXX/${param1}\n- action_type=OPEN_POPUP:表示弹窗标题。不能超过30个字符。参数示例:xxx商品\n- action_type=COPY_PARAMETER:表示复制的内容。支持含动态参数,不能超过20个字符。复制验证码示例:83721\n- action_type=VIEW_PIC:表示要打开的大图ID。配置在打开大图的资源地址与模板上的图片资源地址一致。如果模板资源类型是ID,则传ID,如果是资源地址,则使用资源地址。最大长度不能超过1000个字符。例如:当src_type为1时,传入ID:691996319597764608。当src_type为2时,使用资源地址:https://www.xxxx.cn/src/image/head.jpg\n"
+        },
+        "content": {
+          "type": "string",
+          "description": "弹窗内容。\n\n> action_type=OPEN_POPUP为必填。不能超过100个字符。示例:是否喜欢该商品。\n",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "package_name": {
+          "type": "string",
+          "example": "com.xxxx.service.koomsg",
+          "description": "包名。\n\n> action_type=OPEN_APP为必填。不能超过50个字符。示例:com.xxxx.service.koomsg。\n",
+          "minLength": 0,
+          "maxLength": 50
+        },
+        "floor_url": {
+          "type": "string",
+          "description": "兜底URL。支持快应用deeplink或H5的HTTPS网址,不能超过1000个字。\n\n> - action_type=OPEN_APP为选填,其他类型不填\n> - 兜底类型为0时,可不填\n> - 当兜底类型为2并且提交厂商列表中包含OPPO厂商时为必填\n",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "floor_type": {
+          "type": "integer",
+          "description": "兜底类型。如果传入的厂商不支持该兜底类型,接口会返回错误。如果不传入厂商,则不对兜底类型进行校。\n- 0:打开应用市场\n- 1:打开H5页面(通过收件箱内置浏览器打开)\n- 2:打开浏览器\n- 3:打开快应用\n\n> action_type=OPEN_APP为选填,其他类型不填;action_type=OPEN_APP时此参数不填则默认打开应用市场。打开链接为http格式时必须选择打开浏览器;打开链接为https格式且内容只是一个普通页面时,可以使用打开H5页面,当链接中有下载指引或打开小程序由于部分内置浏览器功能不全可能导致打开异常,建议使用打开浏览器,请按需选择兜底类型。\n> - 华为:支持以上4种兜底\n> - 魅族:支持以上4种兜底\n> - 小米:不支持打开H5页面兜底\n> - OPPO:不支持打开快应用兜底\n> - VIVO:不支持打开快应用兜底\n> - 三星:不支持打开应用市场和打开浏览器。当创建的模板仅包含三星厂商时,兜底URL不支持打开浏览器和打开应用市场;当创建的模板包含三星和其它厂商时,以其它厂商的限制为准,三星的兜底链接将不生效\n",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "subject": {
+          "type": "string",
+          "description": "邮件标题。\n\n> action_type=OPEN_EMAIL为必填。不能超过100个字符。示例:618活动促销。\n"
+        },
+        "body": {
+          "type": "string",
+          "description": "邮件正文/短信正文。\n\n> action_type=OPEN_SMS或OPEN_EMAIL为必填。不能超过100个字符。\n>\n> 短信正文示例1:今天回家吃饭吗;\n>\n> 邮件正文示例2:您有一张优惠券领取。\n"
+        },
+        "description": {
+          "type": "string",
+          "description": "日程内容描述。\n\n> action_type=OPEN_SCHEDULE为必填。不能超过100个字符。示例:评审这个月版本需求。\n",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "begin_time": {
+          "type": "string",
+          "example": "1970-01-01 00:00:00",
+          "description": "日程开始时间。格式为:yyyy-MM-dd HH:mm:ss。\n\n> 当action_type=OPEN_SCHEDULE时为必填。\n",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "end_time": {
+          "type": "string",
+          "example": "1970-01-01 00:00:00",
+          "description": "日程结束时间。格式为:yyyy-MM-dd HH:mm:ss。\n\n> 当action_type=OPEN_SCHEDULE时为必填。\n",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "address": {
+          "type": "string",
+          "description": "地址的详细说明。\n\n> action_type=OPEN_MAP为必填。不能超过100个字符。示例:高新中四道龙泰利科技大厦。\n",
+          "minLength": 0,
+          "maxLength": 100
+        },
+        "longitude": {
+          "type": "string",
+          "description": "地图经度。\n\n> action_type=OPEN_MAP为必填。不能超过20个字符。示例:113.941618。\n",
+          "minLength": 0,
+          "maxLength": 20
+        },
+        "latitude": {
+          "type": "string",
+          "description": "地图纬度。\n\n> action_type=OPEN_MAP为必填。不能超过20个字符。示例:22.548804。\n",
+          "minLength": 0,
+          "maxLength": 20
+        },
+        "text_button": {
+          "type": "string",
+          "description": "按钮展示文本。\n\n> action_type=OPEN_POPUP为必填。不能超过12个字符。示例:确定。\n",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "mode": {
+          "type": "integer",
+          "description": "弹窗模态。\n\n- 0:模态(默认)\n- 1:非模态(暂不支持)\n\n> action_type=OPEN_POPUP为必填。\n"
+        }
+      },
+      "description": "个人模板事件对象。"
+    },
+    "AimPersonalTemplateParam": {
+      "description": "个人模板参数。",
+      "required": [
+        "type",
+        "name",
+        "example"
+      ],
+      "properties": {
+        "type": {
+          "type": "integer",
+          "description": "动态参数类型。1:表示文本类型。\n",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "name": {
+          "type": "string",
+          "description": "动态参数名称。示例:${param1}。",
+          "example": "${param1}",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "example": {
+          "type": "string",
+          "description": "参数示例,动态参数对应的示例,不能大于100个字符。",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "CreateAimPersonalTemplateRsp": {
+      "properties": {
+        "status": {
+          "type": "string",
+          "example": "200",
+          "description": "状态码。"
+        },
+        "message": {
+          "type": "string",
+          "example": "200",
+          "description": "响应信息。"
+        },
+        "data": {
+          "$ref": "#/definitions/CreateAimPersonalTemplateResponseMode",
+          "description": "创建模板响应。"
+        }
+      },
+      "description": "创建模板响应体。"
+    },
+    "TemplateErrorMsg": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "结果状态码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "结果详情。"
+        }
+      },
+      "description": "错误模型。"
+    },
+    "AimPersonalTemplateFactory": {
+      "description": "厂商。",
+      "required": [
+        "factory_type",
+        "state"
+      ],
+      "properties": {
+        "factory_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16,
+          "description": "厂商类型。\n\n- HUAWEI:华为\n- XIAOMI:小米\n- OPPO:OPPO\n- VIVO:VIVO\n- MEIZU:魅族\n- SAMSUNG:三星\n\n> 各厂商支持的布局类型,布局类型与card_id字段相对应。分别如下:\n> - HUAWEI:多图文类(MultipleImageAndText)、图文类(StandardImageAndText)、长文本类(PureText)、横滑类1(Carousel)、横滑类2(CarouselTitle)、视频图文类(VideoImageAndText)、视频类(Video)、电商类(ECImageAndText)、红包类(RedPacket)、个性化红包类(RedPacketPersonal)、增强通知类(Notification2)、图片轮播类1:1(CarouselSquareImage)、图片轮播类16:9(CarouselImageSixteenToNine)、图片轮播类48:65(CarouselVerticalImage)、图文视频类(ImageTextAndVideo)、一般通知类(Notification1)、单卡券(CardVoucher)、多卡券(CardVouchers)、电商多商品类(Ecommerce)、电商领券类竖版(EcommerceCouponVertical)、机票类(Trip1)、火车票类(Trip2)、汽车票类(Trip3)、增强机票类(PlaneTrip)、海报类(SimplePoster)、超文本普通类(NativePureText)、超文本增强类(NativeImageAndText)、短剧视频类(ShortVideo)\n> - XIAOMI:多图文类(MultipleImageAndText)、图文类(StandardImageAndText)、红包类(RedPacket)、增强通知类(Notification2)、一般通知类(Notification1)\n> - OPPO:多图文类(MultipleImageAndText)、图文类(StandardImageAndText)、长文本类(PureText)、横滑类(Carousel)、视频类(Video)、电商类(ECImageAndText)、红包类(RedPacket)、图片轮播类1:1(CarouselSquareImage)、图片轮播类16:9(CarouselImageSixteenToNine)、图片轮播类48:65(CarouselVerticalImage)、单卡券(CardVoucher)\n> - MEIZU:多图文类(MultipleImageAndText)、图文类(StandardImageAndText)、横滑类1(Carousel)、横滑类2(CarouselTitle)\n> - VIVO:多图文类(MultipleImageAndText)、图文类(StandardImageAndText)、图片轮播类1:1(CarouselSquareImage)、图片轮播类16:9(CarouselImageSixteenToNine)、图片轮播类48:65(CarouselVerticalImage)、视频类(Video)、电商类(ECImageAndText)、红包类(RedPacket)、增强通知类(Notification2)、一般通知类(Notification1)、个性化红包类(RedPacketPersonal)、单卡券(CardVoucher)\n> - 三星:多图文类(MultipleImageAndText)、图文类(StandardImageAndText)、长文本类(PureText)、横滑类1(Carousel)、横滑类2(CarouselTitle)、视频图文类(VideoImageAndText)、视频类(Video)、电商类(ECImageAndText)、红包类(RedPacket)、图片轮播类1:1(CarouselSquareImage)、图片轮播类16:9(CarouselImageSixteenToNine)、图片轮播类48:65(CarouselVerticalImage)、图文视频类(ImageTextAndVideo)、一般通知类(Notification1)、机票类(Trip1)、火车票类(Trip2)、汽车票类(Trip3)\n"
+        },
+        "state": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "支持状态。\n- 1:支持\n- 0:不支持\n"
+        }
+      }
+    },
+    "CreateAimPersonalTemplateRequestBody": {
+      "required": [
+        "card_id",
+        "pages",
+        "tpl_name",
+        "use_id"
+      ],
+      "properties": {
+        "card_id": {
+          "type": "string",
+          "description": "布局类型。\n- MultipleImageAndText:多图文类\n- StandardImageAndText:图文类\n- PureText:长文本类\n- VideoImageAndText:视频图文类\n- Video:视频类\n- ECImageAndText:电商类\n- RedPacket:红包类\n- RedPacketPersonal:个性化红包类\n- ImageTextAndVideo:图文视频类\n- Notification1:一般通知类\n- Notification2:增强通知类\n- Carousel:横滑类1\n- CarouselTitle:横滑类2\n- CarouselSquareImage:图片轮播类(1:1)\n- CarouselImageSixteenToNine:图片轮播类(16:9)\n- CarouselVerticalImage:图片轮播类(48:65)\n- CardVoucher:单卡券\n- CardVouchers:多卡券(最多支持四张卡券)\n- Ecommerce:电商多商品类\n- Trip1:机票类\n- Trip2:火车票类\n- Trip3:汽车票类\n- PlaneTrip:增强机票类\n- SimplePoster:海报类\n- NativePureText:超文本普通类\n- NativeImageAndText:超文本增强类\n- ShortVideo:短剧视频类\n- ShortVideoImage:短剧图片类\n- EcommerceCouponVertical:电商领券类竖版\n\n> 当送审厂商包含vivo时,各布局类型上传的图片最小像素要求如下:\n> - card_id为StandardImageAndText,宽高比为16:9时,图片的最小像素为1088px*612px。\n> - card_id为MultipleImageAndText,宽高比为16:9时,图片的最小像素为1088px*612px。\n> - card_id为MultipleImageAndText,宽高比为1:1时,图片的最小像素为320px*320px。\n> - card_id为Video,宽高比为16:9时,视频封面图片的最小像素为1088px*612px。\n> - card_id为RedPacket,宽高比为1:1时,图片的最小像素为320px*320px。\n> - card_id为CarouselImageSixteenToNine,宽高比为16:9时,图片的最小像素为1088px*612px。\n> - card_id为CarouselSquareImage,宽高比为1:1时,图片的最小像素为1088px*1088px。\n> - card_id为CarouselVerticalImage,宽高比为48:65时,图片的最小像素为960px*1300px。\n> - card_id为Notification1,宽高比为3:1时,图片的最小像素为576px*192px。\n> - card_id为Notification2,宽高比为3:1时,图片的最小像素为576px*192px。\n> - card_id为ECImageAndText,宽高比为1:1时,图片的最小像素为1088px*1088px。\n"
+        },
+        "tpl_name": {
+          "type": "string",
+          "description": "智能信息模板名称。",
+          "minLength": 1,
+          "maxLength": 17
+        },
+        "scene": {
+          "type": "string",
+          "description": "模板使用场景类型。",
+          "minLength": 0,
+          "maxLength": 10
+        },
+        "use_id": {
+          "type": "integer",
+          "description": "模板用途。\n\n- 1:表示商用\n- 2:表示试商用\n\n\n> - 模板用途为1,即“商用”时,所有字段中不允许有测试字样,否则影响送审\n> - 模板用途为2,即“试商用”时,请在模板名称(tpl_name)、模板主标题中增加测试字样\n"
+        },
+        "sub_type": {
+          "type": "integer",
+          "description": "版式子类型。\n> - 当card_id为RedPacket和RedPacketPersonal时,sub_type用于设置按钮样式,1表示静态按钮,2表示动态按钮。目前仅华为厂商支持动态按钮。\n> - 当card_id为ECImageAndText时,sub_type用于设置左右按钮组合颜色,默认值为1,1表示左边按钮为橙色,右边按钮为红色;2表示左边按钮为绿色,右边按钮为黄色;3表示左边按钮为绿色,右边按钮为蓝色;4表示左边按钮为紫色,右边按钮为蓝色;5表示左边按钮为黑色,右边按钮为玫粉色。仅华为厂商支持sub_type取值为2、3、4、5。\n> - 当card_id为CarouselVerticalImage时,sub_type用于设置按钮颜色,1表示蓝色(默认颜色)、2表示黑色、3表示紫色、4表示金色、5表示粉色、6表示玫粉。仅华为厂商支持sub_type取值为2、3、4、5、6。\n> - 当card_id为CardVoucher时,sub_type用于设置按钮样式,1表示静态按钮,2表示动态按钮。目前仅华为厂商支持动态按钮。\n> - 当card_id为ShortVideoImage时,sub_type用于设置是否显示播放图标,1表示不显示,2表示显示。\n> - 当card_id为EcommerceCouponVertical和EcommerceCouponHorizontal时,sub_type用于设置卡券区是否隐藏。sub_type设置为1,卡券区(position_number为4~7)的visible设置为1,且卡券区(position_number为7)的button_type设置为static或dynamic时,显示卡券区;sub_type设置为2,卡券区(position_number为4~7)的visible设置为0,且卡券区(position_number为7)的button_type设置为空值或不带该字段时,卡券区被隐藏。"
+        },
+        "sms_example": {
+          "type": "string",
+          "description": "要发送的原始文本消息示例。",
+          "minLength": 0,
+          "maxLength": 70
+        },
+        "sms_signs": {
+          "type": "array",
+          "description": "短信签名。最多可以传三个签名,发送短信时,只要能匹配其中一个即可。填写的短信签名为企业绑定的签名,每个签名最多20个字,支持输入中文,英文,数字,符号,单个签名内容不包括中括号。\n\n> 选择厂商包含VIVO时,此参数必填。\n",
+          "minItems": 0,
+          "maxItems": 3,
+          "items": {
+            "description": "短信签名。",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "example": "华为云科技"
+          }
+        },
+        "sms_template": {
+          "type": "string",
+          "description": "短信原文模板。参数示例:尊敬的客户,截至[文本0-20],您本月国内通用流量已使用[数字0-4]GB,使用到[数字0-4]GB ,整体上网速度将不高于[数字0-2]Mbps。您可点击[字母0-20]获取[文本0-20]。\n\n> - 正则类型仅支持文本、字母、数字三种,且长度最大为99,且中括号为英文中括号。静态短信文案加正则动态文案最大值的总字数不超过370个字符\n> - 选择厂商包含VIVO时,此参数必填\n"
+        },
+        "pages": {
+          "type": "array",
+          "description": "模板协议,最大支持10页协议。",
+          "items": {
+            "$ref": "#/definitions/AimPersonalTemplatePage"
+          },
+          "maxItems": 10
+        },
+        "params": {
+          "type": "array",
+          "description": "模板参数集。",
+          "items": {
+            "$ref": "#/definitions/AimPersonalTemplateParam"
+          },
+          "maxItems": 20
+        },
+        "factorys": {
+          "type": "array",
+          "description": "需要提交的厂商列表。",
+          "items": {
+            "$ref": "#/definitions/AimPersonalTemplateFactory"
+          }
+        }
+      },
+      "description": "创建个人模板请求体。"
+    },
+    "CreateAimPersonalTemplateResponseMode": {
+      "properties": {
+        "tpl_id": {
+          "type": "string",
+          "example": "200",
+          "description": "智能信息模板ID。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "koomessage.myhuaweicloud.cn",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

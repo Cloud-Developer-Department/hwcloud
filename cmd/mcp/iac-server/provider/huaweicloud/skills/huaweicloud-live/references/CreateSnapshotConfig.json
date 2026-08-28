@@ -1,0 +1,275 @@
+{
+  "name": "CreateSnapshotConfig",
+  "summary": "创建直播截图配置",
+  "tags": "截图管理",
+  "productshort": "Live",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1/{project_id}/stream/snapshot": {
+      "post": {
+        "x-request-examples-text-1": {
+          "domain": "play.example.huawei.com",
+          "app_name": "live",
+          "time_interval": 5,
+          "object_write_mode": 1,
+          "obs_location": {
+            "bucket": "cls-test",
+            "location": "region1",
+            "object": "/ffff/aa/"
+          }
+        },
+        "tags": [
+          "截图管理"
+        ],
+        "description": "创建直播截图配置接口",
+        "summary": "创建直播截图配置",
+        "operationId": "CreateSnapshotConfig",
+        "x-apiexplorer-hide": "N",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,使用Token鉴权方式时必选。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参考[获取项目ID](live_03_0023.xml)。",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "name": "CreateSnapshotConfigRequestBody",
+            "in": "body",
+            "description": "直播截图配置",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LiveSnapshotConfig"
+            }
+          },
+          {
+            "$ref": "#/parameters/Authorization"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-Date"
+          },
+          {
+            "$ref": "#/parameters/X-Project-Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "创建直播截图配置操作成功"
+          },
+          "400": {
+            "description": "创建直播截图配置操作失败",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "LIVE.100011001",
+                "error_msg": "Request Illegal"
+              }
+            }
+          }
+        },
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/{project_id}/stream/snapshot",
+        "x-request-examples-1": {
+          "domain": "play.example.huawei.com",
+          "app_name": "live",
+          "time_interval": 5,
+          "object_write_mode": 1,
+          "obs_location": {
+            "bucket": "cls-test",
+            "location": "region1",
+            "object": "/ffff/aa/"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ObsFileAddr": {
+      "required": [
+        "bucket",
+        "location"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "description": "OBS的bucket名称",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "location": {
+          "type": "string",
+          "description": "OBS Bucket所在的区域,且必须保持与使用的直播服务区域保持一致。",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "object": {
+          "type": "string",
+          "description": "OBS对象路径,遵守OSS Object定义\n- 当用于指示input时,需要指定到具体对象\n- 当用于指示output时,只需指定到转码结果期望存放的路径",
+          "maxLength": 1024,
+          "minLength": 1
+        }
+      },
+      "type": "object"
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string"
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string"
+        }
+      }
+    },
+    "LiveSnapshotConfig": {
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "直播推流域名",
+          "maxLength": 255,
+          "minLength": 1
+        },
+        "app_name": {
+          "type": "string",
+          "description": "应用名称",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "auth_key": {
+          "type": "string",
+          "description": "回调鉴权密钥值\n\n长度范围:[32-128]\n\n若需要使用回调鉴权功能,请配置鉴权密钥,否则,留空即可。",
+          "minLength": 32,
+          "maxLength": 128
+        },
+        "time_interval": {
+          "type": "integer",
+          "description": "截图频率\n\n取值范围:[5-3600]\n\n单位:秒"
+        },
+        "object_write_mode": {
+          "type": "integer",
+          "description": "在OBS桶存储截图的方式:\n - 0:实时截图,以时间戳命名截图文件,保存所有截图文件到OBS桶。例:snapshot/{domain}/{app_name}/{stream_name}/{UnixTimestamp}.jpg\n - 1:覆盖截图,只保存最新的截图文件,新的截图会覆盖原来的截图文件。例:snapshot/{domain}/{app_name}/{stream_name}.jpg",
+          "enum": [
+            0,
+            1
+          ],
+          "default": 0
+        },
+        "snapshot_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n截图模式\n**约束限制**:\n不涉及\n**取值范围**:\n  - keyframe:I帧截图只选取、保存符合要求的I帧。\n  - nokeyframe:非I帧截图只选取、保存符合要求的非I帧。\n  - random:随机截图交替选取、保存符合要求的I帧及非I帧。\n**默认取值**:\nkeyframe",
+          "enum": [
+            "keyframe",
+            "nokeyframe",
+            "random"
+          ],
+          "default": "keyframe"
+        },
+        "obs_location": {
+          "$ref": "#/definitions/ObsFileAddr",
+          "description": "OBS存储位置信息"
+        },
+        "call_back_enable": {
+          "type": "string",
+          "description": "是否启用回调通知\n- on:启用。\n- off:不启用。",
+          "enum": [
+            "on",
+            "off"
+          ]
+        },
+        "call_back_url": {
+          "type": "string",
+          "description": "通知服务器地址,必须是合法的URL且携带协议,协议支持http和https。截图完成后直播服务会向此地址推送截图状态信息。",
+          "example": "http://xxx.com/notify"
+        },
+        "image_object_format": {
+          "type": "string",
+          "description": "截图存储文件命名规则, 仅支持jpg格式\n包含\n- '{obs_object}' OBS存储路径,即obs_location.object的值 \n- '{domain}' 域名\n- '{app}' 应用名\n- '{stream}'  流名\n\n其中实时截图模式下 \n- '{unix_time}'  时间戳,秒\n- '{unix_time_milli}'  时间戳,毫秒\n- '{fmt_time_utc}'   格式化UTC时间, 格式:YYYYMMDDhhmmss, 如20060102070405\n- '{fmt_time_local}'  格式化本地时间, 格式:YYYYMMDDhhmmss,如20060102150405\n必选一个时间类型模板",
+          "example": "{{.obs_object}}snapshot/{{.domain}}/{{.app}}/{{.stream}}.jpg"
+        },
+        "image_access_protocol": {
+          "type": "string",
+          "description": "截图存储文件访问协议, 仅支持http、https格式",
+          "enum": [
+            "http",
+            "https"
+          ]
+        },
+        "image_access_domain": {
+          "type": "string",
+          "description": "截图存储文件访问域名",
+          "maxLength": 255,
+          "minLength": 0
+        }
+      },
+      "required": [
+        "domain",
+        "app_name",
+        "time_interval",
+        "object_write_mode",
+        "obs_location"
+      ],
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "Authorization": {
+      "name": "Authorization",
+      "in": "header",
+      "required": false,
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "使用AK/SK方式认证时必填,携带的鉴权信息。",
+      "type": "string",
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx"
+    },
+    "X-Project-Id": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,携带项目ID信息。",
+      "minLength": 1,
+      "maxLength": 64,
+      "type": "string",
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-Sdk-Date": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "required": false,
+      "description": "使用AK/SK方式认证时必填,请求的发生时间。",
+      "minLength": 1,
+      "maxLength": 256,
+      "type": "string",
+      "x-example": "20191115T033655Za"
+    }
+  },
+  "host": "live.cn-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

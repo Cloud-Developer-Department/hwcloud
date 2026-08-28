@@ -1,0 +1,592 @@
+{
+  "name": "ShowResourceGroup",
+  "summary": "查询指定资源分组详情",
+  "tags": "资源分组",
+  "productshort": "CES",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/resource-groups/{group_id}": {
+      "get": {
+        "tags": [
+          "资源分组"
+        ],
+        "summary": "查询指定资源分组详情",
+        "description": "查询指定资源分组详情",
+        "operationId": "ShowResourceGroup",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "x-is-registered": "Y",
+        "x-version": "v2",
+        "x-order": 4,
+        "x-request-examples-description-1": "查询指定资源分组详情",
+        "x-request-examples-url-1": "/v2/{project_id}/resource-groups/{group_id}",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AuthToken"
+          },
+          {
+            "$ref": "#/parameters/ProjectId"
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "**参数解释**\n资源分组ID。\n**约束限制**\n不涉及\n**取值范围**\n以\"rg\"开头,后面跟着22个字母或数字\n**默认取值**\n不涉及",
+            "required": true,
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetResourceGroupResp"
+            },
+            "examples": {
+              "application/json": {
+                "group_name": "band",
+                "type": "TAG",
+                "tags": [
+                  {
+                    "key": "Resource",
+                    "value": "VPC"
+                  },
+                  {
+                    "key": "Usage",
+                    "value": "Tmp"
+                  }
+                ],
+                "create_time": "2006-01-02T15:04:05.000Z",
+                "group_id": "rg0123456789xxxx",
+                "enterprise_project_id": "0"
+              }
+            }
+          },
+          "400": {
+            "description": "参数校验失败",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "403": {
+            "description": "认证鉴权失败",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "404": {
+            "description": "资源不存在",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          },
+          "500": {
+            "description": "系统内部错误",
+            "schema": {
+              "$ref": "#/definitions/GoAPIErrorResponseV2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EpResourceStatistics": {
+      "type": "object",
+      "description": "企业项目关联资源的状态",
+      "properties": {
+        "extend_relation_id": {
+          "type": "string",
+          "description": "**参数解释**\n企业项目ID。\n**取值范围**\n长度[0,64]个字符.",
+          "minLength": 0,
+          "maxLength": 64,
+          "pattern": "^([a-z]|[A-Z]|[0-9]|_|-)+$"
+        },
+        "unhealthy": {
+          "type": "integer",
+          "description": "**参数解释**\n告警中的资源数。\n**取值范围**\n0-9999999",
+          "minimum": 0,
+          "maximum": 9999999
+        },
+        "total": {
+          "type": "integer",
+          "description": "**参数解释**\n资源总数。\n**取值范围**\n0-9999999",
+          "minimum": 0,
+          "maximum": 9999999
+        },
+        "event_unhealthy": {
+          "type": "integer",
+          "description": "**参数解释**\n已触发的资源数。\n**取值范围**\n0-9999999",
+          "minimum": 0,
+          "maximum": 9999999
+        },
+        "namespaces": {
+          "type": "integer",
+          "description": "**参数解释**\n资源类型数。\n**取值范围**\n0-9999999",
+          "minimum": 0,
+          "maximum": 9999999
+        }
+      }
+    },
+    "ResourceGroupTagRelation": {
+      "type": "object",
+      "description": "**参数解释**\n标签的匹配规则\n**约束限制**\n不涉及",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/definitions/TMSKey"
+        },
+        "operator": {
+          "type": "string",
+          "description": "**参数解释**\ntag操作符,含义是标签key与value的关系\n**约束限制**\n不涉及\n**取值范围**\n- include: 表示包含\n- prefix: 表示前缀\n- suffix: 表示后缀\n- notInclude: 表示不包含\n- equal: 表示相等,当operator为equal,value为空字符串时表示为全部\n- all: 表示全部\n**默认取值**\n不涉及",
+          "enum": [
+            "include",
+            "prefix",
+            "suffix",
+            "notInclude",
+            "equal",
+            "all"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/TMSValue"
+        }
+      }
+    },
+    "TMSKey": {
+      "type": "string",
+      "description": "**参数解释**\nTMS标签键规范\n**约束限制**\n不涉及\n**取值范围**\n长度为[1,128]个字符\n**默认取值**\n不涉及",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^((?!\\s)(?!_sys_)[\\p{L}\\p{Z}\\p{N}_.:=+\\-@]*)(?<!\\s)$"
+    },
+    "CombRelation": {
+      "required": [
+        "logical_operator",
+        "conditions"
+      ],
+      "description": "**参数解释**\n组合匹配参数。\n**约束限制**\n不涉及。",
+      "properties": {
+        "logical_operator": {
+          "type": "string",
+          "description": "**参数解释**\n逻辑运算符。\n**约束限制**\n不涉及。\n**取值范围**\n- ALL: 所有条件匹配成功。\n- ANY: 任意条件匹配成功。\n**默认取值**\n不涉及。",
+          "enum": [
+            "ALL",
+            "ANY"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "description": "**参数解释**\n组合匹配资源分组的匹配条件。\n**约束限制**\n不超过50个条件。",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        }
+      }
+    },
+    "GetResourceGroupResp": {
+      "required": [
+        "group_id",
+        "group_name",
+        "create_time",
+        "enterprise_project_id",
+        "type"
+      ],
+      "properties": {
+        "group_name": {
+          "description": "**参数解释**\n资源分组的名称。\n**取值范围**\n只能为字母、数字、汉字、-或_,长度为[1,128]个字符。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^([\\一-\\鿿]|[a-z]|[A-Z]|[0-9]|_|-)+$"
+        },
+        "group_id": {
+          "description": "**参数解释**:\n资源分组ID。\n**取值范围**:\n以rg开头,后跟22位由字母或数字组成的字符串。长度为[2,24]个字符。",
+          "type": "string",
+          "maxLength": 24,
+          "minLength": 2,
+          "pattern": "^rg([a-z]|[A-Z]|[0-9]){22}$"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释**:\n资源分组的创建时间\n**取值范围**:\n不涉及。",
+          "example": "2006-01-02T15:04:05.000Z"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "**参数解释**:\n资源分组的修改时间\n**取值范围**:\n不涉及。",
+          "example": "2006-01-02T15:04:05.000Z"
+        },
+        "enterprise_project_id": {
+          "description": "**参数解释**\n资源分组归属企业项目ID。\n**取值范围**\n由数字、字母和-组成,或者为0(默认企业项目ID)。",
+          "type": "string",
+          "pattern": "^((([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12})|0)$",
+          "example": 0
+        },
+        "type": {
+          "description": "**参数解释**\n资源添加/匹配方式。\n**取值范围**\n枚举值。\n- EPS: 匹配企业项目\n- TAG: 匹配标签\n- NAME: 匹配实例名称\n- COMB: 组合匹配\n- Manual: 手动添加",
+          "type": "string",
+          "enum": [
+            "EPS",
+            "TAG",
+            "NAME",
+            "COMB",
+            "Manual"
+          ]
+        },
+        "association_ep_ids": {
+          "type": "array",
+          "description": "该资源分组内包含的资源来源的企业项目ID,type为EPS时必传",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "string",
+            "description": "企业项目ID",
+            "pattern": "^((([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12})|0)$"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "description": "当资源匹配规则为匹配标签时,所指定的标签规则",
+          "items": {
+            "$ref": "#/definitions/ResourceGroupTagRelation"
+          }
+        },
+        "instances": {
+          "type": "array",
+          "description": "实例名称匹配参数",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/Instance"
+          }
+        },
+        "comb_relation": {
+          "$ref": "#/definitions/CombRelation",
+          "description": "组合匹配参数。"
+        },
+        "related_ep_ids": {
+          "type": "array",
+          "description": "当资源匹配规则为匹配企业项目时,指定的企业项目列表",
+          "minItems": 0,
+          "maxItems": 9999999,
+          "items": {
+            "type": "string",
+            "description": "**参数解释**:\n企业项目ID。如何查询企业项目ID,请参考[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**取值范围**:\n长度为0或者32个字符。",
+            "pattern": "^((([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12})|0)$",
+            "minLength": 0,
+            "maxLength": 64
+          }
+        },
+        "enterprise_project_id_and_tags": {
+          "type": "array",
+          "description": "匹配企业项目或匹配标签参数",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/EnterpriseProjectIdAndTags"
+          }
+        },
+        "status": {
+          "description": "**参数解释**\n指标告警状态。\n**取值范围**\n枚举值。\n- health: 表示无告警\n- unhealthy: 表示告警中\n- no_alarm_rule: 表示未设置告警规则",
+          "type": "string",
+          "example": "health",
+          "enum": [
+            "health",
+            "unhealthy",
+            "no_alarm_rule"
+          ]
+        },
+        "event_status": {
+          "description": "**参数解释**\n事件告警状态。\n**取值范围**\n枚举值。\n- health: 表示无告警\n- unhealthy: 表示告警中\n- no_alarm_rule: 表示未设置告警规则",
+          "type": "string",
+          "example": "health",
+          "enum": [
+            "health",
+            "unhealthy",
+            "no_alarm_rule"
+          ]
+        },
+        "resource_statistics": {
+          "type": "object",
+          "description": "资源数量统计信息",
+          "properties": {
+            "unhealthy": {
+              "type": "integer",
+              "description": "**参数解释**\n告警中的资源数。\n**取值范围**\n0-9999999",
+              "minimum": 0,
+              "maximum": 9999999
+            },
+            "total": {
+              "type": "integer",
+              "description": "**参数解释**\n资源总数。\n**取值范围**\n0-9999999",
+              "minimum": 0,
+              "maximum": 9999999
+            },
+            "event_unhealthy": {
+              "type": "integer",
+              "description": "**参数解释**\n已触发的资源数。\n**取值范围**\n0-9999999",
+              "minimum": 0,
+              "maximum": 9999999
+            },
+            "namespaces": {
+              "type": "integer",
+              "description": "**参数解释**\n资源类型数。\n**取值范围**\n0-9999999",
+              "minimum": 0,
+              "maximum": 9999999
+            }
+          }
+        },
+        "resource_level": {
+          "type": "string",
+          "description": "**参数解释**\n资源等级。\n**取值范围**\n枚举值。\n- product: 云产品\n- dimension: 子维度",
+          "enum": [
+            "dimension",
+            "product"
+          ]
+        },
+        "product_names": {
+          "type": "string",
+          "description": "**参数解释**\n创建资源层级为云产品时的云产品名称,一般由\"服务命名空间,服务首层维度名称\"组成,如\"SYS.ECS,instance_id\"。多个云产品则用“;”隔开,如\"SERVICE.BMS,instance_id;SYS.ECS,instance_id\"。\n**取值范围**\n长度[0,10240]个字符",
+          "minLength": 0,
+          "maxLength": 10240
+        },
+        "ep_resource_statistics": {
+          "type": "array",
+          "description": "每个企业项目关联的资源状态",
+          "minItems": 0,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/EpResourceStatistics"
+          }
+        },
+        "association_alarm_templates": {
+          "type": "array",
+          "description": "关联的告警模板列表",
+          "minItems": 0,
+          "maxItems": 9999999,
+          "items": {
+            "$ref": "#/definitions/AssociationAlarmTemplate"
+          }
+        }
+      }
+    },
+    "EnterpriseProjectIdAndTags": {
+      "type": "object",
+      "description": "**参数解释**\n企业项目Id或标签信息\n**约束限制**\n不涉及",
+      "properties": {
+        "enterprise_project_id": {
+          "type": "string",
+          "description": "**参数解释**\n企业项目ID\n**约束限制**\n不涉及\n**取值范围**\n由字母、数字、_和-组成,长度为[1,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^([a-z]|[A-Z]|[0-9]|_|-)+$"
+        },
+        "tag": {
+          "$ref": "#/definitions/ResourceGroupTagRelation"
+        }
+      }
+    },
+    "GoAPIErrorResponseV2": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "example": "ces.0001",
+          "description": "请求异常内部业务状态码",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "error_msg": {
+          "type": "string",
+          "example": "the request format is invalid",
+          "description": "请求异常信息",
+          "minLength": 0,
+          "maxLength": 256
+        },
+        "request_id": {
+          "type": "string",
+          "example": "txnEntry-DESKTOP-4LPFH08.txnId-466541d0-f1a6-429b-b747-98d4991671c1.ts-1637909316688.c-95",
+          "description": "请求ID",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      }
+    },
+    "ResourceNameItem": {
+      "description": "资源名称",
+      "required": [
+        "operator"
+      ],
+      "properties": {
+        "resource_name": {
+          "type": "string",
+          "description": "**参数解释**\n资源名称条件值\n**约束限制**\n不涉及\n**取值范围**\n长度[0,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "operator": {
+          "type": "string",
+          "description": "**参数解释**\n实例操作符,含义是真实资源的名称与资源名称条件值的运算关系。\n**约束限制**\n不涉及\n**取值范围**\n- include: 表示包含\n- prefix: 表示前缀\n- suffix: 表示后缀\n- notInclude: 表示不包含\n- equal: 表示相等\n- all: 表示全部\n**默认取值**\n不涉及",
+          "enum": [
+            "include",
+            "prefix",
+            "suffix",
+            "notInclude",
+            "equal",
+            "all"
+          ]
+        },
+        "resource_name_is_ignore_case": {
+          "type": "boolean",
+          "description": "**参数解释**\n资源名称忽略大小写\n**约束限制**\n不涉及\n**取值范围**\n- true: 名称忽略大小写\n- false: 名称不忽略大小写\n**默认取值**\nfalse"
+        }
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "description": "**参数解释**\n匹配条件\n**约束限制**\n不涉及",
+      "properties": {
+        "enterprise_project_id": {
+          "description": "**参数解释**\n企业项目ID\n**约束限制**\n不涉及\n**取值范围**\n由数字、字母和-组成,或者为0(默认企业项目ID)\n**默认取值**\n不涉及",
+          "type": "string",
+          "pattern": "^((([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12})|0)$"
+        },
+        "instance_name": {
+          "$ref": "#/definitions/CombResourceName"
+        },
+        "tag": {
+          "$ref": "#/definitions/ResourceGroupTagRelation"
+        }
+      }
+    },
+    "TMSValue": {
+      "type": "string",
+      "description": "**参数解释**\nTMS标签值规范\n**约束限制**\n不涉及\n**取值范围**\n长度为[0,255]个字符\n**默认取值**\n不涉及",
+      "minLength": 0,
+      "maxLength": 255,
+      "pattern": "^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$"
+    },
+    "CombResourceName": {
+      "description": "资源名称匹配规则",
+      "required": [
+        "operator"
+      ],
+      "properties": {
+        "resource_name": {
+          "type": "string",
+          "description": "**参数解释**\n资源名称条件值\n**约束限制**\n不涉及\n**取值范围**\n长度[1,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "operator": {
+          "type": "string",
+          "description": "**参数解释**\n实例操作符,含义是真实资源的名称与资源名称条件值的运算关系。\n**约束限制**\n不涉及\n**取值范围**\n- include: 表示包含\n- prefix: 表示前缀\n- suffix: 表示后缀\n- notInclude: 表示不包含\n- equal: 表示相等\n**默认取值**\n不涉及",
+          "enum": [
+            "include",
+            "prefix",
+            "suffix",
+            "notInclude",
+            "equal"
+          ]
+        },
+        "resource_name_is_ignore_case": {
+          "type": "boolean",
+          "description": "**参数解释**\n资源名称忽略大小写\n**约束限制**\n不涉及\n**取值范围**\n- true: 名称忽略大小写\n- false: 名称不忽略大小写\n**默认取值**\nfalse"
+        }
+      }
+    },
+    "Instance": {
+      "type": "object",
+      "description": "**参数解释**\n资源名称匹配参数\n**约束限制**\n不涉及",
+      "required": [
+        "product_name",
+        "logical_operator",
+        "instance_names"
+      ],
+      "properties": {
+        "product_name": {
+          "type": "string",
+          "description": "**参数解释**\n云产品名称\n**约束限制**\n不涉及\n**取值范围**\n长度为[0,128]个字符\n**默认取值**\n不涉及",
+          "minLength": 0,
+          "maxLength": 128
+        },
+        "logical_operator": {
+          "type": "string",
+          "description": "**参数解释**\n逻辑运算符\n**约束限制**\n不涉及\n**取值范围**\n- ALL: 所有条件匹配成功\n- ANY: 任意条件匹配成功\n**默认取值**\n不涉及",
+          "enum": [
+            "ALL",
+            "ANY"
+          ]
+        },
+        "instance_names": {
+          "type": "array",
+          "description": "**参数解释**\n资源名称匹配参数数组\n**约束限制**\n不超过10个名称",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/ResourceNameItem"
+          }
+        }
+      }
+    },
+    "AssociationAlarmTemplate": {
+      "properties": {
+        "template_id": {
+          "description": "**参数解释**\n告警模板ID。\n**取值范围**\n以at开头,后跟字母、数字,长度在[2,64]区间内。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64
+        },
+        "template_name": {
+          "description": "**参数解释**\n告警模板名称。\n**取值范围**\n以字母或汉字开头,可包含字母、数字、汉字、_、-,长度在[1,128]区间内。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "ProjectId": {
+      "name": "project_id",
+      "description": "**参数解释**:\n项目ID。用于明确项目归属,配置后可通过该ID查询项目下资产,可以通过调用API获取,也可以从控制台获取。获取方式请参见[获取项目ID](https://support.huaweicloud.com/api-ces/ces_03_0057.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符串的长度必须在 1 到 64个字符之间。\n**默认取值**:\n不涉及。",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "AuthToken": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "**参数解释**:\n用户Token。\n**约束限制**:\n不涉及。\n**取值范围**:\n最小字符数量为1,最大为16384。\n**默认取值**:\n不涉及。",
+      "required": false,
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "x-order": 2
+    }
+  },
+  "host": "ces.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

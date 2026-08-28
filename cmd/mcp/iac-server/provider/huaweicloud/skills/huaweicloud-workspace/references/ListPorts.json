@@ -1,0 +1,236 @@
+{
+  "name": "ListPorts",
+  "summary": "查询端口列表",
+  "tags": "网络",
+  "productshort": "Workspace",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/ports": {
+      "get": {
+        "tags": [
+          "Network"
+        ],
+        "summary": "查询端口列表",
+        "description": "查询端口列表。",
+        "operationId": "ListPorts",
+        "schemes": [
+          "https"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "x-annotations": "@Size(max = 255, min = 1)"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "分页查询的起始资源ID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "功能说明:每页返回的个数。取值范围:1~2000。默认值:2000。",
+            "required": false,
+            "type": "integer",
+            "default": 2000,
+            "maximum": 2000,
+            "minimum": 1
+          },
+          {
+            "name": "ip_address",
+            "in": "query",
+            "description": "ip地址。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          {
+            "name": "subnet_id",
+            "in": "query",
+            "description": "子网ID。",
+            "required": false,
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          {
+            "name": "is_used",
+            "in": "query",
+            "description": "是否被使用。",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "校验结果。",
+            "examples": {
+              "application/json": {
+                "ports": [
+                  {
+                    "id": "string",
+                    "status": "string",
+                    "network_id": "string",
+                    "fixed_ips": [
+                      {
+                        "subnet_id": "string",
+                        "ip_address": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ListPortsRsp"
+            }
+          },
+          "401": {
+            "description": "鉴权失败。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "403": {
+            "description": "没有操作权限。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "404": {
+            "description": "找不到资源。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "500": {
+            "description": "服务内部错误,具体返回错误码请参见错误码说明。",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          }
+        },
+        "x-methodAnnotations": [
+          "@EnableAuth",
+          "@IamAuthMeta(authLevel = IamAuthLevel.PROJECT,  authContextInitializerName = \"workspaceCommonAuthContextInitializer\", abacAction = \"workspace:networks:listPorts\",  needApigwJwtAuthCheck = false, needRbacCheck = false)",
+          "@CtsMeta(serviceType = \"Workspace\", resourceType = \"workspace\", traceName = \"listPorts\", traceNameCn = \"查询端口列表\")"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apigateway-request-type": "public",
+        "x-apiexplorer-hide": "N",
+        "x-apig-group": "internal_token,public",
+        "x-api-type": "open-api"
+      }
+    }
+  },
+  "definitions": {
+    "FixedIp": {
+      "properties": {
+        "subnet_id": {
+          "type": "string",
+          "description": "所属子网ID。",
+          "readOnly": true
+        },
+        "ip_address": {
+          "type": "string",
+          "description": "端口IP地址。",
+          "readOnly": true
+        }
+      }
+    },
+    "NeutronPort": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "端口唯一标识。",
+          "readOnly": true
+        },
+        "status": {
+          "type": "string",
+          "description": "私有ip状态。",
+          "readOnly": true
+        },
+        "network_id": {
+          "type": "string",
+          "description": "端口所属网络的ID。",
+          "readOnly": true
+        },
+        "device_id": {
+          "type": "string",
+          "description": "端口所属设备的Id。",
+          "readOnly": true
+        },
+        "fixed_ips": {
+          "type": "array",
+          "description": "端口IP。",
+          "items": {
+            "$ref": "#/definitions/FixedIp"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        }
+      },
+      "description": "端口详情。"
+    },
+    "ListPortsRsp": {
+      "properties": {
+        "ports": {
+          "type": "array",
+          "description": "端口列表。",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/definitions/NeutronPort"
+          }
+        }
+      },
+      "description": "端口列表对象响应。"
+    },
+    "BaseResponse": {
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码。",
+          "minLength": 0,
+          "maxLength": 12
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "error_detail": {
+          "type": "string",
+          "description": "错误详情。",
+          "minLength": 0,
+          "maxLength": 1000
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "加密后的详细拒绝原因,用户可以自行调用STS服务的decode-authorization-message接口进行解密。",
+          "readOnly": true
+        }
+      },
+      "description": "API响应基类。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "workspace.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

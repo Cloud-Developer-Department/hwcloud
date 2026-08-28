@@ -1,0 +1,219 @@
+{
+  "name": "ShowTargetsInDevicePolicy",
+  "summary": "查询设备策略绑定的目标列表",
+  "tags": "设备策略管理",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/device-policies/{policy_id}/list-targets": {
+      "post": {
+        "tags": [
+          "PolicyManagement"
+        ],
+        "summary": "查询设备策略绑定的目标列表",
+        "description": "应用服务器可调用此接口在物联网平台上查询指定策略ID下绑定的目标列表。",
+        "operationId": "ShowTargetsInDevicePolicy",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,建议携带该参数,在使用专业版时必须携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID,具体获取方式请参考[查看实例详情](https://support.huaweicloud.com/usermanual-iothub/iot_01_0079.html#section1) 。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "name": "policy_id",
+            "in": "path",
+            "description": "策略ID",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+          },
+          {
+            "in": "body",
+            "name": "ShowTargetsInDevicePolicyRequestBody",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ShowTargetsInDevicePolicyRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "targets": [
+                  {
+                    "target_type": "device",
+                    "target_id": "64a7ba7ef9cb063d27e16b97_123456"
+                  }
+                ],
+                "page": {
+                  "marker": "5c90fa7d3c4e4405e8525079",
+                  "count": 10
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/PolicyTargetResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "x-Error": [
+              "IOTDA.015200"
+            ]
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IOTDA.015202"
+            ]
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "N",
+        "x-apig-name": "IoTDA_API",
+        "x-imports": "org.springframework.http.ResponseEntity;",
+        "x-returnType": "ResponseEntity<PolicyTargetResponse>",
+        "x-request-examples-url-1": "POST https://{endpoint}/v5/iot/{project_id}/device-policies/{policy_id}/list-targets",
+        "x-request-examples-description-1": "查询指定策略id下绑定的目标列表",
+        "x-request-examples-text-1": {
+          "target_type": "device"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PolicyTargetBase": {
+      "type": "object",
+      "required": [
+        "target_id",
+        "target_type"
+      ],
+      "properties": {
+        "target_type": {
+          "type": "string",
+          "example": "device",
+          "description": "**参数说明**:策略绑定的目标类型。\n**取值范围**:device|product|app,device表示设备,product表示产品,app表示整个资源空间。",
+          "pattern": "(device|product|app)"
+        },
+        "target_id": {
+          "type": "string",
+          "example": "myDeviceId",
+          "description": "策略绑定的目标ID"
+        }
+      },
+      "title": "策略目标",
+      "description": "策略目标",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern;javax.validation.Valid;"
+    },
+    "ShowTargetsInDevicePolicyRequestBody": {
+      "type": "object",
+      "properties": {
+        "target_type": {
+          "type": "string",
+          "example": "product",
+          "description": "**参数说明**:策略绑定的目标类型。\n**取值范围**:device|product|app,device表示设备,product表示产品,app表示整个资源空间。",
+          "pattern": "(device|product|app)"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数说明**:分页查询时每页显示的记录数。\n**取值范围**:1-50的整数,默认值为10。",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 10
+        },
+        "marker": {
+          "type": "string",
+          "description": "**参数说明**:上一次分页查询结果中最后一条记录的ID,在上一次分页查询时由物联网平台返回获得。分页查询时物联网平台是按marker也就是记录ID降序查询的,越新的数据记录ID也会越大。若填写marker,则本次只查询记录ID小于marker的数据记录。若不填写,则从记录ID最大也就是最新的一条数据开始查询。如果需要依次查询所有数据,则每次查询时必须填写上一次查询响应中的marker值。\n**取值范围**:长度为24的十六进制字符串,默认值为ffffffffffffffffffffffff。",
+          "pattern": "^[a-fA-F0-9]{24}$",
+          "default": "ffffffffffffffffffffffff"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数说明**:表示从marker后偏移offset条记录开始查询。默认为0,取值范围为0-500的整数。当offset为0时,表示从marker后第一条记录开始输出。限制offset最大值是出于API性能考虑,您可以搭配marker使用该参数实现翻页,例如每页50条记录,1-11页内都可以直接使用offset跳转到指定页,但到11页后,由于offset限制为500,您需要使用第11页返回的marker作为下次查询的marker,以实现翻页到12-22页。\n**取值范围**:0-500的整数,默认为0。",
+          "minimum": 0,
+          "maximum": 500,
+          "default": 0
+        }
+      },
+      "title": "策略目标查询请求结构体",
+      "description": "策略目标查询请求结构体",
+      "x-imports": "com.huawei.m2m.validator.PatternInList"
+    },
+    "Page": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64",
+          "example": 100,
+          "description": "满足查询条件的记录总数。"
+        },
+        "marker": {
+          "type": "string",
+          "example": "5c8f3d2d3df1f10d803adbda",
+          "description": "本次分页查询结果中最后一条记录的ID,可在下一次分页查询时使用。"
+        }
+      },
+      "title": "查询批量响应的分页结构体",
+      "description": "查询批量分页结构体,定义了分页页码、每页记录数、记录总数、该页记录的最大Id。",
+      "x-imports": "javax.validation.constraints.Size;javax.validation.constraints.NotNull;javax.validation.constraints.Pattern"
+    },
+    "PolicyTargetResponse": {
+      "type": "object",
+      "properties": {
+        "targets": {
+          "type": "array",
+          "description": "策略绑定信息列表。",
+          "items": {
+            "$ref": "#/definitions/PolicyTargetBase"
+          },
+          "x-isSensitive": true
+        },
+        "page": {
+          "description": "查询结果的分页信息。",
+          "$ref": "#/definitions/Page"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "post",
+  "uri": null
+}

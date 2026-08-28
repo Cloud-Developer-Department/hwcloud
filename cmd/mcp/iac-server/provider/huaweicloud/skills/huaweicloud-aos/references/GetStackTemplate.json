@@ -1,0 +1,208 @@
+{
+  "name": "GetStackTemplate",
+  "summary": "获取资源栈模板",
+  "tags": "资源编排-资源栈",
+  "productshort": "AOS",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v1/{project_id}/stacks/{stack_name}/templates": {
+      "get": {
+        "tags": [
+          "Stack"
+        ],
+        "summary": "获取资源栈模板",
+        "description": "获取资源栈模板(GetStackTemplate)\n\n此API用于获取资源栈最近一次部署终态使用的模板。\n\n注:\n当资源栈状态处于非终态(即以`IN_PROGRESS`结尾,详细见下方)状态时,资源栈处于转变阶段,此API获取资源栈上一次部署使用的模板。\n只有当资源栈状态处于终态(即以`COMPLETE`或`FAILED`结尾,详细见下方)时,此API获取当前最新一次部署使用的模板。CREATION_COMPLETE除外,此时资源栈没有模板,返回404,并提示模板不存在\n\n非终态状态包括但不限于以下状态:\n  * 正在部署(DEPLOYMENT_IN_PROGRESS)\n  * 正在回滚(ROLLBACK_IN_PROGRESS)\n  * 正在删除(DELETION_IN_PROGRESS)\n\n终态状态包括但不限于以下状态:\n  * 生成空资源栈完成(CREATION_COMPLETE)\n  * 部署失败(DEPLOYMENT_FAILED)\n  * 部署完成(DEPLOYMENT_COMPLETE)\n  * 回滚失败(ROLLBACK_FAILED)\n  * 回滚完成(ROLLBACK_COMPLETE)\n  * 删除失败(DELETION_FAILED)\n\n如果获取成功,则以临时重定向形式返回模板下载链接(OBS Pre Signed地址,有效期为5分钟),大多数的客户端会进行自动重定向并下载模板;\n如果未进行自动重定向,请参考HTTP的重定向规则获取模板下载链接,手动下载模板。",
+        "operationId": "GetStackTemplate",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Client-Request-Id",
+            "in": "header",
+            "description": "用户指定的,对于此请求的唯一ID,用于定位某个请求,推荐使用UUID",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 36,
+            "pattern": "^[A-Za-z0-9]+[A-Za-z0-9-]*$"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,可以从调用API处获取,也可以从控制台获取。\n\n[项目ID获取方式](https://support.huaweicloud.com/api-ticket/ticket_api_20002.html)",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "pattern": "^[A-Za-z0-9-]+$"
+          },
+          {
+            "name": "stack_name",
+            "in": "path",
+            "description": "资源栈的名称。此名字在domain_id+区域+project_id下应唯一,可以使用中文、大小写英文、数字、下划线、中划线。首字符需为中文或者英文,区分大小写。",
+            "required": true,
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[一-龥A-Za-z]+[一-龥A-Za-z0-9_-]*$"
+          },
+          {
+            "name": "stack_id",
+            "in": "query",
+            "description": "资源栈(stack)的唯一ID。\n\n此ID由资源编排服务在生成资源栈的时候生成,为UUID。\n\n由于资源栈名仅仅在同一时间下唯一,即用户允许先生成一个叫HelloWorld的资源栈,删除,再重新创建一个同名资源栈。\n\n对于团队并行开发,用户可能希望确保,当前我操作的资源栈就是我认为的那个,而不是其他队友删除后创建的同名资源栈。因此,使用ID就可以做到强匹配。\n\n资源编排服务保证每次创建的资源栈所对应的ID都不相同,更新不会影响ID。如果给予的stack_id和当前资源栈的ID不一致,则返回400",
+            "required": false,
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 36,
+            "pattern": "^[a-z0-9]+[a-z0-9-]*$",
+            "x-isnullable": true
+          },
+          {
+            "name": "access_control_source_ips",
+            "in": "query",
+            "description": "允许访问资源栈模板的source ip列表,source ip应是具有CIDR表示法且带有子网掩码的IPv4地址。",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 18,
+              "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/(?:[0-9]|[12][0-9]|3[01])$"
+            },
+            "collectionFormat": "multi",
+            "maxItems": 8,
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          {
+            "name": "access_control_source_vpc_ids",
+            "in": "query",
+            "description": "允许访问资源栈模板的source vpc id列表, source vpc id应仅包含小写字母、数字或中划线。",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 36,
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "collectionFormat": "multi",
+            "maxItems": 8,
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "获取成功,临时重定向",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "description": "HTTP重定向指定头域,客户端可通过此头域重定向至新地址。其内容为模板下载链接,为OBS Pre Signed地址,有效期为5分钟"
+              }
+            }
+          },
+          "400": {
+            "description": "用户请求非法",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "401": {
+            "description": "用户身份认证失败",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "403": {
+            "description": "用户无权限调用此API",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "404": {
+            "description": "资源栈或模板不存在",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "429": {
+            "description": "请求数量过多",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "schema": {
+              "$ref": "#/definitions/CommonErrorResponse"
+            }
+          }
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/templates",
+        "x-request-examples-description-1": "获取资源栈模板",
+        "x-request-examples-url-2": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/templates?stack_id=ea6a4f0e-ee8a-494e-b12a-8be4a1e65af2",
+        "x-request-examples-description-2": "获取资源栈模板,并提供资源栈id以校验是否与当前资源栈匹配",
+        "x-request-examples-url-3": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/templates?access_control_source_ips=100.11.5.100/24&access_control_source_ips=100.22.5.100/24",
+        "x-request-examples-description-3": "获取资源栈模板,并提供access_control_source_ips以控制允许访问资源模板的ip",
+        "x-request-examples-url-4": "GET https://{endpoint}/v1/ba2b9930c977f71edaeaa3a5e96a8ff1/stacks/my_hello_world_stack/templates?access_control_source_vpc_ids=d42a8768-ad3c-4bca-91t8-53870f3402a9&access_control_source_vpc_ids=d42a8768-ad3c-4bca-91t8-53870f3402a8",
+        "x-request-examples-description-4": "获取资源栈模板,并提供access_control_source_vpc_ids以控制允许访问资源模板的vpc id"
+      }
+    }
+  },
+  "definitions": {
+    "CommonErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码",
+          "minLength": 11,
+          "maxLength": 11
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        },
+        "encoded_authorization_message": {
+          "type": "string",
+          "description": "包含有关未经授权请求的信息。",
+          "x-omitempty": true
+        },
+        "details": {
+          "type": "array",
+          "description": "权限拒绝时服务返回的详细错误信息。",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          },
+          "x-omitempty": true
+        }
+      },
+      "description": "通用错误响应体"
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "响应码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "响应消息"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "rfs.af-north-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

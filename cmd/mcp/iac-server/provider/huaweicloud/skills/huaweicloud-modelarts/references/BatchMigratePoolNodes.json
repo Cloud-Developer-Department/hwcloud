@@ -1,0 +1,523 @@
+{
+  "name": "BatchMigratePoolNodes",
+  "summary": "批量迁移节点",
+  "tags": "资源管理",
+  "productshort": "ModelArts",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v2/{project_id}/pools/{pool_name}/nodes/batch-migrate": {
+      "post": {
+        "x-api-type": "open-api",
+        "x-request-examples-url-1": "POST /v2/{project_id}/pools/{pool_name}/nodes/batch-migrate",
+        "x-request-examples-1": {
+          "migrateNodeNames": [
+            "os-node-created-zrxm7"
+          ],
+          "fromClusterName": "lite-cluster-1dc682c4-e04d-11ee-bda6-0255ac1001ba",
+          "toClusterName": "lite-cluster-d3a65087-38e4-11ef-a12c-0255ac100b03",
+          "toPoolName": "pool-9d3f-6f5da086876d4cd084d36f8bd3346036",
+          "resourceSpec": {
+            "flavor": "modelarts.vm.2u4g"
+          }
+        },
+        "x-request-examples-text-1": {
+          "migrateNodeNames": [
+            "os-node-created-zrxm7"
+          ],
+          "fromClusterName": "lite-cluster-1dc682c4-e04d-11ee-bda6-0255ac1001ba",
+          "toClusterName": "lite-cluster-d3a65087-38e4-11ef-a12c-0255ac100b03",
+          "toPoolName": "pool-9d3f-6f5da086876d4cd084d36f8bd3346036",
+          "resourceSpec": {
+            "flavor": "modelarts.vm.2u4g"
+          }
+        },
+        "x-publish-doc": "Y",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-open-region-cloud": "hk,hc",
+        "tags": [
+          "节点管理"
+        ],
+        "summary": "批量迁移节点",
+        "description": "批量迁移节点接口用于在资源池之间批量迁移节点,将节点从一个资源池迁移到另一个资源池。该接口适用于以下场景:当资源池的节点分布不均衡、需要进行集群维护或业务扩展时,用户可通过此接口将指定节点从一个资源池迁移到另一个资源池。使用该接口的前提条件是资源池中至少包含两个节点,且目标资源池具备足够的资源容量(如IP地址等)以接收迁移节点。若资源池只有一个节点、目标集群资源不足、节点状态不支持迁移或用户无权限操作,接口将返回相应的错误信息。",
+        "operationId": "BatchMigratePoolNodes",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:用户项目ID。获取方法请参见[获取项目ID和名称](modelarts_03_0147.xml)。\n**约束限制**:1 - 64字符,字母、数字和中划线。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "x-open-region-cloud": "hk,hc"
+          },
+          {
+            "name": "pool_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "**参数解释**:资源池名称。该字段取自资源池metadata.name字段的值。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+            "x-open-region-cloud": "hk,hc"
+          },
+          {
+            "name": "BatchMigratePoolNodesRequestBody",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NodeBatchMigrationRequest"
+            },
+            "description": "**参数解释**:节点迁移任务的请求体。\n**约束限制**:不涉及。",
+            "x-open-region-cloud": "hk,hc,hcso,hcs,fcs"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK。",
+            "schema": {
+              "$ref": "#/definitions/NodeJobResponse"
+            },
+            "examples": {
+              "application/json": {
+                "job_id": "66798666-6778-443f-9f8a-56c9ea6d719c"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "ModelArts.50015001",
+                "error_msg": "pool not found"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RootVolume": {
+      "type": "object",
+      "description": "系统盘信息。",
+      "required": [
+        "volumeType",
+        "size"
+      ],
+      "properties": {
+        "volumeType": {
+          "type": "string",
+          "description": "**参数解释**:磁盘类型,具体内容可参考磁盘类型及性能介绍。\n**取值范围**:可选值如下:\n- SSD:超高IO硬盘\n- GPSSD:通用型SSD\n- SAS:高IO硬盘",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "size": {
+          "type": "string",
+          "description": "**参数解释**:磁盘大小,单位为GiB。\n**取值范围**:不涉及。"
+        }
+      }
+    },
+    "VolumeExtendParams": {
+      "type": "object",
+      "required": [
+        "volumeGroup"
+      ],
+      "properties": {
+        "volumeGroup": {
+          "type": "string",
+          "description": "**参数解释**:磁盘分组名称,用于各个存储空间的划分。\n**取值范围**:可选项如下:\n- vgpaas:容器盘。\n- default:普通数据盘,以默认方式挂载。\n- vguser:普通数据盘,指定挂载路径,不同路径的分组名称不同,如vguser1,vguser2。\n- vg-everest-localvolume-persistent:普通数据盘,作为持久存储卷\n- vg-everest-localvolume-ephemeral:普通数据盘,作为临时存储卷"
+        }
+      },
+      "description": "**参数解释**:磁盘自定义配置。",
+      "x-open-region-cloud": "hk,hc"
+    },
+    "LvmConfig": {
+      "type": "object",
+      "description": "lvm配置管理。",
+      "required": [
+        "lvType"
+      ],
+      "properties": {
+        "lvType": {
+          "type": "string",
+          "description": "**参数解释**:LVM写入模式。\n**取值范围**:可选项如下:\n- linear:线性模式。\n- striped:条带模式,使用多块磁盘组成条带模式,能够提升磁盘性能。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "path": {
+          "type": "string",
+          "description": "**参数解释**:磁盘挂载路径。仅在用户配置中生效。支持包含:数字、大小写字母、点、中划线、下划线的绝对路径。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        }
+      }
+    },
+    "Taints": {
+      "type": "object",
+      "description": "污点。",
+      "required": [
+        "key",
+        "effect"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释**:键。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释**:值。\n**取值范围**:不涉及。",
+          "minLength": 1,
+          "maxLength": 256,
+          "x-open-region-cloud": "hk,hc"
+        },
+        "effect": {
+          "type": "string",
+          "description": "**参数解释**:作用效果。\n**取值范围**:不涉及。",
+          "minLength": 1,
+          "maxLength": 256,
+          "x-open-region-cloud": "hk,hc"
+        }
+      }
+    },
+    "UserTags": {
+      "type": "object",
+      "description": "资源标签。",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "**参数解释**:键。不得以\"CCE-\"或\"__type_baremetal\"开头\"。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "value": {
+          "type": "string",
+          "description": "**参数解释**:值。\n**取值范围**:不涉及。",
+          "minLength": 1,
+          "maxLength": 256,
+          "x-open-region-cloud": "hk,hc"
+        }
+      }
+    },
+    "CreatingStep": {
+      "type": "object",
+      "description": "批量创建信息。",
+      "properties": {
+        "step": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:超节点的步长。仅支持资源规格详情中包含的步长。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs,fcs,hws_hk"
+        },
+        "type": {
+          "type": "string",
+          "description": "**参数解释**:批量创建类型。\n**取值范围**:可选值如下:\n- hyperinstance:超节点。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs,fcs,hws_hk"
+        }
+      }
+    },
+    "ResourceExtendParams": {
+      "type": "object",
+      "properties": {
+        "dockerBaseSize": {
+          "type": "string",
+          "description": "**参数解释**:节点的容器镜像空间大小。\n**取值范围**:可选值如下:\n- 指定大小:dockerBaseSize的大小范围默认为50-500,但实际上限受到节点的容器数据盘大小约束。\n- 不限制:dockerBaseSize=\\\"0\\\",表示不限制容器镜像空间大小。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "postInstall": {
+          "type": "string",
+          "description": "**参数解释**:安装后执行脚本,输入的值需要经过Base64编码。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "runtime": {
+          "type": "string",
+          "description": "**参数解释**:容器运行时。\n**取值范围**:可选值如下:\n- docker:容器运行时,是目前最常用的容器化引擎,基于容器镜像创建和管理容器实例。\n- containerd:工业级的容器运行时,专注于容器的生命周期管理,是 Docker 底层核心组件之一,也可独立部署使用。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "labelPolicyOnExistingNodes": {
+          "type": "string",
+          "description": "**参数解释**:存量节点k8s标签更新策略,值为空时默认更新存量节点。\n**取值范围**:可选值如下:\n- refresh:更新。\n- ignore:不更新。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "taintPolicyOnExistingNodes": {
+          "type": "string",
+          "description": "**参数解释**:存量节点k8s污点更新策略,值为空时默认更新存量节点。\n**取值范围**:可选值如下:\n- refresh:更新。\n- ignore:不更新。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "tagPolicyOnExistingNodes": {
+          "type": "string",
+          "description": "**参数解释**:存量节点资源标签更新策略,值为空时默认更新存量节点。\n**取值范围**:可选值如下:\n- refresh:更新。\n- ignore:不更新。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        },
+        "XParameterPlaneSubnet": {
+          "type": "string",
+          "description": "**参数解释**:跨物理集群之间进行参数面数据传输使用的子网id。不可与节点子网和容器子网重复。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc,hcso"
+        },
+        "nodePoolName": {
+          "type": "string",
+          "description": "**参数解释**:用户指定的节点池名称。最小长度为2,最大长度为50的小写字母、中划线-、数字组成,由小写字母开头,不能以-,-default结尾。\n**取值范围**:不涉及",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        }
+      },
+      "description": "**参数解释**:自定义配置。\n**约束限制**:不涉及。"
+    },
+    "MigrateResourceSpec": {
+      "type": "object",
+      "description": "跨资源池迁移节点时目标资源池中节点的配置。",
+      "required": [
+        "flavor"
+      ],
+      "properties": {
+        "flavor": {
+          "type": "string",
+          "description": "**参数解释**:资源规格名称,跨资源池迁移时该参数必传。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "creatingStep": {
+          "description": "**参数解释**:资源步长信息。整柜或超节点迁移时,需要传递步长信息。\n**约束限制**:不涉及。",
+          "$ref": "#/definitions/CreatingStep",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "nodePool": {
+          "type": "string",
+          "description": "**参数解释**:资源迁移的目标节点池名称。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "rootVolume": {
+          "description": "**参数解释**:目标节点池的系统盘信息,新建节点池时有效。\n**约束限制**:不涉及。",
+          "$ref": "#/definitions/RootVolume",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "dataVolumes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DataVolumeItem"
+          },
+          "description": "**参数解释**:目标节点池的数据盘盘信息,新建节点池时有效。\n**约束限制**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "volumeGroupConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VolumeGroupConfig"
+          },
+          "description": "**参数解释**:磁盘高级配置。存在自定义数据盘时必须指定对应的高级配置,新建节点池时有效。\n**约束限制**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "**参数解释**:k8s标签,格式为key/value键值对,非特权池不能指定。新建节点池时有效。\n**约束限制**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "taints": {
+          "items": {
+            "$ref": "#/definitions/Taints"
+          },
+          "description": "**参数解释**:支持给创建出来的节点加taints来设置反亲和性,非特权池不能指定。新建节点池时有效。\n**约束限制**:不涉及。",
+          "type": "array",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserTags"
+          },
+          "description": "**参数解释**:资源标签。新建节点池时有效。\n**约束限制**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "network": {
+          "description": "**参数解释**:网络配置,非特权池不能指定。新建节点池时有效。\n**约束限制**:不涉及。",
+          "$ref": "#/definitions/NodeNetwork",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "extendParams": {
+          "description": "**参数解释**:自定义配置,比如设置节点dockerSize。新建节点池时有效。\n**约束限制**:不涉及。",
+          "$ref": "#/definitions/ResourceExtendParams",
+          "x-open-region-cloud": "hk,hc"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "description": "请求失败时返回的错误对象。",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "**参数解释**:ModelArts错误码。\n**取值范围**:不涉及。"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "**参数解释**:具体错误信息。\n**取值范围**:不涉及。"
+        }
+      }
+    },
+    "VolumeGroupConfig": {
+      "type": "object",
+      "description": "**参数解释**:磁盘高级配置信息。",
+      "required": [
+        "volumeGroup"
+      ],
+      "properties": {
+        "volumeGroup": {
+          "type": "string",
+          "description": "**参数解释**:磁盘分组名称。作为dataVolumes中volumeGroup的索引。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "dockerThinPool": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:资源池节点容器盘占数据盘的百分比。仅磁盘分组名称为vgpaas时,即容器盘,才可指定此参数。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "lvmConfig": {
+          "description": "**参数解释**:LVM配置管理。",
+          "x-open-region-cloud": "hk,hc",
+          "$ref": "#/definitions/LvmConfig"
+        },
+        "types": {
+          "type": "array",
+          "description": "**参数解释**:存储类型。可选项如下:\n- volume:云硬盘。当指定dataVolumes时,该值为缺省值。\n- local:本地盘。使用本地盘必须指定该字段。",
+          "items": {
+            "type": "string"
+          },
+          "x-open-region-cloud": "hk,hc"
+        }
+      }
+    },
+    "NodeJobResponse": {
+      "type": "object",
+      "description": "异步任务的",
+      "required": [
+        "job_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "**参数解释**:异步任务的ID。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc,hcso,hcs"
+        }
+      }
+    },
+    "NodeBatchMigrationRequest": {
+      "properties": {
+        "migrateNodeNames": {
+          "type": "array",
+          "example": [
+            "node1"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:待迁移的节点名称列表。\n**约束限制**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "fromClusterName": {
+          "type": "string",
+          "description": "**参数解释**:迁移起始集群名称。\n专属算力资源时该字段与源资源池名称相同,取自源资源池metadata.name字段的值;\n轻量算力集群时该字段取自迁移节点metadata.labels[os.modelarts.node/cluster]字段的值。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "example": "cluster-origin",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "toClusterName": {
+          "type": "string",
+          "description": "**参数解释**:迁移目标集群名称。\n专属算力资源时该字段与源资源池名称相同,取自目标资源池metadata.name字段的值;\n轻量算力集群时该字段取自目标资源池内节点metadata.labels[os.modelarts.node/cluster]字段的值。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "example": "cluster-destination",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "toPoolName": {
+          "type": "string",
+          "description": "**参数解释**:迁移目标资源池名称。该字段取自目标资源池metadata.name字段的值。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "resourceSpec": {
+          "description": "**参数解释**:迁移节点在目标资源池中配置信息。节点跨资源池迁移时参数必填。\n**约束限制**:不涉及。",
+          "$ref": "#/definitions/MigrateResourceSpec",
+          "x-open-region-cloud": "hk,hc"
+        }
+      },
+      "description": "**参数解释**:批量迁移节点请求体。\n**约束限制**:不涉及。\n**取值范围**:不涉及。\n**默认取值**:不涉及。",
+      "required": [
+        "migrateNodeNames",
+        "fromClusterName",
+        "toClusterName"
+      ],
+      "type": "object"
+    },
+    "DataVolumeItem": {
+      "type": "object",
+      "description": "数据盘信息。",
+      "required": [
+        "volumeType",
+        "size",
+        "extendParams"
+      ],
+      "properties": {
+        "volumeType": {
+          "type": "string",
+          "description": "**参数解释**:磁盘类型,具体内容可参考磁盘类型及性能介绍。\n**取值范围**:可选值如下:\n- SSD:超高IO硬盘\n- GPSSD:通用型SSD\n- SAS:高IO硬盘",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "size": {
+          "type": "string",
+          "description": "**参数解释**:磁盘大小,单位为GiB。\n**取值范围**:不涉及。",
+          "x-open-region-cloud": "hk,hc"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:磁盘个数。\n**取值范围**:不涉及。"
+        },
+        "extendParams": {
+          "description": "**参数解释**:磁盘自定义配置。",
+          "$ref": "#/definitions/VolumeExtendParams",
+          "x-open-region-cloud": "hk,hc"
+        }
+      }
+    },
+    "NodeNetwork": {
+      "type": "object",
+      "description": "节点网络配置。",
+      "properties": {
+        "vpc": {
+          "type": "string",
+          "description": "**参数解释**:vpc id。\n**取值范围**:不涉及。"
+        },
+        "subnet": {
+          "type": "string",
+          "description": "**参数解释**:子网id。\n**取值范围**:不涉及。"
+        },
+        "securityGroups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "**参数解释**:安全组id集合。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "modelarts.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

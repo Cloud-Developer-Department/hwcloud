@@ -1,0 +1,195 @@
+{
+  "name": "CreateFsTask",
+  "summary": "创建文件系统异步任务",
+  "tags": "文件系统管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/fs/{feature}/tasks": {
+      "post": {
+        "tags": [
+          "文件系统管理"
+        ],
+        "summary": "创建文件系统异步任务",
+        "description": "创建文件系统异步任务,仅支持异步查询目录资源使用情况,API请求路径的feature取值为dir-usage,以下简称为DU任务。",
+        "x-constraint": "在2023年8月1号之后创建的文件系统支持该API操作。如果存在10个正在执行的任务,则不允许创建新任务。该接口并发请求数过大可能会影响文件系统性能,建议同时提交的查询请求不要超过4 个。查询超大目录耗时较久,请不要重复提交。API请求路径的feature仅支持以下取值:\n- dir-usage\n\n该接口仅适用于以下类型:\n- 20MB/s/TiB\n- 40MB/s/TiB\n- 125MB/s/TiB\n- 250MB/s/TiB\n- 500MB/s/TiB\n- 1000MB/s/TiB\n- HPC缓存型文件系统\n\n标准型、标准型-增强版、性能型、性能型-增强版类型的SFS Turbo文件系统,请使用“查询目录资源使用情况”接口。",
+        "operationId": "CreateFsTask",
+        "x-version": "v1",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "x-open-region-cloud": "hws,hws_hk,sbc,hcs",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "description": "账号的token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "description": "MIME类型, application/json",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目id",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "in": "path",
+            "name": "share_id",
+            "description": "文件系统id",
+            "required": true,
+            "type": "string",
+            "x-example": "b959dfbb-xxxx-XXXX-xxxx-8930ec3a87b7"
+          },
+          {
+            "in": "path",
+            "name": "feature",
+            "description": "任务类型。当前仅支持取值\"dir-usage\"。",
+            "required": true,
+            "type": "string",
+            "x-example": "dir-usage"
+          },
+          {
+            "in": "body",
+            "name": "CreateFsTaskRequestBody",
+            "description": "文件系统内合法的目录全路径,DU任务里,此为必选参数",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/FsDirReq"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "DU任务:创建一个查询目录资源使用情况的DU任务。path为文件系统内合法的目录全路径。单层目录长度不允许超过255,全路径长度不允许超过4096。\n",
+        "x-request-examples-url-1": "POST HTTPS://{endpoint}/v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir-usage/tasks",
+        "x-request-examples-1": {
+          "path": "/path"
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "task_id": "d651ea2b-2b20-4c6d-8bbf-2adcec18dac9"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/TaskResp"
+            }
+          },
+          "400": {
+            "description": "错误响应",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0123",
+                "errMsg": "feature invalid"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "internal server error"
+              }
+            }
+          }
+        },
+        "x-order": 0
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "TaskResp": {
+      "description": "创建异步任务响应体",
+      "required": [
+        "task_id"
+      ],
+      "properties": {
+        "task_id": {
+          "description": "任务ID",
+          "type": "string"
+        }
+      }
+    },
+    "FsDirReq": {
+      "description": "文件系统内合法的目录全路径",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "description": "文件系统内合法的目录全路径。单层目录长度不允许超过255,全路径长度不允许超过4096。",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4096
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

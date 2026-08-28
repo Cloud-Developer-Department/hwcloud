@@ -1,0 +1,246 @@
+{
+  "name": "SetHpcCacheBackend",
+  "summary": "配置hpc缓存型后端信息",
+  "tags": "文件系统管理",
+  "productshort": "SFSTurbo",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/sfs-turbo/shares/{share_id}/action": {
+      "post": {
+        "tags": [
+          "文件系统管理"
+        ],
+        "summary": "配置hpc缓存型后端信息",
+        "description": "配置hpc缓存型后端信息",
+        "x-constraint": "该接口仅适用于HPC缓存型文件系统",
+        "operationId": "SetHpcCacheBackend",
+        "x-version": "v1",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-api-type": "open-api",
+        "x-apiexplorer-hide": "false",
+        "x-open-region-cloud": "hws",
+        "parameters": [
+          {
+            "description": "账号的token",
+            "in": "header",
+            "name": "X-Auth-Token",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "description": "MIME类型",
+            "in": "header",
+            "name": "Content-Type",
+            "required": true,
+            "type": "string",
+            "x-example": "application/json"
+          },
+          {
+            "description": "项目ID",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx"
+          },
+          {
+            "description": "文件系统ID",
+            "in": "path",
+            "name": "share_id",
+            "required": true,
+            "type": "string",
+            "x-example": "b959dfbb-xxxx-XXXX-xxxx-8930ec3a87b7"
+          },
+          {
+            "description": "配置hpc缓存型后端信息参数",
+            "in": "body",
+            "name": "config_param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReqConfigHpcCacheBackend"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "配置hpc缓存型后端信息,冷数据淘汰时间是100小时,后端校验时间是60秒。配置Nas后端信息,nas 配置 ip是“192.168.xx.xx:/”,nas 配置协议类型是“NFS”。",
+        "x-request-examples-1": {
+          "update_hpc_cache": {
+            "action": "initialize_overlay",
+            "data": {
+              "gc_time": 100,
+              "ck_time": 60,
+              "nas": [
+                {
+                  "name": "abc",
+                  "type": "NFS",
+                  "url": "192.168.xx.xx:/"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            }
+          },
+          "400": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0001",
+                "errMsg": "parameter error"
+              }
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            }
+          },
+          "500": {
+            "description": "错误响应",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "errCode": "SFS.TURBO.0005",
+                "errMsg": "Internal server error"
+              }
+            },
+            "headers": {
+              "X-request-id": {
+                "type": "string",
+                "description": "请求ID"
+              }
+            }
+          }
+        },
+        "x-order": 6
+      }
+    }
+  },
+  "definitions": {
+    "ReqUpdateHpcCacheData": {
+      "description": "后端挂载地址信息",
+      "required": [
+        "gc_time",
+        "ck_time"
+      ],
+      "properties": {
+        "gc_time": {
+          "description": "冷数据淘汰时间。单位:小时。指定时间内线上缓存的数据如果没有被访问则会自动从缓存中删除。0表示数据不会因为时间原因自动从缓存中删除。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "ck_time": {
+          "description": "后端校验时间。单位:秒。指定时间间隔进行线上缓存文件与后端存储文件比较,存在变化则自动更新。0表示文件进行实时校验。",
+          "type": "integer",
+          "format": "int64"
+        },
+        "nas": {
+          "description": "配置 nas 后端的信息",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ConfigNasTarget"
+          }
+        }
+      }
+    },
+    "ErrorResp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "errCode",
+        "errMsg"
+      ],
+      "properties": {
+        "errCode": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "errMsg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      },
+      "type": "object"
+    },
+    "ReqConfigHpcCacheBackend": {
+      "description": "hpc缓存型配置信息请求",
+      "required": [
+        "update_hpc_cache"
+      ],
+      "properties": {
+        "update_hpc_cache": {
+          "description": "后端挂载信息",
+          "type": "object",
+          "$ref": "#/definitions/ReqUpdateHpcCacheInfo"
+        }
+      }
+    },
+    "ConfigNasTarget": {
+      "type": "object",
+      "description": "配置 nas 后端信息",
+      "properties": {
+        "name": {
+          "description": "nas 配置名",
+          "type": "string"
+        },
+        "type": {
+          "description": "nas 配置协议类型",
+          "type": "string"
+        },
+        "url": {
+          "description": "nas 配置 ip",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "url"
+      ]
+    },
+    "ReqUpdateHpcCacheInfo": {
+      "description": "后端挂载信息",
+      "required": [
+        "action",
+        "data"
+      ],
+      "properties": {
+        "action": {
+          "description": "配置hpc缓存型的动作,如initialize_overlay",
+          "type": "string"
+        },
+        "data": {
+          "description": "hpc 缓存型后端配置信息",
+          "type": "object",
+          "$ref": "#/definitions/ReqUpdateHpcCacheData"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "sfs-turbo.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

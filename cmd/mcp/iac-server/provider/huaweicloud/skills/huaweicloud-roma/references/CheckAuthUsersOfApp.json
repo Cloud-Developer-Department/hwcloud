@@ -1,0 +1,259 @@
+{
+  "name": "CheckAuthUsersOfApp",
+  "summary": "查询用户成员列表",
+  "tags": "APPLICATION_MANAGEMENT",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/apps/{app_id}/users": {
+      "get": {
+        "security": [
+          {
+            "apig-auth-iam": []
+          }
+        ],
+        "tags": [
+          "APPLICATION_MANAGEMENT"
+        ],
+        "operationId": "CheckAuthUsersOfApp",
+        "summary": "查询用户成员列表",
+        "description": "查询用户成列表",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Auth-Token",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)",
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 100000
+          },
+          {
+            "type": "string",
+            "name": "app_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "应用ID"
+          },
+          {
+            "type": "string",
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "实例ID"
+          },
+          {
+            "type": "string",
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "项目ID"
+          },
+          {
+            "type": "string",
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "minLength": 0,
+            "maxLength": 64,
+            "description": "查询应用的指定名称的成员,精确匹配"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "schema": {
+              "$ref": "#/definitions/AppUsers"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "id": "b2e6b145-4f3f-4a80-aa45-f4b8029f95a3",
+                "users": [
+                  {
+                    "id": "string",
+                    "name": "string",
+                    "roles": [
+                      "read, access, delete, modify, admin"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "ROMA.00000101",
+                "error_msg": "error summary",
+                "error_details": "some error details here",
+                "request_id": "13760c1fe8655e61209b75665e9bef43"
+              }
+            }
+          }
+        },
+        "x-apigateway-backend": {
+          "httpEndpoints": {
+            "address": "#roma-address#",
+            "description": "",
+            "method": "GET",
+            "path": "/v2/{project_id}/instances/{instance_id}/apps/{app_id}/users",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "app_id",
+              "origin": "REQUEST",
+              "value": "app_id"
+            },
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "instance_id",
+              "origin": "REQUEST",
+              "value": "instance_id"
+            },
+            {
+              "description": "",
+              "in": "PATH",
+              "name": "project_id",
+              "origin": "REQUEST",
+              "value": "project_id"
+            }
+          ],
+          "type": "HTTP"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y"
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "错误消息"
+        },
+        "error_details": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "具体错误消息"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "请求处理ID"
+        }
+      },
+      "example": {
+        "error_code": "ROMA.00000101",
+        "error_msg": "error summary",
+        "error_details": "some error details here",
+        "request_id": "13760c1fe8655e61209b75665e9bef43"
+      }
+    },
+    "AppUsers": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "example": 1,
+          "minimum": 1,
+          "maximum": 5,
+          "description": "应用的总成员数量"
+        },
+        "id": {
+          "$ref": "#/definitions/AppId"
+        },
+        "users": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "description": "用户成员列表",
+          "items": {
+            "type": "string",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "用户ID"
+              },
+              "name": {
+                "type": "string",
+                "description": "用户名称"
+              },
+              "roles": {
+                "$ref": "#/definitions/AppUserRoles"
+              }
+            }
+          }
+        }
+      }
+    },
+    "AppUserRoles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minItems": 1,
+        "enum": [
+          "read",
+          "access",
+          "delete",
+          "modify",
+          "admin"
+        ],
+        "required": [
+          "read"
+        ]
+      },
+      "description": "应用权限角色\n- read:应用下资源只读权限,至少要存在此权限,包括API调试\n- access:应用下资源的访问管理权限\n- delete:应用下资源的删除权限\n- modify:应用下资源的修改权限,包括API发布、下线\n- admin:应用和应用下资源的权限\n- 仅提供admin时,会自动应用其它所有权限\n- 未提供read时会自动应用read权限",
+      "example": [
+        "read",
+        "access",
+        "delete",
+        "modify",
+        "admin"
+      ]
+    },
+    "AppId": {
+      "type": "string",
+      "description": "应用ID",
+      "example": "b2e6b145-4f3f-4a80-aa45-f4b8029f95a3"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

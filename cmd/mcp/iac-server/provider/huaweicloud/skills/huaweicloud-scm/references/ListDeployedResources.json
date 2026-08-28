@@ -1,0 +1,335 @@
+{
+  "name": "ListDeployedResources",
+  "summary": "查询已部署资源",
+  "tags": "证书部署管理",
+  "productshort": "SCM",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v3/scm/deployed-resources": {
+      "post": {
+        "tags": [
+          "证书部署管理"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "summary": "查询已部署资源",
+        "description": "查询证书已部署的具体资源。针对已签发和上传的非国密证书。",
+        "operationId": "ListDeployedResources",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 2097152,
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX..."
+          },
+          {
+            "name": "ListDeployedResourcesRequestBody",
+            "in": "body",
+            "description": "requestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListDeployedResourcesRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回。",
+            "schema": {
+              "$ref": "#/definitions/ListDeployedResourcesResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "results": [
+                  {
+                    "certificate_id": "scs1665472591541",
+                    "total_num": 1,
+                    "deployed_resources": [
+                      {
+                        "service": "ELB",
+                        "resource_num": 1,
+                        "resource_location": "region",
+                        "region_resources": [
+                          {
+                            "region_id": "cn-north-7",
+                            "is_error": false,
+                            "resources": [
+                              {
+                                "resource_id": "d93c9fe40959468eb2baf32590a1140a",
+                                "resource_name": "xxxx"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "403": {
+            "description": "禁止访问。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          },
+          "404": {
+            "description": "访问页面未找到。"
+          },
+          "500": {
+            "description": "请求未完成,服务器内部异常。",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "SCM.XXX",
+                "error_msg": "XXX"
+              }
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "certificate_ids": [
+            "scs1665472591541"
+          ],
+          "service_names": [
+            "WAF"
+          ]
+        },
+        "x-hc": "Y",
+        "x-hk": "Y",
+        "x-open-region-cloud": "hc,hk"
+      }
+    }
+  },
+  "definitions": {
+    "DeployedResourceDetail": {
+      "type": "object",
+      "required": [
+        "service",
+        "resource_num",
+        "resource_location",
+        "region_resources"
+      ],
+      "properties": {
+        "service": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 5,
+          "description": "证书已部署资源服务名称。\n- WAF:证书关联Web应用防火墙的资源。\n- CDN:证书关联内容分发网络的资源。\n- ELB:证书关联弹性负载均衡(经典型)的资源。"
+        },
+        "resource_num": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "证书在当前服务已部署资源数量。"
+        },
+        "resource_location": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "全局服务或Region级服务。"
+        },
+        "region_resources": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "局点资源列表,详情请参见RegionResourceDetail字段数据结构说明。",
+          "items": {
+            "$ref": "#/definitions/RegionResourceDetail"
+          }
+        }
+      },
+      "title": "DeployedResourceDetail"
+    },
+    "ListDeployedResourcesRequestBody": {
+      "type": "object",
+      "required": [
+        "certificate_ids",
+        "service_names"
+      ],
+      "properties": {
+        "certificate_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "description": "证书ID列表。",
+          "items": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16
+          }
+        },
+        "service_names": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "description": "服务名称列表。\n- WAF:查询证书关联Web应用防火墙的资源。\n- CDN:查询证书关联内容分发网络的资源。\n- ELB:查询证书关联弹性负载均衡(经典型)的资源。\n- ALL:查询证书以上四种服务的资源。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 5
+          }
+        }
+      },
+      "title": "ListDeployedResourcesRequestBody"
+    },
+    "RegionResourceDetail": {
+      "type": "object",
+      "required": [
+        "region_id",
+        "is_error",
+        "resources"
+      ],
+      "properties": {
+        "region_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "局点ID。当服务为全局服务时,region_id为global,其余按照IAM的标准命名。"
+        },
+        "is_error": {
+          "type": "boolean",
+          "description": "请求当前region资源信息过程中,响应是否存在异常的标志。\n- true : 存在异常,当前region所统计数据不准确\n- false: 无异常,当前region所统计数据准确"
+        },
+        "resources": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "资源集合,每个资源的标识:资源ID + “:” + 资源名称,详情请参见ResourceDetail字段数据结构说明。",
+          "items": {
+            "$ref": "#/definitions/ResourceDetail"
+          }
+        }
+      },
+      "title": "RegionResourceDetail"
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 36,
+          "description": "错误请求返回的错误码。"
+        },
+        "error_msg": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1024,
+          "description": "错误请求返回的错误信息。"
+        }
+      },
+      "title": "Error"
+    },
+    "ResourceDetail": {
+      "type": "object",
+      "required": [
+        "resource_id",
+        "resource_name"
+      ],
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "资源ID。"
+        },
+        "resource_name": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 63,
+          "description": "资源名称。"
+        }
+      },
+      "title": "ResourceDetail"
+    },
+    "ListDeployedResourcesResponseBody": {
+      "type": "object",
+      "required": [
+        "results"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "description": "请求结果列表,详情请参见ResultDetail字段数据结构说明。",
+          "items": {
+            "$ref": "#/definitions/ResultDetail"
+          }
+        }
+      },
+      "title": "ListDeployedResourcesResponseBody"
+    },
+    "ResultDetail": {
+      "type": "object",
+      "required": [
+        "certificate_id",
+        "total_num",
+        "deployed_resources"
+      ],
+      "properties": {
+        "certificate_id": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 16,
+          "description": "证书ID。"
+        },
+        "total_num": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "当前证书在所查询服务中已部署资源总数。"
+        },
+        "deployed_resources": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 100,
+          "description": "当前证书已部署资源列表,详情请参见DeployedResourceDetail字段数据结构说明。",
+          "items": {
+            "$ref": "#/definitions/DeployedResourceDetail"
+          }
+        }
+      },
+      "title": "ResultDetail"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "scm.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "post",
+  "uri": null
+}

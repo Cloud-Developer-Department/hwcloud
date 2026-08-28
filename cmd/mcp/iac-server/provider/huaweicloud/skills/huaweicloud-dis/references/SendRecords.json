@@ -1,0 +1,193 @@
+{
+  "name": "SendRecords",
+  "summary": "上传数据",
+  "tags": "数据管理",
+  "productshort": "DIS",
+  "region_id": "cn-east-2",
+  "paths": {
+    "/v2/{project_id}/records": {
+      "post": {
+        "x-publishpath": "dis_02_0018",
+        "x-scope": "Commercial",
+        "x-request-examples-description-1": "上传数据",
+        "x-request-examples-url-1": "POST https://{Endpoint}/v2/{project_id}/records",
+        "x-request-examples-1": {
+          "stream_name": "newstream",
+          "records": [
+            {
+              "data": "MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTE="
+            }
+          ]
+        },
+        "x-source": "SelfDeveloped",
+        "x-timeout": "60s",
+        "x-support-sdk": "Y",
+        "tags": [
+          "数据管理"
+        ],
+        "summary": "上传数据",
+        "description": "本接口用于上传数据到DIS通道中。",
+        "operationId": "SendRecords",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "2b31ed520xxxxxxebedb6e57xxxxxxxx",
+            "x-order": 2
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+            "x-order": 1
+          },
+          {
+            "in": "body",
+            "name": "SendRecordsRequestBody",
+            "description": "SendRecordsRequestBody",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PutRecordsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "正常返回",
+            "schema": {
+              "$ref": "#/definitions/PutRecordsResult"
+            }
+          }
+        },
+        "security": [
+          {
+            "aksk": []
+          }
+        ],
+        "x-version": "v2"
+      }
+    }
+  },
+  "definitions": {
+    "PutRecordsRequestEntry": {
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "string",
+          "example": "ZGF0YQ==",
+          "description": "需要上传的数据。\n\n上传的数据为序列化之后的二进制数据(Base64编码后的字符串)。\n\n比如需要上传字符串“data”,“data”经过Base64编码之后是“ZGF0YQ==”。"
+        },
+        "explicit_hash_key": {
+          "type": "string",
+          "description": "用于明确数据需要写入分区的哈希值,此哈希值将覆盖“partition_key”的哈希值。\n\n取值范围:0~long.max"
+        },
+        "partition_id": {
+          "type": "string",
+          "example": "shardId-0000000000",
+          "description": "通道的分区标识符。\n可定义为如下两种样式:\n- shardId-0000000000\n- 0\n\n比如一个通道有三个分区,那么分区标识符分别为0, 1, 2,或者shardId-0000000000, shardId-0000000001, shardId-0000000002"
+        },
+        "partition_key": {
+          "type": "string",
+          "description": "数据将写入的分区。\n\n说明:\n\n如果传了partition_id参数,则优先使用partition_id参数。如果partition_id没有传,则使用partition_key。"
+        }
+      },
+      "xml": {
+        "name": "PutRecordsRequestEntry"
+      }
+    },
+    "PutRecordsResultEntry": {
+      "type": "object",
+      "properties": {
+        "partition_id": {
+          "type": "string",
+          "description": "数据上传到的分区ID。"
+        },
+        "sequence_number": {
+          "type": "string",
+          "description": "数据上传到的序列号。序列号是每个记录的唯一标识符。序列号由DIS在数据生产者调用PutRecords操作以添加数据到DIS数据通道时DIS服务自动分配的。同一分区键的序列号通常会随时间变化增加。PutRecords请求之间的时间段越长,序列号越大。"
+        },
+        "error_code": {
+          "type": "string",
+          "description": "错误码。"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "错误消息。"
+        }
+      },
+      "xml": {
+        "name": "PutRecordsResultEntry"
+      }
+    },
+    "PutRecordsRequest": {
+      "type": "object",
+      "required": [
+        "stream_name",
+        "records"
+      ],
+      "properties": {
+        "stream_name": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "已创建的通道名称。"
+        },
+        "stream_id": {
+          "type": "string",
+          "description": "通道唯一标识符。\n\n当使用stream_name没有找到对应通道且stream_id不为空时,会使用stream_id去查找通道。\n\n说明:\n\n上传数据到被授权的通道时,必须配置此参数。"
+        },
+        "records": {
+          "type": "array",
+          "description": "待上传的记录列表。",
+          "items": {
+            "$ref": "#/definitions/PutRecordsRequestEntry",
+            "type": "object"
+          }
+        }
+      },
+      "xml": {
+        "name": "PutRecordsRequest"
+      }
+    },
+    "PutRecordsResult": {
+      "type": "object",
+      "properties": {
+        "failed_record_count": {
+          "type": "integer",
+          "description": "上传失败的数据数量。"
+        },
+        "records": {
+          "type": "array",
+          "description": "上传结果列表。",
+          "items": {
+            "$ref": "#/definitions/PutRecordsResultEntry",
+            "type": "object"
+          }
+        }
+      },
+      "xml": {
+        "name": "PutRecordsResult"
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dis.cn-east-2.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

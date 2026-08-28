@@ -1,0 +1,821 @@
+{
+  "name": "StartSmartLive",
+  "summary": "启动数字人智能直播任务",
+  "tags": "直播任务管理",
+  "productshort": "MetaStudio",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v1/{project_id}/smart-live-rooms/{room_id}/smart-live-jobs": {
+      "post": {
+        "tags": [
+          "SmartLiveJobManager"
+        ],
+        "summary": "启动数字人智能直播任务",
+        "description": "该接口用于启动数字人智能直播任务。",
+        "operationId": "StartSmartLive",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Project-IdPath"
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "description": "直播间ID。",
+            "required": true,
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "x-annotations": [
+              "@Size(min = 1, max = 64)"
+            ],
+            "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+          },
+          {
+            "$ref": "#/parameters/X-Auth-TokenHeader"
+          },
+          {
+            "$ref": "#/parameters/AuthorizationHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Sdk-DateHeader"
+          },
+          {
+            "$ref": "#/parameters/X-Project-IdHeader"
+          },
+          {
+            "$ref": "#/parameters/X-App-UserId"
+          },
+          {
+            "in": "body",
+            "name": "StartSmartLiveRequestBody",
+            "description": "数字人智能直播任务创建请求。",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StartSmartLiveReq"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "成功。",
+            "examples": {
+              "application/json": {
+                "job_id": "26f06524-4f75-4b3a-a853-b649a21aaf66"
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "type": "string",
+                "description": "请求ID。"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/StartSmartLiveRsp"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServiceError"
+          }
+        },
+        "x-imports": "com.huawei.springframework.advice.HttpStatusController;",
+        "x-classAnnotation": "@HttpStatusController",
+        "x-interface-frequency": "LOW",
+        "x-interface-rist": "LOW",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-api-type": "open-api",
+        "x-apig-group": "public-iam,internal-appcode",
+        "x-open-range": "public",
+        "x-feature": "2dlive",
+        "x-navigation-title": "StartSmartLive",
+        "x-request-examples-url-1": "POST https://{endpoint}/v1/70b76xxxxxx34253880af501cdxxxxxx/smart-live-rooms/24bad716-87b1-45e5-8912-6102f7693265/smart-live-jobs",
+        "x-request-examples-1": {
+          "output_urls": [
+            "rtmp://vfxpush.hwcloudvr.cn/live/lysa"
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PlayPolicy": {
+      "properties": {
+        "repeat_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n剧本重复播放次数。\n* -1:表示持续重复,直至人工停止。\n* 0:表示不重复,仅执行一次。\n* 其他值n:实际运行次数为n+1次。\n\n**约束限制**:\n不涉及。",
+          "minimum": -1,
+          "maximum": 100,
+          "default": 0
+        },
+        "auto_play_script": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否自动播放剧本。\n**约束限制**:\n不涉及。\n**取值范围**:\n* true:服务完成任务初始化后,自动播放剧本。\n* false:服务完成任务初始化后,等待信号后再开始播放剧本。",
+          "default": true
+        },
+        "play_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n驱动方式。\n**约束限制**:\n不涉及。\n**取值范围**:\n* TEXT:文本驱动,即通过TTS合成语音。\n* AUDIO:语音驱动。\n* NO_PRESET:无预置剧本,人工控制模式。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "TEXT",
+            "AUDIO",
+            "NO_PRESET"
+          ],
+          "default": "TEXT"
+        },
+        "random_play_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n随机播报模式。\n**约束限制**:\n从第二轮播报开始随机。\n**取值范围**:\n* NONE:不启动随机播报。\n* SCENE:按场景随机播报。场景内段落按顺序播报。\n* SCRIPT_ITEM:按段落随机播报。场景按顺序播报。\n* SCENE_AND_SCRIPT_ITEM:场景和段落都随机播报。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "NONE",
+            "SCENE",
+            "SCRIPT_ITEM",
+            "SCENE_AND_SCRIPT_ITEM"
+          ],
+          "default": "SCRIPT_ITEM"
+        },
+        "need_independent_capture_client": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否需要独立采集端。用于客户端播放与命令分离场景。\n**约束限制**:\n不涉及。\n**取值范围**:\n* true:分配CAPTURE、PLAYER两个RTC用户。\n* false:仅分配PLAYER一个RTC用户。",
+          "default": false
+        },
+        "live_exit_config": {
+          "$ref": "#/definitions/LiveExitConfig"
+        },
+        "is_rewrite_delay": {
+          "type": "boolean",
+          "description": "**参数解释**:\n动态编辑未播放剧本是否需要下一轮生效。\n**约束限制**:\n不涉及。\n**取值范围**:\n* true:下一轮生效。\n* false:马上生效。\n**默认取值**:\nfalse",
+          "default": false
+        }
+      },
+      "description": "剧本播放策略"
+    },
+    "RTCRoomInfoList": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": "RTC应用ID。",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "room_id": {
+          "type": "string",
+          "description": "RTC房间ID。",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "users": {
+          "type": "array",
+          "description": "加入RTC房间用户信息。",
+          "items": {
+            "$ref": "#/definitions/RTCUserInfo"
+          },
+          "maxItems": 4,
+          "minItems": 2
+        }
+      },
+      "description": "RTC房间信息。"
+    },
+    "LiveEventCallBackConfig": {
+      "type": "object",
+      "properties": {
+        "live_event_type_callback_url": {
+          "type": "string",
+          "description": "**参数解释**:\n直播事件回调地址,为https地址。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度0-2048位。\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "auth_type": {
+          "type": "string",
+          "description": "**参数解释**:\n认证类型。\n**约束限制**:\n不涉及。\n**取值范围**:\n* NONE:URL中自带认证。\n* MSS_A:HMACSHA256签名模式,在URL中追加参数hwSecret、hwTime。\n  取值方式:hwSecret=hmac_sha256(Key, URI(live_event_callback_url)+ hwTime)&hwTime=hex(timestamp)\n* MSS_A_HEAD:HMACSHA256签名模式,参数hwSecret、hwTime放置在Head中。\n  取值方式:x-hw-mss-secret=hmac_sha256(Key, URI(live_event_callback_url)+ hwTime)\n    x-hw-mss-time=hex(timestamp)\n* MEITUAN_DEFAULT:仅用于美团平台调用回调使用。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "NONE",
+            "MSS_A",
+            "MSS_A_HEAD",
+            "MEITUAN_DEFAULT"
+          ],
+          "default": "NONE"
+        },
+        "key": {
+          "type": "string",
+          "description": "**参数解释**:\n密钥Key。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度0-32位。\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 32
+        },
+        "callback_event_type": {
+          "type": "array",
+          "description": "**参数解释**:\n回调的直播事件类型列表。\n**约束限制**:\n不涉及。\n**取值范围**:\n当前仅支持如下取值:\n* SHOOT_SCRIPT_SWITCH:剧本段落切换事件。 \n* RTMP_STREAM_STATE_CHANGE:RTMP链接发生变化回调事件。\n* REPLY_COMMAND_FINISH:回复播放完成通知。\n\n回调事件结构体定义:\n* event_type:事件类型。\n* message:事件描述。\n  - SHOOT_SCRIPT_SWITCH事件回调定义如下:\n    ```json\n    {\n      \"event_type\":  \"SHOOT_SCRIPT_SWITCH\",\n      \"message\":\"{\\\"room_id\\\":\\\"26f065244f754b3aa853b649a21aaf66\\\",\\\"job_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\\\",\\\"scene_script_name\\\":\\\"商品1\\\",\\\"shoot_script_sequence_no\\\":\\\"2\\\",\\\"shoot_script_title\\\":\\\"段落2\\\"}\"\n    }\n    ```\n  - RTMP_STREAM_STATE_CHANGE回调定义如下:\n    ```json\n    {\n      \"event_type\":  \"RTMP_STREAM_STATE_CHANGE\",\n      \"message\":\"{\\\"room_id\\\":\\\"26f065244f754b3aa853b649a21aaf66\\\",\\\"job_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\\\",\\\"output_url\\\":\\\"rtmp://xxx/xx/xx\\\",\\\"stream_key\\\":\\\"xxxxx\\\",\\\"state\\\":\\\"CONNECTED\\\"}\"\n    }\n    ```\n    其中state取值:CONNECTING链路连接中;CONNECTED链路已连接;DISCONNECTED链路已断开,RECONNECTING链路重连中;END联络不再重连,链路已结束。\n\n  - REPLY_COMMAND_FINISH回调定义如下:\n    ```json\n    {\n      \"event_type\":  \"REPLY_COMMAND_FINISH\",\n      \"message\":\"{\\\"room_id\\\":\\\"26f065244f754b3aa853b649a21aaf66\\\",\\\"job_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\\\",\\\"reply_id\\\":\\\"e87104f76d7546ce8a46ac6b04c49c3c\"}\"\n    }",
+          "items": {
+            "type": "string",
+            "description": "回调的直播事件类型\n* SHOOT_SCRIPT_SWITCH,剧本段落切换事件\n* RTMP_STREAM_STATE_CHANGE,RTMP链接发生变化回调事件\n* REPLY_COMMAND_FINISH,回复播放完成通知",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "x-maxLength": 10000
+        }
+      },
+      "description": "直播事件HTTPS回调通知配置"
+    },
+    "SubtitleConfig": {
+      "type": "object",
+      "properties": {
+        "dx": {
+          "type": "integer",
+          "format": "int32",
+          "example": 256,
+          "description": "**参数解释**:\n字幕框左下角像素点坐标。\n**约束限制**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "minimum": 0,
+          "maximum": 1920
+        },
+        "dy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n字幕框左下角像素点坐标。\n**约束限制**:\n不涉及。\n**默认取值**:\n不涉及。",
+          "minimum": 0,
+          "maximum": 1920
+        },
+        "h": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n字幕框高度。\n**约束限制**:\n参数h用于方便前端计算字幕框左上角坐标,后台不使用该参数。",
+          "minimum": 0,
+          "maximum": 1920
+        },
+        "w": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n字幕框宽度。\n**约束限制**:\n* 字幕框宽度固定为屏幕宽度的80%\n* 参数w用于方便前端计算字幕框左上角坐标,后台不使用该参数",
+          "minimum": 0,
+          "maximum": 1920
+        },
+        "font_name": {
+          "type": "string",
+          "description": "**参数解释**:\n字体。当前支持的字体请参考[服务支持的字体](metastudio_02_0041.xml)\n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度0-64位",
+          "minLength": 0,
+          "maxLength": 64,
+          "default": "HarmonyOS_Sans_SC_Black"
+        },
+        "font_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n字体大小。接口的取值范围为0-120,实际业务使用的取值范围要求为24-120,请以业务实际使用要求为准。\n**约束限制**:\n不涉及。",
+          "minimum": 0,
+          "maximum": 120,
+          "default": 54
+        },
+        "font_color": {
+          "type": "string",
+          "description": "**参数解释**:\n字幕字体颜色的RGB颜色值。\n**约束限制**:\n无\n**取值范围**:\n字符长度0-7位,固定长度",
+          "minLength": 0,
+          "maxLength": 16,
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "default": "#FFFFFF"
+        },
+        "stroke_color": {
+          "type": "string",
+          "description": "**参数解释**:\n字幕字体描边颜色的RGB颜色值。\n**约束限制**:\n无\n**取值范围**:\n字符长度0-7位,固定长度",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "stroke_thickness": {
+          "type": "number",
+          "format": "float",
+          "description": "**参数解释**:\n字幕字体描边粗细像素值。\n**约束限制**:\n无\n**取值范围**:\n0-50",
+          "minimum": 0,
+          "maximum": 50
+        },
+        "opacity": {
+          "type": "number",
+          "format": "float",
+          "example": 0.5,
+          "description": "**参数解释**:\n字幕字体不透明度,0表示完全透明,1表示完全不透明。默认1。\n**约束限制**:\n无\n**取值范围**:\n0-1",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1.0
+        }
+      },
+      "description": "字幕配置。"
+    },
+    "StartSmartLiveReq": {
+      "properties": {
+        "video_config": {
+          "description": "视频输出配置。",
+          "$ref": "#/definitions/VideoConfig"
+        },
+        "play_policy": {
+          "description": "剧本播放策略",
+          "$ref": "#/definitions/PlayPolicy"
+        },
+        "output_urls": {
+          "type": "array",
+          "description": "**参数解释**:\nRTMP视频推流第三方直播平台地址。\n> 直播过程中刷新地址,需要调用COMMAND命令REFRESH_OUTPUT_URL。\n\n**约束限制**:\n不涉及\n**取值范围**:\n当前仅支持一条RTMP出流地址。\n**默认取值**:\n不涉及。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1024
+          },
+          "maxItems": 1,
+          "minItems": 0,
+          "x-maxLength": 10000
+        },
+        "stream_keys": {
+          "type": "array",
+          "description": "**参数解释**:\nRTMP视频推流第三方直播平台流密钥,与推流地址对应。\n> 直播过程中刷新地址,需要调用COMMAND命令REFRESH_OUTPUT_URL。\n\n**约束限制**:\n不涉及\n**取值范围**:\n当前仅支持一条RTMP出流地址。\n**默认取值**:\n不涉及。",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1024
+          },
+          "maxItems": 1,
+          "minItems": 0,
+          "x-maxLength": 10000
+        },
+        "interaction_callback_url": {
+          "type": "string",
+          "description": "**参数解释**:\n互动回调URL,含鉴权信息。\n互动规则trigger.reply_mode配置为CALLBACK时填写\n**约束限制**:\n不涉及\n**取值范围**:\n字符长度0-2048位\n**默认取值**:\n不涉及。",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "live_event_callback_config": {
+          "$ref": "#/definitions/LiveEventCallBackConfig"
+        },
+        "rtc_callback_config": {
+          "$ref": "#/definitions/RTCLiveEventCallBackConfig"
+        },
+        "view_mode": {
+          "type": "string",
+          "example": "LANDSCAPE",
+          "description": "**参数解释**:\n横竖屏类型。\n**约束限制**:\n用户无需填写,通过video_config中分辨率判断\n**取值范围**:\n* LANDSCAPE:横屏。\n* VERTICAL: 竖屏。",
+          "enum": [
+            "LANDSCAPE",
+            "VERTICAL"
+          ],
+          "default": "VERTICAL"
+        },
+        "co_streamer_config": {
+          "$ref": "#/definitions/CoStreamerConfig"
+        },
+        "job_run_config": {
+          "$ref": "#/definitions/LiveJobRunConfig"
+        }
+      },
+      "description": "数字人直播任务请求。"
+    },
+    "LiveWarningItem": {
+      "properties": {
+        "warning_type": {
+          "type": "string",
+          "description": "告警类型。\n- TOO_LESSS_SCRIPT_ITEMS:段落(话术)数量太少。\n- TOO_SHORT_SCRIPT_TIME:段落(话术)总时长太短。\n- TOO_LESS_DANMAKU_RULES: 弹幕互动规则太少。\n- RANDOM_PLAY_CLOSED: 随机播放开关关闭。\n- ROTATION_MODEL_CLOSED: 主播轮转未配置。",
+          "minLength": 0,
+          "maxLength": 32,
+          "enum": [
+            "TOO_LESSS_SCRIPT_ITEMS",
+            "TOO_SHORT_SCRIPT_TIME",
+            "TOO_LESS_DANMAKU_RULES",
+            "RANDOM_PLAY_CLOSED",
+            "ROTATION_MODEL_CLOSED"
+          ]
+        }
+      },
+      "description": "开播风险警告"
+    },
+    "RTCUserInfo": {
+      "type": "object",
+      "properties": {
+        "user_type": {
+          "type": "string",
+          "description": "用户类型。\n* CAPTURE: 直播助手,将摄像头获取视频流推送到RTC房间\n* ANIMATION: VDS服务,从RTC房间拉视频流生成动作数据\n* RENDER: 渲染服务,将动作数据渲染成数字人动画\n* PLAYER: 普通观看方,可选择原始视频流或者数字人动画视频流观看\n* INFERENCE_USER: 数字人推理端用户。从RTC房间接收音频流,并推送视频流到RTC房间\n* END_USER: 端侧用户。从推送音频流到RTC房间,并从RTC房间接收视频流",
+          "enum": [
+            "CAPTURE",
+            "ANIMATION",
+            "RENDER",
+            "PLAYER",
+            "INFERENCE_USER",
+            "END_USER"
+          ]
+        },
+        "user_id": {
+          "type": "string",
+          "description": "RTC用户ID。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "signature": {
+          "type": "string",
+          "description": "RTC鉴权token。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "ctime": {
+          "type": "integer",
+          "format": "int64",
+          "description": "有效期。时间戳,单位:秒。",
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      },
+      "description": "接入RTC的用户信息。"
+    },
+    "VideoConfig": {
+      "type": "object",
+      "required": [
+        "bitrate",
+        "height",
+        "width"
+      ],
+      "properties": {
+        "clip_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n输出视频的剪辑方式。\n**约束限制**:\n不涉及。\n**取值范围**:\n* RESIZE:视频缩放。\n* CROP:视频裁剪。",
+          "enum": [
+            "RESIZE",
+            "CROP"
+          ],
+          "default": "RESIZE"
+        },
+        "codec": {
+          "type": "string",
+          "description": "**参数解释**:\n视频编码格式及视频文件格式。\n**约束限制**:\n仅分身数字人视频制作支持VP8和QTRLE编码。QTRLE编码时文本驱动字符数限制小于1500字,音频驱动音频长度小于5分钟。\nQTRLE编码需要先申请开通白名单后才能使用\n\n**取值范围**:\n* H264:h264编码,输出mp4文件。\n* VP8:vp8编码,输出webm文件。\n* QTRLE:qtrle ,输出mov文件。\n\n**默认取值**:\nH264",
+          "enum": [
+            "H264",
+            "VP8",
+            "VP9",
+            "QTRLE"
+          ],
+          "default": "H264"
+        },
+        "bitrate": {
+          "type": "integer",
+          "description": "**参数解释**:\n输出平均码率。单位:kbps。\n**约束限制**:\n* 分身数字人视频制作采用质量优先,可能会超过设置的码率。\n* 分身数字人直播码率范围[1000, 8000]。\n\n**默认取值**:\n不涉及",
+          "minimum": 40,
+          "maximum": 30000
+        },
+        "width": {
+          "type": "integer",
+          "description": "**参数解释**:\n视频宽度。单位:像素。\n**约束限制**:\n* clip_mode=RESIZE时,当前支持1920x1080、1080x1920、1280x720、720x1280、3840x2160、2160x3840六种分辨率。4K分辨率视频需要分身数字人模型支持4K的情况下才能使用。\n* clip_mode=CROP,裁剪后视频,(dx,dy)为原点,保留视频像宽度为width。\n* 分身数字人直播和智能交互目前只支持1080x1920、1920x1080。\n\n**默认取值**:\n不涉及",
+          "minimum": 0,
+          "maximum": 3840
+        },
+        "height": {
+          "type": "integer",
+          "description": "**参数解释**:\n视频高度。\n\n单位:像素。\n**约束限制**:\n* clip_mode=RESIZE时,当前支持1920x1080、1080x1920、1280x720、720x1280、3840x2160、2160x3840六种分辨率分辨率。\n* clip_mode=CROP,裁剪后视频,(dx,dy)为原点,保留视频像高度为height。\n* 分身数字人直播和智能交互目前只支持1080x1920、1920x1080。\n\n**默认取值**:\n不涉及",
+          "minimum": 0,
+          "maximum": 3840
+        },
+        "frame_rate": {
+          "type": "string",
+          "format": "string",
+          "description": "**参数解释**:\n帧率。单位:FPS。\n**约束限制**:\n分身数字人视频固定25FPS。",
+          "minLength": 0,
+          "maxLength": 10,
+          "enum": [
+            "24",
+            "25",
+            "30"
+          ],
+          "default": "25"
+        },
+        "is_subtitle_enable": {
+          "type": "boolean",
+          "example": true,
+          "description": "**参数解释**:\n输出的视频是否带字幕。\n**约束限制**:\n分身数字人直播暂时不支持字幕。\n\n**取值范围**:\n* true: 打开字幕\n* false: 关闭字幕",
+          "enum": [
+            true,
+            false
+          ],
+          "default": false
+        },
+        "subtitle_config": {
+          "$ref": "#/definitions/SubtitleConfig"
+        },
+        "dx": {
+          "type": "integer",
+          "format": "int32",
+          "example": 256,
+          "description": "**参数解释**:\n裁剪视频左上角像素点横坐标。\n> 以模特分辨率为画布大小,比如1920*1080分辨率的模特,dx最小值是0,最大值是1920。\n\n**约束限制**:\nclip_mode= CROP时生效。\n**默认取值**:\n不涉及",
+          "minimum": -1920,
+          "maximum": 3840
+        },
+        "dy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n裁剪视频左上角像素点纵坐标。\n> 以模特分辨率为画布大小,比如1920*1080分辨率的模特,dy最小值是0,最大值是1080\n\n**约束限制**:\nclip_mode= CROP时生效。\n**默认取值**:\n不涉及",
+          "minimum": -1920,
+          "maximum": 3840
+        },
+        "is_enable_super_resolution": {
+          "type": "boolean",
+          "example": true,
+          "description": "**参数解释**:\n视频是否开启超分。\n**约束限制**:\n仅分身数字人视频制作支持。\n**取值范围**\n* true: 开启\n* false: 不开启",
+          "enum": [
+            true,
+            false
+          ],
+          "default": false
+        },
+        "is_end_at_first_frame": {
+          "type": "boolean",
+          "example": true,
+          "description": "**参数解释**:\n视频结束帧是否跟起始帧相同。需要多个数字人视频无缝拼接时设置成true。\n**约束限制**:\n仅分身数字人视频制作支持,当视频制作时插入动作标签后此设置将失效。\n**取值范围**\n* true: 开启\n* false: 不开启",
+          "enum": [
+            true,
+            false
+          ],
+          "default": false
+        },
+        "output_external_url": {
+          "type": "string",
+          "example": "https://{endpoint}/a5d295cdb345c11bd9f36bc22ced3a7a/test.mp3?AccessKeyId=dnhlruEz0ZPD8Y8wnodo&Signature=E94GDa%2Bt3L%2F9mTnNXpFfGGFEe7c%3D",
+          "description": "视频文件上传的外部URL。\n > * 需要先申请开通白名单后,才允许将视频上传到外部URL。",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "is_vocabulary_config_enable": {
+          "type": "boolean",
+          "description": "**参数解释**:\n是否应用当前租户的读法配置\n**约束限制**:\n仅分身数字人视频制作支持。\n**取值范围**\n* true: 开启\n* false: 不开启",
+          "default": true
+        }
+      },
+      "description": "视频输出配置。"
+    },
+    "LiveJobRunConfig": {
+      "properties": {
+        "allow_resource_type": {
+          "type": "string",
+          "description": "允许使用资源类型。\n* PERIOD:使用包周期资源\n* ONDEMAND:使用按需资源\n* UNLIMITED:不限制资源类型\n* ONE_TIME:一次性资源",
+          "minLength": 1,
+          "maxLength": 64,
+          "enum": [
+            "PERIOD",
+            "ONDEMAND",
+            "UNLIMITED",
+            "ONE_TIME"
+          ],
+          "default": "UNLIMITED"
+        },
+        "single_job_in_room": {
+          "type": "boolean",
+          "description": "一个直播间是否仅允许一个正在直播的任务。\n* true: 限制直播间仅允许一个任务运行。\n* false: 不限制直播间任务运行数量。",
+          "default": false
+        }
+      },
+      "description": "数字人直播任务运行配置"
+    },
+    "LiveExitConfig": {
+      "type": "object",
+      "properties": {
+        "max_live_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n最大直播时长。单位小时。\n此数值配置为n,则标识起播后n小时后触发停止直播逻辑。\n当前数值最大为168(一周),特殊的,0表示不限时。\n**约束限制**:\n停止直播逻辑配置为立即停止则直播停止误差在5分钟之内。其他逻辑则加上处理时长。\n**默认取值**:\n不设置则表示不限时。",
+          "minimum": 0,
+          "maximum": 168
+        },
+        "auto_stop_mode": {
+          "type": "string",
+          "description": "**参数解释**:\n自动停止直播模式。\n* FORCE_EXIT:立即强制停止,不做其他逻辑处理。\n* SEGMENT_END:等待段落结束停止。\n* SCENE_END:等待场景结束停止。\n* SCRIPT_END:等待剧本结束停止。\n**约束限制**:\n不涉及\n**默认取值**:\n不设置则表示FORCE_EXIT。",
+          "enum": [
+            "FORCE_EXIT",
+            "SEGMENT_END",
+            "SCENE_END",
+            "SCRIPT_END"
+          ]
+        },
+        "max_exception_waiting_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n最大异常等待时长。单位分钟。 \n此数值配置为n,则标识检测到异常n分钟后触发立即停止直播逻辑。\n当前数值最大为60(1小时),特殊的,0表示不限时。\n**约束限制**:\n不涉及\n**默认取值**:\n不设置则为系统默认值,当前为3分钟,默认值可能会根据服务运行状态进行少许调整。",
+          "minimum": 0,
+          "maximum": 60
+        }
+      },
+      "description": "直播任务退出配置"
+    },
+    "CoStreamerConfig": {
+      "properties": {
+        "voice_config": {
+          "description": "语音配置参数。",
+          "$ref": "#/definitions/VoiceConfig"
+        },
+        "streamer_action": {
+          "type": "string",
+          "description": "**参数解释**:\n助播出声时主播行为设置。\n**约束限制**:\n不涉及\n**取值范围**:\n* SILENCE:静默\n* VOLUME_DOWN:音量降低\n\n**默认取值**:\n不涉及。",
+          "enum": [
+            "SILENCE",
+            "VOLUME_DOWN"
+          ]
+        }
+      },
+      "description": "助播配置"
+    },
+    "StartSmartLiveRsp": {
+      "required": [
+        "job_id"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "description": "直播任务ID。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "rtc_room_info": {
+          "$ref": "#/definitions/RTCRoomInfoList"
+        },
+        "live_event_report_url": {
+          "type": "string",
+          "description": "直播事件上报地址。用户将自行获取的直播间事件上报到此地址,用于触发智能互动,自动回复话术。",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "live_event_callback_config": {
+          "$ref": "#/definitions/LiveEventCallBackConfig"
+        },
+        "live_warning_info": {
+          "type": "array",
+          "description": "开播风险告警列表。",
+          "items": {
+            "$ref": "#/definitions/LiveWarningItem"
+          },
+          "maxItems": 100,
+          "minItems": 1
+        },
+        "limit_duration": {
+          "type": "integer",
+          "description": "**参数解释**:\n配置的最大直播时长。单位小时。\n0 为不限制。\n**约束限制**:\n停止直播逻辑配置为立即停止则直播停止误差在5分钟之内。其他逻辑则加上处理时长。\n**默认取值**:\n不设置则表示不限时。",
+          "minimum": 0,
+          "maximum": 168
+        }
+      },
+      "description": "数字人直播任务响应。"
+    },
+    "RTCLiveEventCallBackConfig": {
+      "type": "object",
+      "properties": {
+        "rtc_callback_event_type": {
+          "type": "array",
+          "description": "RTC回调的直播事件类型列表。\n\n当前仅支持如下取值:\n* LIVE_PROGRESS:直播剧本进度通知。 \n* REPLY_COMMAND_FINISH:回复播放完成通知。\n\n回调事件结构体定义:\n* message_type:消息类型。\n* data:消息描述。\n  - LIVE_PROGRESS事件回调定义如下:\n    ```json\n    {\n        \"message_type\": \"live_progress_notify\",\n        \"data\": {\n            \"script_name\": \"场景一\",\n            \"shoot_script_sequence_no\": 2,\n            \"shoot_script_title\": \"引导语\",\n            \"offset\": \"247\",\n            \"reply_id\": \"e87104f76d7546ce8a46ac6b04c49c3c\"\n        }\n    }\n    ```\n  - REPLY_COMMAND_FINISH回调定义如下:\n    ```json\n    {\n      \"message_type\": \"reply_command_finish_notify\",\n      \"data\":\"{\n        \"reply_id\":\"e87104f76d7546ce8a46ac6b04c49c3c\"\n      }\"\n    }\n    ```",
+          "items": {
+            "type": "string",
+            "description": "回调的直播事件类型\n* LIVE_PROGRESS,直播剧本进度通知\n* REPLY_COMMAND_FINISH, 回复播放完成通知",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "x-maxLength": 10000
+        }
+      },
+      "description": "RTC回调事件配置。兼容处理,未携带配置则默认订阅LIVE_PROGRESS"
+    },
+    "VoiceConfig": {
+      "required": [
+        "voice_asset_id"
+      ],
+      "properties": {
+        "voice_asset_id": {
+          "type": "string",
+          "example": "39b9cedccec1f19b33d8f7ce1a6d35b9",
+          "description": "**参数解释**:\n音色资产ID,可以从资产库中查询。\n音色ID的查询操作,详见[查询预置音色ID](metastudio_02_0054.xml)。\n**约束限制**:\n不涉及。\n**取值范围**:\n字符长度1-256位。\n**默认取值**:\n不涉及。",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "speed": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n语速。50表示0.5倍语速,100表示正常语速,200表示2倍语速。\n当取值为“100”时,表示一个成年人的正常语速,约为250字/分钟。\n\n**约束限制**:\n不涉及。",
+          "minimum": 50,
+          "maximum": 200,
+          "default": 100
+        },
+        "pitch": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n音高。\n**约束限制**:\n不涉及。",
+          "minimum": 50,
+          "maximum": 200,
+          "default": 100
+        },
+        "volume": {
+          "type": "integer",
+          "format": "int32",
+          "description": "**参数解释**:\n音量。\n**约束限制**:\n不涉及。",
+          "minimum": 90,
+          "maximum": 240,
+          "default": 140
+        }
+      },
+      "description": "语音配置参数。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "X-Sdk-DateHeader": {
+      "name": "X-Sdk-Date",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,请求的发生时间。\n\n格式为(YYYYMMDD'T'HHMMSS'Z')。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 16,
+      "x-annotations": [
+        "@Size(min = 16, max = 16)"
+      ],
+      "x-example": "20191115T033655Z",
+      "x-apig-registered": false
+    },
+    "X-Project-IdHeader": {
+      "name": "X-Project-Id",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带项目ID信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx",
+      "x-apig-registered": false
+    },
+    "AuthorizationHeader": {
+      "name": "Authorization",
+      "in": "header",
+      "description": "使用AK/SK方式认证时必选,携带的鉴权信息。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "SDK-HMAC-SHA256 Access=xxx, SignedHeaders=content-type;host;x-sdk-date, Signature=xxx",
+      "x-apig-registered": false
+    },
+    "X-Auth-TokenHeader": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "description": "用户Token。使用Token鉴权方式时必选。\n\n通过调用IAM服务获取用户Token接口获取。\n\n响应消息头中X-Subject-Token的值。",
+      "required": false,
+      "type": "string",
+      "maxLength": 16384,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 16384)"
+      ],
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXX...",
+      "x-apig-registered": false
+    },
+    "Project-IdPath": {
+      "name": "project_id",
+      "in": "path",
+      "description": "项目ID,获取方法请参考[获取项目ID](metastudio_02_0006.xml)。",
+      "required": true,
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 64)"
+      ],
+      "x-example": "70b76xxxxxx34253880af501cdxxxxxx"
+    },
+    "X-App-UserId": {
+      "name": "X-App-UserId",
+      "in": "header",
+      "description": "第三方用户ID。不允许输入中文。",
+      "required": false,
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "x-annotations": [
+        "@Size(min = 1, max = 256)"
+      ],
+      "x-example": "abcdefg1234567",
+      "x-apig-registered": false
+    }
+  },
+  "host": "metastudio.cn-north-4.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

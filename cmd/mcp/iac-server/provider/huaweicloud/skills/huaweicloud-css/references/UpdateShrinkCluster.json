@@ -1,0 +1,136 @@
+{
+  "name": "UpdateShrinkCluster",
+  "summary": "指定节点类型缩容",
+  "tags": "集群管理接口",
+  "productshort": "CSS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink": {
+      "post": {
+        "x-request-examples-url-1": "POST /v1.0/6204a5bd270343b5885144cf9c8c158d/clusters/4f3deec3-efa8-4598-bf91-560aad1377a3/role/shrink",
+        "x-request-examples-description-1": "缩容集群,通过指定当前节点类型缩容。",
+        "x-request-examples-text-1": {
+          "shrink": [
+            {
+              "type": "ess",
+              "reducedNodeNum": 1
+            }
+          ]
+        },
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apiexplorer-hide": "N",
+        "x-publishpath": "",
+        "tags": [
+          "集群管理接口"
+        ],
+        "summary": "指定节点类型缩容",
+        "description": "该接口用于集群对不同类型实例的个数以及存储容量进行缩容。包周期类型的集群不支持通过api进行指定节点类型缩容操作。",
+        "operationId": "UpdateShrinkCluster",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "description": "项目ID。获取方法请参见[获取项目ID和名称](css_03_0071.xml)。",
+            "required": true,
+            "type": "string",
+            "x-example": "6204a5bd270343b5885144cf9c8c158d"
+          },
+          {
+            "in": "path",
+            "name": "cluster_id",
+            "description": "指定待缩容的集群ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "4f3deec3-efa8-4598-bf91-560aad1377a3"
+          },
+          {
+            "in": "body",
+            "name": "ShrinkClusterReq",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ShrinkClusterReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求已成功。"
+          },
+          "400": {
+            "description": "非法请求。\n\n建议直接修改该请求,不要重试该请求。"
+          },
+          "409": {
+            "description": "服务器在完成请求时发生冲突。\n\n返回该状态码,表明客户端尝试创建的资源已经存在,或者由于冲突请求的更新操作不能被完成。"
+          },
+          "412": {
+            "description": "未满足前提条件,服务器未满足请求者在请求中设置的其中一个前提条件。"
+          }
+        },
+        "x-request-examples-url": "POST /v1.0/extend/6204a5bd270343b5885144cf9c8c158d/clusters/4f3deec3-efa8-4598-bf91-560aad1377a3/role/shrink",
+        "x-request-examples-1": {
+          "shrink": [
+            {
+              "type": "ess",
+              "reducedNodeNum": 1
+            }
+          ]
+        },
+        "x-order": 19
+      }
+    }
+  },
+  "definitions": {
+    "ShrinkNodeReq": {
+      "required": [
+        "reducedNodeNum",
+        "type"
+      ],
+      "properties": {
+        "reducedNodeNum": {
+          "type": "integer",
+          "format": "int32",
+          "description": "需要缩容的节点数量。\n\n- 对节点缩容后,请确保每个节点类型在每个AZ中的数量至少为1。\n\n- 关于跨AZ的集群,在不同AZ中同类型节点个数的差值要小于等于1。\n\n- 关于没有Master节点的集群,每次缩容的数据节点个数(包含冷数据节点和其他类型节点)要小于当前数据节点总数的一半,缩容后的数据节点个数要大于索引的最大副本个数。\n\n- 关于有Master节点的集群,每次缩容的Master节点个数要小于当前Master节点总数的一半,缩容后的Master节点个数必须是奇数且不小于3。",
+          "example": 1
+        },
+        "type": {
+          "type": "string",
+          "description": "指定节点类型。\n- ess:数据节点。\n- ess-cold:冷数据节点。\n- ess-client:Client节点。\n- ess-master:Master节点。"
+        }
+      }
+    },
+    "ShrinkClusterReq": {
+      "properties": {
+        "shrink": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ShrinkNodeReq"
+          },
+          "description": "需要缩容的节点类型和数量集合。"
+        },
+        "agency_name": {
+          "type": "string",
+          "description": "委托名称,委托给CSS服务,允许CSS调用您的其他云服务。"
+        },
+        "operation_type": {
+          "type": "string",
+          "description": "操作类型。"
+        },
+        "cluster_load_check": {
+          "type": "boolean",
+          "description": "是否需要检查集群负载。"
+        }
+      },
+      "required": [
+        "shrink"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "css.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

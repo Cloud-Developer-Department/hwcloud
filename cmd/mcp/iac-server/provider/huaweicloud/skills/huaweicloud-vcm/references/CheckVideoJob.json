@@ -1,0 +1,203 @@
+{
+  "name": "CheckVideoJob",
+  "summary": "查询单个作业",
+  "tags": "视频内容审核",
+  "productshort": "VCM",
+  "region_id": "cn-north-4",
+  "paths": {
+    "/v2/{project_id}/services/video-moderation/tasks/{task_id}": {
+      "get": {
+        "tags": [
+          "视频内容审核"
+        ],
+        "operationId": "CheckVideoJob",
+        "summary": "查询单个作业",
+        "description": "该API用于查询并显示单个作业详情。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-apiexplorer-hide": "N",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "用户的project_id\n\n登录华为云 -> 用户中心 -> 我的凭证 -> api凭证\n即可查看对应区域的项目ID。\n",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "task_id",
+            "description": "作业ID。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "响应成功示例",
+            "examples": {
+              "application/json": {
+                "description": "description",
+                "service_version": "1.2",
+                "output": {
+                  "obs": {
+                    "bucket": "obs-iva",
+                    "path": "out/put"
+                  }
+                },
+                "input": {
+                  "type": "obs",
+                  "data": [
+                    {
+                      "bucket": "obs-iva",
+                      "path": "input/demo.mp4",
+                      "index": 0
+                    }
+                  ]
+                },
+                "created_at": "2019-03-01T10:32:12Z",
+                "service_config": {
+                  "common": {
+                    "frame_interval": 1,
+                    "categories": "ad",
+                    "text_categories": "ad",
+                    "upload": "false",
+                    "use_ocr": "true",
+                    "use_sis": "true"
+                  }
+                },
+                "name": "video-moderation-2",
+                "id": "f18320e61e4c4dc685aa2dfc22a28dc5",
+                "state": "SUCCEEDED",
+                "updated_at": "2019-03-28T10:32:32Z"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/VideoJobResponse"
+            }
+          },
+          "400": {
+            "description": "响应失败示例",
+            "examples": {
+              "application/json": {
+                "error_code": "IVA.0005",
+                "error_msg": "The requested resource is NOT found. Task 5b91ba1e10404c35a2a0d328e5dcaeaa is not found under service video-moderation."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ErrorRsp"
+            }
+          }
+        },
+        "x-request-examples-url-1": "GET /v2/{project_id}/services/video-moderation/tasks/{task_id}",
+        "x-apigateway-request-type": "public"
+      }
+    }
+  },
+  "definitions": {
+    "VideoJobResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "作业ID。"
+        },
+        "name": {
+          "type": "string",
+          "description": "作业名称。"
+        },
+        "description": {
+          "type": "string",
+          "description": "作业描述信息,默认值为空。"
+        },
+        "state": {
+          "type": "string",
+          "description": "作业状态: - PENDING:等待中 - RECOVERING :恢复中 - STARTING:启动中 - UPGRADING :更新中 - CREATE_FAILED:创建失败 - START_FAILED:启动失败 - RUNNING:运行中 - STOPPING:停止中 - STOPPED:已停止 - ABNORMAL:运行异常 - SUCCEEDED:运行成功 - FAILED:运行失败 - DELETING:删除中 - FREEZING :冻结中 - FROZEN :已冻结"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "作业创建时间,格式为ISO8601:YYYY-MM-DDThh:mm:ssZ。"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "作业更新时间,格式为ISO8601:YYYY-MM-DDThh:mm:ssZ。"
+        },
+        "input": {
+          "type": "object",
+          "description": "数据输入列表,默认值为[]。"
+        },
+        "service_config": {
+          "type": "object",
+          "description": "服务算法配置,字段结构跟服务相关。"
+        },
+        "output": {
+          "type": "object",
+          "description": "数据输出列表,默认值为[]"
+        },
+        "hosting_result": {
+          "type": "object",
+          "description": "hosting_result信息为可选,hosting输出类型的作业详情才会有这个信息,且该信息只出现在查询单个作业API中,不出现在查询作业列表API中",
+          "properties": {
+            "data": {
+              "type": "string",
+              "description": "结果文件result.json的具体内容。"
+            },
+            "obs": {
+              "type": "object",
+              "description": "结果文件所在的OBS桶和result.json文件路径"
+            },
+            "status": {
+              "type": "string",
+              "description": "result.json文件的状态: - NOT_GENERATED:文件未生成 - AVAILABLE:文件可获取 - EXCEED_IN_SIZE:文件超过最大规格 - OVERDUE:文件过期 - DELETED_MISTAKENLY:文件误删除"
+            },
+            "result_json_overdue_at": {
+              "type": "string",
+              "description": "result.json文件的过期日期,文件默认保存48小时。"
+            }
+          }
+        },
+        "service_version": {
+          "type": "string",
+          "description": "作业对应的服务版本。"
+        }
+      }
+    },
+    "ErrorRsp": {
+      "description": "失败时返回的错误对象",
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 36
+        },
+        "error_msg": {
+          "description": "错误描述",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 512
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iva.cn-north-4.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

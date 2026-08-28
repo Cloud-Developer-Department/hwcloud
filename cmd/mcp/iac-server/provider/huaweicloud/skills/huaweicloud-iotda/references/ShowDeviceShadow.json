@@ -1,0 +1,197 @@
+{
+  "name": "ShowDeviceShadow",
+  "summary": "查询设备影子数据",
+  "tags": "设备影子",
+  "productshort": "IoTDA",
+  "region_id": "af-south-1",
+  "paths": {
+    "/v5/iot/{project_id}/devices/{device_id}/shadow": {
+      "get": {
+        "tags": [
+          "DeviceShadow"
+        ],
+        "summary": "查询设备影子数据",
+        "description": "应用服务器可调用此接口查询指定设备的设备影子信息,包括对设备的期望属性信息(desired区)和设备最新上报的属性信息(reported区)。\n\n设备影子介绍:\n设备影子是一个用于存储和检索设备当前状态信息的JSON文档。\n- 每个设备有且只有一个设备影子,由设备ID唯一标识\n- 设备影子用于存储设备上报的(状态)属性和应用程序期望的设备(状态)属性\n- 无论该设备是否在线,都可以通过该影子获取和设置设备的属性\n- 设备上线或者设备上报属性时,如果desired区和reported区存在差异,则将差异部分下发给设备,配置的预期属性需在产品模型中定义且method具有可写属性“W”才可下发\n\n限制:\n设备影子JSON文档中的key不允许特殊字符:点(.)、dollar符号($)、空char(十六进制的ASCII码为00)。如果包含了以上特殊字符则无法正常刷新影子文档。",
+        "operationId": "ShowDeviceShadow",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "**参数说明**:项目ID。获取方法请参见 [获取项目ID](https://support.huaweicloud.com/api-iothub/iot_06_v5_1001.html) 。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{1,32}$",
+            "x-example": "04ed32dc1b0025b52fe3c01a27c2b0a8"
+          },
+          {
+            "name": "Instance-Id",
+            "in": "header",
+            "description": "**参数说明**:实例ID。物理多租下各实例的唯一标识,一般华为云租户无需携带该参数,仅在物理多租场景下从管理面访问API时需要携带该参数。您可以在IoTDA管理控制台界面,选择左侧导航栏“总览”页签查看当前实例的ID。",
+            "required": false,
+            "type": "string",
+            "pattern": "[0-9a-f-]{1,36}",
+            "x-example": "1a7ffc5c-d89c-44dd-8265-b1653d951ce0"
+          },
+          {
+            "name": "device_id",
+            "in": "path",
+            "description": "**参数说明**:设备ID,用于唯一标识一个设备。在注册设备时直接指定,或者由物联网平台分配获得。由物联网平台分配时,生成规则为\"product_id\" + \"_\" + \"node_id\"拼接而成。\n**取值范围**:长度不超过128,只允许字母、数字、下划线(_)、连接符(-)的组合。",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "device_id": "40fe3542-f4cc-4b6a-98c3-61a49ba1acd4",
+                "shadow": [
+                  {
+                    "service_id": "WaterMeter",
+                    "desired": {
+                      "properties": {
+                        "temperature": "60"
+                      },
+                      "event_time": "20151212T121212Z"
+                    },
+                    "reported": {
+                      "properties": {
+                        "temperature": "60"
+                      },
+                      "event_time": "20151212T121212Z"
+                    },
+                    "version": 1
+                  }
+                ]
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DeviceShadow"
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "x-Error": [
+              "IOTDA.001006",
+              "IOTDA.000021"
+            ]
+          },
+          "404": {
+            "description": "Not Found",
+            "x-Error": [
+              "IOTDA.014000"
+            ]
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR",
+            "x-Error": [
+              "IOTDA.000020"
+            ]
+          }
+        },
+        "x-publishpath": "iot_06_v5_0079",
+        "x-imports": "org.springframework.web.bind.annotation.ModelAttribute;javax.validation.Valid;org.springframework.http.ResponseEntity",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-externalAPI": true,
+        "x-interfaceFrequency": "HIGH",
+        "x-returnType": "ResponseEntity<DeviceShadow>",
+        "x-request-examples-url-1": "GET https://{endpoint}/v5/iot/{project_id}/devices/{device_id}/shadow"
+      }
+    }
+  },
+  "definitions": {
+    "DeviceShadowProperties": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "example": {
+            "temperature": "60"
+          },
+          "description": "设备影子的属性数据,Json格式,里面是一个个键值对,每个键都是产品模型中属性的参数名(property_name),目前如样例所示只支持一层结构。\n**注意**:JSON结构的key当前不支持特殊字符:点(.)、dollar符号($)、空char(十六进制的ASCII码为00),key为以上特殊字符无法正常刷新设备影子",
+          "properties": {}
+        },
+        "event_time": {
+          "type": "string",
+          "example": "20151212T121212Z",
+          "description": "事件操作时间,格式:yyyyMMdd'T'HHmmss'Z',如20151212T121212Z。",
+          "maxLength": 256
+        }
+      },
+      "title": "设备影子数据属性结构体",
+      "description": "设备影子数据属性结构体。"
+    },
+    "DeviceShadowData": {
+      "type": "object",
+      "required": [
+        "service_id"
+      ],
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "example": "WaterMeter",
+          "description": "设备的服务ID,在设备关联的产品模型中定义。",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "desired": {
+          "description": "用户最近一次对设备下发的预期数据,Json格式,里面是一个个键值对,每个键都是产品模型中属性的参数名(property_name)。",
+          "$ref": "#/definitions/DeviceShadowProperties"
+        },
+        "reported": {
+          "description": "设备最近一次上报的属性数据,Json格式,里面是一个个键值对,每个键都是产品模型中属性的参数名(property_name)。",
+          "$ref": "#/definitions/DeviceShadowProperties"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1,
+          "description": "设备影子的版本,携带该参数时平台会校验值必须等于当前影子版本,初始从0开始。"
+        }
+      },
+      "title": "设备影子数据结构体",
+      "description": "设备影子数据结构体。"
+    },
+    "DeviceShadow": {
+      "type": "object",
+      "required": [
+        "device_id"
+      ],
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "example": "40fe3542-f4cc-4b6a-98c3-61a49ba1acd4",
+          "description": "设备ID,用于唯一标识一个设备。在注册设备时直接指定,或者由物联网平台分配获得。由物联网平台分配时,生成规则为\"product_id\" + \"_\" + \"node_id\"拼接而成。",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$",
+          "x-isSensitive": true
+        },
+        "shadow": {
+          "type": "array",
+          "description": "设备影子数据结构体。",
+          "items": {
+            "$ref": "#/definitions/DeviceShadowData"
+          },
+          "x-isSensitive": true
+        }
+      },
+      "title": "设备影子结构体",
+      "description": "设备影子结构体。"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "iotda.af-south-1.myhuaweicloud.com",
+  "base_path": null,
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

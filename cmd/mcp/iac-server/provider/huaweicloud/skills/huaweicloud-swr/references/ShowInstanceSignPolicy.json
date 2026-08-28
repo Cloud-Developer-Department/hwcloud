@@ -1,0 +1,306 @@
+{
+  "name": "ShowInstanceSignPolicy",
+  "summary": "获取签名策略详情",
+  "tags": "镜像签名管理(SWR企业版)",
+  "productshort": "SWR",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/signature/policies/{policy_id}": {
+      "get": {
+        "x-api-type": "open-api",
+        "x-publishpath": "swr_03_1203",
+        "tags": [
+          "镜像签名管理(SWR企业版)"
+        ],
+        "summary": "获取签名策略详情",
+        "description": "获取签名策略详情",
+        "operationId": "ShowInstanceSignPolicy",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token。\n\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "required": true,
+            "type": "string",
+            "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX...",
+            "x-order": 1
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "企业仓库实例ID",
+            "required": true,
+            "type": "string",
+            "x-example": "test_instance_id",
+            "x-order": 2
+          },
+          {
+            "name": "namespace_name",
+            "in": "path",
+            "description": "命名空间名称",
+            "required": true,
+            "type": "string",
+            "x-example": "test_namespace_name",
+            "x-order": 3
+          },
+          {
+            "name": "policy_id",
+            "in": "path",
+            "description": "策略ID",
+            "required": true,
+            "type": "integer",
+            "x-example": "test_policy_id",
+            "x-order": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "schema": {
+              "$ref": "#/definitions/SignPolicyDetail"
+            },
+            "examples": {
+              "application/json": {
+                "id": 1,
+                "name": "test-abc",
+                "description": "",
+                "created_at": "2020-11-19T02:58:54.809Z",
+                "updated_at": "2020-11-19T02:58:54.809Z",
+                "creator": "admin",
+                "enabled": true,
+                "scope_rules": [
+                  {
+                    "scope_selectors": {
+                      "repository": [
+                        {
+                          "kind": "doublestar",
+                          "decoration": "repoMatches",
+                          "pattern": "**"
+                        }
+                      ]
+                    },
+                    "tag_selectors": [
+                      {
+                        "kind": "doublestar",
+                        "decoration": "matches",
+                        "pattern": "**"
+                      }
+                    ]
+                  }
+                ],
+                "namespace_id": 1,
+                "trigger": {
+                  "type": "manual"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/400"
+          },
+          "401": {
+            "$ref": "#/responses/401"
+          },
+          "403": {
+            "$ref": "#/responses/403"
+          },
+          "404": {
+            "$ref": "#/responses/404"
+          },
+          "500": {
+            "$ref": "#/responses/500"
+          }
+        },
+        "x-name": "获取签名策略详情",
+        "x-constraint": "无",
+        "x-version": "v1",
+        "x-scope": "Commercial",
+        "x-request-examples-url-1": "GET https://{endpoint}/v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/signature/policies/{policy_id}",
+        "x-is-registered": "N",
+        "x-support-sdk": "Y",
+        "x-open-region-cloud": "hc,hk",
+        "x-apiexplorer-hide": "false",
+        "x-apigateway-backend": {
+          "httpVpcEndpoints": {
+            "description": "",
+            "host": "swr-ee-internal.{{region_id}}.myhuaweicloud.com",
+            "method": "ANY",
+            "name": "cer-instance-manage",
+            "path": "/v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/signature/policies/{policy_id}",
+            "scheme": "https",
+            "timeout": 30000
+          },
+          "type": "HTTP-VPC"
+        },
+        "x-apigateway-cors": false,
+        "x-apigateway-match-mode": "NORMAL",
+        "x-apigateway-request-type": "public"
+      }
+    }
+  },
+  "definitions": {
+    "TriggerSetting": {
+      "properties": {
+        "cron": {
+          "type": "string",
+          "description": "定时设置,cron格式描述 '* * * * * *'。cron 基于 UTC 时间。"
+        }
+      },
+      "type": "object"
+    },
+    "SignScopeRule": {
+      "required": [
+        "tag_selectors",
+        "scope_selectors",
+        "repo_scope_mode"
+      ],
+      "properties": {
+        "tag_selectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SignRuleSelector"
+          },
+          "description": "制品版本选择器,目前只支持长度为1"
+        },
+        "scope_selectors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/SignRuleSelector"
+            }
+          },
+          "description": "制品仓库选择器,目前只支持repository且长度为1"
+        },
+        "repo_scope_mode": {
+          "type": "string",
+          "description": "repository选择方式。可选regular、selection,前端显示需要,api调用时可选regular"
+        }
+      }
+    },
+    "TriggerConfig": {
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "触发类型,老化规则只支持manual(手动)、scheduled(定时+手动);同步策略支持manual(手动)、scheduled(定时+手动)、event_based(事件触发+手动);镜像签名支持manual(手动)、event_based(事件触发+手动)",
+          "enum": [
+            "manual",
+            "scheduled",
+            "event_based"
+          ]
+        },
+        "trigger_settings": {
+          "$ref": "#/definitions/TriggerSetting",
+          "description": "触发设置,只有type为scheduled的时候,才需要设置"
+        }
+      },
+      "type": "object"
+    },
+    "SignRuleSelector": {
+      "required": [
+        "kind",
+        "decoration",
+        "pattern"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "匹配类型,目前只支持doublestar"
+        },
+        "decoration": {
+          "type": "string",
+          "description": "选择器匹配类型,当前支持repoMatches"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "选择器匹配样式,最大长度512。支持正则表达式,正则表达式规则可填写如 nginx-* ,{repo1,repo2} 等,其中:\n* : 匹配不包含 '/' 的任何字段。\n**:匹配包含 '/' 的任何字段。\n? :匹配任何单个非 '/' 的字符。\n{选项1,选项2,...}:同时匹配多个选项。"
+        },
+        "extras": {
+          "type": "string",
+          "description": "预留字段,镜像签名策略中,对无版本的制品进行签名则传入{\"untagged\":true}"
+        }
+      }
+    },
+    "SignPolicyDetail": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "签名策略ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "签名策略名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "签名策略描述"
+        },
+        "namespace_id": {
+          "type": "integer",
+          "description": "命名空间ID"
+        },
+        "namespace_name": {
+          "type": "string",
+          "description": "命名空间名"
+        },
+        "trigger": {
+          "type": "object",
+          "$ref": "#/definitions/TriggerConfig",
+          "description": "触发方式"
+        },
+        "creator": {
+          "type": "string",
+          "description": "创建者"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "是否"
+        },
+        "scope_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SignScopeRule"
+          },
+          "description": "作用范围规则"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "创建时间"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "更新时间"
+        },
+        "signature_algorithm": {
+          "type": "string",
+          "description": "加签算法,KMS的密钥算法EC_P256对应着ECDSA_SHA_256,EC_P384对应着ECDSA_SHA_384,SM2对应着SM2DSA_SM3"
+        },
+        "signature_key": {
+          "type": "string",
+          "description": "签名算法key ID"
+        },
+        "signature_method": {
+          "type": "string",
+          "description": "镜像签名方式"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "swr-api.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "get",
+  "uri": null
+}

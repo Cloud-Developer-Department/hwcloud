@@ -1,0 +1,398 @@
+{
+  "name": "ShowDbObjectsList",
+  "summary": "查询数据库对象信息",
+  "tags": "实例数据库对象配置",
+  "productshort": "DRS",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v5.1/{project_id}/jobs/{job_id}/db-object": {
+      "get": {
+        "x-request-examples-description-1": "查询已选择的的数据库对象信息。",
+        "x-request-examples-url-1": "https://{endpoint}/v5.1/054ba152d480d55b2f5dc0069e7ddef0/jobs/c7debc9c-8e09-4a5d-8dd6-cc44f78jb20r/db-object?type=modified",
+        "tags": [
+          "实例数据库对象配置"
+        ],
+        "operationId": "ShowDbObjectsList",
+        "consumes": [
+          "application/json"
+        ],
+        "summary": "查询数据库对象信息",
+        "description": "查询数据库对象信息。",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "租户在某一Region下的Project ID。\n获取方法请参见[获取项目ID。](https://support.huaweicloud.com/api-drs/drs_api_0106.html)"
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "任务ID。"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "description": "发送的实体的MIME类型。推荐用户默认使用application/json,如果API是对象、镜像上传等接口,媒体类型可按照流类型的不同进行确定。",
+            "type": "string",
+            "default": "application/json"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "从IAM服务获取的用户Token。\n\n用户Token也就是调用获取用户Token接口的响应值,该接口是唯一不需要认证的接口。\n\n请求响应成功后在响应消息头中包含的“X-Subject-Token”的值即为Token值。",
+            "type": "string"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "description": "请求语言类型。",
+            "type": "string",
+            "default": "en-us",
+            "enum": [
+              "en-us",
+              "zh-cn"
+            ]
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "description": "查询对象信息类型。 取值: \n- modified:查询已选择的(已同步的和未下发的)对象信息。",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "examples": {
+              "application/json": {
+                "object_scope": "table",
+                "target_root_db": {
+                  "db_name": "mytest",
+                  "db_encoding": "utf8"
+                },
+                "object_info": {
+                  "TEST": {
+                    "name": "TEST",
+                    "tables": {
+                      "TBL_2": {
+                        "name": "TBL_2",
+                        "type": "table",
+                        "all": true,
+                        "is_synchronized": true
+                      }
+                    },
+                    "is_synchronized": true,
+                    "total_table_num": 1
+                  }
+                },
+                "max_table_num": 50000,
+                "id": "c7debc9c-8e09-4a5d-8dd6-cc44f78jb20r"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DatabaseObjectResp"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResp"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DRS.10000010",
+                "error_msg": "Job does not exist, please check job ID."
+              }
+            }
+          }
+        },
+        "x-order": 4
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResp": {
+      "description": "请求失败时返回的错误对象响应体。",
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12,
+          "example": "DRS.00000000"
+        },
+        "error_msg": {
+          "description": "错误描述。",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "example": "Success"
+        }
+      },
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "type": "object"
+    },
+    "TableObject": {
+      "properties": {
+        "sync_type": {
+          "type": "string",
+          "description": "该表在实时同步场景下的类型。取值:\n- config:仅当该表作为数据过滤高级设置的关联表时,需要填写,此时该表以及该表下的columns“不会”被同步到目标库,name、all、filtered、filter_conditions属性不生效,columns需要填写被关联的相关对象,config_conditions需要填写数据过滤高级设置的配置条件。(注意:如果需要同步该表级对象,则在下级对象中填写sync_type值为config。)"
+        },
+        "type": {
+          "type": "string",
+          "description": "对象类型。取值:\n- table:表。\n- view:视图。\n- procedure:存储过程。",
+          "enum": [
+            "table",
+            "view",
+            "procedure"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "该表在目标库的名称(表名映射)。"
+        },
+        "all": {
+          "type": "boolean",
+          "description": "是否整表迁移或同步。注意:\n1.当该表不需要做列过滤、列映射时,填true,如果需要做列过滤、列映射则填false;\n2.当该表需要做附加列时,需要填true,并且在columns里填写附加列信息;\n3.当该表所包含的列作为数据过滤高级设置的关联列时,需要填true,并且在columns里填写关联列信息、config_conditions填写数据过滤高级设置的配置条件;"
+        },
+        "db_alias_name": {
+          "type": "string",
+          "description": "一对多情况下,表级上对库名的映射。"
+        },
+        "schema_alias_name": {
+          "type": "string",
+          "description": "一对多情况下,表级上对schema名的映射。"
+        },
+        "filtered": {
+          "type": "boolean",
+          "description": "该表是否进行数据过滤。"
+        },
+        "filter_conditions": {
+          "type": "array",
+          "description": "该表数据的过滤条件,生成加工规则值为SQL条件语句,长度限制512。",
+          "items": {
+            "minLength": 0,
+            "maxLength": 512,
+            "type": "string"
+          }
+        },
+        "config_conditions": {
+          "type": "array",
+          "description": "该表数据过滤高级设置的配置条件,当该表作为联表查询时填写,生成加工规则值为SQL条件语句,长度限制512。",
+          "items": {
+            "minLength": 0,
+            "maxLength": 512,
+            "type": "string"
+          }
+        },
+        "is_synchronized": {
+          "type": "boolean",
+          "description": "是否已经进行同步。"
+        },
+        "columns": {
+          "type": "object",
+          "description": "需要同步/映射/过滤/新增的列,当需要列过滤、列映射、附加列功能时填写,仅在实时同步任务中生效,当整表同步为false时需要填写。",
+          "additionalProperties": {
+            "$ref": "#/definitions/ColumnObject"
+          }
+        }
+      },
+      "description": "数据库表级对象。",
+      "type": "object"
+    },
+    "TargetRootDb": {
+      "type": "object",
+      "properties": {
+        "db_name": {
+          "type": "string",
+          "example": "ttt",
+          "description": "库名。"
+        },
+        "db_encoding": {
+          "type": "string",
+          "example": "utf8",
+          "description": "默认编码格式是utf8。"
+        }
+      },
+      "description": "数据库对象迁移或同步目标库信息,两层到三层数据库时需要指定。"
+    },
+    "SchemaObject": {
+      "properties": {
+        "sync_type": {
+          "type": "string",
+          "description": "该模式在实时同步场景下的类型。取值:\n- config:仅当该模式作为数据过滤高级设置的关联模式时,需要填写,此时该模式以及该模式下的tables“不会”被同步到目标库,name、all属性不生效,tables需要填写被关联的相关对象。(注意:如果需要同步该模式对象,则在下级对象中填写sync_type值为config。)"
+        },
+        "name": {
+          "type": "string",
+          "description": "该模式在目标库的名称(模式名映射)。"
+        },
+        "all": {
+          "type": "boolean",
+          "description": "是否整模式迁移或同步。注意:\n1.当该模式下的表、列需要做数据过滤、列过滤、列映射时,填false,否则填true;\n2.当该模式下的表需要做附加列时,需要填true,并且在表级对象的columns里填写附加列信息;\n3.当该模式下的表所包含的列作为数据过滤高级设置的关联列时,需要填true,并且在columns里填写关联列信息、config_conditions填写数据过滤高级设置的配置条件;"
+        },
+        "tables": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/TableObject"
+          },
+          "description": "需要迁移或同步的表,当整模式迁移或同步为false时需要填写。"
+        }
+      },
+      "description": "数据库模式对象。",
+      "type": "object"
+    },
+    "ColumnObject": {
+      "properties": {
+        "sync_type": {
+          "type": "string",
+          "description": "该列在实时同步场景下的类型。取值:\n- config:当该列作为数据过滤高级设置的关联列时,需要填写,同时如果该列是主建或优化查询所需的索引,则需要填写primary_key_for_data_filtering或index_for_data_filtering。(注意:是否同步该列到目标库由“filtered”属性控制,与库级、模式级、表级控制方式不同。)"
+        },
+        "primary_key_for_data_filtering": {
+          "type": "string",
+          "description": "该列是否在数据过滤高级设置场景下为主键,如果是主建则填该列列名,否则不填。"
+        },
+        "index_for_data_filtering": {
+          "type": "string",
+          "description": "优化查询所需的索引,将会为缓存数据增加索引,不会影响源表,当该列作为数据过滤高级设置的关联索引时,需要填写,否则不填。"
+        },
+        "name": {
+          "type": "string",
+          "description": "该列在目标库的名称(列名映射),当该列为“附加列”时须与数据库表级对象中列名保持一致。"
+        },
+        "type": {
+          "type": "string",
+          "description": "该列字段的数据类型。\n列过滤:填写源列字段的数据类型。\n附加列:新填充的列指定字段的数据类型,根据不同操作类型来决定取值范围与约束。取值:\n- 以默认值方式,支持:int,long,varchar(256),datetime,timestamp。\n- 以create_time为列,支持:long,datetime,timestamp。\n- 以update_time为列,支持:long,datetime,timestamp。\n- 以表达式为列,支持:varchar(256),且列值仅为:concat(__current_database, '@',\n__current_table)\n- 以serverName@database@table为列,支持:varchar(256)。"
+        },
+        "primary_key_for_column_filtering": {
+          "type": "string",
+          "description": "该列是否在列映射场景下为主键,如果是主建则填PRI,否则填空。"
+        },
+        "filtered": {
+          "type": "boolean",
+          "description": "该列是否进列过滤,不能与附加列additional同时使用。取值:\n- true:表示同步该列。\n- false:表示过滤该列不同步。"
+        },
+        "additional": {
+          "type": "boolean",
+          "description": "该列是否为附加列,当该列为附加列时:name必须与表级对象中列名一致,并且不能与列过滤filtered同时使用。"
+        },
+        "operation_type": {
+          "type": "string",
+          "description": "操作类型,以特定的操作类型填充新加的列。取值:\n- 以默认值方式:\"operation_type\":\"ADDITIONALCOLUMN,default_value\"\n- 以create_time为列:\"operation_type\":\"ADDITIONALCOLUMN,create_time\"\n- 以update_time为列:\"operation_type\":\"ADDITIONALCOLUMN,update_time\"\n- 以表达式为列:\"operation_type\":\"ADDITIONALCOLUMN,expression\"\n- 以serverName@database@table为列:\"operation_type\":\"ADDITIONALCOLUMN,server_database_table\""
+        },
+        "value": {
+          "type": "string",
+          "description": "附加列的值。约束:\n- 当操作类型仅“以默认值方式”,“以serverName@database@table为列”时,才支持输入对应字段类型的值。\n- 当操作类型为“以表达式为列”时,该字段为固定值\"concat(__current_database, '@',\n__current_table)\",不需要填写。"
+        }
+      },
+      "description": "数据库列信息。",
+      "type": "object"
+    },
+    "DatabaseObjectResp": {
+      "type": "object",
+      "properties": {
+        "target_root_db": {
+          "$ref": "#/definitions/TargetRootDb",
+          "description": "数据库对象迁移或同步目标库信息,两层到三层数据库同步需要填写。"
+        },
+        "object_info": {
+          "additionalProperties": {
+            "$ref": "#/definitions/DatabaseObject"
+          },
+          "type": "object",
+          "description": "数据库对象迁移或同步信息。"
+        },
+        "max_table_num": {
+          "type": "integer",
+          "format": "int32",
+          "example": 500,
+          "description": "库下表数量的阈值。"
+        },
+        "status": {
+          "type": "string",
+          "description": "获取提交查询对象选择信息的状态",
+          "enum": [
+            "success",
+            "failed",
+            "pending"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "description": "任务id"
+        },
+        "object_scope": {
+          "type": "string",
+          "description": "该数据库在实时同步场景下的类型"
+        }
+      },
+      "description": "数据库对象信息返回体。"
+    },
+    "DatabaseObject": {
+      "properties": {
+        "sync_type": {
+          "type": "string",
+          "description": "该数据库在实时同步场景下的类型。取值:\n- config:仅当该库作为数据过滤高级设置的关联库时,需要填写,此时该库以及该库下的schemas、tables“不会”被同步到目标库,name、all属性不生效,schemas、tables需要填写被关联的相关对象。(注意:如果需要同步该库级对象,则在下级对象中填写sync_type值为config。)",
+          "enum": [
+            "config"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "该数据库在目标库的名称(库名映射)。"
+        },
+        "all": {
+          "type": "boolean",
+          "description": "是否整库迁移或同步。注意:\n1.当该库下的模式、表、列需要做数据过滤、列过滤、列映射时,填false,否则填true;\n2.当该库下的表需要做附加列时,需要填true,并且在表级对象的columns里填写附加列信息;\n3.当该库下的表所包含的列作为数据过滤高级设置的关联列时,需要填true,并且在columns里填写关联列信息,在config_conditions填写数据过滤高级设置的配置条件;"
+        },
+        "schemas": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SchemaObject"
+          },
+          "description": "需要迁移或同步的模式,当整库迁移或同步为false时需要填写。"
+        },
+        "tables": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/TableObject"
+          },
+          "description": "需要迁移或同步的表,当整库迁移或同步为false时需要填写。"
+        },
+        "total_table_num": {
+          "type": "integer",
+          "format": "int32",
+          "description": "库下的表的数量,表的数量超过阈值就不显示。"
+        },
+        "is_synchronized": {
+          "type": "boolean",
+          "description": "是否已同步"
+        }
+      },
+      "description": "数据库库级对象。",
+      "type": "object"
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "drs.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v5",
+  "method": "get",
+  "uri": null
+}

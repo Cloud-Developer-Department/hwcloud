@@ -1,0 +1,191 @@
+{
+  "name": "ShowBackupPolicy",
+  "summary": "查询自动备份策略",
+  "tags": "备份恢复管理",
+  "productshort": "GaussDBforopenGauss",
+  "region_id": "af-north-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/backups/policy": {
+      "get": {
+        "tags": [
+          "备份恢复管理"
+        ],
+        "operationId": "ShowBackupPolicy",
+        "summary": "查询自动备份策略",
+        "description": "查询自动备份策略。",
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-php-exclude": "Y",
+        "x-apigateway-ratelimit": "opengauss_default_policy",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "**参数解释**:\n用户Token。\n通过调用IAM服务[获取用户token](https://support.huaweicloud.com/intl/zh-cn/api-iam/iam_30_0001.html)。\n**约束限制**:\n不涉及。\n**取值范围**:\n不涉及。\n**默认取值**:\n不涉及。",
+            "type": "string",
+            "x-example": "******"
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "description": "**参数解释**:\n语言。\n**约束限制**:\n不涉及。\n**取值范围**:\n  - zh-cn\n  - en-us\n\n**默认取值**:\nen-us",
+            "type": "string",
+            "x-example": "zh-cn",
+            "default": "en-us",
+            "enum": [
+              "zh-cn",
+              "en-us"
+            ]
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID。",
+            "required": true,
+            "type": "string",
+            "x-example": "619d3e78f61b4be68bc5aa0b59edcf7b"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "description": "**参数解释**:\n实例ID,此参数是用户创建实例的唯一标识。\n**约束限制**:\n不涉及。\n**取值范围**:\n只能由英文字母、数字组成,且长度为36个字符。\n**默认取值**:\n不涉及。",
+            "required": true,
+            "type": "string",
+            "x-example": "e73893ef73754465a8bd2e0857bbf13ein14"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功。",
+            "schema": {
+              "$ref": "#/definitions/GetBackupPolicyResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "backup_policy": {
+                  "keep_days": 7,
+                  "start_time": "19:00-20:00",
+                  "period": "1,2",
+                  "differential_period": 30,
+                  "rate_limit": 75,
+                  "prefetch_block": 64,
+                  "file_split_size": 4,
+                  "enable_standby_backup": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "系统内部错误。",
+            "schema": {
+              "$ref": "#/definitions/BackupPolicyErrorResponse"
+            }
+          }
+        },
+        "x-request-examples-description-1": "",
+        "x-request-examples-url-1": "GET https://{endpoint}/v3/054e292c9880d4992f02c0196d3ea468/instances/3d39c18788b54a919bab633874c159dfin14/backups/policy"
+      }
+    }
+  },
+  "definitions": {
+    "ShowBackupPolicy": {
+      "description": "备份策略信息。",
+      "required": [
+        "keep_days",
+        "start_time",
+        "period",
+        "differential_period"
+      ],
+      "properties": {
+        "keep_days": {
+          "description": "全量备份文件可以保存的天数。",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 732,
+          "example": "7"
+        },
+        "start_time": {
+          "description": "全量备份时间段。自动备份将在该时间段内触发。除关闭自动备份策略外,必选。\n\n取值范围:格式必须为hh:mm-HH:MM且有效,当前时间指UTC时间。\n\n- HH取值必须比hh大1。\n- mm和MM取值必须相同,且取值必须为00。",
+          "type": "string",
+          "example": "08:00-09:00"
+        },
+        "period": {
+          "description": "全量备份周期配置。自动备份将在每星期指定的天进行。\n\n取值范围:格式为逗号隔开的数字,数字代表星期。",
+          "type": "string",
+          "example": "1,2,3,4"
+        },
+        "differential_priod": {
+          "description": "差量备份周期配置。自动差量备份将每隔周期分钟执行(废弃)。",
+          "type": "string",
+          "example": "30"
+        },
+        "differential_period": {
+          "description": "差量备份周期配置。自动差量备份将每隔周期分钟执行。",
+          "type": "integer",
+          "example": "30"
+        },
+        "rate_limit": {
+          "description": "备份时备份数据上传OBS的速度,单位为MB/s。范围为0~1024MB/s,默认75MB/s,0MB/s表示不限速。",
+          "type": "integer"
+        },
+        "prefetch_block": {
+          "description": "控制差量备份时读取磁盘上表文件差量修改页面的预取页面个数,可设置范围为1~8192,默认64。",
+          "type": "integer",
+          "example": "64"
+        },
+        "filesplit_size": {
+          "description": "废弃。",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "file_split_size": {
+          "description": "全量、差量备份时产生的备份文件会根据分片大小进行拆分,可设置范围为0~1024GB,设置需为4的倍数,默认4GB,0GB表示不限制大小。\n\n取值范围:0 ~ 1024",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "enable_standby_backup": {
+          "description": "是否启用备机备份。\n\n取值范围:true|false",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "GetBackupPolicyResponseBody": {
+      "required": [
+        "backup_policy"
+      ],
+      "properties": {
+        "backup_policy": {
+          "$ref": "#/definitions/ShowBackupPolicy"
+        }
+      }
+    },
+    "BackupPolicyErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码",
+          "type": "string",
+          "example": "DBS.280650"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "实例不属于该引擎。"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "gaussdb.af-north-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v3",
+  "method": "get",
+  "uri": null
+}

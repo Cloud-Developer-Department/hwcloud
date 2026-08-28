@@ -1,0 +1,281 @@
+{
+  "name": "CreateAppQuota",
+  "summary": "创建客户端配额",
+  "tags": "客户端配额",
+  "productshort": "ROMA",
+  "region_id": "ap-southeast-1",
+  "paths": {
+    "/v2/{project_id}/apic/instances/{instance_id}/app-quotas": {
+      "post": {
+        "tags": [
+          "客户端配额"
+        ],
+        "x-support-sdk": "Y",
+        "x-is-registered": "Y",
+        "x-apigateway-request-type": "public",
+        "x-api-version": "v2",
+        "x-hybridcloud": true,
+        "x-open-region-cloud": "hc,hcso",
+        "x-romaconnect-mode": "huaweicloud,hybrid,on-premise",
+        "x-order": 1,
+        "operationId": "CreateAppQuota",
+        "description": "创建客户端配额",
+        "summary": "创建客户端配额",
+        "parameters": [
+          {
+            "$ref": "#/parameters/apic_x_auth_token"
+          },
+          {
+            "$ref": "#/parameters/apic_project_id"
+          },
+          {
+            "$ref": "#/parameters/apic_instance_id"
+          },
+          {
+            "name": "CreateAppQuotaRequestBody",
+            "required": true,
+            "description": "创建客户端配额策略的请求体",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AppQuotaCreate"
+            }
+          }
+        ],
+        "x-request-examples-description-1": "创建一个客户端配额,限定时间为1天",
+        "x-request-examples-1": {
+          "call_limits": 1000,
+          "name": "ClientQuota_demo",
+          "reset_time": "2020-09-20 00:00:00",
+          "time_interval": 1,
+          "time_unit": "DAY"
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AppQuotaInfo"
+            },
+            "examples": {
+              "application/json": {
+                "app_quota_id": "c900c5612dbe451bb43cbcc49cfaf2f3",
+                "call_limits": 1000,
+                "create_time": "2020-09-19T15:27:47.60571141+08:00",
+                "name": "ClientQuota_demo",
+                "reset_time": "2020-09-20 00:00:00",
+                "time_interval": 1,
+                "time_unit": "DAY"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3325",
+                "error_msg": "The API quota name already exists"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1002",
+                "error_msg": "Incorrect token or token resolution failed"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.1005",
+                "error_msg": "No permissions to request this method"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.3030",
+                "error_msg": "The instance does not exist;id:f0fa1789-3b76-433b-a787-9892951c620ec"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ResponseModel"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "APIG.9999",
+                "error_msg": "System error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AppQuotaCreate": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^([a-zA-Z]|[\\一-\\龥])([a-zA-Z0-9_]|[\\一-\\龥]){2,254}$",
+          "description": "配额名称。支持汉字,英文,数字,下划线,且只能以英文和汉字开头",
+          "minLength": 3,
+          "maxLength": 255
+        },
+        "call_limits": {
+          "type": "integer",
+          "description": "客户端配额的访问次数限制",
+          "minLength": 1,
+          "maxLength": 2147483647
+        },
+        "time_unit": {
+          "type": "string",
+          "enum": [
+            "SECOND",
+            "MINUTE",
+            "HOUR",
+            "DAY"
+          ],
+          "description": "限定时间单位:SECOND:秒、MINUTE:分、HOURE:时、DAY:天"
+        },
+        "time_interval": {
+          "type": "integer",
+          "description": "流控的限定时间值",
+          "minLength": 1,
+          "maxLength": 2147483647
+        },
+        "reset_time": {
+          "type": "string",
+          "description": "首次配额重置时间点,不配置默认为首次调用时间计算"
+        },
+        "remark": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "参数说明和描述。\n\n不支持<,>字符"
+        }
+      },
+      "required": [
+        "name",
+        "call_limits",
+        "time_unit",
+        "time_interval"
+      ]
+    },
+    "AppQuotaInfo": {
+      "properties": {
+        "app_quota_id": {
+          "type": "string",
+          "description": "客户端配额编号"
+        },
+        "name": {
+          "type": "string",
+          "description": "配额名称。支持汉字,英文,数字,下划线,且只能以英文和汉字开头,3-255字符"
+        },
+        "call_limits": {
+          "type": "integer",
+          "description": "客户端配额的访问次数限制"
+        },
+        "time_unit": {
+          "type": "string",
+          "enum": [
+            "SECOND",
+            "MINUTE",
+            "HOUR",
+            "DAY"
+          ],
+          "description": "限定时间单位:SECOND:秒、MINUTE:分、HOURE:时、DAY:天"
+        },
+        "time_interval": {
+          "type": "integer",
+          "description": "配额的限定时间值"
+        },
+        "remark": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "参数说明和描述"
+        },
+        "reset_time": {
+          "type": "string",
+          "description": "首次配额重置时间点,不配置默认为首次调用时间计算"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "bound_app_num": {
+          "type": "integer",
+          "description": "配额策略已绑定应用数量"
+        }
+      }
+    },
+    "ResponseModel": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {
+    "apic_instance_id": {
+      "name": "instance_id",
+      "in": "path",
+      "type": "string",
+      "description": "实例ID",
+      "required": true,
+      "x-example": "f0fa1789-3b76-433b-a787-9892951c620e"
+    },
+    "apic_project_id": {
+      "name": "project_id",
+      "in": "path",
+      "type": "string",
+      "description": "项目ID,获取方式请参见API参考的“附录 > 获取项目ID”章节。",
+      "required": true,
+      "x-example": "73d69ae0cfcf460190522d06b60f05ad"
+    },
+    "apic_x_auth_token": {
+      "name": "X-Auth-Token",
+      "in": "header",
+      "type": "string",
+      "description": "用户Token。通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+      "required": true,
+      "x-example": "MIIDkgYJKoZIhvcNAQcCoIIDgzCCXXXXXX..."
+    }
+  },
+  "host": "roma.ap-southeast-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v2",
+  "method": "post",
+  "uri": null
+}

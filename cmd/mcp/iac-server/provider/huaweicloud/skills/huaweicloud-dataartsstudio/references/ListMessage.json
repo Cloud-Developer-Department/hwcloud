@@ -1,0 +1,265 @@
+{
+  "name": "ListMessage",
+  "summary": "查询消息列表",
+  "tags": "消息管理接口",
+  "productshort": "DataArtsStudio",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v1/{project_id}/service/messages": {
+      "get": {
+        "tags": [
+          "消息管理接口"
+        ],
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "dataservice-openapi",
+        "summary": "查询消息列表",
+        "description": "查询审核中心的通知消息列表。与申请不同,通知类消息,无法驳回,仅能在指定的时间范围内作出处理。",
+        "operationId": "ListMessage",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,使用[Token认证](dataartsstudio_02_0010.xml)时必选。通过调用“获取用户Token”接口获取响应消息头中X-Subject-Token的值。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "workspace",
+            "in": "header",
+            "description": "工作空间ID,获取方法请参见[实例ID和工作空间ID](dataartsstudio_02_0350.xml)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Dlm-Type",
+            "in": "header",
+            "description": "数据服务的版本类型,指定SHARED共享版或EXCLUSIVE专享版。",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SHARED",
+              "EXCLUSIVE"
+            ]
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "消息体的类型(格式),有Body体的情况下必选,没有Body体无需填写。如果请求消息体中含有中文字符,则需要通过charset=utf8指定中文字符集,例如取值为:application/json;charset=utf8。",
+            "type": "string",
+            "required": true,
+            "default": "application/json"
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID,获取方法请参见[项目ID和账号ID](projectid_accountid.xml)。",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "查询起始坐标, 即跳过前X条数据。仅支持0或limit的整数倍,不满足则向下取整。",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "查询条数, 即查询Y条数据。",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "api_name",
+            "in": "query",
+            "description": "api名称。",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询结果成功,符合条件的消息总数。",
+            "schema": {
+              "$ref": "#/definitions/ResultForGetApplyList"
+            },
+            "examples": {
+              "application/json": {
+                "total": 1,
+                "records": [
+                  {
+                    "id": "a1c93c3cb17d9747fc41df0377b6fe0f",
+                    "api_apply_status": "STATUS_TYPE_PASSED",
+                    "api_apply_type": "APPLY_TYPE_APPLY",
+                    "api_id": "47046fe7830c1be77cb0dc23bd86afa5",
+                    "api_name": "api_demo",
+                    "api_using_time": 1580452617000,
+                    "app_id": "908489209a320df61607355c57c82882",
+                    "app_name": "app_demo",
+                    "apply_time": 1578875421000,
+                    "approval_time": 1578897421000,
+                    "approver_name": "李四",
+                    "comment": "通过",
+                    "user_name": "张三"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest。",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RecordForApplyDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "申请编号",
+          "example": "a1c93c3cb17d9747fc41df0377b6fe0f"
+        },
+        "api_apply_status": {
+          "type": "string",
+          "enum": [
+            "STATUS_TYPE_PENDING_APPROVAL",
+            "STATUS_TYPE_REJECTED",
+            "STATUS_TYPE_PENDING_CHECK",
+            "STATUS_TYPE_PENDING_EXECUTE",
+            "STATUS_TYPE_SYNCHRONOUS_EXECUTE",
+            "STATUS_TYPE_FORCED_CANCEL",
+            "STATUS_TYPE_PASSED"
+          ],
+          "description": "申请状态",
+          "example": "STATUS_TYPE_PASSED"
+        },
+        "api_apply_type": {
+          "type": "string",
+          "enum": [
+            "APPLY_TYPE_PUBLISH",
+            "APPLY_TYPE_AUTHORIZE",
+            "APPLY_TYPE_APPLY",
+            "APPLY_TYPE_RENEW",
+            "APPLY_TYPE_STOP",
+            "APPLY_TYPE_RECOVER",
+            "APPLY_TYPE_API_CANCEL_AUTHORIZE",
+            "APPLY_TYPE_APP_CANCEL_AUTHORIZE",
+            "APPLY_TYPE_OFFLINE"
+          ],
+          "description": "申请类型",
+          "example": "APPLY_TYPE_APPLY"
+        },
+        "api_id": {
+          "type": "string",
+          "description": "api编号",
+          "example": "47046fe7830c1be77cb0dc23bd86afa5"
+        },
+        "api_name": {
+          "type": "string",
+          "description": "api名称",
+          "example": "api_demo"
+        },
+        "api_using_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "使用截止时间",
+          "example": 1580452617000
+        },
+        "app_id": {
+          "type": "string",
+          "description": "app编号",
+          "example": "908489209a320df61607355c57c82882"
+        },
+        "app_name": {
+          "type": "string",
+          "description": "app名称",
+          "example": "app_demo"
+        },
+        "apply_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "申请时间",
+          "example": 1578875421000
+        },
+        "approval_time": {
+          "type": "integer",
+          "format": "int64",
+          "description": "授权时间",
+          "example": 1578897421000
+        },
+        "approver_name": {
+          "type": "string",
+          "description": "审核人名称",
+          "example": "李四"
+        },
+        "comment": {
+          "type": "string",
+          "description": "审核评论",
+          "example": "通过"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "申请人姓名",
+          "example": "张三"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "错误码",
+          "example": "DLS.1000",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "error_msg": {
+          "type": "string",
+          "description": "错误描述",
+          "example": "process failed",
+          "minLength": 1,
+          "maxLength": 10240
+        }
+      }
+    },
+    "ResultForGetApplyList": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "符合条件的申请总数",
+          "example": 1
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RecordForApplyDetail"
+          },
+          "description": "本次返回的申请列表"
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "dayu.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "get",
+  "uri": null
+}

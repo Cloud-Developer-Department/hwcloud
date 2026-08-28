@@ -1,0 +1,218 @@
+{
+  "name": "CreateDdmDatabase",
+  "summary": "创建DDM逻辑库",
+  "tags": "DDM逻辑库管理",
+  "productshort": "DDM",
+  "region_id": "ae-ad-1",
+  "paths": {
+    "/v3/{project_id}/instances/{instance_id}/databases": {
+      "post": {
+        "x-request-examples-url-1": "POST https://cn-north-1/v3/{project_id}/instances/{instance_id}/databases",
+        "x-request-examples-text-1": {
+          "name": "mytestdb",
+          "shard_mode": "cluster",
+          "shard_number": 8,
+          "dn_instances": [
+            {
+              "id": "f296c394f13f48449d715bf99af07e59in01",
+              "user_name": "root",
+              "user_password": "PassWord_234"
+            }
+          ]
+        },
+        "x-request-examples-1": {
+          "name": "mytestdb",
+          "shard_mode": "cluster",
+          "shard_number": 8,
+          "dn_instances": [
+            {
+              "id": "f296c394f13f48449d715bf99af07e59in01",
+              "user_name": "root",
+              "user_password": "PassWord_234"
+            }
+          ]
+        },
+        "tags": [
+          "DDM逻辑库管理"
+        ],
+        "operationId": "CreateDdmDatabase",
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "x-api-type": "open-api",
+        "summary": "创建DDM逻辑库",
+        "description": "创建DDM逻辑库。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "项目ID。"
+          },
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "required": true,
+            "description": "用户Token。 通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。",
+            "type": "string"
+          },
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "DDM实例ID"
+          },
+          {
+            "name": "CreateDdmDatabaseRequestBody",
+            "description": "创建逻辑库请求体",
+            "in": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/CreateDdmDatabaseRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/CreateDdmDatabasesResponseBody"
+            },
+            "examples": {
+              "application/json": {
+                "name": "mytestdb",
+                "job_id": "0e20f87b-cb3a-4612-a2ae-16e3f04e1f4c"
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DBS.280001",
+                "error_msg": "Parameter error."
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error_code": "DBS.280001",
+                "error_msg": "Parameter error."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "required": [
+        "error_code",
+        "error_msg"
+      ],
+      "properties": {
+        "error_code": {
+          "description": "错误码。",
+          "type": "string",
+          "example": "DBS.200001"
+        },
+        "error_msg": {
+          "description": "错误消息。",
+          "type": "string",
+          "example": "参数错误。"
+        }
+      }
+    },
+    "CreateDdmDatabasesResponseBody": {
+      "type": "object",
+      "required": [
+        "name",
+        "job_id"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "逻辑库名"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "工作流id。"
+        }
+      }
+    },
+    "DatabaseDnInstances": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "逻辑库关联的DN实例的id"
+        },
+        "user_name": {
+          "type": "string",
+          "description": "关联DN实例的用户名。"
+        },
+        "user_password": {
+          "type": "string",
+          "description": "关联DN实例的用户密码。"
+        }
+      },
+      "required": [
+        "id",
+        "user_name",
+        "user_password"
+      ]
+    },
+    "CreateDdmDatabaseRequestBody": {
+      "type": "object",
+      "description": "databases参数说明",
+      "required": [
+        "name",
+        "shard_mode",
+        "shard_number",
+        "dn_instances"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "逻辑库名称,需要满足以下条件:\n\n- 长度为2-48个字符。\n- 必须以小写字母开头。\n- 可以包含小写字母、数字、下划线,不能包含大写字母和其它特殊字符。\n- 禁用关键字:\n \"information_schema\"、\"mysql\"、\"performance_schema\"、\"sys\"。"
+        },
+        "shard_mode": {
+          "type": "string",
+          "description": "逻辑库的拆分模式。\n- cluster表示逻辑库是拆分模式。\n- single表示逻辑库是非拆分模式。"
+        },
+        "shard_number": {
+          "type": "integer",
+          "format": "int32",
+          "description": "同一种工作模式下逻辑库分片的数量。\n- shard_unit不为空, shard_unit与关联DN数量的乘积\n- shard_unit为空,大于关联的DN数量,小于等于关联DN数量*64。"
+        },
+        "dn_instances": {
+          "type": "array",
+          "description": "逻辑库关联的DN信息,最大个数为256。",
+          "items": {
+            "$ref": "#/definitions/DatabaseDnInstances"
+          }
+        }
+      }
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "ddm.ae-ad-1.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "post",
+  "uri": null
+}

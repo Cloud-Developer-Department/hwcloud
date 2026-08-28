@@ -1,0 +1,649 @@
+{
+  "name": "UpdateDomainFullConfig",
+  "summary": "修改域名全量配置接口",
+  "tags": "域名配置",
+  "productshort": "CDN",
+  "region_id": "cn-north-1",
+  "paths": {
+    "/v1.1/cdn/configuration/domains/{domain_name}/configs": {
+      "put": {
+        "deprecated": true,
+        "x-is-registered": "Y",
+        "x-support-sdk": "Y",
+        "tags": [
+          "域名配置"
+        ],
+        "summary": "修改域名全量配置接口",
+        "description": "修改域名配置接口,\n支持修改回源请求头、HTTP header配置、URL鉴权、证书、源站、回源协议、强制重定向、智能压缩、IPv6开关、状态码缓存时间、Range回源、User-Agent黑白名单、改写回源URL、自定义错误页面、缓存规则、IP黑白名单、防盗链、强制跳转。",
+        "operationId": "UpdateDomainFullConfig",
+        "parameters": [
+          {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "description": "用户Token,\n通过调用IAM服务获取用户Token接口获取(响应消息头中X-Subject-Token的值)。\n",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "domain_name",
+            "in": "path",
+            "description": "加速域名",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "enterprise_project_id",
+            "in": "query",
+            "description": "当用户开启企业项目功能时,该参数生效,表示修改当前企业项目下加速域名的配置,\"all\"代表所有项目。\n > 当使用子帐号调用接口时,该参数必传。\n您可以通过调用企业项目管理服务(EPS)的查询企业项目列表接口(ListEnterpriseProject)查询企业项目id。",
+            "type": "string"
+          },
+          {
+            "name": "configs",
+            "in": "body",
+            "required": true,
+            "description": "configs对象。",
+            "schema": {
+              "$ref": "#/definitions/ModifyDomainConfigRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "请求成功",
+            "headers": {
+              "X-Request-Id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-request-examples-1": {
+          "configs": {
+            "origin_request_header": [
+              {
+                "name": "test_name",
+                "value": "test_value",
+                "action": "set"
+              }
+            ],
+            "http_response_header": [
+              {
+                "name": "test_name",
+                "value": "test_value",
+                "action": "set"
+              }
+            ],
+            "url_auth": {
+              "status": "off"
+            },
+            "compress": {
+              "status": "off"
+            },
+            "force_redirect": {
+              "status": "on",
+              "type": "http",
+              "redirect_code": 0
+            },
+            "origin_protocol": "follow",
+            "refer": {
+              "type": "string",
+              "value": "string",
+              "include_empty": true
+            },
+            "ip_filter": {
+              "type": "string",
+              "value": "string"
+            },
+            "cache_rules": [
+              {
+                "match_type": "string",
+                "match_value": "string",
+                "ttl": 0,
+                "ttl_unit": "string",
+                "priority": 0,
+                "follow_origin": "string",
+                "url_parameter_type": "string",
+                "url_parameter_value": "string"
+              }
+            ],
+            "sources": [
+              {
+                "origin_addr": "192.168.1.1",
+                "origin_type": "ipaddr",
+                "priority": 70,
+                "http_port": 80,
+                "https_port": 443
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "IpFilter": {
+      "description": "IP黑白名单。",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "IP黑白名单类型,off:关闭IP黑白名单,black:IP黑名单,white:IP白名单。"
+        },
+        "value": {
+          "type": "string",
+          "description": "配置IP黑白名单,当type=off时,非必传, 支持IPv6,支持配置IP地址和IP&掩码格式的网段, 多条规则用“,”分割,最多支持配置150个, 多个完全重复的IP/IP段将合并为一个,不支持带通配符的地址,如192.168.0.*。"
+        }
+      }
+    },
+    "CacheUrlParameterFilter": {
+      "description": "缓存url参数配置。",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "缓存URL参数操作类型(full_url:缓存所有参数,ignore_url_params:忽略所有参数,del_params:忽略指定URL参数,reserve_params:保留指定URL参数)。\n\n\n>   本接口参数有调整,参数替换如下:\n>   - del_params替代del_args。\n>   - reserve_params替代reserve_args。\n",
+          "example": "del_params"
+        },
+        "value": {
+          "type": "string",
+          "description": "参数值,多个参数使用分号分隔",
+          "example": "key1;key2"
+        }
+      }
+    },
+    "Compress": {
+      "description": "智能压缩。",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "智能压缩开关(on:开启,off:关闭)。"
+        },
+        "type": {
+          "type": "string",
+          "description": "智能压缩类型(gzip:gzip压缩,br:brotli压缩)。"
+        },
+        "file_type": {
+          "type": "string",
+          "description": "压缩格式,内容总长度不可超过200个字符,\n 多种格式用“,”分割,每组内容不可超过50个字符,\n开启状态下,首次传空时默认值为.js,.html,.css,.xml,.json,.shtml,.htm,否则为上次设置的结果。"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "RefererConfig": {
+      "description": "防盗链。",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Referer黑白名单类型,off:关闭Referer黑白名单,black:Referer黑名单,white:Referer白名单。"
+        },
+        "value": {
+          "type": "string",
+          "description": "域名或IP地址,以“,”进行分割,域名、IP地址可以混合输入,支持泛域名和带端口的域名。域名、IP地址总数不超过400个,端口取值范围1-65535。"
+        },
+        "include_empty": {
+          "type": "boolean",
+          "description": "是否包含空Referer,如果是黑名单并开启该选项,则表示无referer不允许访问,如果是白名单并开启该选项,则表示无referer允许访问,默认值false。"
+        }
+      }
+    },
+    "Configs": {
+      "description": "配置项。",
+      "properties": {
+        "origin_request_header": {
+          "type": "array",
+          "description": "回源请求头改写 该功能将覆盖原有配置(清空之前的配置),在使用此接口时,请上传全量头部信息。",
+          "items": {
+            "$ref": "#/definitions/OriginRequestHeader"
+          }
+        },
+        "http_response_header": {
+          "type": "array",
+          "description": "http header配置 该功能将覆盖原有配置(清空之前的配置),在使用此接口时,请上传全量头部信息。",
+          "items": {
+            "$ref": "#/definitions/HttpResponseHeader"
+          }
+        },
+        "url_auth": {
+          "description": "url鉴权。",
+          "$ref": "#/definitions/UrlAuth"
+        },
+        "https": {
+          "description": "证书设置。",
+          "$ref": "#/definitions/HttpPutBody"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/definitions/SourcesConfig"
+          },
+          "description": "源站配置。",
+          "type": "array"
+        },
+        "origin_protocol": {
+          "type": "string",
+          "description": "回源协议,follow:协议跟随回源,http:HTTP回源(默认),https:https回源。"
+        },
+        "origin_follow302_status": {
+          "type": "string",
+          "description": "回源跟随,on:开启,off:关闭。"
+        },
+        "cache_rules": {
+          "items": {
+            "$ref": "#/definitions/CacheRules"
+          },
+          "description": "缓存规则。",
+          "type": "array"
+        },
+        "ip_filter": {
+          "description": "IP黑白名单。",
+          "$ref": "#/definitions/IpFilter"
+        },
+        "referer": {
+          "description": "防盗链。",
+          "$ref": "#/definitions/RefererConfig"
+        },
+        "force_redirect": {
+          "description": "强制重定向。",
+          "$ref": "#/definitions/ForceRedirectConfig"
+        },
+        "compress": {
+          "description": "智能压缩。",
+          "$ref": "#/definitions/Compress"
+        },
+        "cache_url_parameter_filter": {
+          "description": "缓存url参数配置。\n > 此参数作为旧参数,将于近期下线,建议使用CacheRules设置URL参数。",
+          "$ref": "#/definitions/CacheUrlParameterFilter"
+        },
+        "ipv6_accelerate": {
+          "type": "integer",
+          "format": "int32",
+          "description": "ipv6设置,1:打开;0:关闭。"
+        },
+        "error_code_cache": {
+          "description": "状态码缓存时间。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ErrorCodeCache"
+          }
+        },
+        "origin_range_status": {
+          "type": "string",
+          "description": "Range回源,即分片回源,开启: on,关闭: off。\n > 开启Range回源的前提是您的源站支持Range请求,即HTTP请求头中包含Range字段,否则可能导致回源失败。"
+        },
+        "user_agent_filter": {
+          "description": "User-Agent黑白名单。",
+          "$ref": "#/definitions/UserAgentFilter"
+        },
+        "origin_request_url_rewrite": {
+          "items": {
+            "$ref": "#/definitions/OriginRequestUrlRewrite"
+          },
+          "description": "改写回源URL,最多配置20条。",
+          "type": "array"
+        },
+        "error_code_redirect_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ErrorCodeRedirectRules"
+          },
+          "description": "自定义错误页面。"
+        }
+      }
+    },
+    "ErrorCodeRedirectRules": {
+      "description": "自定义错误页面",
+      "properties": {
+        "error_code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "重定向的错误码,当前支持以下状态码\n4xx:400, 403, 404, 405, 414, 416, 451\n5xx:500, 501, 502, 503, 504",
+          "example": 400
+        },
+        "target_code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "重定向状态码,取值为301或302",
+          "example": 301
+        },
+        "target_link": {
+          "type": "string",
+          "description": "重定向的目标链接",
+          "example": "https://www.example.com/error.html"
+        }
+      },
+      "required": [
+        "error_code",
+        "target_code",
+        "target_link"
+      ]
+    },
+    "UserAgentFilter": {
+      "description": "UA黑白名单设置。",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "UA黑白名单类型\noff:关闭UA黑白名单;\nblack:UA黑名单;\nwhite:UA白名单;"
+        },
+        "value": {
+          "type": "string",
+          "description": "配置UA黑白名单,当type=off时,非必传。最多配置10条规则,单条规则不超过100个字符,多条规则用“,”分割。"
+        },
+        "ua_list": {
+          "type": "array",
+          "items": {
+            "example": "test",
+            "type": "string"
+          },
+          "description": "配置UA黑白名单,当type=off时,非必传。最多配置10条规则,单条规则不超过100个字符,同时配置value和ua_list时,ua_list生效。\n"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "ErrorCodeCache": {
+      "description": "CDN状态码缓存时间",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "description": "允许配置的错误码: 400, 403, 404, 405, 414, 500, 501, 502, 503, 504",
+          "example": 403
+        },
+        "ttl": {
+          "type": "integer",
+          "description": "错误码缓存时间,单位为秒,范围0-31,536,000(一年默认为365天)",
+          "example": 60,
+          "minimum": 0,
+          "maximum": 31536000
+        }
+      }
+    },
+    "UrlAuth": {
+      "description": "URL鉴权。",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "A/B/C类防盗链开关(\"off\"/\"on\")。"
+        },
+        "type": {
+          "type": "string",
+          "description": "鉴权方式\ntype_a:鉴权方式A\ntype_b:鉴权方式B\ntype_c1:鉴权方式C1\ntype_c2:鉴权方式C2"
+        },
+        "key": {
+          "type": "string",
+          "description": "鉴权KEY\n由6-32位大小写字母、数字构成。"
+        },
+        "time_format": {
+          "type": "string",
+          "description": "时间格式\ndec:十进制\nhex:十六进制\n鉴权方式A:只支持十进制\n鉴权方式B:只支持十进制\n鉴权方式C1:只支持十六进制鉴权方式\n鉴权方式C2:支持十进制/十六进制"
+        },
+        "expire_time": {
+          "type": "integer",
+          "format": "int32",
+          "description": "过期时间:范围:0-31536000单位为秒。"
+        }
+      }
+    },
+    "ForceRedirectConfig": {
+      "description": "强制跳转。",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "强制跳转开关(on:打开,off:关闭)。"
+        },
+        "type": {
+          "type": "string",
+          "description": "强制跳转类型(http:强制跳转HTTP,https:强制跳转HTTPS)。"
+        },
+        "redirect_code": {
+          "type": "integer",
+          "description": "重定向跳转码301,302。"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "OriginRequestHeader": {
+      "description": "回源请求头",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "设置回源请求头参数。格式要求:由数字,大小写字母,中划线-组成,只能以字母开头。",
+          "example": "header"
+        },
+        "value": {
+          "type": "string",
+          "description": "设置回源请求头参数的值。当为删除动作时,可不填。格式要求:长度1~512。不支持中文,不支持变量配置,如:$client_ip,$remote_port等。",
+          "example": "value"
+        },
+        "action": {
+          "type": "string",
+          "description": "回源请求头设置类型。delete:删除,set:设置。同一个请求头字段只允许删除或者设置。设置:若原始回源请求中不存在该字段,先执行新增再执行设置。",
+          "example": "set"
+        }
+      },
+      "required": [
+        "name",
+        "action"
+      ]
+    },
+    "SourcesConfig": {
+      "type": "object",
+      "description": "源站配置。",
+      "properties": {
+        "origin_type": {
+          "type": "string",
+          "description": "源站类型,\n- ipaddr:源站IP;\n- domain:源站域名;\n- obs_bucket:OBS桶域名;\n- third_bucket:第三方桶。",
+          "example": "ipaddr"
+        },
+        "origin_addr": {
+          "type": "string",
+          "description": "源站IP或者域名。",
+          "example": "192.168.1.1"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "源站优先级,70:主,30:备。",
+          "example": 70
+        },
+        "weight": {
+          "type": "integer",
+          "description": "权重,取值范围1-100。",
+          "example": 50
+        },
+        "obs_web_hosting_status": {
+          "type": "string",
+          "description": "是否开启OBS静态网站托管,源站类型为obs_bucket时传递,off:关闭,on:开启。"
+        },
+        "http_port": {
+          "type": "integer",
+          "description": "HTTP端口,默认80,端口取值取值范围1-65535。"
+        },
+        "https_port": {
+          "type": "integer",
+          "description": "HTTPS端口,默认443,端口取值取值范围1-65535。"
+        },
+        "host_name": {
+          "type": "string",
+          "description": "回源HOST,默认加速域名。"
+        },
+        "obs_bucket_type": {
+          "type": "string",
+          "description": "OBS桶源站类型:\n- “private” 私有桶;\n- “public” 公有桶,默认为公有桶。"
+        },
+        "bucket_access_key": {
+          "type": "string",
+          "description": "第三方对象存储访问密钥。\n > 源站类型为第三方桶时必填"
+        },
+        "bucket_secret_key": {
+          "type": "string",
+          "description": "第三方对象存储密钥。\n > 源站类型为第三方桶时必填"
+        },
+        "bucket_region": {
+          "type": "string",
+          "description": "第三方对象存储区域。\n > 源站类型为第三方桶时必填"
+        },
+        "bucket_name": {
+          "type": "string",
+          "description": "第三方对象存储名称。\n > 源站类型为第三方桶时必填"
+        }
+      },
+      "required": [
+        "origin_addr",
+        "origin_type",
+        "priority"
+      ]
+    },
+    "ModifyDomainConfigRequestBody": {
+      "properties": {
+        "configs": {
+          "$ref": "#/definitions/Configs"
+        }
+      }
+    },
+    "HttpResponseHeader": {
+      "description": "http响应头设置",
+      "required": [
+        "name",
+        "action"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "设置HTTP响应头参数。取值:\"Content-Disposition\", \"Content-Language\", \"Access-Control-Allow-Origin\",\"Access-Control-Allow-Methods\", \"Access-Control-Max-Age\", \"Access-Control-Expose-Headers\"或自定义头部。格式要求:长度1~100,以字母开头,可以使用字母、数字和短横杠。"
+        },
+        "value": {
+          "type": "string",
+          "description": "设置HTTP响应头参数的值。自定义HTTP响应头参数长度范围1~256,支持字母、数字和特定字符(.-_*#!&+|^~'\"/:;,=@?<>)。"
+        },
+        "action": {
+          "type": "string",
+          "description": "设置http响应头操作类型,取值“set/delete”。set代表设置,delete代表删除。"
+        }
+      }
+    },
+    "HttpPutBody": {
+      "properties": {
+        "https_status": {
+          "type": "string",
+          "description": "HTTPS证书是否启用,on:开启,off:关闭。"
+        },
+        "certificate_name": {
+          "type": "string",
+          "description": "证书名字,长度限制为3-64字符。\n > 当证书开启时必传。"
+        },
+        "certificate_value": {
+          "type": "string",
+          "description": "HTTPS协议使用的证书内容,当证书开启时必传。\n > PEM编码格式。"
+        },
+        "private_key": {
+          "type": "string",
+          "description": "HTTPS协议使用的私钥,当证书开启时必传。\n > PEM编码格式。"
+        },
+        "certificate_source": {
+          "type": "integer",
+          "format": "int32",
+          "description": "证书来源,0:自有证书。\n > 证书开启时必传"
+        },
+        "http2_status": {
+          "type": "string",
+          "description": "是否使用HTTP2.0,on:是,off:否。\n > 默认关闭,https_status=off时,该值不生效。"
+        },
+        "tls_version": {
+          "type": "string",
+          "description": "传输层安全性协议,\n目前支持TLSv1.0/1.1/1.2/1.3四个版本的协议,CDN默认开启TLS1.1/1.2/1.3,不可全部关闭。\n > 1.需开启连续或单个版本号,例:不可仅开启TLS1.0/1.2而关闭TLS1.1。\n > 2.多版本开启时,使用逗号拼接传输,例:TLSv1.1,TLSv1.2。"
+        }
+      },
+      "description": "设置证书请求体"
+    },
+    "CacheRules": {
+      "required": [
+        "match_type",
+        "ttl",
+        "ttl_unit",
+        "priority",
+        "follow_origin",
+        "url_parameter_type"
+      ],
+      "properties": {
+        "match_type": {
+          "type": "string",
+          "description": "类型,all:匹配所有文件, file_extension:按文件后缀匹配, catalog:按目录匹配, full_path:全路径匹配, home_page:按首页匹配。"
+        },
+        "match_value": {
+          "type": "string",
+          "description": "缓存匹配设置, 当match_type为all时,为空。当match_type为file_extension时,为文件后缀,输入首字符为“.”,以“,”进行分隔, 如.jpg,.zip,.exe,并且输入的文 件名后缀总数不超过20个。 当match_type为catalog时,为目录,输入要求以“/”作为首字符, 以“,”进行分隔,如/test/folder01,/test/folder02,并且输入的目录路径总数不超过20个。  当match_type为full_path时,为全路径,输入要求以“/”作为首字符,支持匹配指定目录下的具体文件,或者带通配符“\\*”的文件, 如/test/index.html,/test/\\*.jpg。 当match_type为home_page时,为空。"
+        },
+        "ttl": {
+          "type": "integer",
+          "description": "缓存过期时间,最大支持365天。"
+        },
+        "ttl_unit": {
+          "type": "string",
+          "description": "缓存过期时间单位,s:秒;m:分;h:小时;d:天。"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "此条配置的优先级, 默认值1,数值越大,优先级越高,取值范围为1-100,优先级不能相同。"
+        },
+        "follow_origin": {
+          "type": "string",
+          "description": "缓存遵循源站开关,on:打开,off:关闭。"
+        },
+        "url_parameter_type": {
+          "type": "string",
+          "description": "URL参数, del_params:忽略指定URL参数, reserve_params:保留指定URL参数, ignore_url_params:忽略全部URL参数, full_url:使用完整URL参数。"
+        },
+        "url_parameter_value": {
+          "type": "string",
+          "description": "URL参数值,最多设置10条,以\",\"分隔。"
+        }
+      }
+    },
+    "OriginRequestUrlRewrite": {
+      "description": "改写回源URL,最多配置20条。",
+      "properties": {
+        "priority": {
+          "type": "integer",
+          "format": "int32",
+          "description": "回源URL改写规则的优先级。\n优先级设置具有唯一性,不支持多条回源URL改写规则设置同一优先级,且优先级不能输入为空。\n多条规则下,不同规则中的相同资源内容,CDN按照优先级高的规则执行URL改写。\n取值为1~100之间的整数,数值越大优先级越高。",
+          "example": 1
+        },
+        "match_type": {
+          "type": "string",
+          "description": "匹配类型,\nall:所有文件,\nfile_path:URL路径,\nwildcard:通配符,\nfull_path: 全路径。",
+          "example": "all"
+        },
+        "source_url": {
+          "type": "string",
+          "description": "需要替换的URI。\n以正斜线(/)开头的URI,不含http(s)://头及域名。\n长度不超过512个字符。\n支持通配符\\*匹配,如:/test/\\*/\\*.mp4。\n匹配方式为“所有文件”时,不支持配置参数。"
+        },
+        "target_url": {
+          "type": "string",
+          "description": "以正斜线(/)开头的URI,不含http(s)://头及域名。\n长度不超过256个字符。\n通配符 * 可通过$n捕获(n=1,2,3...,例如:/newtest/$1/$2.jpg)。"
+        }
+      },
+      "required": [
+        "priority",
+        "match_type",
+        "target_url"
+      ]
+    }
+  },
+  "version": "2.0",
+  "parameters": {},
+  "host": "cdn.myhuaweicloud.com",
+  "base_path": "/",
+  "info_version": "v1",
+  "method": "put",
+  "uri": null
+}
